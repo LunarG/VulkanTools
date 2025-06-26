@@ -137,9 +137,14 @@
 
 #endif  // __APPLE__
 
+#if defined(VK_USE_64_BIT_PTR_DEFINES) && VK_USE_64_BIT_PTR_DEFINES == 1
+#define TYPE_ERASE_HANDLE(handle) static_cast<void *>(handle)
+#else
+#define TYPE_ERASE_HANDLE(handle) static_cast<uint64_t>(handle)
+#endif
 // Forward declarations of generated code in api_dump.cpp
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char* pName);
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char* pName);
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char *pName);
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char *pName);
 
 enum class ApiDumpFormat {
     Text,
@@ -1062,17 +1067,7 @@ inline bool checkForGPLPreRasterOrFragmentShader(const VkGraphicsPipelineCreateI
            (VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT | VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT);
 }
 
-// Utility to output an address.
-// If the quotes arg is true, the address is encloded in quotes.
-// Used for text, html, and json output.
-inline void OutputAddress(const ApiDumpSettings &settings, const void *addr) {
-    if (addr == NULL)
-        settings.stream() << "NULL";
-    else if (settings.showAddress())
-        settings.stream() << addr;
-    else
-        settings.stream() << "address";
-}
+//==================================== Templated Helpers ======================================//
 
 inline void flush(const ApiDumpSettings &settings) {
     if (settings.shouldFlush()) {
@@ -1080,31 +1075,459 @@ inline void flush(const ApiDumpSettings &settings) {
     }
 }
 
-//==================================== Text Backend Helpers ======================================//
+template <ApiDumpFormat Format>
+void dump_value_start(const ApiDumpSettings &settings) {
+    if constexpr (Format == ApiDumpFormat::Html) settings.stream() << "<div class=\'val\'>";
+    if constexpr (Format == ApiDumpFormat::Json) settings.stream() << " \"";
+}
+
+template <ApiDumpFormat Format>
+void dump_value_end(const ApiDumpSettings &settings) {
+    if constexpr (Format == ApiDumpFormat::Html) settings.stream() << "</div>";
+    if constexpr (Format == ApiDumpFormat::Json) settings.stream() << '"';
+}
+
+template <ApiDumpFormat Format, typename... T>
+void dump_value(const ApiDumpSettings &settings, T &&...values) {
+    dump_value_start<Format>(settings);
+    (settings.stream() << ... << values);
+    dump_value_end<Format>(settings);
+}
+
+template <ApiDumpFormat Format>
+void dump_string(const ApiDumpSettings &settings, const char *name) {
+    dump_value<Format>(settings, name);
+}
+
+template <ApiDumpFormat Format, typename T>
+void dump_enum_with_value(const ApiDumpSettings &settings, const char *name, T value) {
+    dump_value<Format>(settings, name, " (", value, ")");
+}
+
+template <ApiDumpFormat Format, typename T>
+void dump_enum(const ApiDumpSettings &settings, const char *name, T value) {
+    if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+        dump_value<Format>(settings, name, " (", value, ")");
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        dump_value<Format>(settings, name);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_pNext_struct_name(const void *object, const ApiDumpSettings &settings, const char *type_name, const char *var_name,
+                            int indents);
+
+template <ApiDumpFormat Format>
+void dump_pNext_trampoline(const void *object, const ApiDumpSettings &settings, const char *type_name, const char *var_name,
+                           int indents);
+
+template <ApiDumpFormat Format>
+void dump_pNext(const void *object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_struct_name<Format>(object, settings, type_string, name, indents);
+    } else if constexpr (Format == ApiDumpFormat::Html || Format == ApiDumpFormat::Json) {
+        dump_pNext_trampoline<Format>(object, settings, type_string, name, indents);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_address(const ApiDumpSettings &settings, const void *address) {
+    if (address == NULL) {
+        // TEMPORARY to minimize diff in output while developing.
+        if constexpr (Format == ApiDumpFormat::Json) {
+            dump_value<Format>(settings, "address");
+        } else {
+            dump_value<Format>(settings, "NULL");
+        }
+    } else if (settings.showAddress())
+        dump_value<Format>(settings, address);
+    else
+        dump_value<Format>(settings, "address");
+}
+
+template <ApiDumpFormat Format>
+void dump_separate_members(const ApiDumpSettings &settings) {
+    if constexpr (Format == ApiDumpFormat::Json) {
+        settings.stream() << ",\n";
+    }
+}
+
+//============================== Json formatting helper functions ==============================//
+
+inline void dump_json_key_start_array(const ApiDumpSettings &settings, int indents, const char *key) {
+    settings.stream() << settings.indentation(indents) << "\"" << key << "\" :\n" << settings.indentation(indents) << "[\n";
+}
+inline void dump_json_end_array(const ApiDumpSettings &settings, int indents) {
+    settings.stream() << settings.indentation(indents) << "]";
+}
+inline void dump_json_newline_end_array(const ApiDumpSettings &settings, int indents) {
+    settings.stream() << "\n";
+    dump_json_end_array(settings, indents);
+}
+inline void dump_json_start_object(const ApiDumpSettings &settings, int indents) {
+    settings.stream() << settings.indentation(indents) << "{\n";
+}
+inline void dump_json_end_object(const ApiDumpSettings &settings, int indents) {
+    settings.stream() << "\n" << settings.indentation(indents) << "}";
+}
+inline void dump_json_key(const ApiDumpSettings &settings, int indents, const char *key) {
+    settings.stream() << settings.indentation(indents) << "\"" << key << "\" :";
+}
 
 template <typename... T>
-inline void dump_text_value(const ApiDumpSettings &settings, T &&...values) {
-    (settings.stream() << ... << values);
+void dump_json_key_value(const ApiDumpSettings &settings, int indents, const char *key, T &&...values) {
+    dump_json_key(settings, indents, key);
+    dump_value<ApiDumpFormat::Json>(settings, values...);
 }
 
-inline void dump_text_value_start(const ApiDumpSettings &settings) {}
-inline void dump_text_value_end(const ApiDumpSettings &settings) {}
+inline void dump_json_key_address(const ApiDumpSettings &settings, int indents, const void *address) {
+    dump_json_key(settings, indents, "address");
+    dump_address<ApiDumpFormat::Json>(settings, address);
+}
 
-template <typename T>
-inline void dump_text_handle(const ApiDumpSettings &settings, const T &handle) {
-    if (settings.showAddress())
-        dump_text_value(settings, handle);
-    else
-        dump_text_value(settings, "address");
+//================================ Common Output Functions ================================//
+
+template <ApiDumpFormat Format>
+void dump_start(const ApiDumpSettings &settings, OutputConstruct construct, const char *type_string, const char *name, int indents,
+                const void *address = nullptr) {
+    if constexpr (Format == ApiDumpFormat::Text) {
+        settings.formatNameType(indents, name, type_string);
+        if (construct == OutputConstruct::pointer) {
+            dump_address<Format>(settings, address);
+        } else if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
+            if (settings.showAddress())
+                dump_value<Format>(settings, address);
+            else
+                dump_value<Format>(settings, "address");
+            if (construct == OutputConstruct::api_struct) {
+                settings.stream() << ":\n";
+            } else if (construct == OutputConstruct::api_union) {
+                settings.stream() << " (Union):\n";
+            }
+        }
+
+    } else if constexpr (Format == ApiDumpFormat::Html) {
+        settings.stream() << "<details class='data'><summary>";
+        settings.stream() << "<div class='var'>" << name << "</div>";
+        if (settings.showType()) {
+            settings.stream() << "<div class='type'>" << type_string << "</div>";
+        }
+        if (construct == OutputConstruct::pointer) {
+            dump_address<Format>(settings, address);
+        } else if (construct == OutputConstruct::api_struct) {
+            if (settings.showAddress())
+                dump_value<Format>(settings, address, "\n");
+            else
+                dump_value<Format>(settings, "address\n");
+            settings.stream() << "</summary>";
+        } else if (construct == OutputConstruct::api_union) {
+            if (settings.showAddress())
+                dump_value<Format>(settings, address, " (Union):\n");
+            else
+                dump_value<Format>(settings, "address (Union):\n");
+            settings.stream() << "</summary>";
+        }
+
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        dump_json_start_object(settings, indents);
+        if (construct == OutputConstruct::api_union)
+            dump_json_key_value(settings, indents + 1, "type", type_string, " (Union)");
+        else
+            dump_json_key_value(settings, indents + 1, "type", type_string);
+
+        dump_separate_members<ApiDumpFormat::Json>(settings);
+        dump_json_key_value(settings, indents + 1, "name", name);
+
+        if (construct == OutputConstruct::pointer || address != nullptr) {
+            dump_separate_members<ApiDumpFormat::Json>(settings);
+            dump_json_key_address(settings, indents + 1, address);
+        }
+        if (construct != OutputConstruct::pointer) {
+            dump_separate_members<ApiDumpFormat::Json>(settings);
+            if (construct == OutputConstruct::value) {
+                dump_json_key(settings, indents + 1, "value");
+            } else if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
+                dump_json_key_start_array(settings, indents + 1, "members");
+            }
+        }
+    }
 }
-inline void dump_text_address(const ApiDumpSettings &settings, const void *address) {
-    if (address == NULL)
-        dump_text_value(settings, "NULL");
-    else if (settings.showAddress())
-        dump_text_value(settings, address);
-    else
-        dump_text_value(settings, "address");
+
+template <ApiDumpFormat Format>
+void dump_end(const ApiDumpSettings &settings, OutputConstruct construct, int indents) {
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (construct == OutputConstruct::value || construct == OutputConstruct::pointer) settings.stream() << "\n";
+
+    } else if constexpr (Format == ApiDumpFormat::Html) {
+        if (construct == OutputConstruct::value || construct == OutputConstruct::pointer) {
+            settings.stream() << "</summary></details>";
+        } else {
+            settings.stream() << "</details>";
+        }
+
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
+            dump_json_newline_end_array(settings, indents + 1);
+        }
+        dump_json_end_object(settings, indents);
+    }
 }
+
+template <ApiDumpFormat Format>
+void dump_nullptr(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
+    dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents);
+    dump_end<Format>(settings, OutputConstruct::pointer, indents);
+}
+
+template <ApiDumpFormat Format>
+void dump_char(const char *object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+               const void *address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_string, name, indents, address);
+    if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+        if (object == NULL)
+            dump_value<Format>(settings, "NULL");
+        else
+            dump_value<Format>(settings, '"', object, '"');
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        dump_value<Format>(settings, (object != NULL ? object : ""));
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format>
+void dump_void(const void *object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+               const void *address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents, object);
+    dump_end<Format>(settings, OutputConstruct::pointer, indents);
+}
+
+template <ApiDumpFormat Format>
+void dump_api_version(uint32_t api_version, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+                      const void *address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_string, name, indents, address);
+    dump_value<Format>(settings, api_version, " (", VK_API_VERSION_MAJOR(api_version), ".", VK_API_VERSION_MINOR(api_version), ".",
+                       VK_API_VERSION_PATCH(api_version), ")");
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format>
+void dump_special(const char *const &text, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                  int indents) {
+    dump_start<Format>(settings, OutputConstruct::value, type_string, name, indents, text);
+    dump_value<Format>(settings, text);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format, typename T>
+void dump_handle(T object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+                 const void *address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_string, name, indents, address);
+    if (settings.showAddress()) {
+        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+            std::unordered_map<uint64_t, std::string>::const_iterator it =
+                ApiDumpInstance::current().object_name_map.find((uint64_t)object);
+            if (it != ApiDumpInstance::current().object_name_map.end()) {
+                dump_value<Format>(settings, object, " [", it->second, "]");
+            } else {
+                dump_value<Format>(settings, object);
+            }
+        } else if constexpr (Format == ApiDumpFormat::Json) {
+            dump_value<Format>(settings, object);
+        }
+    } else {
+        dump_value<Format>(settings, "address");
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format, typename T, typename DumpValue>
+void dump_pointer(const T *object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+                  DumpValue dump_value) {
+    if (object == NULL) {
+        dump_nullptr<Format>(settings, type_string, name, indents);
+    } else {
+        dump_value(*object, settings, type_string, name, indents, object);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_array_start(const void *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                      int indents) {
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents, array);
+        settings.stream() << "\n";
+    } else if constexpr (Format == ApiDumpFormat::Html) {
+        dump_start<Format>(settings, OutputConstruct::api_struct, type_string, name, indents, array);
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        dump_json_start_object(settings, indents);
+        dump_json_key_value(settings, indents + 1, "type", type_string);
+        dump_separate_members<Format>(settings);
+        dump_json_key_value(settings, indents + 1, "name", name);
+        dump_separate_members<Format>(settings);
+        dump_json_key_address(settings, indents + 1, array);
+        if (len > 0 && array != NULL) {
+            dump_separate_members<Format>(settings);
+            dump_json_key_start_array(settings, indents + 1, "elements");
+        } else {
+            settings.stream() << "\n";
+        }
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_array_end(const void *array, size_t len, const ApiDumpSettings &settings, int indents) {
+    if constexpr (Format == ApiDumpFormat::Html) {
+        dump_end<ApiDumpFormat::Html>(settings, OutputConstruct::api_struct, indents);
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        if (len > 0 && array != NULL) {
+            dump_json_end_array(settings, indents + 1);
+        }
+        dump_json_end_object(settings, indents);
+    }
+}
+
+template <ApiDumpFormat Format, size_t N, typename T, typename DumpElement>
+void dump_double_array(const T(array)[][N], size_t len1, size_t len2, const ApiDumpSettings &settings, const char *type_string,
+                       const char *name, const char *element_type, int indents, DumpElement dump_element) {
+    if (len1 == 0 || len2 == 0) {
+        return;
+    }
+    dump_array_start<Format>(array, len1 * len2, settings, type_string, name, indents);
+    for (size_t i = 0; i < len1; ++i) {
+        for (size_t j = 0; j < len2; ++j) {
+            std::stringstream stream;
+            if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+                stream << name;
+            }
+            stream << "[" << i << "][" << j << "]";
+            std::string indexName = stream.str();
+            dump_element(array[i][j], settings, element_type, indexName.c_str(), indents + (Format == ApiDumpFormat::Json ? 2 : 1),
+                         nullptr);
+            if constexpr (Format == ApiDumpFormat::Json) {
+                if (i < len1 - 1 && j < len2 - 1) settings.stream() << ',';
+                settings.stream() << "\n";
+            }
+        }
+    }
+    dump_array_end<Format>(array, len1 * len2, settings, indents);
+}
+
+template <ApiDumpFormat Format, size_t N, typename T, typename DumpElement>
+void dump_single_array(const T (&array)[N], size_t len, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                       const char *element_type, int indents, DumpElement dump_element) {
+    if (len == 0) {
+        return;
+    }
+    dump_array_start<Format>(array, len, settings, type_string, name, indents);
+    for (size_t i = 0; i < len; ++i) {
+        std::stringstream stream;
+        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+            stream << name;
+        }
+        stream << "[" << i << "]";
+        std::string indexName = stream.str();
+        dump_element(array[i], settings, element_type, indexName.c_str(), indents + (Format == ApiDumpFormat::Json ? 2 : 1),
+                     nullptr);
+        if constexpr (Format == ApiDumpFormat::Json) {
+            if (i < len - 1) settings.stream() << ',';
+            settings.stream() << "\n";
+        }
+    }
+    dump_array_end<Format>(array, len, settings, indents);
+}
+
+template <ApiDumpFormat Format, typename T, typename DumpElement>
+void dump_pointer_array(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                        const char *element_type, int indents, DumpElement dump_element) {
+    if (array == NULL || len == 0) {
+        dump_nullptr<Format>(settings, type_string, name, indents);
+        return;
+    }
+    dump_array_start<Format>(array, len, settings, type_string, name, indents);
+    for (size_t i = 0; i < len; ++i) {
+        std::stringstream stream;
+        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+            stream << name;
+        }
+        stream << "[" << i << "]";
+        std::string indexName = stream.str();
+        dump_element(array[i], settings, element_type, indexName.c_str(), indents + (Format == ApiDumpFormat::Json ? 2 : 1),
+                     nullptr);
+        if constexpr (Format == ApiDumpFormat::Json) {
+            if (i < len - 1) settings.stream() << ',';
+            settings.stream() << "\n";
+        }
+    }
+    dump_array_end<Format>(array, len, settings, indents);
+}
+
+template <ApiDumpFormat Format>
+void dump_before_pre_dump_formatting(const ApiDumpSettings &settings) {
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump()) {
+            settings.stream() << "<before calling into implementation>\n";
+        }
+    }
+}
+
+template <ApiDumpFormat Format, typename T, typename DumpReturnValue>
+void dump_return_value(const ApiDumpSettings &settings, const char *returnType, T result, DumpReturnValue dump_return_value) {
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump()) {
+            settings.stream() << "return " << returnType;
+        }
+        settings.stream() << " ";
+
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        dump_separate_members<Format>(settings);
+        dump_json_key(settings, 3, "returnValue");
+    }
+    dump_return_value(result, settings, 0);
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump()) {
+            settings.stream() << ":\n";
+        }
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_pre_params_formatting(const ApiDumpSettings &settings) {
+    if constexpr (Format == ApiDumpFormat::Json) {
+        dump_separate_members<Format>(settings);
+        dump_json_key_start_array(settings, 3, "args");
+    }
+}
+template <ApiDumpFormat Format>
+void dump_post_params_formatting(const ApiDumpSettings &settings) {
+    if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+        settings.stream() << "\n";
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        settings.stream() << "\n" << settings.indentation(3) << "]\n";
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_pre_function_formatting(const ApiDumpSettings &settings) {
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump()) {
+            settings.stream() << "<after returning from implementation>\n";
+        } else {
+            settings.stream() << ":\n";
+        }
+    } else if constexpr (Format == ApiDumpFormat::Html) {
+        settings.stream() << "</summary>";
+    }
+}
+template <ApiDumpFormat Format>
+void dump_post_function_formatting(const ApiDumpSettings &settings) {
+    if constexpr (Format == ApiDumpFormat::Html) {
+        settings.stream() << "</details>";
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        settings.stream() << settings.indentation(2) << "}";
+    }
+}
+
+//==================================== Function Head Helpers ======================================//
 
 inline void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
                                     const char *funcReturn) {
@@ -1122,143 +1545,14 @@ inline void dump_text_function_head(ApiDumpInstance &dump_inst, const char *func
         settings.stream() << ":\n";
     }
     settings.stream() << funcName << "(" << funcNamedParams << ") returns " << funcReturn;
-
-    flush(settings);
-}
-
-inline void dump_text_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams) {
-    const ApiDumpSettings &settings(dump_inst.settings());
-    if (settings.showThreadAndFrame()) {
-        settings.stream() << "Thread " << dump_inst.threadID() << ", Frame " << dump_inst.frameCount();
-    }
-    if (settings.showTimestamp() && settings.showThreadAndFrame()) {
-        settings.stream() << ", ";
-    }
-    if (settings.showTimestamp()) {
-        settings.stream() << "Time " << dump_inst.current_time_since_start().count() << " us";
-    }
-    if (settings.showTimestamp() || settings.showThreadAndFrame()) {
+    if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
         settings.stream() << ":\n";
     }
-    settings.stream() << funcName << "(" << funcNamedParams << ")";
-
     flush(settings);
 }
 
-inline void dump_text_return_preamble(ApiDumpInstance &dump_inst, const char *funcReturn) {
-    const ApiDumpSettings &settings(dump_inst.settings());
-
-    settings.stream() << "returns " << funcReturn;
-
-    flush(settings);
-}
-
-inline void dump_text_start(const ApiDumpSettings &settings, OutputConstruct construct, const char *type_string, const char *name,
-                            int indents, const void *address = nullptr) {
-    settings.formatNameType(indents, name, type_string);
-    if (construct == OutputConstruct::api_struct) {
-        dump_text_handle(settings, address);
-        settings.stream() << ":\n";
-    } else if (construct == OutputConstruct::api_union) {
-        dump_text_handle(settings, address);
-        settings.stream() << " (Union):\n";
-    }
-}
-
-inline void dump_text_end(const ApiDumpSettings &settings, OutputConstruct construct, int indents) {
-    if (construct == OutputConstruct::value) settings.stream() << "\n";
-}
-
-inline void dump_text_nullptr(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
-    dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    settings.stream() << "NULL";
-    dump_text_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_text_char(const char *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                           int indents) {
-    dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    if (object == NULL)
-        settings.stream() << "NULL";
-    else
-        settings.stream() << "\"" << object << "\"";
-    dump_text_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_text_void(const void *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                           int indents) {
-    dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_text_address(settings, object);
-    dump_text_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_text_void(const void **object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                           int indents) {
-    dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_text_address(settings, object);
-    dump_text_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_text_array_start(const void *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
-                                  const char *name, int indents) {
-    dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_text_address(settings, array);
-    dump_text_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_text_array_end(const void *array, size_t len, const ApiDumpSettings &settings, int indents) {}
-
-inline void dump_text_api_version(uint32_t api_version, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                                  int indents) {
-    dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_text_value(settings, api_version, " (", VK_API_VERSION_MAJOR(api_version), ".", VK_API_VERSION_MINOR(api_version), ".",
-                    VK_API_VERSION_PATCH(api_version), ")");
-    dump_text_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_text_special(const char *const &text, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                              int indents) {
-    dump_text_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_text_value(settings, text);
-    dump_text_end(settings, OutputConstruct::value, indents);
-}
-
-//==================================== Html Backend Helpers ======================================//
-
-template <typename... T>
-inline void dump_html_value(const ApiDumpSettings &settings, T &&...values) {
-    settings.stream() << "<div class=\'val\'>";
-    (settings.stream() << ... << values) << "</div>";
-}
-
-inline void dump_html_value_start(const ApiDumpSettings &settings) { settings.stream() << "<div class=\'val\'>"; }
-inline void dump_html_value_end(const ApiDumpSettings &settings) { settings.stream() << "</div>"; }
-
-template <typename T>
-inline void dump_html_handle(const ApiDumpSettings &settings, const T &handle) {
-    if (settings.showAddress())
-        dump_html_value(settings, handle);
-    else
-        dump_html_value(settings, "address");
-}
-inline void dump_html_address(const ApiDumpSettings &settings, const void *address) {
-    if (settings.showAddress())
-        if (address == NULL)
-            dump_html_value(settings, "NULL");
-        else
-            dump_html_value(settings, address);
-    else
-        dump_html_value(settings, "address");
-}
-
-inline void dump_html_nametype(std::ostream &stream, bool showType, const char *name, const char *type) {
-    stream << "<div class='var'>" << name << "</div>";
-    if (showType) {
-        stream << "<div class='type'>" << type << "</div>";
-    }
-}
-
-inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams) {
+inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
+                                    const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
     if (settings.showThreadAndFrame()) {
         settings.stream() << "<div class='thd'>Thread: " << dump_inst.threadID() << "</div>";
@@ -1267,352 +1561,50 @@ inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *func
         settings.stream() << "<div class='time'>Time: " << dump_inst.current_time_since_start().count() << " us</div>";
     settings.stream() << "<details class='fn'><summary>";
     settings.stream() << "<div class='var'>" << funcName << "(" << funcNamedParams << ")</div>";
-    flush(settings);
-}
-
-inline void dump_html_return_preamble(ApiDumpInstance &dump_inst, const char *funcReturn) {
-    const ApiDumpSettings &settings(dump_inst.settings());
     if (settings.showType()) {
         settings.stream() << "<div class='type'>" << funcReturn << "</div>";
     }
     flush(settings);
 }
 
-inline void dump_html_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams,
-                                    const char *funcReturn) {
-    dump_html_function_head(dump_inst, funcName, funcNamedParams);
-    dump_html_return_preamble(dump_inst, funcReturn);
-}
-
-inline void dump_html_start(const ApiDumpSettings &settings, OutputConstruct construct, const char *type_string, const char *name,
-                            int indents, const void *address = nullptr) {
-    settings.stream() << "<details class='data'><summary>";
-    dump_html_nametype(settings.stream(), settings.showType(), name, type_string);
-
-    if (construct == OutputConstruct::api_struct) {
-        settings.stream() << "<div class='val'>";
-        if (settings.showAddress())
-            settings.stream() << address << "\n";
-        else
-            settings.stream() << "address\n";
-        settings.stream() << "</div></summary>";
-    }
-    else if (construct == OutputConstruct::api_union) {
-        settings.stream() << "<div class='val'>";
-        if (settings.showAddress())
-            settings.stream() << address << "(Union):\n";
-        else
-            settings.stream() << "address (Union):\n";
-        settings.stream() << "</div></summary>";
-    }
-}
-
-inline void dump_html_end(const ApiDumpSettings &settings, OutputConstruct construct, int indents) {
-    if (construct == OutputConstruct::value) {
-        settings.stream() << "</summary></details>";
-    } else {
-        settings.stream() << "</details>";
-    }
-}
-
-inline void dump_html_char(const char *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                           int indents) {
-    dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    if (object == NULL)
-        dump_html_value(settings, "NULL");
-    else
-        dump_html_value(settings, '"', object, '"');
-    dump_html_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_html_void(const void *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                           int indents) {
-    dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_html_address(settings, object);
-    dump_html_end(settings, OutputConstruct::value, indents);
-}
-inline void dump_html_void(const void **object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                           int indents) {
-    dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_html_address(settings, object);
-    dump_html_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_html_nullptr(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
-    dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_html_value(settings, "NULL");
-    dump_html_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_html_array_start(const void *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
-                                  const char *name, int indents) {
-    if (array == NULL) {
-        dump_html_nullptr(settings, type_string, name, indents);
-        return;
-    }
-    dump_html_start(settings, OutputConstruct::api_struct, type_string, name, indents, array);
-}
-
-inline void dump_html_array_end(const void *array, size_t len, const ApiDumpSettings &settings, int indents) {
-    dump_html_end(settings, OutputConstruct::api_struct, indents);
-}
-
-inline void dump_html_api_version(uint32_t api_version, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                                  int indents) {
-    dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_html_value(settings, api_version, " (", VK_API_VERSION_MAJOR(api_version), ".", VK_API_VERSION_MINOR(api_version), ".",
-                    VK_API_VERSION_PATCH(api_version), ")");
-    dump_html_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_html_special(const char *const &text, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                              int indents) {
-    dump_html_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_html_value(settings, text);
-    dump_html_end(settings, OutputConstruct::value, indents);
-}
-
-//==================================== Json Backend Helpers ======================================//
-
-inline void dump_json_comma_and_newline(const ApiDumpSettings &settings) { settings.stream() << ",\n"; }
-
-inline void dump_json_key_start_array(const ApiDumpSettings &settings, int indents, const char *key) {
-    settings.stream() << settings.indentation(indents) << "\"" << key << "\" :\n" << settings.indentation(indents) << "[\n";
-}
-inline void dump_json_start_array(const ApiDumpSettings &settings, int indents) {
-    settings.stream() << settings.indentation(indents) << "[\n";
-}
-inline void dump_json_end_array(const ApiDumpSettings &settings, int indents) {
-    settings.stream() << settings.indentation(indents) << "]";
-}
-inline void dump_json_newline_end_array(const ApiDumpSettings &settings, int indents) {
-    settings.stream() << "\n" << settings.indentation(indents) << "]";
-}
-inline void dump_json_key_start_object(const ApiDumpSettings &settings, int indents, const char *key) {
-    settings.stream() << settings.indentation(indents) << "\"" << key << "\" : {\n";
-}
-inline void dump_json_start_object(const ApiDumpSettings &settings, int indents) {
-    settings.stream() << settings.indentation(indents) << "{\n";
-}
-inline void dump_json_newline_end_object(const ApiDumpSettings &settings, int indents) {
-    settings.stream() << "\n" << settings.indentation(indents) << "}";
-}
-inline void dump_json_key(const ApiDumpSettings &settings, int indents, const char *key) {
-    settings.stream() << settings.indentation(indents) << "\"" << key << "\" :";
-}
-template <typename... T>
-inline void dump_json_value(const ApiDumpSettings &settings, T &&...values) {
-    settings.stream() << " \"";
-    (settings.stream() << ... << values) << "\"";
-}
-
-inline void dump_json_value_start(const ApiDumpSettings &settings) { settings.stream() << " \""; }
-inline void dump_json_value_end(const ApiDumpSettings &settings) { settings.stream() << "\""; }
-
-template <typename... T>
-inline void dump_json_key_value(const ApiDumpSettings &settings, int indents, const char *key, T &&...values) {
-    dump_json_key(settings, indents, key);
-    dump_json_value(settings, values...);
-}
-template <typename T>
-inline void dump_json_handle(const ApiDumpSettings &settings, const T &handle) {
-    if (settings.showAddress())
-        dump_json_value(settings, handle);
-    else
-        dump_json_value(settings, "address");
-}
-inline void dump_json_address(const ApiDumpSettings &settings, const void *address) {
-    if (settings.showAddress()) {
-        if (address == NULL)
-            dump_json_value(settings, address);
-        else
-            dump_json_value(settings, "NULL");
-    } else
-        dump_json_value(settings, "address");
-}
-inline void dump_json_key_address(const ApiDumpSettings &settings, int indents, const void *address) {
-    dump_json_key(settings, indents, "address");
-    dump_json_address(settings, address);
-}
-
 inline void dump_json_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcReturn) {
     const ApiDumpSettings &settings(dump_inst.settings());
 
     if (!dump_inst.firstFunctionCallOnFrame()) {
-        dump_json_comma_and_newline(settings);
+        dump_separate_members<ApiDumpFormat::Json>(settings);
     }
     // Display api call name
     dump_json_start_object(settings, 2);
     dump_json_key_value(settings, 3, "name", funcName);
-    dump_json_comma_and_newline(settings);
 
     // Display thread info
     if (settings.showThreadAndFrame()) {
+        dump_separate_members<ApiDumpFormat::Json>(settings);
         dump_json_key_value(settings, 3, "thread", "Thread ", dump_inst.threadID());
-        dump_json_comma_and_newline(settings);
     }
 
     // Display elapsed time
     if (settings.showTimestamp()) {
+        dump_separate_members<ApiDumpFormat::Json>(settings);
         dump_json_key_value(settings, 3, "time", dump_inst.current_time_since_start().count(), " us");
-        dump_json_comma_and_newline(settings);
     }
 
-    // Display return value
+    // Display return type
+    dump_separate_members<ApiDumpFormat::Json>(settings);
     dump_json_key_value(settings, 3, "returnType", funcReturn);
-    // Add a trailing comma if the return type isn't void or detailed mode is false - JSON doesn't allow trailing commas in object
-    if (strcmp("void", funcReturn) != 0 || settings.showParams()) {
-        settings.stream() << ",";
-    }
-    settings.stream() << "\n";
-
     flush(settings);
-}
-
-inline void dump_json_function_head(ApiDumpInstance &dump_inst, const char *funcName) {
-    const ApiDumpSettings &settings(dump_inst.settings());
-
-    if (!dump_inst.firstFunctionCallOnFrame()) {
-        dump_json_comma_and_newline(settings);
-    }
-
-    // Display api call name
-    dump_json_start_object(settings, 2);
-    dump_json_key_value(settings, 3, "name", funcName);
-    dump_json_comma_and_newline(settings);
-
-    // Display thread info
-    if (settings.showThreadAndFrame()) {
-        dump_json_key_value(settings, 3, "thread", "Thread ", dump_inst.threadID());
-        dump_json_comma_and_newline(settings);
-    }
-
-    // Display elapsed time
-    if (settings.showTimestamp()) {
-        dump_json_key_value(settings, 3, "time", dump_inst.current_time_since_start().count(), " us");
-        dump_json_comma_and_newline(settings);
-    }
-
-    flush(settings);
-}
-
-inline void dump_json_return_preamble(ApiDumpInstance &dump_inst, const char *funcReturn) {
-    const ApiDumpSettings &settings(dump_inst.settings());
-    dump_json_key_value(settings, 3, "returnType", funcReturn);
-    // Add a trailing comma if the return type isn't void or detailed mode is false - JSON doesn't allow trailing commas in object
-    if (strcmp("void", funcReturn) != 0 || settings.showParams()) {
-        settings.stream() << ",";
-    }
-    settings.stream() << "\n";
-
-    flush(settings);
-}
-
-inline void dump_json_start(const ApiDumpSettings &settings, OutputConstruct construct, const char *type_string, const char *name,
-                            int indents, const void *address = nullptr) {
-    dump_json_start_object(settings, indents);
-    if (construct == OutputConstruct::api_union)
-        dump_json_key_value(settings, indents + 1, "type", type_string, " (Union)");
-    else
-        dump_json_key_value(settings, indents + 1, "type", type_string);
-
-    dump_json_comma_and_newline(settings);
-    dump_json_key_value(settings, indents + 1, "name", name);
-
-    if (construct == OutputConstruct::pointer || address != nullptr) {
-        dump_json_comma_and_newline(settings);
-        dump_json_key_address(settings, indents + 1, address);
-    }
-    if (construct != OutputConstruct::pointer) {
-        dump_json_comma_and_newline(settings);
-        if (construct == OutputConstruct::value) {
-            dump_json_key(settings, indents + 1, "value");
-        } else if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
-            dump_json_key(settings, indents + 1, "members");
-            settings.stream() << "\n";
-            dump_json_start_array(settings, indents + 1);
-        }
-    }
-}
-
-inline void dump_json_end(const ApiDumpSettings &settings, OutputConstruct construct, int indents) {
-    if (construct == OutputConstruct::api_struct || construct == OutputConstruct::api_union) {
-        dump_json_newline_end_array(settings, indents + 1);
-    }
-    dump_json_newline_end_object(settings, indents);
-}
-
-inline void dump_json_nullptr(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
-    dump_json_start(settings, OutputConstruct::pointer, type_string, name, indents);
-    dump_json_newline_end_object(settings, indents);
-}
-
-inline void dump_json_char(const char *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                           int indents) {
-    dump_json_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_json_value(settings, (object != NULL ? object : ""));
-    dump_json_end(settings, OutputConstruct::value, indents);
-}
-
-inline void dump_json_void(const void *object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                           int indents) {
-    dump_json_start(settings, OutputConstruct::pointer, type_string, name, indents, object);
-    dump_json_newline_end_object(settings, indents);
-}
-inline void dump_json_void(const void **object, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                           int indents) {
-    dump_json_start(settings, OutputConstruct::pointer, type_string, name, indents, object);
-    dump_json_newline_end_object(settings, indents);
-}
-
-inline void dump_json_array_start(const void *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
-                                  const char *name, int indents) {
-    dump_json_start_object(settings, indents);
-    dump_json_key_value(settings, indents + 1, "type", type_string);
-    dump_json_comma_and_newline(settings);
-    dump_json_key_value(settings, indents + 1, "name", name);
-    dump_json_comma_and_newline(settings);
-    dump_json_key_address(settings, indents + 1, array);
-    if (len > 0 && array != NULL) {
-        dump_json_comma_and_newline(settings);
-        dump_json_key_start_array(settings, indents + 1, "elements");
-    } else {
-        settings.stream() << "\n";
-    }
-}
-
-inline void dump_json_array_end(const void *array, size_t len, const ApiDumpSettings &settings, int indents) {
-    if (len > 0 && array != NULL) {
-        dump_json_end_array(settings, indents + 1);
-    }
-    dump_json_newline_end_object(settings, indents);
-}
-
-inline void dump_json_api_version(uint32_t api_version, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                                  int indents) {
-    dump_json_start(settings, OutputConstruct::value, type_string, name, indents);
-    dump_json_value(settings, api_version, " (", VK_API_VERSION_MAJOR(api_version), ".", VK_API_VERSION_MINOR(api_version), ".",
-                    VK_API_VERSION_PATCH(api_version), ")");
-    dump_json_newline_end_object(settings, indents);
-}
-
-inline void dump_json_special(const char *const &text, const ApiDumpSettings &settings, const char *type_string, const char *name,
-                              int indents) {
-    dump_json_start(settings, OutputConstruct::value, type_string, name, indents, text);
-    dump_json_value(settings, text);
-    dump_json_newline_end_object(settings, indents);
 }
 
 inline void dump_json_UNUSED(const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
     dump_json_start_object(settings, indents);
     dump_json_key_value(settings, indents + 1, "type", type_string);
-    dump_json_comma_and_newline(settings);
+    dump_separate_members<ApiDumpFormat::Json>(settings);
     dump_json_key_value(settings, indents + 1, "name", name);
-    dump_json_comma_and_newline(settings);
+    dump_separate_members<ApiDumpFormat::Json>(settings);
     dump_json_key_value(settings, indents + 1, "address", "UNUSED");
-    dump_json_comma_and_newline(settings);
+    dump_separate_members<ApiDumpFormat::Json>(settings);
     dump_json_key_value(settings, indents + 1, "value", "UNUSED");
-    dump_json_newline_end_object(settings, indents);
+    dump_json_end_object(settings, indents);
 }
 
 //==================================== Common Helpers ======================================//
@@ -1629,38 +1621,6 @@ inline void dump_function_head(ApiDumpInstance &dump_inst, const char *funcName,
                 break;
             case ApiDumpFormat::Json:
                 dump_json_function_head(dump_inst, funcName, funcReturn);
-                break;
-        }
-    }
-}
-
-inline void dump_function_head(ApiDumpInstance &dump_inst, const char *funcName, const char *funcNamedParams) {
-    if (dump_inst.shouldDumpOutput()) {
-        switch (dump_inst.settings().format()) {
-            case ApiDumpFormat::Text:
-                dump_text_function_head(dump_inst, funcName, funcNamedParams);
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_function_head(dump_inst, funcName, funcNamedParams);
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_function_head(dump_inst, funcName);
-                break;
-        }
-    }
-}
-
-inline void dump_return_preamble(ApiDumpInstance &dump_inst, const char *funcReturn) {
-    if (dump_inst.shouldDumpOutput()) {
-        switch (dump_inst.settings().format()) {
-            case ApiDumpFormat::Text:
-                dump_text_return_preamble(dump_inst, funcReturn);
-                break;
-            case ApiDumpFormat::Html:
-                dump_html_return_preamble(dump_inst, funcReturn);
-                break;
-            case ApiDumpFormat::Json:
-                dump_json_return_preamble(dump_inst, funcReturn);
                 break;
         }
     }
