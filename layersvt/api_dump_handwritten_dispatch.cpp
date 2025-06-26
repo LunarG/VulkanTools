@@ -25,24 +25,17 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
-#include "api_dump.h"
+#include "generated/api_dump_implementation.h"
 
-#include "generated/api_dump_text.h"
-#include "generated/api_dump_html.h"
-#include "generated/api_dump_json.h"
-
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance)
-{
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator,
+                                                VkInstance* pInstance) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     ApiDumpInstance::current().initLayerSettings(pCreateInfo, pAllocator);
-    if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
-        dump_function_head(ApiDumpInstance::current(), "vkCreateInstance", "pCreateInfo, pAllocator, pInstance");
-        if (ApiDumpInstance::current().shouldDumpOutput()) {
-            dump_text_params_vkCreateInstance(ApiDumpInstance::current(), pCreateInfo, pAllocator, pInstance);
-        }
-        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-    } else {
-        dump_function_head(ApiDumpInstance::current(), "vkCreateInstance", "pCreateInfo, pAllocator, pInstance", "VkResult");
+    dump_function_head(ApiDumpInstance::current(), "vkCreateInstance", "pCreateInfo, pAllocator, pInstance", "VkResult");
+    if (ApiDumpInstance::current().settings().shouldPreDump() &&
+        ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text && ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_before_pre_dump_formatting<ApiDumpFormat::Text>(ApiDumpInstance::current().settings());
+        dump_params_vkCreateInstance<ApiDumpFormat::Text>(ApiDumpInstance::current(), pCreateInfo, pAllocator, pInstance);
     }
 
     // Get the function pointer
@@ -50,47 +43,45 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(const VkInstanceCreateInfo* pCre
     assert(chain_info->u.pLayerInfo != 0);
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     assert(fpGetInstanceProcAddr != 0);
-    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance) fpGetInstanceProcAddr(NULL, "vkCreateInstance");
-    if(fpCreateInstance == NULL) {
+    PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance)fpGetInstanceProcAddr(NULL, "vkCreateInstance");
+    if (fpCreateInstance == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
     // Call the function and create the dispatch table
     chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
     VkResult result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
-    if(result == VK_SUCCESS) {
+    if (result == VK_SUCCESS) {
         initInstanceTable(*pInstance, fpGetInstanceProcAddr);
     }
 
     // Output the API dump
     if (ApiDumpInstance::current().shouldDumpOutput()) {
-        switch(ApiDumpInstance::current().settings().format())
-        {
+        switch (ApiDumpInstance::current().settings().format()) {
             case ApiDumpFormat::Text:
-                dump_text_vkCreateInstance(ApiDumpInstance::current(), result, pCreateInfo, pAllocator, pInstance);
+                dump_vkCreateInstance<ApiDumpFormat::Text>(ApiDumpInstance::current(), result, pCreateInfo, pAllocator, pInstance);
                 break;
             case ApiDumpFormat::Html:
-                dump_html_vkCreateInstance(ApiDumpInstance::current(), result, pCreateInfo, pAllocator, pInstance);
+                dump_vkCreateInstance<ApiDumpFormat::Html>(ApiDumpInstance::current(), result, pCreateInfo, pAllocator, pInstance);
                 break;
             case ApiDumpFormat::Json:
-                dump_json_vkCreateInstance(ApiDumpInstance::current(), result, pCreateInfo, pAllocator, pInstance);
+                dump_vkCreateInstance<ApiDumpFormat::Json>(ApiDumpInstance::current(), result, pCreateInfo, pAllocator, pInstance);
                 break;
         }
     }
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice)
-{
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo,
+                                              const VkAllocationCallbacks* pAllocator, VkDevice* pDevice) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-    if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {
-        dump_function_head(ApiDumpInstance::current(), "vkCreateDevice", "physicalDevice, pCreateInfo, pAllocator, pDevice");
-        if (ApiDumpInstance::current().shouldDumpOutput()) {
-            dump_text_params_vkCreateDevice(ApiDumpInstance::current(), physicalDevice, pCreateInfo, pAllocator, pDevice);
-        }
-        dump_return_preamble(ApiDumpInstance::current(), "VkResult");
-    } else {
-        dump_function_head(ApiDumpInstance::current(), "vkCreateDevice", "physicalDevice, pCreateInfo, pAllocator, pDevice", "VkResult");
+    dump_function_head(ApiDumpInstance::current(), "vkCreateDevice", "physicalDevice, pCreateInfo, pAllocator, pDevice",
+                       "VkResult");
+    if (ApiDumpInstance::current().settings().shouldPreDump() &&
+        ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text && ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_before_pre_dump_formatting<ApiDumpFormat::Text>(ApiDumpInstance::current().settings());
+        dump_params_vkCreateDevice<ApiDumpFormat::Text>(ApiDumpInstance::current(), physicalDevice, pCreateInfo, pAllocator,
+                                                        pDevice);
     }
 
     // Get the function pointer
@@ -99,72 +90,70 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, c
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
     VkInstance vk_instance = ApiDumpInstance::current().get_vk_instance(physicalDevice);
-    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice) fpGetInstanceProcAddr(vk_instance, "vkCreateDevice");
-    if(fpCreateDevice == NULL) {
+    PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(vk_instance, "vkCreateDevice");
+    if (fpCreateDevice == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
     // Call the function and create the dispatch table
     chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
     VkResult result = fpCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
-    if(result == VK_SUCCESS) {
+    if (result == VK_SUCCESS) {
         initDeviceTable(*pDevice, fpGetDeviceProcAddr);
     }
 
     // Output the API dump
     if (ApiDumpInstance::current().shouldDumpOutput()) {
-        switch(ApiDumpInstance::current().settings().format())
-        {
+        switch (ApiDumpInstance::current().settings().format()) {
             case ApiDumpFormat::Text:
-                dump_text_vkCreateDevice(ApiDumpInstance::current(), result, physicalDevice, pCreateInfo, pAllocator, pDevice);
+                dump_vkCreateDevice<ApiDumpFormat::Text>(ApiDumpInstance::current(), result, physicalDevice, pCreateInfo,
+                                                         pAllocator, pDevice);
                 break;
             case ApiDumpFormat::Html:
-                dump_html_vkCreateDevice(ApiDumpInstance::current(), result, physicalDevice, pCreateInfo, pAllocator, pDevice);
+                dump_vkCreateDevice<ApiDumpFormat::Html>(ApiDumpInstance::current(), result, physicalDevice, pCreateInfo,
+                                                         pAllocator, pDevice);
                 break;
             case ApiDumpFormat::Json:
-                dump_json_vkCreateDevice(ApiDumpInstance::current(), result, physicalDevice, pCreateInfo, pAllocator, pDevice);
+                dump_vkCreateDevice<ApiDumpFormat::Json>(ApiDumpInstance::current(), result, physicalDevice, pCreateInfo,
+                                                         pAllocator, pDevice);
                 break;
         }
     }
     return result;
 }
 
-EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
-{
+EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char* pLayerName,
+                                                                                      uint32_t* pPropertyCount,
+                                                                                      VkExtensionProperties* pProperties) {
     return util_GetExtensionProperties(0, NULL, pPropertyCount, pProperties);
 }
 
-EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties)
-{
-    static const VkLayerProperties layerProperties[] = {
-        {
-            "VK_LAYER_LUNARG_api_dump",
-            VK_MAKE_VERSION(1, 4, VK_HEADER_VERSION), // specVersion
-            VK_MAKE_VERSION(0, 2, 0), // implementationVersion
-            "layer: api_dump",
-        }
-    };
+EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount,
+                                                                                  VkLayerProperties* pProperties) {
+    static const VkLayerProperties layerProperties[] = {{
+        "VK_LAYER_LUNARG_api_dump",
+        VK_MAKE_VERSION(1, 4, VK_HEADER_VERSION),  // specVersion
+        VK_MAKE_VERSION(0, 2, 0),                  // implementationVersion
+        "layer: api_dump",
+    }};
 
     return util_GetLayerProperties(ARRAY_SIZE(layerProperties), layerProperties, pPropertyCount, pProperties);
 }
 
-EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties)
-{
-    static const VkLayerProperties layerProperties[] = {
-        {
-            "VK_LAYER_LUNARG_api_dump",
-            VK_MAKE_VERSION(1, 4, VK_HEADER_VERSION),
-            VK_MAKE_VERSION(0, 2, 0),
-            "layer: api_dump",
-        }
-    };
+EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice,
+                                                                                uint32_t* pPropertyCount,
+                                                                                VkLayerProperties* pProperties) {
+    static const VkLayerProperties layerProperties[] = {{
+        "VK_LAYER_LUNARG_api_dump",
+        VK_MAKE_VERSION(1, 4, VK_HEADER_VERSION),
+        VK_MAKE_VERSION(0, 2, 0),
+        "layer: api_dump",
+    }};
 
     return util_GetLayerProperties(ARRAY_SIZE(layerProperties), layerProperties, pPropertyCount, pProperties);
 }
 
-
-EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
-{
+EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName) {
     auto instance_func = api_dump_known_instance_functions(instance, pName);
     if (instance_func) return instance_func;
 
@@ -173,18 +162,15 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     if (device_func) return device_func;
 
     // Haven't created an instance yet, exit now since there is no instance_dispatch_table
-    if(instance_dispatch_table(instance)->GetInstanceProcAddr == NULL)
-        return nullptr;
+    if (instance_dispatch_table(instance)->GetInstanceProcAddr == NULL) return nullptr;
     return instance_dispatch_table(instance)->GetInstanceProcAddr(instance, pName);
 }
 
-EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
-{
+EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName) {
     auto device_func = api_dump_known_device_functions(device, pName);
     if (device_func) return device_func;
 
     // Haven't created a device yet, exit now since there is no device_dispatch_table
-    if(device_dispatch_table(device)->GetDeviceProcAddr == NULL)
-        return nullptr;
+    if (device_dispatch_table(device)->GetDeviceProcAddr == NULL) return nullptr;
     return device_dispatch_table(device)->GetDeviceProcAddr(device, pName);
 }

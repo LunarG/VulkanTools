@@ -313,26 +313,13 @@ class ApiDumpGenerator(BaseGenerator):
         self.get_return_types()
         self.build_alias_map()
         self.generate_copyright()
-        if self.filename == 'api_dump.cpp':
+        if self.filename == 'api_dump_dispatch.cpp':
             self.generate_dispatch_codegen()
-        elif self.filename == 'api_dump_text.h':
-            self.generate_header(output_format='text')
-        elif self.filename == 'api_dump_text.cpp':
-            self.generate_implementation('text', video=False)
-        elif self.filename == 'api_dump_html.h':
-            self.generate_header(output_format='html')
-        elif self.filename == 'api_dump_html.cpp':
-            self.generate_implementation('html', video=False)
-        elif self.filename == 'api_dump_json.h':
-            self.generate_header(output_format='json')
-        elif self.filename == 'api_dump_json.cpp':
-            self.generate_implementation('json', video=False)
-        elif self.filename == 'api_dump_video_text.h':
-            self.generate_implementation('text', video=True)
-        elif self.filename == 'api_dump_video_html.h':
-            self.generate_implementation('html', video=True)
-        elif self.filename == 'api_dump_video_json.h':
-            self.generate_implementation('json', video=True)
+        elif self.filename == 'api_dump_implementation.h':
+            self.generate_implementation()
+        elif self.filename == 'api_dump_video_implementation.h':
+            self.generate_implementation(video=True)
+
 
     def generate_copyright(self):
         self.write('''
@@ -361,9 +348,7 @@ class ApiDumpGenerator(BaseGenerator):
 
     def generate_dispatch_codegen(self):
 
-        self.write('''#include "api_dump_text.h"
-            #include "api_dump_html.h"
-            #include "api_dump_json.h"
+        self.write('''#include "api_dump_implementation.h"
 
             // Autogen instance functions
             ''')
@@ -378,14 +363,10 @@ class ApiDumpGenerator(BaseGenerator):
             if command.name not in BLOCKING_API_CALLS:
                 self.write(f'''
                     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-                    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {{
-                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}");
-                        if (ApiDumpInstance::current().shouldDumpOutput()) {{
-                            dump_text_params_{command.name}(ApiDumpInstance::current(), {command_param_usage_text(command)});
-                        }}
-                        dump_return_preamble(ApiDumpInstance::current(), "{command.returnType}");
-                    }} else {{
-                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
+                    dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
+                    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text && ApiDumpInstance::current().shouldDumpOutput()) {{
+                        dump_before_pre_dump_formatting<ApiDumpFormat::Text>(ApiDumpInstance::current().settings());
+                        dump_params_{command.name}<ApiDumpFormat::Text>(ApiDumpInstance::current(), {command_param_usage_text(command)});
                     }}''')
 
             if command.name == 'vkGetPhysicalDeviceToolPropertiesEXT':
@@ -438,13 +419,13 @@ class ApiDumpGenerator(BaseGenerator):
                 switch(ApiDumpInstance::current().settings().format())
                 {{
                     case ApiDumpFormat::Text:
-                        dump_text_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
+                        dump_{command.name}<ApiDumpFormat::Text>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
                         break;
                     case ApiDumpFormat::Html:
-                        dump_html_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
+                        dump_{command.name}<ApiDumpFormat::Html>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
                         break;
                     case ApiDumpFormat::Json:
-                        dump_json_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
+                        dump_{command.name}<ApiDumpFormat::Json>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
                         break;
                 }}
             }}''')
@@ -469,14 +450,10 @@ class ApiDumpGenerator(BaseGenerator):
                 if command.name in ['vkDebugMarkerSetObjectNameEXT', 'vkSetDebugUtilsObjectNameEXT']:
                     self.write('ApiDumpInstance::current().update_object_name_map(pNameInfo);')
                 self.write(f'''
-                    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text) {{
-                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}");
-                        if (ApiDumpInstance::current().shouldDumpOutput()) {{
-                            dump_text_params_{command.name}(ApiDumpInstance::current(), {command_param_usage_text(command)});
-                        }}
-                        dump_return_preamble(ApiDumpInstance::current(), "{command.returnType}");\n
-                    }} else {{
-                        dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
+                    dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
+                    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text && ApiDumpInstance::current().shouldDumpOutput()) {{
+                        dump_before_pre_dump_formatting<ApiDumpFormat::Text>(ApiDumpInstance::current().settings());
+                        dump_params_{command.name}<ApiDumpFormat::Text>(ApiDumpInstance::current(), {command_param_usage_text(command)});
                     }}''')
 
             return_str = f'{command.returnType} result = ' if command.returnType != 'void' else ''
@@ -495,13 +472,13 @@ class ApiDumpGenerator(BaseGenerator):
                 switch(ApiDumpInstance::current().settings().format())
                 {{
                     case ApiDumpFormat::Text:
-                        dump_text_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
+                        dump_{command.name}<ApiDumpFormat::Text>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
                         break;
                     case ApiDumpFormat::Html:
-                        dump_html_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
+                        dump_{command.name}<ApiDumpFormat::Html>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
                         break;
                     case ApiDumpFormat::Json:
-                        dump_json_{command.name}(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
+                        dump_{command.name}<ApiDumpFormat::Json>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
                         break;
                 }}
             }}''')
@@ -536,58 +513,31 @@ class ApiDumpGenerator(BaseGenerator):
         self.write('\n    return nullptr;')
         self.write('}')
 
-    def generate_header(self, output_format):
-        protect = PlatformGuardHelper()
+    def generate_implementation(self, video=False):
         self.write('#pragma once\n')
 
-        self.write('#include "api_dump.h"')
+        self.write('\n#include "api_dump.h"')
 
-        self.write('\n//========================= Function Helpers ================================//\n')
-        for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            protect.add_guard(self, command.protect)
-
-            self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {command_param_declaration_text(command)});')
-        protect.add_guard(self, None)
-
-        self.write('\n//========================= Function Implementations ========================//\n')
-        for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            protect.add_guard(self, command.protect)
-            if command.returnType != 'void':
-                self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {command.returnType} result, {command_param_declaration_text(command)});')
-            else:
-                self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {command_param_declaration_text(command)});')
-        protect.add_guard(self, None)
-        self.write('\n')
-
-    def generate_implementation(self, output_format, video=False):
-        if video:
-            self.write('#pragma once\n')
-
-        self.write(f'#include "api_dump_{output_format}.h"')
         if not video:
-            self.write(f'\n#include "api_dump_video_{output_format}.h"')
+            self.write('\n#include "api_dump_video_implementation.h"')
 
         self.write('\n//=========================== Type Implementations ==========================//\n')
 
         for t in [x for x in self.vk.platformTypes.values() if x.requires in ['vk_platform', 'stdint']]:
             if t.name in self.return_types:
-                self.write(f'void dump_{output_format}_return_value_{t.name}(const {t.name}& object, const ApiDumpSettings& settings, int indents) {{')
-                self.write_platform_type_contents(output_format, t)
+                self.write('template <ApiDumpFormat Format>')
+                self.write(f'void dump_return_value_{t.name}(const {t.name}& object, const ApiDumpSettings& settings, int indents) {{')
+                self.write_platform_type_contents(t)
                 self.write('}')
             if t.name in ['void', 'char'] or (not video and t.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
                 continue
-            self.write(f'void dump_{output_format}_{t.name}(const {t.name} &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'void dump_{t.name}(const {t.name} &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-            if t.name in self.return_types:
-                self.write(f'dump_{output_format}_return_value_{t.name}(object, settings, indents);')
-            else:
-                self.write_platform_type_contents(output_format, t)
-            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+            self.write('dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+            self.write_platform_type_contents(t)
+            self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
             self.write('}')
-            if '*' not in t.name:
-                self.write_pointer_overload(output_format, t.name)
-
 
         self.write('\n//========================= Basetype Implementations ========================//\n')
 
@@ -595,158 +545,130 @@ class ApiDumpGenerator(BaseGenerator):
         for basetype in self.vk.baseTypes.values():
             protect.add_guard(self, basetype.protect)
             if basetype.name in self.return_types:
-                self.write(f'void dump_{output_format}_return_value_{basetype.name}(const {basetype.name}& object, const ApiDumpSettings& settings, int indents) {{')
-                self.write_basetype_contents(output_format)
+                self.write('template <ApiDumpFormat Format>')
+                self.write(f'void dump_return_value_{basetype.name}(const {basetype.name}{"*" if basetype.name in POINTER_TYPES else "&"} object, const ApiDumpSettings& settings, int indents) {{')
+                self.write('    dump_value<Format>(settings, object);')
                 self.write('}')
 
-            self.write(f'void dump_{output_format}_{basetype.name}(const {basetype.name}{"*" if basetype.name in POINTER_TYPES else "&"} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'void dump_{basetype.name}(const {basetype.name}{"*" if basetype.name in POINTER_TYPES else "&"} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-            if basetype.name in self.return_types:
-                self.write(f'dump_{output_format}_return_value_{basetype.name}(object, settings, indents);')
-            else:
-                self.write_basetype_contents(output_format)
-            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+            self.write('    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+            self.write('    dump_value<Format>(settings, object);')
+            self.write('    dump_end<Format>(settings, OutputConstruct::value, indents);')
             self.write('}')
-            self.write_pointer_overload(output_format, basetype.name)
         protect.add_guard(self, None)
 
         self.write('\n//======================= System Type Implementations =======================//\n')
 
-        sortedSystemTypes = dict(sorted(self.vk.platformTypes.items()))
-        for sys in sortedSystemTypes.values():
+        for sys in self.vk.platformTypes.values():
             if (sys.requires is not None and (sys.requires in EXCLUDED_INCLUDE_LIST or 'vk_video' in sys.requires)) or (video and sys.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
                 continue
             protect.add_guard(self, sys.protect)
             if sys.name in self.return_types:
-                self.write(f'void dump_{output_format}_return_value_{sys.name}(const {sys.name}& object, const ApiDumpSettings& settings, int indents) {{')
-                self.write_system_type_contents(output_format, sys)
+                self.write('template <ApiDumpFormat Format>')
+                self.write(f'void dump_return_value_{sys.name}(const {sys.name}& object, const ApiDumpSettings& settings, int indents) {{')
+                self.write_system_type_contents(sys)
                 self.write('}')
-            self.write(f'void dump_{output_format}_{sys.name}(const {sys.name}{"*" if sys.name in POINTER_TYPES else "&"} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'void dump_{sys.name}(const {sys.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents{", object" if sys.name in POINTER_TYPES else ""});')
-            if sys.name in self.return_types:
-                self.write(f'dump_{output_format}_return_value_{sys.name}(object, settings, indents);')
-            else:
-                self.write_system_type_contents(output_format, sys)
-            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+            self.write(f'dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents{", &object" if sys.name in POINTER_TYPES else ""});')
+            self.write_system_type_contents(sys)
+            self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
             self.write('}')
-            if sys.name not in POINTER_TYPES:
-                self.write_pointer_overload(output_format, sys.name)
         protect.add_guard(self, None)
 
         if not video:
             self.write('\n//========================== Handle Implementations =========================//\n')
             for handle in self.vk.handles.values():
+                type_erase_handle = 'TYPE_ERASE_HANDLE(object)'
+                if handle.dispatchable:
+                    type_erase_handle = 'static_cast<void*>(object)'
                 protect.add_guard(self, handle.protect)
-                self.write(f'void dump_{output_format}_{handle.name}(const {handle.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
-                self.write('{')
-                self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-                if output_format in ['text', 'html']:
-                    self.write(f'''
-                    if(settings.showAddress()) {{
-                        std::unordered_map<uint64_t, std::string>::const_iterator it = ApiDumpInstance::current().object_name_map.find((uint64_t) object);
-                        if (it != ApiDumpInstance::current().object_name_map.end()) {{
-                            dump_{output_format}_value(settings, object, " [", it->second, "]");
-                        }} else {{
-                            dump_{output_format}_value(settings, object);
-                        }}
-                    }} else {{
-                       dump_{output_format}_value(settings, "address");
+                self.write(f'''
+                    template <ApiDumpFormat Format>
+                    void dump_{handle.name}(const {handle.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                        dump_handle<Format>({type_erase_handle}, settings, type_name, var_name, indents, address);
                     }}''')
-                if output_format == 'json':
-                    self.write('dump_json_handle(settings, object);')
-                self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
-                self.write('}')
-                self.write_pointer_overload(output_format, handle.name)
             protect.add_guard(self, None)
 
         self.write('\n//=========================== Enum Implementations ==========================//\n')
         for enum in self.vk.enums.values():
             protect.add_guard(self, enum.protect)
             if enum.name in self.return_types:
-                self.write(f'void dump_{output_format}_return_value_{enum.name}(const {enum.name}& object, const ApiDumpSettings& settings, int indents) {{')
-                self.write_enum_contents(output_format, enum)
+                self.write('template <ApiDumpFormat Format>')
+                self.write(f'void dump_return_value_{enum.name}(const {enum.name}& object, const ApiDumpSettings& settings, int indents) {{')
+                self.write_enum_contents(enum)
                 self.write('}')
-            self.write(f'void dump_{output_format}_{enum.name}(const {enum.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'void dump_{enum.name}(const {enum.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+            self.write('dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
             if enum.name in self.return_types:
-                self.write(f'dump_{output_format}_return_value_{enum.name}(object, settings, indents);')
+                self.write(f'dump_return_value_{enum.name}<Format>(object, settings, indents);')
             else:
-                self.write_enum_contents(output_format, enum)
-            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+                self.write_enum_contents(enum)
+            self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
             self.write('}')
-            self.write_pointer_overload(output_format, enum.name)
         protect.add_guard(self, None)
 
         self.write('\n//========================= Bitmask Implementations =========================//\n')
         for bitmask in self.vk.bitmasks.values():
             protect.add_guard(self, bitmask.protect)
-            if output_format == 'text':
-                if bitmask.bitWidth == 64:
-                    self.write('// 64 bit bitmasks don\'t have an enum of bit values.')
-                    self.write(f'typedef VkFlags64 {bitmask.name};')
-            self.write(f'void dump_{output_format}_{bitmask.name}(const {bitmask.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
-            self.write('{')
-            self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-            self.write_bitmask_constents(output_format, bitmask)
-            self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
-            self.write('}')
-            self.write_pointer_overload(output_format, bitmask.name)
+            self.write(f'''
+                template <ApiDumpFormat Format>
+                void dump_{bitmask.name}(const {bitmask.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+                    dump_value_start<Format>(settings);
+                    settings.stream() << object;
+                    bool is_first = true;''')
+            for field in bitmask.flags:
+                self.write(f'if(object {"==" if  field.zero or field.multiBit else "&"} {field.name}) {{')
+                self.write(f'settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
+                self.write('}')
+            self.write('''
+                if(!is_first)
+                settings.stream() << ")";
+                dump_value_end<Format>(settings);
+                dump_end<Format>(settings, OutputConstruct::value, indents);
+                }''')
         protect.add_guard(self, None)
 
         self.write('\n//=========================== Flag Implementations ==========================//\n')
 
         for flag in self.vk.flags.values():
             protect.add_guard(self, flag.protect)
-            self.write(f'void dump_{output_format}_{flag.name}(const {flag.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{')
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'void dump_{flag.name}(const {flag.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{')
             if flag.bitmaskName is not None:
-                self.write(f'dump_{output_format}_{flag.bitmaskName}(static_cast<{flag.bitmaskName}>(object), settings, type_name, var_name, indents, address);')
+                self.write(f'dump_{flag.bitmaskName}<Format>(static_cast<{flag.bitmaskName}>(object), settings, type_name, var_name, indents, address);')
             else:
-                self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-                self.write(f'dump_{output_format}_value(settings, object);')
-                self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
+                self.write('dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+                self.write('dump_value<Format>(settings, object);')
+                self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
             self.write('}')
-            self.write_pointer_overload(output_format, flag.name)
         protect.add_guard(self, None)
 
         self.write('\n//======================= Func Pointer Implementations ======================//\n')
 
         for funcpointer in self.vk.funcPointers.values():
-            self.write(f'''void dump_{output_format}_{funcpointer.name}(const {funcpointer.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
-                dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents, address);
-                dump_{output_format}_handle(settings, object);
-                dump_{output_format}_end(settings, OutputConstruct::value, indents);
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'''void dump_{funcpointer.name}(const {funcpointer.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+                dump_address<Format>(settings, &object);
+                dump_end<Format>(settings, OutputConstruct::value, indents);
             }}''')
-            self.write_pointer_overload(output_format, funcpointer.name)
 
-        self.write('\n//======================== Union Forward Declarations =======================//\n')
+        self.write('\n//====================== Struct and Union Implementations =====================//\n')
 
-        for union in [ x for x in self.vk.structs.values() if x.union ]:
-            protect.add_guard(self, union.protect)
-            self.write(f'void dump_{output_format}_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr);')
-            self.write(f'void dump_{output_format}_{union.name}(const {union.name}* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents);')
-        protect.add_guard(self, None)
-
-        self.write('\n//======================== pNext Chain Declarations =======================//\n')
-        if not video:
-            if output_format == 'text':
-                self.write(f'void dump_{output_format}_pNext_struct_name(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents);')
-            self.write(f'void dump_{output_format}_pNext_trampoline(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents);')
-
-        self.write('\n//========================== Struct Implementations =========================//\n')
-
-        for struct in [ x for x in self.vk.structs.values() if not x.union ]:
+        for struct in self.vk.structs.values():
             protect.add_guard(self, struct.protect)
 
-            # Rare recursive structure, needs pointer type declaration to work properly
-            if struct.name in ['VkBaseInStructure', 'VkBaseOutStructure']:
-                self.write(f'void dump_{output_format}_{struct.name}(const {struct.name}* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents);')
-
-            self.write(f'void dump_{output_format}_{struct.name}(const {struct.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'void dump_{struct.name}(const {struct.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'dump_{output_format}_start(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);')
+            self.write(f'dump_start<Format>(settings, OutputConstruct::{"api_union" if struct.union else "api_struct"}, type_name, var_name, indents, address);')
 
             for member in struct.members:
                 validity_check = self.get_validity_check(member, struct)
@@ -759,192 +681,151 @@ class ApiDumpGenerator(BaseGenerator):
                         self.write('' + parameter_state)
 
             self.write('')
-            json_indent = '2' if output_format == 'json' else '1'
             for member in struct.members:
                 custom_fullType = get_fulltype(member)
                 validity_check = self.get_validity_check(member, struct)
-                if output_format == 'json':
-                    if member != struct.members[0]:
-                        self.write('dump_json_comma_and_newline(settings);')
-
+                if member != struct.members[0]:
+                    self.write('dump_separate_members<Format>(settings);')
                 if validity_check is not None:
                     self.write(f'if({validity_check}) {{')
 
-                self.write_value(output_format, member, struct)
+                self.write_value(member, struct)
 
                 self.write('')
                 if validity_check is not None:
-                    self.write('} else {')
-                    if output_format in ['text', 'html']:
-                        self.write(f'dump_{output_format}_special("UNUSED", settings, "{custom_fullType}", "{member.name}", indents + {json_indent});')
-                    if output_format == 'json':
-                        self.write(f'dump_{output_format}_UNUSED(settings, "{custom_fullType}", "{member.name}", indents + {json_indent});')
+                    if not struct.union: # Union's use validity_check to only print the active element
+                        self.write(f'''}} else {{
+                            if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {{
+                                dump_special<Format>("UNUSED", settings, "{custom_fullType}", "{member.name}", indents + 2);
+                            }} else if constexpr (Format == ApiDumpFormat::Json) {{
+                                dump_json_UNUSED(settings, "{custom_fullType}", "{member.name}", indents + 1);
+                            }}''')
                     self.write('}')
 
             self.write('')
-            if output_format == 'text':
-                for member in struct.members:
-                    if member.pointer and member.name == 'pNext' and struct.name not in ['VkBaseInStructure', 'VkBaseOutStructure']:
-                        self.write(f'dump_text_pNext_trampoline(object.pNext, settings, "{member.fullType}", "{member.type}", indents < 2 ? indents + {json_indent} : indents);')
-
-            self.write(f'dump_{output_format}_end(settings, OutputConstruct::api_struct, indents);')
-            self.write('}')
-            self.write_pointer_overload(output_format, struct.name)
-        protect.add_guard(self, None)
-
-        self.write('\n//========================== Union Implementations ==========================//\n')
-
-        for union in [ x for x in self.vk.structs.values() if x.union ]:
-            protect.add_guard(self, union.protect)
-            self.write(f'void dump_{output_format}_{union.name}(const {union.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address)')
-            self.write('{')
-            self.write(f'dump_{output_format}_start(settings, OutputConstruct::api_union, type_name, var_name, indents, address);')
-
-            for member in union.members:
-                validity_check = self.get_validity_check(member, union)
-                if output_format == 'json':
-                    if member != union.members[0] and validity_check is None:
-                        self.write('dump_json_comma_and_newline(settings);')
-
-                if validity_check is not None:
-                    self.write(f'if({validity_check}) {{')
-
-                self.write_value(output_format, member, union)
-
-                if validity_check is not None:
+            for member in struct.members:
+                if member.pointer and member.name == 'pNext' and struct.name not in ['VkBaseInStructure', 'VkBaseOutStructure']:
+                    self.write('if constexpr (Format == ApiDumpFormat::Text) {')
+                    self.write(f'    dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "{member.fullType}", "{member.type}", indents < 2 ? indents + 1 : indents);')
                     self.write('}')
 
-            self.write(f'dump_{output_format}_end(settings, OutputConstruct::api_union, indents);')
-
+            self.write('dump_end<Format>(settings, OutputConstruct::api_struct, indents);')
             self.write('}')
-            self.write_pointer_overload(output_format, union.name)
         protect.add_guard(self, None)
 
         self.write('\n//======================== pNext Chain Implementation =======================//\n')
         if not video:
-            if output_format == 'text':
-                self.write('''void dump_text_pNext_struct_name(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents){
-                if (object == nullptr) {
-                    dump_text_nullptr(settings, type_name, var_name, indents);
-                    return;
-                }\n
-                switch(reinterpret_cast<const VkBaseInStructure*>(object)->sType) {''')
-                for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-                    protect.add_guard(self, struct.protect)
-                    if struct.sType is not None:
-                        self.write(f'case {struct.sType}:')
-                        self.write(f'dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents);')
-                        self.write(f'dump_{output_format}_value(settings, "{struct.name}");')
-                        self.write(f'dump_{output_format}_end(settings, OutputConstruct::value, indents);')
-                        self.write('break;')
-                protect.add_guard(self, None)
-                self.write(f'''
-                    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
-                    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
-                    default:
-                        dump_{output_format}_start(settings, OutputConstruct::value, type_name, var_name, indents);
-                        dump_{output_format}_value(settings, "NULL");
-                        dump_{output_format}_end(settings, OutputConstruct::value, indents);
-                        break;
-                    }}
-                }}\n''')
-
-            self.write(f'void dump_{output_format}_pNext_trampoline(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents)')
-            self.write('{')
-            self.write('if (object == NULL) {')
-            if output_format in ['html', 'json']:
-                self.write(f'dump_{output_format}_nullptr(settings, type_name, var_name, indents);')
-            self.write('return;')
-            self.write('}')
-            self.write('VkBaseInStructure base_struct{};')
-            self.write('memcpy(&base_struct, object, sizeof(VkBaseInStructure));')
-            self.write('switch(base_struct.sType) {')
+            self.write('''
+                template <ApiDumpFormat Format>
+                void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents) {
+                    if (object == nullptr) {
+                        dump_nullptr<Format>(settings, type_name, var_name, indents);
+                        return;
+                    }
+                    VkBaseInStructure base_struct{};
+                    memcpy(&base_struct, object, sizeof(VkBaseInStructure));
+                    if (base_struct.sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO || base_struct.sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO) {
+                        if (base_struct.pNext != nullptr) {
+                            dump_pNext_struct_name<Format>(base_struct.pNext, settings, type_name, var_name, indents);
+                        } else {
+                            dump_nullptr<Format>(settings, "const void*", "pNext", indents);
+                        }
+                        return;
+                    }
+                    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents);
+                    switch(base_struct.sType) {''')
             for struct in [ x for x in self.vk.structs.values() if not x.union ]:
                 protect.add_guard(self, struct.protect)
                 if struct.sType is not None:
-                    self.write(f'case {struct.sType}:')
-                    self.write(f'dump_{output_format}_{struct.name}(*reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}{"*" if output_format == "json" else ""}", "pNext", indents, reinterpret_cast<const {struct.name}*>(object));')
-                    self.write('break;')
+                    self.write(f'''
+                        case {struct.sType}:
+                            dump_string<Format>(settings, "{struct.name}");
+                            break;''')
             protect.add_guard(self, None)
-            self.write(f'''
-                case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
-                case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
-                    if(base_struct.pNext != nullptr){{
-                        dump_{output_format}_pNext_trampoline(reinterpret_cast<const void*>(base_struct.pNext), settings, type_name, var_name, indents);
-                    }} else {{
-                        dump_{output_format}_nullptr(settings, "const void*", "pNext", indents);
-                    }}
-                    break;
-                default:
-                    dump_{output_format}_start(settings, OutputConstruct::value, "const void*", "pNext", indents);
-                    dump_{output_format}_value(settings, "UNKNOWN (", (int64_t) (base_struct.sType), ")");
-                    dump_{output_format}_end(settings, OutputConstruct::value, indents);
-                    }}
-                }}''')
+            self.write('''
+                    default:
+                        dump_string<Format>(settings, "NULL");
+                        break;
+                    }
+                    dump_end<Format>(settings, OutputConstruct::value, indents);
+                }
+
+                template <ApiDumpFormat Format>
+                void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents) {
+                    if (object == NULL) {
+                        if constexpr (Format == ApiDumpFormat::Html || Format == ApiDumpFormat::Json) {
+                            dump_nullptr<Format>(settings, type_name, var_name, indents);
+                        }
+                        return;
+                    }
+                    VkBaseInStructure base_struct{};
+                    memcpy(&base_struct, object, sizeof(VkBaseInStructure));
+                    switch(base_struct.sType) {''')
+            for struct in [ x for x in self.vk.structs.values() if not x.union ]:
+                protect.add_guard(self, struct.protect)
+                if struct.sType is not None:
+                    self.write(f'''
+                        case {struct.sType}:
+                            dump_{struct.name}<Format>(*reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}*", "pNext", indents, reinterpret_cast<const {struct.name}*>(object));
+                            break;''')
+            protect.add_guard(self, None)
+            self.write('''
+                    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
+                    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
+                        if (base_struct.pNext != nullptr) {
+                            dump_pNext_trampoline<Format>(reinterpret_cast<const void*>(base_struct.pNext), settings, type_name, var_name, indents);
+                        } else {
+                            dump_nullptr<Format>(settings, "const void*", "pNext", indents);
+                        }
+                        break;
+                    default:
+                        dump_start<Format>(settings, OutputConstruct::value, "const void*", "pNext", indents);
+                        dump_value<Format>(settings, "UNKNOWN (", (int64_t) (base_struct.sType), ")");
+                        dump_end<Format>(settings, OutputConstruct::value, indents);
+                        }
+                    }''')
 
         self.write('\n//========================== Function Helpers ===============================//\n')
 
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
             protect.add_guard(self, command.protect)
-            self.write(f'void dump_{output_format}_params_{command.name}(ApiDumpInstance& dump_inst, {command_param_declaration_text(command)})')
-            self.write('{')
-            self.write('const ApiDumpSettings& settings(dump_inst.settings());')
-            self.write('if(settings.showParams())')
-            self.write('{')
-            if output_format == 'json':
-                self.write('settings.stream() << settings.indentation(3) << "\\\"args\\\" :\\n";')
-                self.write('settings.stream() << settings.indentation(3) << "[\\n";')
+            self.write(f'''
+                template <ApiDumpFormat Format>
+                void dump_params_{command.name}(ApiDumpInstance& dump_inst, {command_param_declaration_text(command)}) {{
+                    const ApiDumpSettings& settings(dump_inst.settings());
+                    if(settings.showParams()) {{
+                        dump_pre_params_formatting<Format>(settings);''')
             for param in command.params:
-                if output_format == 'json':
-                    if param != command.params[0]:
-                        self.write('dump_json_comma_and_newline(settings);')
+                if param != command.params[0]:
+                    self.write('dump_separate_members<Format>(settings);')
 
                 parameter_state = self.get_parameter_state(param, command)
                 if parameter_state is not None:
                     self.write('' + parameter_state)
 
-                self.write_value(output_format, param, command)
+                self.write_value(param, command)
 
-            if output_format == 'json':
-                self.write('settings.stream() << "\\n" << settings.indentation(3) << "]\\n";')
-            if output_format in ['text', 'html']:
-                self.write('settings.stream() << "\\n";')
-            self.write('flush(settings);')
-            self.write('}')
-            self.write('}')
+            self.write('''dump_post_params_formatting<Format>(settings);
+                    flush(settings);
+                }
+            }''')
         protect.add_guard(self, None)
 
         self.write('\n//========================= Function Implementations ========================//\n')
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
             protect.add_guard(self, command.protect)
             returnParam = f'{command.returnType} result, ' if command.returnType != 'void' else ''
-            self.write(f'void dump_{output_format}_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{command_param_declaration_text(command)})')
-
-            self.write('{')
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'void dump_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{command_param_declaration_text(command)}) {{')
             self.write('const ApiDumpSettings& settings(dump_inst.settings());')
             if command.returnType != 'void':
-                call_type = self.get_unaliased_type(command.returnType)
-                if output_format == 'text':
-                    self.write('settings.stream() << " ";')
-                if output_format == 'json':
-                    self.write('settings.stream() << settings.indentation(3) << "\\\"returnValue\\\" :";')
-                self.write(f'dump_{output_format}_return_value_{call_type}(result, settings, 0);')
-                if output_format == 'json':
-                    self.write('if(settings.showParams())')
-                    self.write('settings.stream() << ",";')
-                    self.write('settings.stream() << "\\n";')
-            if output_format == 'text':
-                self.write('settings.stream() << ":\\n";')
-            if output_format == 'html':
-                self.write('settings.stream() << "</summary>";')
+                self.write(f'dump_return_value<Format>(settings, "{command.returnType}", result, dump_return_value_{self.get_unaliased_type(command.returnType)}<Format>);')
 
-            self.write(f'dump_{output_format}_params_{command.name}(dump_inst, {command_param_usage_text(command)});')
-            if output_format == 'html':
-                self.write('\n    settings.stream() << "</details>";')
-            if output_format == 'json':
-                self.write('settings.stream() << settings.indentation(2) << "}";')
-            self.write('flush(settings);')
-            self.write('}')
+            self.write(f'''dump_pre_function_formatting<Format>(settings);
+                dump_params_{command.name}<Format>(dump_inst, {command_param_usage_text(command)});
+                dump_post_function_formatting<Format>(settings);
+                flush(settings);
+            }}''')
         protect.add_guard(self, None)
         self.write('\n')
 
@@ -998,23 +879,25 @@ class ApiDumpGenerator(BaseGenerator):
                 return VALIDITY_CHECKS[parent.name][var.name]
         return None
 
-    def write_value(self, output_format, var, parent):
+    def write_value(self, var, parent):
         custom_fullType = get_fulltype(var)
         custom_type = get_type(var)
         object_access = 'object.' if isinstance(parent, Struct) else ''
         call_type = self.get_unaliased_type(var.type)
-        indent_plus = '2' if output_format == 'json' else '1'
+        indent_plus = '(Format == ApiDumpFormat::Json ? 2 : 1)'
         if isinstance(parent, Command):
-            indent = 4 if output_format == 'json' else 1
+            indent = '(Format == ApiDumpFormat::Json ? 4 : 1)'
         else:
-            indent = f'indents + {"2" if output_format == "json" else "1"}'
+            indent = 'indents + (Format == ApiDumpFormat::Json ? 2 : 1)'
 
         if var.name == 'apiVersion':
             call_type = 'api_version'
+        elif var.name == 'pNext' and var.fullType in ['void*', 'const void*']:
+            call_type = 'pNext'
 
+        array_ptr = f'{object_access}{var.name}'
         if get_is_array(var):
             array_len = get_array_length(var, parent)
-            array_ptr = f'{object_access}{var.name}'
             if parent.name == 'VkPipelineMultisampleStateCreateInfo' and var.length == '(rasterizationSamples + 31) / 32':
                 array_len = '(object.rasterizationSamples + 31) / 32'
 
@@ -1022,127 +905,59 @@ class ApiDumpGenerator(BaseGenerator):
                 array_len = f'{object_access}{var.length}'
                 self.write('if(settings.showShader()) {')
 
-            not_null_check = f'{object_access}{var.name} != NULL' if var.pointer else 'true'
-            if var.pointer:
-                self.write(f'if ({array_len} > 0 && {not_null_check}) {{')
+            if len(var.fixedSizeArray) > 2:
+                raise RuntimeError("Unhandled fixed array dimentionality")
+            elif len(var.fixedSizeArray) == 2:
+                self.write(f'dump_double_array<Format>({array_ptr}, {var.fixedSizeArray[0]},  {var.fixedSizeArray[1]}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, dump_{call_type}<Format>);')
 
-            self.write(f'dump_{output_format}_array_start({array_ptr}, {array_len}, settings, "{custom_fullType}", "{var.name}", {indent});')
-
-            if len(var.fixedSizeArray) == 2:
-                self.write(f'for (size_t i = 0; i < {var.fixedSizeArray[0]}; ++i) {{')
-                self.write(f'  for (size_t j = 0; j < {var.fixedSizeArray[1]}; ++j) {{')
-                self.write('std::stringstream stream;')
-                self.write(f'   stream << "{var.name if output_format != "json" else ""}" << "[" << i << "][" << j << "]";')
-                self.write('std::string indexName = stream.str();')
-                self.write(f'dump_{output_format}_{call_type}({object_access}{var.name}[i][j], settings, "{custom_type}", indexName.c_str(), {indent} + {indent_plus});')
-                if output_format == 'json':
-                    self.write(f'if (i < {var.fixedSizeArray[1]} - 1 && j < {var.fixedSizeArray[0]} - 1) settings.stream() << \',\';')
-                    self.write('settings.stream() << "\\n";')
-                self.write('  }')
-                self.write('}')
-            elif len(var.fixedSizeArray) == 1:
+            elif len(var.fixedSizeArray) == 1 and isinstance(parent, Struct): # Fixed length array's passed as parameters are treated as void*, so only match when printing members
                 fixed_array_len = get_fixed_array_length(var.fixedSizeArray[0], var, parent)
-                self.write(f'for (size_t i = 0; i < {fixed_array_len}; ++i) {{')
-                self.write('std::stringstream stream;')
-                self.write(f'stream << "{var.name if output_format != "json" else ""}" <<"[" << i << "]";')
-                self.write('std::string indexName = stream.str();')
-                self.write(f'dump_{output_format}_{call_type}({object_access}{var.name}[i], settings, "{custom_type}", indexName.c_str(), {indent} + {indent_plus});')
-                if output_format == 'json':
-                    self.write(f'  if (i < {fixed_array_len} - 1) settings.stream() << \',\';')
-                    self.write('settings.stream() << "\\n";')
-                self.write('}')
+                self.write(f'dump_single_array<Format>({array_ptr}, {fixed_array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, dump_{call_type}<Format>);')
+
             else:
-                elem = f'{object_access}{var.name}[i]'
-                if var.fullType.count('*') > 1 and var.type != 'void' and var.type != 'char':
-                    elem = f'*{object_access}{var.name}[i]'
+                if var.fullType.count('*') > 1 and var.type not in ['void', 'char']:
+                    self.write(f'dump_pointer_array<Format>(*{array_ptr}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, dump_{call_type}<Format>);')
+                else:
+                    self.write(f'dump_pointer_array<Format>({array_ptr}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, dump_{call_type}<Format>);')
 
-                self.write(f'for (size_t i = 0; i < {array_len}; ++i) {{')
-                self.write('std::stringstream stream;')
-                self.write(f'stream << "{var.name if output_format != "json" else ""}" << "[" << i << "]";')
-                self.write('std::string indexName = stream.str();')
-                self.write(f'dump_{output_format}_{call_type}({elem}, settings, "{custom_type}", indexName.c_str(), {indent} + {indent_plus});')
-                if output_format == 'json':
-                    self.write(f'if (i < {array_len} - 1) settings.stream() << \',\';')
-                    self.write('settings.stream() << "\\n";')
-                self.write('}')
-
-            self.write(f'dump_{output_format}_array_end({array_ptr}, {array_len}, settings, {indent});')
-            if var.pointer:
-                self.write('} else {')
-                self.write(f'dump_{output_format}_nullptr(settings, "{custom_fullType}", "{var.name}", {indent});')
-                self.write('}')
             if parent.name == 'VkShaderModuleCreateInfo' and var.name == 'pCode':
                 self.write('} else {')
-                self.write(f'dump_{output_format}_special("SHADER DATA", settings, "{var.fullType}", "{var.name}", {indent});')
+                self.write(f'dump_special<Format>("SHADER DATA", settings, "{var.fullType}", "{var.name}", {indent});')
                 self.write('}')
         else:
-            if var.name == 'pNext' and var.fullType in ['void*', 'const void*']:
-                if output_format == 'text':
-                    self.write(f'dump_{output_format}_pNext_struct_name(object.{var.name}, settings, "{var.fullType}", "{var.name}", {indent});')
-                elif output_format in ['html', 'json']:
-                    self.write(f'dump_{output_format}_pNext_trampoline(object.{var.name}, settings, "{var.fullType}", "{var.name}", {indent});')
+            if var.pointer and var.type not in ['void', 'char'] and var.type not in self.vk.funcPointers:
+                self.write(f'dump_pointer<Format>({array_ptr}, settings, "{custom_fullType}", "{var.name}", {indent}, dump_{call_type}<Format>);')
             else:
-                self.write(f'dump_{output_format}_{call_type}({object_access}{var.name}, settings, "{custom_fullType}", "{var.name}", {indent});')
+                self.write(f'dump_{call_type}<Format>({array_ptr}, settings, "{custom_fullType}", "{var.name}", {indent});')
 
 
-    def write_platform_type_contents(self, output_format, t):
+    def write_platform_type_contents(self, t):
         cast = ''
         if t.name == 'uint8_t':
             cast = '(uint32_t) '
         if t.name == 'int8_t':
             cast = '(int32_t) '
-        self.write(f'dump_{output_format}_value(settings, {cast}object);')
+        self.write(f'dump_value<Format>(settings, {cast}object);')
 
-    def write_basetype_contents(self, output_format):
-        self.write(f'dump_{output_format}_value(settings, object);')
-
-    def write_system_type_contents(self, output_format, sys):
+    def write_system_type_contents(self, sys):
+        self.write('dump_address<Format>(settings, &object);')
         if '*' in sys.name:
-            self.write(f'dump_{output_format}_address(settings, &object);')
-            if output_format == 'json':
-                self.write('settings.stream() << "\\n";')
-        else:
-            self.write(f'dump_{output_format}_handle(settings, object);')
+            self.write('if constexpr (Format == ApiDumpFormat::Json) {')
+            self.write('    settings.stream() << "\\n";')
+            self.write('}')
 
-    def write_enum_contents(self, output_format, enum):
+    def write_enum_contents(self, enum):
+        int_cast = ('' if any(f.negative for f in enum.fields) else 'u') + (f'int{enum.bitWidth}_t')
+
+        protect = PlatformGuardHelper()
         self.write('switch((int64_t) object)')
         self.write('{')
         for field in enum.fields:
-            self.write(f'case {field.valueStr}:')
-            if output_format in ['text', 'html']:
-                self.write(f'dump_{output_format}_value(settings, "{field.name} (", object, ")");')
-            if output_format == 'json':
-                self.write(f'dump_{output_format}_value(settings, "{field.name}");')
-            self.write('break;')
+            protect.add_guard(self, field.protect)
+            self.write(f'''case {field.name}:
+                    dump_enum<Format>(settings, "{field.name}", static_cast<{int_cast}>(object));
+                    break;''')
+        protect.add_guard(self, None)
         self.write('default:')
-        self.write(f'dump_{output_format}_value(settings, "UNKNOWN (", object, ")");')
+        self.write(f'    dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<{int_cast}>(object));')
         self.write('}')
-
-    def write_bitmask_constents(self, output_format, bitmask):
-        self.write(f'dump_{output_format}_value_start(settings);')
-        self.write('settings.stream() << object;')
-        self.write('bool is_first = true;')
-        for field in bitmask.flags:
-            self.write(f'if(object {"==" if  field.zero or field.multiBit else "&"} {field.valueStr if field.multiBit else field.value}) {{')
-            self.write(f'settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
-            self.write('}')
-        self.write('if(!is_first)')
-        self.write('settings.stream() << ")";')
-        self.write(f'dump_{output_format}_value_end(settings);')
-
-    def write_pointer_overload(self, output_format, object_type):
-        # Workaround for some types needing a double pointer overload function
-        const = 'const '
-        double_ptr = ''
-        if object_type in ['AHardwareBuffer', 'ANativeWindow']:
-            const = ''
-            double_ptr = '*'
-
-        self.write(f'''
-            void dump_{output_format}_{object_type}({const}{object_type}{double_ptr}* object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {{
-            if (object == NULL) {{
-                dump_{output_format}_nullptr(settings, type_string, name, indents);
-            }} else {{
-                dump_{output_format}_{object_type}(*object, settings, type_string, name, indents, object);
-            }}
-        }}''')

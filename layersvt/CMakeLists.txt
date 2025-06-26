@@ -55,16 +55,9 @@ if(BUILD_APIDUMP)
     endif()
 
     target_sources(VkLayer_api_dump PRIVATE
-        generated/api_dump.cpp
-        generated/api_dump_text.h
-        generated/api_dump_html.h
-        generated/api_dump_json.h
-        generated/api_dump_text.cpp
-        generated/api_dump_html.cpp
-        generated/api_dump_json.cpp
-        generated/api_dump_video_text.h
-        generated/api_dump_video_html.h
-        generated/api_dump_video_json.h
+        generated/api_dump_dispatch.cpp
+        generated/api_dump_implementation.h
+        generated/api_dump_video_implementation.h
         api_dump.h
         api_dump_handwritten_dispatch.cpp
         vk_layer_table.cpp

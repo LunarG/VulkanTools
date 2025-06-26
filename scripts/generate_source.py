@@ -67,52 +67,17 @@ def RunGenerators(api: str, registry: str, video_registry: str, directory: str, 
     # Build up a list of all generators
     # Note: Options variable names MUST match order of constructor variable in generator
     generators = {
-        'api_dump.cpp' : {
+        'api_dump_dispatch.cpp' : {
             'generator' : ApiDumpGenerator,
             'genCombined': True,
             'registry' : 'vk',
         },
-        'api_dump_text.h' : {
+        'api_dump_implementation.h' : {
             'generator' : ApiDumpGenerator,
             'genCombined': True,
             'registry' : 'vk',
         },
-        'api_dump_text.cpp' : {
-            'generator' : ApiDumpGenerator,
-            'genCombined': True,
-            'registry' : 'vk',
-        },
-        'api_dump_html.h' : {
-            'generator' : ApiDumpGenerator,
-            'genCombined': True,
-            'registry' : 'vk',
-        },
-        'api_dump_html.cpp' : {
-            'generator' : ApiDumpGenerator,
-            'genCombined': True,
-            'registry' : 'vk',
-        },
-        'api_dump_json.h' : {
-            'generator' : ApiDumpGenerator,
-            'genCombined': True,
-            'registry' : 'vk',
-        },
-        'api_dump_json.cpp' : {
-            'generator' : ApiDumpGenerator,
-            'genCombined': True,
-            'registry' : 'vk',
-        },
-        'api_dump_video_text.h' : {
-            'generator' : ApiDumpGenerator,
-            'genCombined': True,
-            'registry' : 'video',
-        },
-        'api_dump_video_html.h' : {
-            'generator' : ApiDumpGenerator,
-            'genCombined': True,
-            'registry' : 'video',
-        },
-        'api_dump_video_json.h' : {
+        'api_dump_video_implementation.h' : {
             'generator' : ApiDumpGenerator,
             'genCombined': True,
             'registry' : 'video',
