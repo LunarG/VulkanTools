@@ -220,7 +220,7 @@ void TabPreferences::on_theme_mode_changed(int index) {
     }
 
     {
-        if (VKC_PLATFORM == PLATFORM_LINUX) {
+        if (VKC_PLATFORM == PLATFORM_LINUX && this->initialized) {
             if (!(configurator.Get(HIDE_MESSAGE_WARN_DARK_THEME_LINUX))) {
                 QMessageBox alert;
                 alert.setWindowTitle("Dark Mode on Linux system");
