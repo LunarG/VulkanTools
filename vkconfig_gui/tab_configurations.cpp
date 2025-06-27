@@ -683,27 +683,30 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
 
             if (item != nullptr) {
+                const SettingMeta *setting = ::FindSetting(layer->settings, item->key.c_str());
+                assert(setting != nullptr);
+
                 QMenu menu(this->ui->configurations_settings);
 
-                QAction *action_description = new QAction("Open the brief Setting Description...", nullptr);
+                QAction *action_description = new QAction("Open the brief setting description...", nullptr);
                 action_description->setEnabled(layer != nullptr);
                 menu.addAction(action_description);
 
-                QAction *export_html_action = new QAction("Open the detailed Setting HTML Documentation...", nullptr);
+                QAction *export_html_action = new QAction("Open the detailed setting HTML documentation...", nullptr);
                 export_html_action->setEnabled(layer != nullptr);
                 menu.addAction(export_html_action);
 
-                QAction *export_url_action = new QAction("Open the feature Documentation...", nullptr);
+                QAction *export_url_action = new QAction("Open the dedicated feature documentation...", nullptr);
                 export_url_action->setEnabled(layer != nullptr);
+                if (layer != nullptr) {
+                    export_url_action->setEnabled(!setting->url.Empty());
+                }
                 menu.addAction(export_url_action);
 
                 QPoint point(right_click->globalX(), right_click->globalY());
                 QAction *action = menu.exec(point);
 
                 if (action == action_description) {
-                    const SettingMeta *setting = ::FindSetting(layer->settings, item->key.c_str());
-                    assert(setting != nullptr);
-
                     std::string title = format("%s (%s)", setting->label.c_str(), setting->key.c_str());
                     if (setting->status != STATUS_STABLE) {
                         title += format(" (%s)", ::GetToken(setting->status));
