@@ -21,10 +21,12 @@
  */
 
 #include "configurator.h"
-#include "registry.h"
 #include "util.h"
 #include "path.h"
 #include "date.h"
+#if VKC_ENV == VKC_ENV_WIN32
+#include "registry.h"
+#endif
 
 #include <QDir>
 #include <QTextStream>
@@ -40,7 +42,6 @@
 
 #include <cassert>
 #include <cstdio>
-#include <algorithm>
 #include <thread>
 
 const char* MAINWINDOW_GEOMETRY = "vkconfig/mainwindow_geometry";
