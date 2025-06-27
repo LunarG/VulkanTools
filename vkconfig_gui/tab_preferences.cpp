@@ -304,7 +304,7 @@ void TabPreferences::on_theme_dark_alternate_pressed() {
                                           tr("Select Dark Alternate rows color"));
 
     if (color.isValid()) {
-        configurator.theme_light_alternate_color = color;
+        configurator.theme_dark_alternate_color = color;
     }
 
     this->on_theme_mode_changed(configurator.current_theme_mode);
