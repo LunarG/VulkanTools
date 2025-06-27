@@ -1490,12 +1490,12 @@ void TabConfigurations::on_configuration_settings_file_remove_pressed() {
     } else {
         if (!(configurator.Get(HIDE_MESSAGE_WARN_OVERRIDE_LAYERS_SETTINGS_HIDE))) {
             QMessageBox alert;
-            alert.setWindowTitle("Hiding 'Override Layer Settings' bar...");
+            alert.setWindowTitle("Hiding 'Use Layers Settings file' bar...");
             alert.setIcon(QMessageBox::Warning);
             alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
             alert.setDefaultButton(QMessageBox::Ok);
             alert.setText(
-                "Hiding 'Override Layer Settings' bar when unused by the 'Loader Configuration'. This bar can be made visibled by "
+                "Hiding 'Use Layers Settings file' bar when unused by the 'Loader Configuration'. This bar can be made visibled by "
                 "default in the 'Preference' tab.");
             alert.setInformativeText("Do you want to continue?");
             alert.setCheckBox(new QCheckBox("Do not show again."));
