@@ -777,10 +777,10 @@ class BaseGenerator(OutputGenerator):
                 paramSplit = paramsText.split(' ')
                 params.append(FuncPointerParam(paramSplit[-1], paramTypes[0], ' '.join(paramSplit[0:-1]), paramsText))
 
-            self.vk.funcPointers[typeName] = FuncPointer(typeName, protect, returnType, requires,  params, typeElem.text)
+            self.vk.funcPointers[typeName] = FuncPointer(typeName, protect, returnType, requires,  params, self.makeCParamDecl(typeElem, 0))
 
         elif category == 'basetype':
-            self.vk.baseTypes[typeName] = BaseType(typeName, '*' in typeElem.text, typeElem.text, protect)
+            self.vk.baseTypes[typeName] = BaseType(typeName, '*' in typeElem.text, self.makeCParamDecl(typeElem, 0), protect)
 
         elif category is None:
             self.vk.platformTypes[typeName] = PlatformType(typeName, typeElem.get('requires'), protect)

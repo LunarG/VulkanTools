@@ -1340,6 +1340,28 @@ void dump_handle(T object, const ApiDumpSettings &settings, const char *type_str
     dump_end<Format>(settings, OutputConstruct::value, indents);
 }
 
+template <ApiDumpFormat Format, typename T>
+std::enable_if_t<!std::is_pointer_v<T>> dump_type(const T &object, const ApiDumpSettings &settings, const char *type_string,
+                                                  const char *name, int indents, const void *address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_string, name, indents, address);
+    dump_value<Format>(settings, object);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template<ApiDumpFormat Format, typename T>
+std::enable_if_t<std::is_pointer_v<T>>
+dump_type(const T& object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents, const void *address = nullptr){
+    dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents, object);
+    dump_end<Format>(settings, OutputConstruct::pointer, indents);
+}
+
+template<ApiDumpFormat Format, typename T>
+void dump_fake_pointer(const T& object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents, const void *address = nullptr){
+    dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents, &object);
+    dump_end<Format>(settings, OutputConstruct::pointer, indents);
+}
+
+
 template <ApiDumpFormat Format, typename T, typename DumpValue>
 void dump_pointer(const T *object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
                   DumpValue dump_value) {
@@ -1470,6 +1492,26 @@ void dump_before_pre_dump_formatting(const ApiDumpSettings &settings) {
     }
 }
 
+template <ApiDumpFormat Format, typename T>
+void dump_return_value(const ApiDumpSettings &settings, const char *returnType, T result) {
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump()) {
+            settings.stream() << "return " << returnType;
+        }
+        settings.stream() << " ";
+
+    } else if constexpr (Format == ApiDumpFormat::Json) {
+        dump_separate_members<Format>(settings);
+        dump_json_key(settings, 3, "returnValue");
+    }
+    dump_value<Format>(settings, result);
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump()) {
+            settings.stream() << ":\n";
+        }
+    }
+}
+
 template <ApiDumpFormat Format, typename T, typename DumpReturnValue>
 void dump_return_value(const ApiDumpSettings &settings, const char *returnType, T result, DumpReturnValue dump_return_value) {
     if constexpr (Format == ApiDumpFormat::Text) {
@@ -1482,7 +1524,7 @@ void dump_return_value(const ApiDumpSettings &settings, const char *returnType, 
         dump_separate_members<Format>(settings);
         dump_json_key(settings, 3, "returnValue");
     }
-    dump_return_value(result, settings, 0);
+    dump_return_value(result, settings);
     if constexpr (Format == ApiDumpFormat::Text) {
         if (ApiDumpInstance::current().settings().shouldPreDump()) {
             settings.stream() << ":\n";
