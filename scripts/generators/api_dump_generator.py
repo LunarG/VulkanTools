@@ -20,8 +20,6 @@
 from base_generator import BaseGenerator
 from vulkan_object import Struct, Command
 
-POINTER_TYPES = ['xcb_connection_t', 'Display', 'SECURITY_ATTRIBUTES', 'ANativeWindow', 'AHardwareBuffer', 'wl_display', 'wl_surface', '_screen_context', '_screen_window', '_screen_buffer']
-
 TRACKED_STATE = {
     'vkAllocateCommandBuffers':
         'if(result == VK_SUCCESS)\n' +
@@ -149,11 +147,6 @@ VALIDITY_CHECKS = {
     },
 }
 
-# These types are defined in both video.xml and vk.xml. Because duplicate functions aren't allowed,
-# we have to prevent these from generating twice. This is done by removing the types from the non-video
-# outputs
-DUPLICATE_TYPES_IN_VIDEO_HEADER = ['uint32_t', 'uint16_t', 'uint8_t', 'int32_t', 'int16_t', 'int8_t']
-
 HANDWRITTEN_FUNCTIONS = ['vkCreateInstance',
                          'vkCreateDevice',
                          'vkEnumerateInstanceExtensionProperties',
@@ -169,12 +162,13 @@ BLOCKING_API_CALLS = [
     'vkQueueWaitIdle', 'vkAcquireNextImageKHR', 'vkGetQueryPoolResults', 'vkWaitSemaphoresKHR'
 ]
 
-EXCLUDED_INCLUDE_LIST = [
-    'vk_platform',
-    'stdint.h',
-]
-
 FUNCTION_IMPLEMENTATION_IGNORE_LIST = ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr', 'vkEnumerateInstanceVersion']
+
+# Types that contain pointer like data but are just integers - useful for NoAddr outputs
+TREAT_AS_POINTERS = {
+    'xcb_window_t': 'window',
+    'uint64_t': 'objectHandle',
+}
 
 class PlatformGuardHelper():
     """Used to elide platform guards together, so redundant #endif then #ifdefs are removed
@@ -215,46 +209,14 @@ def get_type(var):
             custom_type = 'const ' + custom_type
     return custom_type
 
-# Not everything that is functionally a pointer should be printed as such
-def get_is_value_type(var):
-    # Things which we define as 'pointer types' means we want to print as values
-    # Must exclude double pointers here since void is in the POINTER_TYPES list
-    if var.type in POINTER_TYPES and var.fullType.count('*') < 2:
-        return True
-    # If the type is a pointer or can be considered a fixed sized array, it isn't a value
-    if not var.pointer and len(var.fixedSizeArray) == 0:
-        return True
-    # Special case string types or fixed length strings as values so we print them with string processing
-    if var.fullType == 'const char*' or (len(var.fixedSizeArray) > 0 and var.type == 'char'):
-        return True
-    # Function poitners are considered poitners, but we want to print them as values
-    if 'PFN_' in var.type:
-        return True
-    return False
-
-def get_is_array(var):
-    if var.length is None:
-        return False
-    # Things which we define as 'pointer types' means we want to print as values
-    # Must exclude double pointers here since void is in the POINTER_TYPES list
-    if (var.type == 'void' or var.type in POINTER_TYPES) and var.fullType.count('*') < 2:
-        return False
-
-    # If the type is a pointer or can be considered a fixed sized array, it isn't a value
-    if not var.pointer and len(var.fixedSizeArray) == 0:
-        return False
-
-    # Special case string types or fixed length strings as values so we print them with string processing
-    if var.fullType == 'const char*' or (len(var.fixedSizeArray) > 0 and var.type == 'char'):
-        return False
-
-    # Function poitners are considered poitners, but we want to print them as values
-    if 'PFN_' in var.type:
-        return False
-
-    return True
-
 def get_array_length(var, parent):
+    # If the length member contains an expression, like '(rasterizationSamples + 31)/32', we need to add 'object.' inside of the expression
+    if isinstance(parent, Struct) and len(var.length.split(',')) == 1:
+        for member in parent.members:
+            if member.name in var.length and member.name != var.length: # Don't match if the length is just another member
+                index = var.length.find(member.name)
+                return var.length[:index] + 'object.'+var.length[index:]
+
     lengthIsMember = False
     lengthIsPointer = False
     first_length = var.length.split(',')[0]
@@ -308,10 +270,14 @@ class ApiDumpGenerator(BaseGenerator):
         BaseGenerator.__init__(self)
         self.aliases = {}
         self.return_types = set()
+        self.vulkan_defined_types = set()
+        self.only_use_as_pointer_types = set()
 
     def generate(self):
         self.get_return_types()
         self.build_alias_map()
+        self.build_vulkan_defined_type_set()
+        self.build_only_use_as_pointer_types()
         self.generate_copyright()
         if self.filename == 'api_dump_dispatch.cpp':
             self.generate_dispatch_codegen()
@@ -521,64 +487,7 @@ class ApiDumpGenerator(BaseGenerator):
         if not video:
             self.write('\n#include "api_dump_video_implementation.h"')
 
-        self.write('\n//=========================== Type Implementations ==========================//\n')
-
-        for t in [x for x in self.vk.platformTypes.values() if x.requires in ['vk_platform', 'stdint']]:
-            if t.name in self.return_types:
-                self.write('template <ApiDumpFormat Format>')
-                self.write(f'void dump_return_value_{t.name}(const {t.name}& object, const ApiDumpSettings& settings, int indents) {{')
-                self.write_platform_type_contents(t)
-                self.write('}')
-            if t.name in ['void', 'char'] or (not video and t.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
-                continue
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'void dump_{t.name}(const {t.name} &object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
-            self.write('{')
-            self.write('dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-            self.write_platform_type_contents(t)
-            self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
-            self.write('}')
-
-        self.write('\n//========================= Basetype Implementations ========================//\n')
-
         protect = PlatformGuardHelper()
-        for basetype in self.vk.baseTypes.values():
-            protect.add_guard(self, basetype.protect)
-            if basetype.name in self.return_types:
-                self.write('template <ApiDumpFormat Format>')
-                self.write(f'void dump_return_value_{basetype.name}(const {basetype.name}{"*" if basetype.name in POINTER_TYPES else "&"} object, const ApiDumpSettings& settings, int indents) {{')
-                self.write('    dump_value<Format>(settings, object);')
-                self.write('}')
-
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'void dump_{basetype.name}(const {basetype.name}{"*" if basetype.name in POINTER_TYPES else "&"} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
-            self.write('{')
-            self.write('    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-            self.write('    dump_value<Format>(settings, object);')
-            self.write('    dump_end<Format>(settings, OutputConstruct::value, indents);')
-            self.write('}')
-        protect.add_guard(self, None)
-
-        self.write('\n//======================= System Type Implementations =======================//\n')
-
-        for sys in self.vk.platformTypes.values():
-            if (sys.requires is not None and (sys.requires in EXCLUDED_INCLUDE_LIST or 'vk_video' in sys.requires)) or (video and sys.name in DUPLICATE_TYPES_IN_VIDEO_HEADER):
-                continue
-            protect.add_guard(self, sys.protect)
-            if sys.name in self.return_types:
-                self.write('template <ApiDumpFormat Format>')
-                self.write(f'void dump_return_value_{sys.name}(const {sys.name}& object, const ApiDumpSettings& settings, int indents) {{')
-                self.write_system_type_contents(sys)
-                self.write('}')
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'void dump_{sys.name}(const {sys.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
-            self.write('{')
-            self.write(f'dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents{", &object" if sys.name in POINTER_TYPES else ""});')
-            self.write_system_type_contents(sys)
-            self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
-            self.write('}')
-        protect.add_guard(self, None)
-
         if not video:
             self.write('\n//========================== Handle Implementations =========================//\n')
             for handle in self.vk.handles.values():
@@ -598,7 +507,7 @@ class ApiDumpGenerator(BaseGenerator):
             protect.add_guard(self, enum.protect)
             if enum.name in self.return_types:
                 self.write('template <ApiDumpFormat Format>')
-                self.write(f'void dump_return_value_{enum.name}(const {enum.name}& object, const ApiDumpSettings& settings, int indents) {{')
+                self.write(f'void dump_return_value_{enum.name}(const {enum.name}& object, const ApiDumpSettings& settings) {{')
                 self.write_enum_contents(enum)
                 self.write('}')
             self.write('template <ApiDumpFormat Format>')
@@ -606,7 +515,7 @@ class ApiDumpGenerator(BaseGenerator):
             self.write('{')
             self.write('dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
             if enum.name in self.return_types:
-                self.write(f'dump_return_value_{enum.name}<Format>(object, settings, indents);')
+                self.write(f'dump_return_value_{enum.name}<Format>(object, settings);')
             else:
                 self.write_enum_contents(enum)
             self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
@@ -766,7 +675,7 @@ class ApiDumpGenerator(BaseGenerator):
                 if struct.sType is not None:
                     self.write(f'''
                         case {struct.sType}:
-                            dump_{struct.name}<Format>(*reinterpret_cast<const {struct.name}*>(object), settings, "{struct.name}*", "pNext", indents, reinterpret_cast<const {struct.name}*>(object));
+                            dump_{struct.name}<Format>(*reinterpret_cast<const {struct.name}*>(object), settings, (Format == ApiDumpFormat::Json ? "{struct.name}*" : "{struct.name}"), "pNext", indents, reinterpret_cast<const {struct.name}*>(object));
                             break;''')
             protect.add_guard(self, None)
             self.write('''
@@ -819,7 +728,10 @@ class ApiDumpGenerator(BaseGenerator):
             self.write(f'void dump_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{command_param_declaration_text(command)}) {{')
             self.write('const ApiDumpSettings& settings(dump_inst.settings());')
             if command.returnType != 'void':
-                self.write(f'dump_return_value<Format>(settings, "{command.returnType}", result, dump_return_value_{self.get_unaliased_type(command.returnType)}<Format>);')
+                if self.get_unaliased_type(command.returnType) in self.vulkan_defined_types:
+                    self.write(f'dump_return_value<Format>(settings, "{command.returnType}", result, dump_return_value_{command.returnType}<Format>);')
+                else:
+                    self.write(f'dump_return_value<Format>(settings, "{command.returnType}", result);')
 
             self.write(f'''dump_pre_function_formatting<Format>(settings);
                 dump_params_{command.name}<Format>(dump_inst, {command_param_usage_text(command)});
@@ -857,6 +769,34 @@ class ApiDumpGenerator(BaseGenerator):
             for alias in flag.aliases:
                 self.aliases[alias] = flag.name
 
+    def build_vulkan_defined_type_set(self):
+        self.vulkan_defined_types.update(self.vk.bitmasks.keys())
+        self.vulkan_defined_types.update(self.vk.commands.keys())
+        self.vulkan_defined_types.update(self.vk.enums.keys())
+        self.vulkan_defined_types.update(self.vk.flags.keys())
+        self.vulkan_defined_types.update(self.vk.funcPointers.keys())
+        self.vulkan_defined_types.update(self.vk.handles.keys())
+        self.vulkan_defined_types.update(self.vk.structs.keys())
+
+    def build_only_use_as_pointer_types(self):
+        for command in self.vk.commands.values():
+            for param in command.params:
+                if param.type not in self.vulkan_defined_types and 'StdVideo' not in param.type:
+                    self.only_use_as_pointer_types.add(param.type)
+        for struct in self.vk.structs.values():
+            for member in struct.members:
+                if member.type not in self.vulkan_defined_types and 'StdVideo' not in member.type:
+                    self.only_use_as_pointer_types.add(member.type)
+
+        for command in self.vk.commands.values():
+            for param in command.params:
+                if not param.pointer and param.type in self.only_use_as_pointer_types:
+                    self.only_use_as_pointer_types.remove(param.type)
+        for struct in self.vk.structs.values():
+            for member in struct.members:
+                if not member.pointer and member.type in self.only_use_as_pointer_types:
+                    self.only_use_as_pointer_types.remove(member.type)
+
     def get_return_types(self):
         for command in self.vk.commands.values():
             if command.returnType != 'void' :
@@ -879,6 +819,29 @@ class ApiDumpGenerator(BaseGenerator):
                 return VALIDITY_CHECKS[parent.name][var.name]
         return None
 
+    def get_is_array(self, var):
+        # Must have a length in order to be an array -
+        if var.length is None:
+            return False
+
+        # No way to iterate over a void type
+        if var.fullType in ['void*', 'const void*']:
+            return False
+
+        # If the type is a pointer or can be considered a fixed sized array, it isn't an array
+        if not var.pointer and len(var.fixedSizeArray) == 0:
+            return False
+
+        # Special case string types or fixed length strings as values so we print them with string processing
+        if var.fullType == 'const char*' or (len(var.fixedSizeArray) > 0 and var.type == 'char'):
+            return False
+
+        # Function poitners are considered poitners, but we want to print them as values
+        if var.type in self.vk.funcPointers.keys():
+            return False
+
+        return True
+
     def write_value(self, var, parent):
         custom_fullType = get_fulltype(var)
         custom_type = get_type(var)
@@ -890,17 +853,21 @@ class ApiDumpGenerator(BaseGenerator):
         else:
             indent = 'indents + (Format == ApiDumpFormat::Json ? 2 : 1)'
 
-        if var.name == 'apiVersion':
-            call_type = 'api_version'
-        elif var.name == 'pNext' and var.fullType in ['void*', 'const void*']:
-            call_type = 'pNext'
 
-        array_ptr = f'{object_access}{var.name}'
-        if get_is_array(var):
+        value = f'{object_access}{var.name}'
+        if self.get_is_array(var):
+            element_type = f'dump_type<Format, {custom_type}>'
+            if var.type == 'char':
+                element_type = 'dump_char<Format>'
+            if custom_type == 'uint8_t': # ostream << treats uint8_t as char which we dont want
+                element_type = 'dump_type<Format, uint32_t>'
+            elif custom_type == 'int8_t': # ostream << treats int8_t as char which we dont want
+                element_type = 'dump_type<Format, int32_t>'
+
+            elif call_type in self.vulkan_defined_types or 'StdVideo' in call_type:
+                element_type = f'dump_{call_type}<Format>'
+
             array_len = get_array_length(var, parent)
-            if parent.name == 'VkPipelineMultisampleStateCreateInfo' and var.length == '(rasterizationSamples + 31) / 32':
-                array_len = '(object.rasterizationSamples + 31) / 32'
-
             if parent.name == 'VkShaderModuleCreateInfo' and var.name == 'pCode':
                 array_len = f'{object_access}{var.length}'
                 self.write('if(settings.showShader()) {')
@@ -908,43 +875,46 @@ class ApiDumpGenerator(BaseGenerator):
             if len(var.fixedSizeArray) > 2:
                 raise RuntimeError("Unhandled fixed array dimentionality")
             elif len(var.fixedSizeArray) == 2:
-                self.write(f'dump_double_array<Format>({array_ptr}, {var.fixedSizeArray[0]},  {var.fixedSizeArray[1]}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, dump_{call_type}<Format>);')
+                self.write(f'dump_double_array<Format>({value}, {var.fixedSizeArray[0]},  {var.fixedSizeArray[1]}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, {element_type});')
 
             elif len(var.fixedSizeArray) == 1 and isinstance(parent, Struct): # Fixed length array's passed as parameters are treated as void*, so only match when printing members
                 fixed_array_len = get_fixed_array_length(var.fixedSizeArray[0], var, parent)
-                self.write(f'dump_single_array<Format>({array_ptr}, {fixed_array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, dump_{call_type}<Format>);')
+                self.write(f'dump_single_array<Format>({value}, {fixed_array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, {element_type});')
 
             else:
-                if var.fullType.count('*') > 1 and var.type not in ['void', 'char']:
-                    self.write(f'dump_pointer_array<Format>(*{array_ptr}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, dump_{call_type}<Format>);')
+                if var.fullType.count('*') > 1 and var.type not in ['void', 'char'] and (call_type in self.vulkan_defined_types or 'StdVideo' in call_type):
+                    self.write(f'dump_pointer_array<Format>(*{value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, {element_type});')
                 else:
-                    self.write(f'dump_pointer_array<Format>({array_ptr}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, dump_{call_type}<Format>);')
+                    self.write(f'dump_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, {element_type});')
 
             if parent.name == 'VkShaderModuleCreateInfo' and var.name == 'pCode':
                 self.write('} else {')
                 self.write(f'dump_special<Format>("SHADER DATA", settings, "{var.fullType}", "{var.name}", {indent});')
                 self.write('}')
         else:
-            if var.pointer and var.type not in ['void', 'char'] and var.type not in self.vk.funcPointers:
-                self.write(f'dump_pointer<Format>({array_ptr}, settings, "{custom_fullType}", "{var.name}", {indent}, dump_{call_type}<Format>);')
+            if var.pointer and var.type not in self.only_use_as_pointer_types and var.type not in self.vk.funcPointers.keys() and var.type not in ['void', 'char'] and not (var.name == 'pNext' and var.fullType in ['void*', 'const void*']):
+                pointer_type = f'dump_type<Format, {custom_type}>'
+                if (var.type in self.vulkan_defined_types or 'StdVideo' in call_type):
+                    pointer_type = f'dump_{call_type}<Format>'
+
+                self.write(f'dump_pointer<Format>({value}, settings, "{custom_fullType}", "{var.name}", {indent}, {pointer_type});')
             else:
-                self.write(f'dump_{call_type}<Format>({array_ptr}, settings, "{custom_fullType}", "{var.name}", {indent});')
-
-
-    def write_platform_type_contents(self, t):
-        cast = ''
-        if t.name == 'uint8_t':
-            cast = '(uint32_t) '
-        if t.name == 'int8_t':
-            cast = '(int32_t) '
-        self.write(f'dump_value<Format>(settings, {cast}object);')
-
-    def write_system_type_contents(self, sys):
-        self.write('dump_address<Format>(settings, &object);')
-        if '*' in sys.name:
-            self.write('if constexpr (Format == ApiDumpFormat::Json) {')
-            self.write('    settings.stream() << "\\n";')
-            self.write('}')
+                value_type = f'dump_type<Format, {var.fullType}>'
+                if var.name == 'apiVersion':
+                    value_type = 'dump_api_version<Format>'
+                elif var.name == 'pNext' and var.fullType in ['void*', 'const void*']:
+                    value_type = 'dump_pNext<Format>'
+                elif var.type == 'char':
+                    value_type = 'dump_char<Format>'
+                elif var.fullType == 'uint8_t': # ostream << treats uint8_t as char which we dont want
+                    value_type = 'dump_type<Format, uint32_t>'
+                elif var.fullType == 'int8_t': # ostream << treats int8_t as char which we dont want
+                    value_type = 'dump_type<Format, int32_t>'
+                elif call_type in self.vulkan_defined_types or 'StdVideo' in call_type:
+                    value_type = f'dump_{call_type}<Format>'
+                elif var.type in TREAT_AS_POINTERS and TREAT_AS_POINTERS[var.type] == var.name:
+                    value_type = 'dump_fake_pointer<Format>'
+                self.write(f'{value_type}({value}, settings, "{custom_fullType}", "{var.name}", {indent});')
 
     def write_enum_contents(self, enum):
         int_cast = ('' if any(f.negative for f in enum.fields) else 'u') + (f'int{enum.bitWidth}_t')
