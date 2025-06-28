@@ -1326,11 +1326,11 @@ void dump_StdVideoH264HrdParameters(const StdVideoH264HrdParameters& object, con
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.reserved1, settings, "uint8_t", "reserved1", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.bit_rate_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "bit_rate_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.bit_rate_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "bit_rate_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cpb_size_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "cpb_size_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.cpb_size_value_minus1, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "cpb_size_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cbr_flag, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "cbr_flag", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.cbr_flag, STD_VIDEO_H264_CPB_CNT_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H264_CPB_CNT_LIST_SIZE]", "cbr_flag", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.initial_cpb_removal_delay_length_minus1, settings, "uint32_t", "initial_cpb_removal_delay_length_minus1", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
@@ -1420,9 +1420,9 @@ void dump_StdVideoH264ScalingLists(const StdVideoH264ScalingLists& object, const
     dump_separate_members<Format>(settings);
     dump_type<Format, uint16_t>(object.use_default_scaling_matrix_mask, settings, "uint16_t", "use_default_scaling_matrix_mask", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS]", "ScalingList4x4", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_double_array<Format>(object.ScalingList4x4, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS, STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_4X4_NUM_ELEMENTS]", "ScalingList4x4", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS]", "ScalingList8x8", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_double_array<Format>(object.ScalingList8x8, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS, STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H264_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H264_SCALING_LIST_8X8_NUM_ELEMENTS]", "ScalingList8x8", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -1558,7 +1558,7 @@ void dump_StdVideoDecodeH264PictureInfo(const StdVideoDecodeH264PictureInfo& obj
     dump_separate_members<Format>(settings);
     dump_type<Format, uint16_t>(object.idr_pic_id, settings, "uint16_t", "idr_pic_id", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "PicOrderCnt", "int32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "PicOrderCnt", "int32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -1582,7 +1582,7 @@ void dump_StdVideoDecodeH264ReferenceInfo(const StdVideoDecodeH264ReferenceInfo&
     dump_separate_members<Format>(settings);
     dump_type<Format, uint16_t>(object.reserved, settings, "uint16_t", "reserved", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "PicOrderCnt", "int32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.PicOrderCnt, STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE, settings, "int32_t[STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_LIST_SIZE]", "PicOrderCnt", "int32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -1606,21 +1606,21 @@ void dump_StdVideoEncodeH264WeightTable(const StdVideoEncodeH264WeightTable& obj
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.chroma_log2_weight_denom, settings, "uint8_t", "chroma_log2_weight_denom", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.luma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_weight_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.luma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_weight_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.luma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_offset_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.luma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_offset_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.chroma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_weight_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_double_array<Format>(object.chroma_weight_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_weight_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.chroma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_offset_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_double_array<Format>(object.chroma_offset_l0, STD_VIDEO_H264_MAX_NUM_LIST_REF, STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_offset_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.luma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_weight_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.luma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_weight_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.luma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_offset_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.luma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "luma_offset_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.chroma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_weight_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_double_array<Format>(object.chroma_weight_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_weight_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.chroma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_offset_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_double_array<Format>(object.chroma_offset_l1, STD_VIDEO_H264_MAX_NUM_LIST_REF, STD_VIDEO_H264_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF][STD_VIDEO_H264_MAX_CHROMA_PLANES]", "chroma_offset_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -1700,9 +1700,9 @@ void dump_StdVideoEncodeH264ReferenceListsInfo(const StdVideoEncodeH264Reference
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.num_ref_idx_l1_active_minus1, settings, "uint8_t", "num_ref_idx_l1_active_minus1", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.RefPicList0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "RefPicList0", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.RefPicList0, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "RefPicList0", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.RefPicList1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "RefPicList1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.RefPicList1, STD_VIDEO_H264_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H264_MAX_NUM_LIST_REF]", "RefPicList1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.refList0ModOpCount, settings, "uint8_t", "refList0ModOpCount", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
@@ -1710,7 +1710,7 @@ void dump_StdVideoEncodeH264ReferenceListsInfo(const StdVideoEncodeH264Reference
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.refPicMarkingOpCount, settings, "uint8_t", "refPicMarkingOpCount", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved1, 7, settings, "uint8_t[7]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.reserved1, 7, settings, "uint8_t[7]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pRefList0ModOperations, settings, "const StdVideoEncodeH264RefListModEntry*", "pRefList0ModOperations", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoEncodeH264RefListModEntry<Format>);
     dump_separate_members<Format>(settings);
@@ -1738,7 +1738,7 @@ void dump_StdVideoEncodeH264PictureInfo(const StdVideoEncodeH264PictureInfo& obj
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.temporal_id, settings, "uint8_t", "temporal_id", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved1, 3, settings, "uint8_t[3]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.reserved1, 3, settings, "uint8_t[3]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pRefLists, settings, "const StdVideoEncodeH264ReferenceListsInfo*", "pRefLists", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoEncodeH264ReferenceListsInfo<Format>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
@@ -1788,23 +1788,23 @@ void dump_StdVideoEncodeH264SliceHeader(const StdVideoEncodeH264SliceHeader& obj
 template <ApiDumpFormat Format>
 void dump_StdVideoH265DecPicBufMgr(const StdVideoH265DecPicBufMgr& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_single_array<Format>(object.max_latency_increase_plus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_latency_increase_plus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.max_latency_increase_plus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_latency_increase_plus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.max_dec_pic_buffering_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_dec_pic_buffering_minus1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.max_dec_pic_buffering_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_dec_pic_buffering_minus1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.max_num_reorder_pics, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_num_reorder_pics", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.max_num_reorder_pics, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "max_num_reorder_pics", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
 void dump_StdVideoH265SubLayerHrdParameters(const StdVideoH265SubLayerHrdParameters& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_single_array<Format>(object.bit_rate_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "bit_rate_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.bit_rate_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "bit_rate_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cpb_size_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "cpb_size_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.cpb_size_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "cpb_size_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cpb_size_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "cpb_size_du_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.cpb_size_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "cpb_size_du_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.bit_rate_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "bit_rate_du_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.bit_rate_du_value_minus1, STD_VIDEO_H265_CPB_CNT_LIST_SIZE, settings, "uint32_t[STD_VIDEO_H265_CPB_CNT_LIST_SIZE]", "bit_rate_du_value_minus1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.cbr_flag, settings, "uint32_t", "cbr_flag", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
@@ -1850,11 +1850,11 @@ void dump_StdVideoH265HrdParameters(const StdVideoH265HrdParameters& object, con
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.dpb_output_delay_length_minus1, settings, "uint8_t", "dpb_output_delay_length_minus1", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cpb_cnt_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "cpb_cnt_minus1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.cpb_cnt_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint8_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "cpb_cnt_minus1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.elemental_duration_in_tc_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "elemental_duration_in_tc_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_single_array<Format>(object.elemental_duration_in_tc_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "elemental_duration_in_tc_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved, 3, settings, "uint16_t[3]", "reserved", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_single_array<Format>(object.reserved, 3, settings, "uint16_t[3]", "reserved", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pSubLayerHrdParametersNal, settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersNal", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoH265SubLayerHrdParameters<Format>);
     dump_separate_members<Format>(settings);
@@ -1928,17 +1928,17 @@ void dump_StdVideoH265VideoParameterSet(const StdVideoH265VideoParameterSet& obj
 template <ApiDumpFormat Format>
 void dump_StdVideoH265ScalingLists(const StdVideoH265ScalingLists& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_double_array<Format>(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS]", "ScalingList4x4", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_double_array<Format>(object.ScalingList4x4, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS, STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_4X4_NUM_ELEMENTS]", "ScalingList4x4", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.ScalingList8x8, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS]", "ScalingList8x8", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_double_array<Format>(object.ScalingList8x8, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS, STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_8X8_NUM_ELEMENTS]", "ScalingList8x8", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.ScalingList16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS]", "ScalingList16x16", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_double_array<Format>(object.ScalingList16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_16X16_NUM_ELEMENTS]", "ScalingList16x16", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.ScalingList32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS]", "ScalingList32x32", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_double_array<Format>(object.ScalingList32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS][STD_VIDEO_H265_SCALING_LIST_32X32_NUM_ELEMENTS]", "ScalingList32x32", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.ScalingListDCCoef16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "ScalingListDCCoef16x16", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.ScalingListDCCoef16x16, STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS]", "ScalingListDCCoef16x16", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.ScalingListDCCoef32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "ScalingListDCCoef32x32", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.ScalingListDCCoef32x32, STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS, settings, "uint8_t[STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS]", "ScalingListDCCoef32x32", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2040,7 +2040,7 @@ void dump_StdVideoH265SequenceParameterSetVui(const StdVideoH265SequenceParamete
 template <ApiDumpFormat Format>
 void dump_StdVideoH265PredictorPaletteEntries(const StdVideoH265PredictorPaletteEntries& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_double_array<Format>(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE, STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE][STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE]", "PredictorPaletteEntries", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_double_array<Format>(object.PredictorPaletteEntries, STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE, STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE][STD_VIDEO_H265_PREDICTOR_PALETTE_COMP_ENTRIES_LIST_SIZE]", "PredictorPaletteEntries", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2142,9 +2142,9 @@ void dump_StdVideoH265ShortTermRefPicSet(const StdVideoH265ShortTermRefPicSet& o
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.num_positive_pics, settings, "uint8_t", "num_positive_pics", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.delta_poc_s0_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "delta_poc_s0_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_single_array<Format>(object.delta_poc_s0_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "delta_poc_s0_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.delta_poc_s1_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "delta_poc_s1_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_single_array<Format>(object.delta_poc_s1_minus1, STD_VIDEO_H265_MAX_DPB_SIZE, settings, "uint16_t[STD_VIDEO_H265_MAX_DPB_SIZE]", "delta_poc_s1_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2152,7 +2152,7 @@ void dump_StdVideoH265LongTermRefPicsSps(const StdVideoH265LongTermRefPicsSps& o
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_type<Format, uint32_t>(object.used_by_curr_pic_lt_sps_flag, settings, "uint32_t", "used_by_curr_pic_lt_sps_flag", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.lt_ref_pic_poc_lsb_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint32_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "lt_ref_pic_poc_lsb_sps", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.lt_ref_pic_poc_lsb_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint32_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "lt_ref_pic_poc_lsb_sps", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2340,9 +2340,9 @@ void dump_StdVideoH265PictureParameterSet(const StdVideoH265PictureParameterSet&
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.chroma_qp_offset_list_len_minus1, settings, "uint8_t", "chroma_qp_offset_list_len_minus1", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cb_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "cb_qp_offset_list", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.cb_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "cb_qp_offset_list", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cr_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "cr_qp_offset_list", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.cr_qp_offset_list, STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE, settings, "int8_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE]", "cr_qp_offset_list", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.log2_sao_offset_scale_luma, settings, "uint8_t", "log2_sao_offset_scale_luma", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
@@ -2368,9 +2368,9 @@ void dump_StdVideoH265PictureParameterSet(const StdVideoH265PictureParameterSet&
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.reserved2, settings, "uint8_t", "reserved2", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.column_width_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE]", "column_width_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_single_array<Format>(object.column_width_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE]", "column_width_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.row_height_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE]", "row_height_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_single_array<Format>(object.row_height_minus1, STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE]", "row_height_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.reserved3, settings, "uint32_t", "reserved3", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
@@ -2410,11 +2410,11 @@ void dump_StdVideoDecodeH265PictureInfo(const StdVideoDecodeH265PictureInfo& obj
     dump_separate_members<Format>(settings);
     dump_type<Format, uint16_t>(object.reserved, settings, "uint16_t", "reserved", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.RefPicSetStCurrBefore, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "RefPicSetStCurrBefore", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.RefPicSetStCurrBefore, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "RefPicSetStCurrBefore", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.RefPicSetStCurrAfter, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "RefPicSetStCurrAfter", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.RefPicSetStCurrAfter, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "RefPicSetStCurrAfter", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.RefPicSetLtCurr, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "RefPicSetLtCurr", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.RefPicSetLtCurr, STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE, settings, "uint8_t[STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE]", "RefPicSetLtCurr", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2454,21 +2454,21 @@ void dump_StdVideoEncodeH265WeightTable(const StdVideoEncodeH265WeightTable& obj
     dump_separate_members<Format>(settings);
     dump_type<Format, int32_t>(object.delta_chroma_log2_weight_denom, settings, "int8_t", "delta_chroma_log2_weight_denom", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.delta_luma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_luma_weight_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.delta_luma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_luma_weight_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.luma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "luma_offset_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.luma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "luma_offset_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.delta_chroma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_weight_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_double_array<Format>(object.delta_chroma_weight_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_weight_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.delta_chroma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_offset_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_double_array<Format>(object.delta_chroma_offset_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_offset_l0", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.delta_luma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_luma_weight_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.delta_luma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "delta_luma_weight_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.luma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "luma_offset_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.luma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "luma_offset_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.delta_chroma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_weight_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_double_array<Format>(object.delta_chroma_weight_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_weight_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.delta_chroma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_offset_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_double_array<Format>(object.delta_chroma_offset_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, STD_VIDEO_H265_MAX_CHROMA_PLANES, settings, "int8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF][STD_VIDEO_H265_MAX_CHROMA_PLANES]", "delta_chroma_offset_l1", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2554,13 +2554,13 @@ void dump_StdVideoEncodeH265ReferenceListsInfo(const StdVideoEncodeH265Reference
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.num_ref_idx_l1_active_minus1, settings, "uint8_t", "num_ref_idx_l1_active_minus1", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.RefPicList0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "RefPicList0", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.RefPicList0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "RefPicList0", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.RefPicList1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "RefPicList1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.RefPicList1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "RefPicList1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.list_entry_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "list_entry_l0", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.list_entry_l0, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "list_entry_l0", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.list_entry_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "list_entry_l1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.list_entry_l1, STD_VIDEO_H265_MAX_NUM_LIST_REF, settings, "uint8_t[STD_VIDEO_H265_MAX_NUM_LIST_REF]", "list_entry_l1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2594,15 +2594,15 @@ void dump_StdVideoEncodeH265LongTermRefPics(const StdVideoEncodeH265LongTermRefP
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.num_long_term_pics, settings, "uint8_t", "num_long_term_pics", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.lt_idx_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "lt_idx_sps", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.lt_idx_sps, STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS]", "lt_idx_sps", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.poc_lsb_lt, STD_VIDEO_H265_MAX_LONG_TERM_PICS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_PICS]", "poc_lsb_lt", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.poc_lsb_lt, STD_VIDEO_H265_MAX_LONG_TERM_PICS, settings, "uint8_t[STD_VIDEO_H265_MAX_LONG_TERM_PICS]", "poc_lsb_lt", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint16_t>(object.used_by_curr_pic_lt_flag, settings, "uint16_t", "used_by_curr_pic_lt_flag", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.delta_poc_msb_present_flag, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "delta_poc_msb_present_flag", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.delta_poc_msb_present_flag, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "delta_poc_msb_present_flag", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.delta_poc_msb_cycle_lt, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "delta_poc_msb_cycle_lt", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.delta_poc_msb_cycle_lt, STD_VIDEO_H265_MAX_DELTA_POC, settings, "uint8_t[STD_VIDEO_H265_MAX_DELTA_POC]", "delta_poc_msb_cycle_lt", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2624,7 +2624,7 @@ void dump_StdVideoEncodeH265PictureInfo(const StdVideoEncodeH265PictureInfo& obj
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.TemporalId, settings, "uint8_t", "TemporalId", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved1, 7, settings, "uint8_t[7]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.reserved1, 7, settings, "uint8_t[7]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pRefLists, settings, "const StdVideoEncodeH265ReferenceListsInfo*", "pRefLists", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoEncodeH265ReferenceListsInfo<Format>);
     dump_separate_members<Format>(settings);
@@ -2726,17 +2726,17 @@ void dump_StdVideoAV1LoopFilter(const StdVideoAV1LoopFilter& object, const ApiDu
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_StdVideoAV1LoopFilterFlags<Format>(object.flags, settings, "StdVideoAV1LoopFilterFlags", "flags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.loop_filter_level, STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS]", "loop_filter_level", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.loop_filter_level, STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_LOOP_FILTER_STRENGTHS]", "loop_filter_level", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.loop_filter_sharpness, settings, "uint8_t", "loop_filter_sharpness", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.update_ref_delta, settings, "uint8_t", "update_ref_delta", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.loop_filter_ref_deltas, STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME]", "loop_filter_ref_deltas", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.loop_filter_ref_deltas, STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_TOTAL_REFS_PER_FRAME]", "loop_filter_ref_deltas", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.update_mode_delta, settings, "uint8_t", "update_mode_delta", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.loop_filter_mode_deltas, STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS]", "loop_filter_mode_deltas", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.loop_filter_mode_deltas, STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_AV1_LOOP_FILTER_ADJUSTMENTS]", "loop_filter_mode_deltas", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2776,9 +2776,9 @@ void dump_StdVideoAV1Quantization(const StdVideoAV1Quantization& object, const A
 template <ApiDumpFormat Format>
 void dump_StdVideoAV1Segmentation(const StdVideoAV1Segmentation& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_single_array<Format>(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "FeatureEnabled", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.FeatureEnabled, STD_VIDEO_AV1_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_SEGMENTS]", "FeatureEnabled", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.FeatureData, STD_VIDEO_AV1_MAX_SEGMENTS, STD_VIDEO_AV1_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS][STD_VIDEO_AV1_SEG_LVL_MAX]", "FeatureData", "int16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int16_t>);
+    dump_double_array<Format>(object.FeatureData, STD_VIDEO_AV1_MAX_SEGMENTS, STD_VIDEO_AV1_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_AV1_MAX_SEGMENTS][STD_VIDEO_AV1_SEG_LVL_MAX]", "FeatureData", "int16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int16_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2802,7 +2802,7 @@ void dump_StdVideoAV1TileInfo(const StdVideoAV1TileInfo& object, const ApiDumpSe
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.tile_size_bytes_minus_1, settings, "uint8_t", "tile_size_bytes_minus_1", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved1, 7, settings, "uint8_t[7]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.reserved1, 7, settings, "uint8_t[7]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pMiColStarts, settings, "const uint16_t*", "pMiColStarts", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, const uint16_t>);
     dump_separate_members<Format>(settings);
@@ -2820,29 +2820,29 @@ void dump_StdVideoAV1CDEF(const StdVideoAV1CDEF& object, const ApiDumpSettings& 
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.cdef_bits, settings, "uint8_t", "cdef_bits", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cdef_y_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_y_pri_strength", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.cdef_y_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_y_pri_strength", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cdef_y_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_y_sec_strength", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.cdef_y_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_y_sec_strength", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cdef_uv_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_uv_pri_strength", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.cdef_uv_pri_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_uv_pri_strength", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.cdef_uv_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_uv_sec_strength", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.cdef_uv_sec_strength, STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS, settings, "uint8_t[STD_VIDEO_AV1_MAX_CDEF_FILTER_STRENGTHS]", "cdef_uv_sec_strength", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
 void dump_StdVideoAV1LoopRestoration(const StdVideoAV1LoopRestoration& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_single_array<Format>(object.FrameRestorationType, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "StdVideoAV1FrameRestorationType[STD_VIDEO_AV1_MAX_NUM_PLANES]", "FrameRestorationType", "StdVideoAV1FrameRestorationType", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoAV1FrameRestorationType<Format>);
+    dump_single_array<Format>(object.FrameRestorationType, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "StdVideoAV1FrameRestorationType[STD_VIDEO_AV1_MAX_NUM_PLANES]", "FrameRestorationType", "StdVideoAV1FrameRestorationType", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoAV1FrameRestorationType<Format>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.LoopRestorationSize, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "uint16_t[STD_VIDEO_AV1_MAX_NUM_PLANES]", "LoopRestorationSize", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_single_array<Format>(object.LoopRestorationSize, STD_VIDEO_AV1_MAX_NUM_PLANES, settings, "uint16_t[STD_VIDEO_AV1_MAX_NUM_PLANES]", "LoopRestorationSize", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
 void dump_StdVideoAV1GlobalMotion(const StdVideoAV1GlobalMotion& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_single_array<Format>(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "GmType", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.GmType, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "GmType", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.gm_params, STD_VIDEO_AV1_NUM_REF_FRAMES, STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS, settings, "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES][STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS]", "gm_params", "int32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_double_array<Format>(object.gm_params, STD_VIDEO_AV1_NUM_REF_FRAMES, STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS, settings, "int32_t[STD_VIDEO_AV1_NUM_REF_FRAMES][STD_VIDEO_AV1_GLOBAL_MOTION_PARAMS]", "gm_params", "int32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -2878,27 +2878,27 @@ void dump_StdVideoAV1FilmGrain(const StdVideoAV1FilmGrain& object, const ApiDump
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.num_y_points, settings, "uint8_t", "num_y_points", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.point_y_value, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "point_y_value", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.point_y_value, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "point_y_value", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.point_y_scaling, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "point_y_scaling", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.point_y_scaling, STD_VIDEO_AV1_MAX_NUM_Y_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_Y_POINTS]", "point_y_scaling", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.num_cb_points, settings, "uint8_t", "num_cb_points", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.point_cb_value, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "point_cb_value", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.point_cb_value, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "point_cb_value", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.point_cb_scaling, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "point_cb_scaling", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.point_cb_scaling, STD_VIDEO_AV1_MAX_NUM_CB_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CB_POINTS]", "point_cb_scaling", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.num_cr_points, settings, "uint8_t", "num_cr_points", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.point_cr_value, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "point_cr_value", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.point_cr_value, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "point_cr_value", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.point_cr_scaling, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "point_cr_scaling", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.point_cr_scaling, STD_VIDEO_AV1_MAX_NUM_CR_POINTS, settings, "uint8_t[STD_VIDEO_AV1_MAX_NUM_CR_POINTS]", "point_cr_scaling", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.ar_coeffs_y_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_LUMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_LUMA]", "ar_coeffs_y_plus_128", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.ar_coeffs_y_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_LUMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_LUMA]", "ar_coeffs_y_plus_128", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.ar_coeffs_cb_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "ar_coeffs_cb_plus_128", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.ar_coeffs_cb_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "ar_coeffs_cb_plus_128", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.ar_coeffs_cr_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "ar_coeffs_cr_plus_128", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.ar_coeffs_cr_plus_128, STD_VIDEO_AV1_MAX_NUM_POS_CHROMA, settings, "int8_t[STD_VIDEO_AV1_MAX_NUM_POS_CHROMA]", "ar_coeffs_cr_plus_128", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.cb_mult, settings, "uint8_t", "cb_mult", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
@@ -2982,7 +2982,7 @@ void dump_StdVideoAV1SequenceHeader(const StdVideoAV1SequenceHeader& object, con
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.seq_force_screen_content_tools, settings, "uint8_t", "seq_force_screen_content_tools", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved1, 5, settings, "uint8_t[5]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.reserved1, 5, settings, "uint8_t[5]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pColorConfig, settings, "const StdVideoAV1ColorConfig*", "pColorConfig", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoAV1ColorConfig<Format>);
     dump_separate_members<Format>(settings);
@@ -3078,15 +3078,15 @@ void dump_StdVideoDecodeAV1PictureInfo(const StdVideoDecodeAV1PictureInfo& objec
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.delta_lf_res, settings, "uint8_t", "delta_lf_res", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.SkipModeFrame, STD_VIDEO_AV1_SKIP_MODE_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_SKIP_MODE_FRAMES]", "SkipModeFrame", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.SkipModeFrame, STD_VIDEO_AV1_SKIP_MODE_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_SKIP_MODE_FRAMES]", "SkipModeFrame", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.coded_denom, settings, "uint8_t", "coded_denom", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved2, 3, settings, "uint8_t[3]", "reserved2", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.reserved2, 3, settings, "uint8_t[3]", "reserved2", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.OrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "OrderHints", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.OrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "OrderHints", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.expectedFrameId, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "expectedFrameId", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.expectedFrameId, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint32_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "expectedFrameId", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoAV1TileInfo<Format>);
     dump_separate_members<Format>(settings);
@@ -3126,7 +3126,7 @@ void dump_StdVideoDecodeAV1ReferenceInfo(const StdVideoDecodeAV1ReferenceInfo& o
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.OrderHint, settings, "uint8_t", "OrderHint", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.SavedOrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "SavedOrderHints", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.SavedOrderHints, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "SavedOrderHints", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -3276,13 +3276,13 @@ void dump_StdVideoEncodeAV1PictureInfo(const StdVideoEncodeAV1PictureInfo& objec
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.delta_lf_res, settings, "uint8_t", "delta_lf_res", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.ref_order_hint, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "ref_order_hint", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.ref_order_hint, STD_VIDEO_AV1_NUM_REF_FRAMES, settings, "uint8_t[STD_VIDEO_AV1_NUM_REF_FRAMES]", "ref_order_hint", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.ref_frame_idx, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "ref_frame_idx", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.ref_frame_idx, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "int8_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "ref_frame_idx", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved1, 3, settings, "uint8_t[3]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.reserved1, 3, settings, "uint8_t[3]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.delta_frame_id_minus_1, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "uint32_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "delta_frame_id_minus_1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.delta_frame_id_minus_1, STD_VIDEO_AV1_REFS_PER_FRAME, settings, "uint32_t[STD_VIDEO_AV1_REFS_PER_FRAME]", "delta_frame_id_minus_1", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pTileInfo, settings, "const StdVideoAV1TileInfo*", "pTileInfo", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoAV1TileInfo<Format>);
     dump_separate_members<Format>(settings);
@@ -3324,7 +3324,7 @@ void dump_StdVideoEncodeAV1ReferenceInfo(const StdVideoEncodeAV1ReferenceInfo& o
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.OrderHint, settings, "uint8_t", "OrderHint", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved1, 3, settings, "uint8_t[3]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.reserved1, 3, settings, "uint8_t[3]", "reserved1", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pExtensionHeader, settings, "const StdVideoEncodeAV1ExtensionHeader*", "pExtensionHeader", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoEncodeAV1ExtensionHeader<Format>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
@@ -3374,11 +3374,11 @@ void dump_StdVideoVP9LoopFilter(const StdVideoVP9LoopFilter& object, const ApiDu
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.update_ref_delta, settings, "uint8_t", "update_ref_delta", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.loop_filter_ref_deltas, STD_VIDEO_VP9_MAX_REF_FRAMES, settings, "int8_t[STD_VIDEO_VP9_MAX_REF_FRAMES]", "loop_filter_ref_deltas", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.loop_filter_ref_deltas, STD_VIDEO_VP9_MAX_REF_FRAMES, settings, "int8_t[STD_VIDEO_VP9_MAX_REF_FRAMES]", "loop_filter_ref_deltas", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.update_mode_delta, settings, "uint8_t", "update_mode_delta", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.loop_filter_mode_deltas, STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS]", "loop_filter_mode_deltas", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
+    dump_single_array<Format>(object.loop_filter_mode_deltas, STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS, settings, "int8_t[STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS]", "loop_filter_mode_deltas", "int8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int32_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -3400,13 +3400,13 @@ void dump_StdVideoVP9Segmentation(const StdVideoVP9Segmentation& object, const A
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_StdVideoVP9SegmentationFlags<Format>(object.flags, settings, "StdVideoVP9SegmentationFlags", "flags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "segmentation_tree_probs", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.segmentation_tree_probs, STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS]", "segmentation_tree_probs", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB]", "segmentation_pred_prob", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.segmentation_pred_prob, STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB]", "segmentation_pred_prob", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "FeatureEnabled", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    dump_single_array<Format>(object.FeatureEnabled, STD_VIDEO_VP9_MAX_SEGMENTS, settings, "uint8_t[STD_VIDEO_VP9_MAX_SEGMENTS]", "FeatureEnabled", "uint8_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
     dump_separate_members<Format>(settings);
-    dump_double_array<Format>(object.FeatureData, STD_VIDEO_VP9_MAX_SEGMENTS, STD_VIDEO_VP9_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS][STD_VIDEO_VP9_SEG_LVL_MAX]", "FeatureData", "int16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int16_t>);
+    dump_double_array<Format>(object.FeatureData, STD_VIDEO_VP9_MAX_SEGMENTS, STD_VIDEO_VP9_SEG_LVL_MAX, settings, "int16_t[STD_VIDEO_VP9_MAX_SEGMENTS][STD_VIDEO_VP9_SEG_LVL_MAX]", "FeatureData", "int16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, int16_t>);
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -3462,7 +3462,7 @@ void dump_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo& objec
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.tile_rows_log2, settings, "uint8_t", "tile_rows_log2", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_single_array<Format>(object.reserved1, 3, settings, "uint16_t[3]", "reserved1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1) + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_single_array<Format>(object.reserved1, 3, settings, "uint16_t[3]", "reserved1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_separate_members<Format>(settings);
     dump_pointer<Format>(object.pColorConfig, settings, "const StdVideoVP9ColorConfig*", "pColorConfig", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoVP9ColorConfig<Format>);
     dump_separate_members<Format>(settings);

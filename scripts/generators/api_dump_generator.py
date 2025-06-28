@@ -605,9 +605,9 @@ class ApiDumpGenerator(BaseGenerator):
                     if not struct.union: # Union's use validity_check to only print the active element
                         self.write(f'''}} else {{
                             if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {{
-                                dump_special<Format>("UNUSED", settings, "{custom_fullType}", "{member.name}", indents + 2);
+                                dump_special<Format>("UNUSED", settings, "{custom_fullType}", "{member.name}", indents + 1);
                             }} else if constexpr (Format == ApiDumpFormat::Json) {{
-                                dump_json_UNUSED(settings, "{custom_fullType}", "{member.name}", indents + 1);
+                                dump_json_UNUSED(settings, "{custom_fullType}", "{member.name}", indents + 2);
                             }}''')
                     self.write('}')
 
@@ -847,7 +847,6 @@ class ApiDumpGenerator(BaseGenerator):
         custom_type = get_type(var)
         object_access = 'object.' if isinstance(parent, Struct) else ''
         call_type = self.get_unaliased_type(var.type)
-        indent_plus = '(Format == ApiDumpFormat::Json ? 2 : 1)'
         if isinstance(parent, Command):
             indent = '(Format == ApiDumpFormat::Json ? 4 : 1)'
         else:
@@ -875,17 +874,17 @@ class ApiDumpGenerator(BaseGenerator):
             if len(var.fixedSizeArray) > 2:
                 raise RuntimeError("Unhandled fixed array dimentionality")
             elif len(var.fixedSizeArray) == 2:
-                self.write(f'dump_double_array<Format>({value}, {var.fixedSizeArray[0]},  {var.fixedSizeArray[1]}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, {element_type});')
+                self.write(f'dump_double_array<Format>({value}, {var.fixedSizeArray[0]},  {var.fixedSizeArray[1]}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
 
             elif len(var.fixedSizeArray) == 1 and isinstance(parent, Struct): # Fixed length array's passed as parameters are treated as void*, so only match when printing members
                 fixed_array_len = get_fixed_array_length(var.fixedSizeArray[0], var, parent)
-                self.write(f'dump_single_array<Format>({value}, {fixed_array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, {element_type});')
+                self.write(f'dump_single_array<Format>({value}, {fixed_array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
 
             else:
                 if var.fullType.count('*') > 1 and var.type not in ['void', 'char'] and (call_type in self.vulkan_defined_types or 'StdVideo' in call_type):
-                    self.write(f'dump_pointer_array<Format>(*{value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, {element_type});')
+                    self.write(f'dump_pointer_array<Format>(*{value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
                 else:
-                    self.write(f'dump_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent} + {indent_plus}, {element_type});')
+                    self.write(f'dump_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
 
             if parent.name == 'VkShaderModuleCreateInfo' and var.name == 'pCode':
                 self.write('} else {')
