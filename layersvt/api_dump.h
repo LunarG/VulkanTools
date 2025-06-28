@@ -23,6 +23,8 @@
 
 #pragma once
 
+#define VK_NO_PROTOTYPES
+
 #include "vulkan/vk_layer.h"
 #include "vk_layer_table.h"
 #include <vulkan/utility/vk_dispatch_table.h>
@@ -83,6 +85,10 @@
 // Disable warning about bitshift precedence
 #pragma warning(disable : 4554)
 #endif
+
+// Forward declarations for dispatch
+EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char *pName);
+EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char *pName);
 
 #define MAX_STRING_LENGTH 1024
 

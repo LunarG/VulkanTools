@@ -40,7 +40,6 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
             instance_func = api_dump_known_instance_functions<ApiDumpFormat::Json>(instance, pName);
             break;
     }
-    // auto instance_func = api_dump_known_instance_functions(instance, pName);
     if (instance_func) return instance_func;
     PFN_vkVoidFunction device_func = nullptr;
 
@@ -56,7 +55,6 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
             break;
     }
     // Make sure that device functions queried through GIPA works
-    // auto device_func = api_dump_known_device_functions(NULL, pName);
     if (device_func) return device_func;
 
     // Haven't created an instance yet, exit now since there is no instance_dispatch_table
@@ -77,7 +75,6 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
             device_func = api_dump_known_device_functions<ApiDumpFormat::Json>(device, pName);
             break;
     }
-    // auto device_func = api_dump_known_device_functions(device, pName);
     if (device_func) return device_func;
 
     // Haven't created a device yet, exit now since there is no device_dispatch_table
