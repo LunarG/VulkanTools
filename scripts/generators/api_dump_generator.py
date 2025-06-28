@@ -279,7 +279,7 @@ class ApiDumpGenerator(BaseGenerator):
         self.build_vulkan_defined_type_set()
         self.build_only_use_as_pointer_types()
         self.generate_copyright()
-        if self.filename == 'api_dump_dispatch.cpp':
+        if self.filename == 'api_dump_dispatch.h':
             self.generate_dispatch_codegen()
         elif self.filename == 'api_dump_implementation.h':
             self.generate_implementation()
@@ -314,7 +314,7 @@ class ApiDumpGenerator(BaseGenerator):
 
     def generate_dispatch_codegen(self):
 
-        self.write('''#include "api_dump_implementation.h"
+        self.write('''#include "api_dump_handwritten_functions.h"
 
             // Autogen instance functions
             ''')
@@ -324,6 +324,7 @@ class ApiDumpGenerator(BaseGenerator):
             if command.name in HANDWRITTEN_FUNCTIONS:
                 continue
             protect.add_guard(self, command.protect)
+            self.write('template<ApiDumpFormat Format>')
             self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({command_param_declaration_text(command)})')
             self.write('{')
             if command.name not in BLOCKING_API_CALLS:
@@ -377,23 +378,20 @@ class ApiDumpGenerator(BaseGenerator):
 
             if command.name == 'vkGetPhysicalDeviceToolPropertiesEXT':
                 self.write('if (original_pToolProperties != nullptr) {')
-                self.write('pToolProperties = original_pToolProperties;')
+                self.write('    pToolProperties = original_pToolProperties;')
                 self.write('}\n')
                 self.write('(*pToolCount)++;')
 
-            self.write(f'''if (ApiDumpInstance::current().shouldDumpOutput()) {{
-                switch(ApiDumpInstance::current().settings().format())
-                {{
-                    case ApiDumpFormat::Text:
-                        dump_{command.name}<ApiDumpFormat::Text>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
-                        break;
-                    case ApiDumpFormat::Html:
-                        dump_{command.name}<ApiDumpFormat::Html>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
-                        break;
-                    case ApiDumpFormat::Json:
-                        dump_{command.name}<ApiDumpFormat::Json>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{', '.join(p.name for p in command.params)});
-                        break;
-                }}
+            self.write('if (ApiDumpInstance::current().shouldDumpOutput()) {')
+            if command.returnType != 'void':
+                if self.get_unaliased_type(command.returnType) in self.vulkan_defined_types:
+                    self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result, dump_return_value_{command.returnType}<Format>);')
+                else:
+                    self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result);')
+            self.write(f'''dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+                dump_params_{command.name}<Format>(ApiDumpInstance::current(), {command_param_usage_text(command)});
+                dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+                flush(ApiDumpInstance::current().settings());
             }}''')
             if command.returnType != 'void':
                 self.write('return result;')
@@ -408,6 +406,7 @@ class ApiDumpGenerator(BaseGenerator):
 
             protect.add_guard(self, command.protect)
 
+            self.write('template<ApiDumpFormat Format>')
             self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({command_param_declaration_text(command)})')
             self.write('{')
 
@@ -434,20 +433,19 @@ class ApiDumpGenerator(BaseGenerator):
             if command.name == 'vkDestroyDevice':
                 self.write('destroy_device_dispatch_table(get_dispatch_key(device));')
 
-            self.write(f'''if (ApiDumpInstance::current().shouldDumpOutput()) {{
-                switch(ApiDumpInstance::current().settings().format())
-                {{
-                    case ApiDumpFormat::Text:
-                        dump_{command.name}<ApiDumpFormat::Text>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
-                        break;
-                    case ApiDumpFormat::Html:
-                        dump_{command.name}<ApiDumpFormat::Html>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
-                        break;
-                    case ApiDumpFormat::Json:
-                        dump_{command.name}<ApiDumpFormat::Json>(ApiDumpInstance::current(), {"result, " if command.returnType != "void" else ""}{command_param_usage_text(command)});
-                        break;
-                }}
+            self.write('if (ApiDumpInstance::current().shouldDumpOutput()) {')
+            if command.returnType != 'void':
+                if self.get_unaliased_type(command.returnType) in self.vulkan_defined_types:
+                    self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result, dump_return_value_{command.returnType}<Format>);')
+                else:
+                    self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result);')
+
+            self.write(f'''dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+                dump_params_{command.name}<Format>(ApiDumpInstance::current(), {command_param_usage_text(command)});
+                dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+                flush(ApiDumpInstance::current().settings());
             }}''')
+
             if command.name == 'vkQueuePresentKHR':
                 self.write('ApiDumpInstance::current().nextFrame();')
             if command.returnType != 'void':
@@ -455,25 +453,32 @@ class ApiDumpGenerator(BaseGenerator):
             self.write('}')
         protect.add_guard(self, None)
 
-
-        self.write('\nVKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char* pName)')
+        self.write('\ntemplate<ApiDumpFormat Format>')
+        self.write('VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char* pName)')
         self.write('{\n')
         for command in self.vk.commands.values():
             if command.name in ['vkEnumerateDeviceExtensionProperties', 'vkEnumerateInstanceVersion'] or (command.device and 'VK_EXT_debug_utils' not in command.extensions):
                 continue
             protect.add_guard(self, command.protect)
             self.write(f'if(strcmp(pName, "{command.name}") == 0)')
-            self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
+            if command.name in HANDWRITTEN_FUNCTIONS and command.name != 'vkCreateDevice':
+                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
+            else:
+                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name}<Format>);')
         protect.add_guard(self, None)
         self.write('\n    return nullptr;')
         self.write('}')
 
-        self.write('\nVKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char* pName)')
+        self.write('\ntemplate<ApiDumpFormat Format>')
+        self.write('VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char* pName)')
         self.write('{\n')
         for command in [x for x in self.vk.commands.values() if x.device ]:
             protect.add_guard(self, command.protect)
             self.write(f'if(strcmp(pName, "{command.name}") == 0 && (!device || device_dispatch_table(device)->{command.name[2:]}))')
-            self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
+            if command.name in HANDWRITTEN_FUNCTIONS and command.name != 'vkCreateDevice':
+                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
+            else:
+                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name}<Format>);')
         protect.add_guard(self, None)
 
         self.write('\n    return nullptr;')
@@ -719,27 +724,6 @@ class ApiDumpGenerator(BaseGenerator):
                 }
             }''')
         protect.add_guard(self, None)
-
-        self.write('\n//========================= Function Implementations ========================//\n')
-        for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
-            protect.add_guard(self, command.protect)
-            returnParam = f'{command.returnType} result, ' if command.returnType != 'void' else ''
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'void dump_{command.name}(ApiDumpInstance& dump_inst, {returnParam}{command_param_declaration_text(command)}) {{')
-            self.write('const ApiDumpSettings& settings(dump_inst.settings());')
-            if command.returnType != 'void':
-                if self.get_unaliased_type(command.returnType) in self.vulkan_defined_types:
-                    self.write(f'dump_return_value<Format>(settings, "{command.returnType}", result, dump_return_value_{command.returnType}<Format>);')
-                else:
-                    self.write(f'dump_return_value<Format>(settings, "{command.returnType}", result);')
-
-            self.write(f'''dump_pre_function_formatting<Format>(settings);
-                dump_params_{command.name}<Format>(dump_inst, {command_param_usage_text(command)});
-                dump_post_function_formatting<Format>(settings);
-                flush(settings);
-            }}''')
-        protect.add_guard(self, None)
-        self.write('\n')
 
     def build_alias_map(self):
         for handle in self.vk.handles.values():
