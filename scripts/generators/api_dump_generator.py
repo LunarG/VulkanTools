@@ -157,6 +157,15 @@ HANDWRITTEN_FUNCTIONS = ['vkCreateInstance',
                          'vkGetInstanceProcAddr',
                          'vkGetDeviceProcAddr']
 
+NON_TEMPLATEDTED_FUNCTIONS = ['vkGetInstanceProcAddr',
+                              'vkGetDeviceProcAddr',
+                              'vkCreateInstance',
+                              'vkEnumerateInstanceExtensionProperties',
+                              'vkEnumerateInstanceLayerProperties',
+                              'vkEnumerateInstanceVersion',
+                              'vkEnumerateDeviceLayerProperties',
+                              'vkEnumerateDeviceExtensionProperties']
+
 BLOCKING_API_CALLS = [
     'vkWaitForFences', 'vkWaitSemaphores', 'vkQueuePresentKHR', 'vkDeviceWaitIdle',
     'vkQueueWaitIdle', 'vkAcquireNextImageKHR', 'vkGetQueryPoolResults', 'vkWaitSemaphoresKHR'
@@ -331,9 +340,11 @@ class ApiDumpGenerator(BaseGenerator):
                 self.write(f'''
                     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
                     dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
-                    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text && ApiDumpInstance::current().shouldDumpOutput()) {{
-                        dump_before_pre_dump_formatting<ApiDumpFormat::Text>(ApiDumpInstance::current().settings());
-                        dump_params_{command.name}<ApiDumpFormat::Text>(ApiDumpInstance::current(), {command_param_usage_text(command)});
+                     if constexpr (Format == ApiDumpFormat::Text) {{
+                        if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {{
+                            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+                            dump_params_{command.name}<Format>(ApiDumpInstance::current(), {command_param_usage_text(command)});
+                        }}
                     }}''')
 
             if command.name == 'vkGetPhysicalDeviceToolPropertiesEXT':
@@ -416,9 +427,11 @@ class ApiDumpGenerator(BaseGenerator):
                     self.write('ApiDumpInstance::current().update_object_name_map(pNameInfo);')
                 self.write(f'''
                     dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
-                    if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().settings().format() == ApiDumpFormat::Text && ApiDumpInstance::current().shouldDumpOutput()) {{
-                        dump_before_pre_dump_formatting<ApiDumpFormat::Text>(ApiDumpInstance::current().settings());
-                        dump_params_{command.name}<ApiDumpFormat::Text>(ApiDumpInstance::current(), {command_param_usage_text(command)});
+                    if constexpr (Format == ApiDumpFormat::Text) {{
+                        if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {{
+                            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+                            dump_params_{command.name}<Format>(ApiDumpInstance::current(), {command_param_usage_text(command)});
+                        }}
                     }}''')
 
             return_str = f'{command.returnType} result = ' if command.returnType != 'void' else ''
@@ -461,7 +474,7 @@ class ApiDumpGenerator(BaseGenerator):
                 continue
             protect.add_guard(self, command.protect)
             self.write(f'if(strcmp(pName, "{command.name}") == 0)')
-            if command.name in HANDWRITTEN_FUNCTIONS and command.name != 'vkCreateDevice':
+            if command.name in NON_TEMPLATEDTED_FUNCTIONS:
                 self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
             else:
                 self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name}<Format>);')
@@ -475,7 +488,7 @@ class ApiDumpGenerator(BaseGenerator):
         for command in [x for x in self.vk.commands.values() if x.device ]:
             protect.add_guard(self, command.protect)
             self.write(f'if(strcmp(pName, "{command.name}") == 0 && (!device || device_dispatch_table(device)->{command.name[2:]}))')
-            if command.name in HANDWRITTEN_FUNCTIONS and command.name != 'vkCreateDevice':
+            if command.name in NON_TEMPLATEDTED_FUNCTIONS:
                 self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
             else:
                 self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name}<Format>);')
