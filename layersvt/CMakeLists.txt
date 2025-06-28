@@ -55,11 +55,12 @@ if(BUILD_APIDUMP)
     endif()
 
     target_sources(VkLayer_api_dump PRIVATE
-        generated/api_dump_dispatch.cpp
+        api_dump_handwritten_dispatch.cpp
+        generated/api_dump_dispatch.h
         generated/api_dump_implementation.h
         generated/api_dump_video_implementation.h
         api_dump.h
-        api_dump_handwritten_dispatch.cpp
+        api_dump_handwritten_functions.h
         vk_layer_table.cpp
         vk_layer_table.h
         api_dump_layer.md
@@ -68,6 +69,7 @@ if(BUILD_APIDUMP)
     )
 
     target_include_directories(VkLayer_api_dump PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
     )
 

@@ -3475,5 +3475,3 @@ void dump_StdVideoDecodeVP9PictureInfo(const StdVideoDecodeVP9PictureInfo& objec
 //======================== pNext Chain Implementation =======================//
 
 //========================== Function Helpers ===============================//
-
-//========================= Function Implementations ========================//

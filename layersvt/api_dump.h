@@ -142,9 +142,6 @@
 #else
 #define TYPE_ERASE_HANDLE(handle) static_cast<uint64_t>(handle)
 #endif
-// Forward declarations of generated code in api_dump.cpp
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char *pName);
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char *pName);
 
 enum class ApiDumpFormat {
     Text,
@@ -1348,19 +1345,19 @@ std::enable_if_t<!std::is_pointer_v<T>> dump_type(const T &object, const ApiDump
     dump_end<Format>(settings, OutputConstruct::value, indents);
 }
 
-template<ApiDumpFormat Format, typename T>
-std::enable_if_t<std::is_pointer_v<T>>
-dump_type(const T& object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents, const void *address = nullptr){
+template <ApiDumpFormat Format, typename T>
+std::enable_if_t<std::is_pointer_v<T>> dump_type(const T &object, const ApiDumpSettings &settings, const char *type_string,
+                                                 const char *name, int indents, const void *address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents, object);
     dump_end<Format>(settings, OutputConstruct::pointer, indents);
 }
 
-template<ApiDumpFormat Format, typename T>
-void dump_fake_pointer(const T& object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents, const void *address = nullptr){
+template <ApiDumpFormat Format, typename T>
+void dump_fake_pointer(const T &object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,
+                       const void *address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents, &object);
     dump_end<Format>(settings, OutputConstruct::pointer, indents);
 }
-
 
 template <ApiDumpFormat Format, typename T, typename DumpValue>
 void dump_pointer(const T *object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents,

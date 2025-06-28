@@ -67,7 +67,7 @@ def RunGenerators(api: str, registry: str, video_registry: str, directory: str, 
     # Build up a list of all generators
     # Note: Options variable names MUST match order of constructor variable in generator
     generators = {
-        'api_dump_dispatch.cpp' : {
+        'api_dump_dispatch.h' : {
             'generator' : ApiDumpGenerator,
             'genCombined': True,
             'registry' : 'vk',
