@@ -60,7 +60,8 @@ TEST_F(ApiDumpTests, init_layer) {
     std::string file_start_content_read;
     file_start_content_read.resize(std::strlen(file_start_content_expected));
 
-    fread(&file_start_content_read[0], 1, file_start_content_read.size(), file);
+    size_t fread_return = fread(&file_start_content_read[0], 1, file_start_content_read.size(), file);
+    EXPECT_EQ(fread_return, file_start_content_read.size());
     fclose(file);
 
     EXPECT_STREQ(file_start_content_read.c_str(), file_start_content_expected);

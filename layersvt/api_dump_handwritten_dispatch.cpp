@@ -27,6 +27,8 @@
 
 #include "generated/api_dump_dispatch.h"
 
+extern "C" {
+
 EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName) {
     PFN_vkVoidFunction instance_func = nullptr;
     switch (ApiDumpInstance::current().settings().format()) {
@@ -80,4 +82,5 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
     // Haven't created a device yet, exit now since there is no device_dispatch_table
     if (device_dispatch_table(device)->GetDeviceProcAddr == NULL) return nullptr;
     return device_dispatch_table(device)->GetDeviceProcAddr(device, pName);
+}
 }

@@ -86,9 +86,11 @@
 #pragma warning(disable : 4554)
 #endif
 
+extern "C" {
 // Forward declarations for dispatch
 EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char *pName);
 EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char *pName);
+}
 
 #define MAX_STRING_LENGTH 1024
 
