@@ -1099,6 +1099,15 @@ void dump_value(const ApiDumpSettings &settings, T &&...values) {
     dump_value_end<Format>(settings);
 }
 
+template <ApiDumpFormat Format, typename... T>
+void dump_value_hex(const ApiDumpSettings &settings, T &&...values) {
+    dump_value_start<Format>(settings);
+    settings.stream() << "0x" << std::hex;
+    (settings.stream() << ... << values);
+    settings.stream() << std::dec;
+    dump_value_end<Format>(settings);
+}
+
 template <ApiDumpFormat Format>
 void dump_string(const ApiDumpSettings &settings, const char *name) {
     dump_value<Format>(settings, name);

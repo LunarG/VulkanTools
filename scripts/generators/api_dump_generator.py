@@ -283,7 +283,7 @@ class ApiDumpGenerator(BaseGenerator):
         self.only_use_as_pointer_types = set()
 
     def generate(self):
-        self.get_return_types()
+        self.build_return_types()
         self.build_alias_map()
         self.build_vulkan_defined_type_set()
         self.build_only_use_as_pointer_types()
@@ -448,7 +448,8 @@ class ApiDumpGenerator(BaseGenerator):
 
             self.write('if (ApiDumpInstance::current().shouldDumpOutput()) {')
             if command.returnType != 'void':
-                if self.get_unaliased_type(command.returnType) in self.vulkan_defined_types:
+                return_type = self.get_unaliased_type(command.returnType)
+                if return_type in self.vulkan_defined_types or return_type == 'VkDeviceAddress':
                     self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result, dump_return_value_{command.returnType}<Format>);')
                 else:
                     self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result);')
@@ -738,6 +739,14 @@ class ApiDumpGenerator(BaseGenerator):
             }''')
         protect.add_guard(self, None)
 
+        if not video:
+            self.write('\n//========================== Type Implementations =========================//\n')
+            self.write('''
+                template <ApiDumpFormat Format>
+                void dump_return_value_VkDeviceAddress(const VkDeviceAddress& address, const ApiDumpSettings& settings) {
+                    dump_value_hex<Format>(settings, static_cast<uint64_t>(address));
+                }''')
+
     def build_alias_map(self):
         for handle in self.vk.handles.values():
             for alias in handle.aliases:
@@ -794,7 +803,7 @@ class ApiDumpGenerator(BaseGenerator):
                 if not member.pointer and member.type in self.only_use_as_pointer_types:
                     self.only_use_as_pointer_types.remove(member.type)
 
-    def get_return_types(self):
+    def build_return_types(self):
         for command in self.vk.commands.values():
             if command.returnType != 'void' :
                 self.return_types.add(command.returnType)
