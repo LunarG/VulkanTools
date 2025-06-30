@@ -4994,7 +4994,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddress(VkDevice device, 
     }
     VkDeviceAddress result = device_dispatch_table(device)->GetBufferDeviceAddress(device, pInfo);
     if (ApiDumpInstance::current().shouldDumpOutput()) {
-        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result);
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result, dump_return_value_VkDeviceAddress<Format>);
         dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
         dump_params_vkGetBufferDeviceAddress<Format>(ApiDumpInstance::current(), device, pInfo);
         dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
@@ -7451,7 +7451,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddressKHR(VkDevice devic
     }
     VkDeviceAddress result = device_dispatch_table(device)->GetBufferDeviceAddressKHR(device, pInfo);
     if (ApiDumpInstance::current().shouldDumpOutput()) {
-        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result);
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result, dump_return_value_VkDeviceAddress<Format>);
         dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
         dump_params_vkGetBufferDeviceAddressKHR<Format>(ApiDumpInstance::current(), device, pInfo);
         dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
@@ -10359,7 +10359,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetBufferDeviceAddressEXT(VkDevice devic
     }
     VkDeviceAddress result = device_dispatch_table(device)->GetBufferDeviceAddressEXT(device, pInfo);
     if (ApiDumpInstance::current().shouldDumpOutput()) {
-        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result);
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result, dump_return_value_VkDeviceAddress<Format>);
         dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
         dump_params_vkGetBufferDeviceAddressEXT<Format>(ApiDumpInstance::current(), device, pInfo);
         dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
@@ -12457,7 +12457,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetPipelineIndirectDeviceAddressNV(VkDev
     }
     VkDeviceAddress result = device_dispatch_table(device)->GetPipelineIndirectDeviceAddressNV(device, pInfo);
     if (ApiDumpInstance::current().shouldDumpOutput()) {
-        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result);
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result, dump_return_value_VkDeviceAddress<Format>);
         dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
         dump_params_vkGetPipelineIndirectDeviceAddressNV<Format>(ApiDumpInstance::current(), device, pInfo);
         dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
@@ -14358,7 +14358,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetAccelerationStructureDeviceAddressKHR
     }
     VkDeviceAddress result = device_dispatch_table(device)->GetAccelerationStructureDeviceAddressKHR(device, pInfo);
     if (ApiDumpInstance::current().shouldDumpOutput()) {
-        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result);
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceAddress", result, dump_return_value_VkDeviceAddress<Format>);
         dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
         dump_params_vkGetAccelerationStructureDeviceAddressKHR<Format>(ApiDumpInstance::current(), device, pInfo);
         dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
