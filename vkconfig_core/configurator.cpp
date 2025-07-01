@@ -1213,9 +1213,8 @@ bool Configurator::Load() {
             if (json_object.value("latest_sdk_version") != QJsonValue::Undefined) {
                 this->latest_sdk_version = Version(json_object.value("latest_sdk_version").toString().toStdString().c_str());
             }
-
-            if (json_object.value("last_vkconfig_version") != QJsonValue::Undefined) {
-                this->last_vkconfig_version = Version(json_object.value("last_vkconfig_version").toString().toStdString().c_str());
+            if (this->latest_sdk_version < this->current_sdk_version) {
+                this->latest_sdk_version = this->current_sdk_version;
             }
 
             if (json_object.value("use_system_tray") != QJsonValue::Undefined) {
@@ -1292,7 +1291,6 @@ bool Configurator::Save() const {
         json_object.insert("theme_dark_alternate_color", this->theme_dark_alternate_color.name());
         json_object.insert("use_notify_releases", this->use_notify_releases);
         json_object.insert("latest_sdk_version", this->latest_sdk_version.str().c_str());
-        json_object.insert("last_vkconfig_version", Version::VKCONFIG.str().c_str());
         json_object.insert("show_external_layers_settings", this->show_external_layers_settings);
         json_object.insert("VULKAN_HOME", ::Path(Path::HOME).RelativePath().c_str());
         json_object.insert("VULKAN_DOWNLOAD", ::Path(Path::DOWNLOAD).RelativePath().c_str());
@@ -1386,12 +1384,17 @@ bool Configurator::IsExternalLayersSettingsUsed(bool icon_mode) const {
 }
 
 bool Configurator::ShouldNotify() const {
-    // Notify if
-    return this->latest_sdk_version < this->online_sdk_version  // There is an online SDK version newer than the latest SDK version
-           && this->online_sdk_version != Version::NONE;        // We could query the online SDK version
-    //        && Version::VKCONFIG < this->last_vkconfig_version // The Vulkan Configurator version
-    //&& Version::VKHEADER < this->online_sdk_version;  // The Vulkan Header version used to build Vulkan Configurator is older
-    // than the online version
+    return this->latest_sdk_version < this->online_sdk_version && this->online_sdk_version != Version::NONE;
+
+    /*
+        // Notify if
+        return this->latest_sdk_version < this->online_sdk_version  // There is an online SDK version newer than the latest SDK
+       version
+               && this->online_sdk_version != Version::NONE;        // We could query the online SDK version
+        //        && Version::VKCONFIG < this->last_vkconfig_version // The Vulkan Configurator version
+        //&& Version::VKHEADER < this->online_sdk_version;  // The Vulkan Header version used to build Vulkan Configurator is older
+        // than the online version
+    */
 }
 
 bool Configurator::HasActiveSettings() const {

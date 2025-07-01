@@ -41,6 +41,7 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->preferences_vk_home_text, SIGNAL(returnPressed()), this, SLOT(on_vk_home_text_pressed()));
     this->connect(this->ui->preferences_vk_home_browse, SIGNAL(clicked()), this, SLOT(on_vk_home_browse_pressed()));
     this->connect(this->ui->preferences_vk_download_browse, SIGNAL(clicked()), this, SLOT(on_vk_download_browse_pressed()));
+    this->connect(this->ui->preferences_vk_download_open, SIGNAL(clicked()), this, SLOT(on_vk_download_open_pressed()));
     this->connect(this->ui->preferences_reset, SIGNAL(clicked()), this, SLOT(on_reset_hard_pressed()));
     this->connect(this->ui->preferences_show_debug_settings, SIGNAL(toggled(bool)), this, SLOT(on_layer_dev_mode_toggled(bool)));
     this->connect(this->ui->preferences_show_override_settings, SIGNAL(toggled(bool)), this,
@@ -77,12 +78,12 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->ui->preferences_progress->setVisible(false);
     this->ui->preferences_notify_releases->setChecked(configurator.GetUseNotifyReleases());
 
+    this->ui->preferences_download->setText("Searching Latest Vulkan SDK...");
+
     QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
     QNetworkRequest request(url);
     this->network_manager.get(request);
     this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_release_downloaded(QNetworkReply *)));
-
-    this->ui->preferences_download->setText("Searching Latest Vulkan SDK...");
 }
 
 TabPreferences::~TabPreferences() {}
@@ -169,6 +170,7 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->preferences_reset->setIcon(::Get(new_theme_mode, ::ICON_RESET));
     this->ui->preferences_vk_home_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
     this->ui->preferences_vk_download_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
+    this->ui->preferences_vk_download_open->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_EXPORT));
 
     {
         QListWidget *dummy_widget = new QListWidget;
@@ -358,6 +360,11 @@ void TabPreferences::on_vk_download_browse_pressed() {
     }
 }
 
+void TabPreferences::on_vk_download_open_pressed() {
+    const Path path_latest(Path::DOWNLOAD);
+    QDesktopServices::openUrl(QUrl::fromLocalFile(path_latest.AbsolutePath().c_str()));
+}
+
 void TabPreferences::on_reset_hard_pressed() {
     QMessageBox message;
     message.setIcon(QMessageBox::Critical);
@@ -395,25 +402,22 @@ void TabPreferences::on_open_page_pressed() { QDesktopServices::openUrl(QUrl("ht
 
 void TabPreferences::on_download_pressed() {
     Configurator &configurator = Configurator::Get();
-    if (configurator.latest_sdk_version != configurator.online_sdk_version && configurator.online_sdk_version != Version::NONE) {
-        this->ui->preferences_download->setEnabled(false);
-        this->ui->preferences_progress->setVisible(true);
-        this->ui->preferences_vk_download_text->setVisible(false);
-        this->ui->preferences_vk_download_browse->setVisible(false);
+    // if (configurator.latest_sdk_version != configurator.online_sdk_version && configurator.online_sdk_version != Version::NONE) {
 
-        this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), this,
-                      SLOT(on_package_downloaded(QNetworkReply *)));
+    this->ui->preferences_download->setEnabled(false);
+    this->ui->preferences_progress->setVisible(true);
+    this->ui->preferences_vk_download_label->setVisible(false);
+    this->ui->preferences_vk_download_text->setVisible(false);
+    this->ui->preferences_vk_download_browse->setVisible(false);
 
-        QUrl url(GetLatestPackageSDK(VKC_PLATFORM));
-        QNetworkRequest request(url);
-        QNetworkReply *reply = this->network_manager.get(request);
-        this->connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(on_download_progress(qint64, qint64)));
+    this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_package_downloaded(QNetworkReply *)));
 
-        this->ui->preferences_progress->setFormat((std::string(GetLatestPackageSDK(VKC_PLATFORM)) + " - %p%").c_str());
-    } else {
-        const Path &path_latest = ::AbsolutePath(Path::DOWNLOAD) + Path::Separator() + GetInstallerFilename(VKC_PLATFORM);
-        QDesktopServices::openUrl(QUrl::fromLocalFile(path_latest.AbsoluteDir().c_str()));
-    }
+    QUrl url(GetLatestPackageSDK(VKC_PLATFORM));
+    QNetworkRequest request(url);
+    QNetworkReply *reply = this->network_manager.get(request);
+    this->connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(on_download_progress(qint64, qint64)));
+
+    this->ui->preferences_progress->setFormat((std::string(GetLatestPackageSDK(VKC_PLATFORM)) + " - %p%").c_str());
 }
 
 void TabPreferences::on_release_downloaded(QNetworkReply *pReply) {
@@ -423,6 +427,9 @@ void TabPreferences::on_release_downloaded(QNetworkReply *pReply) {
 
     if (pReply->error() == QNetworkReply::NoError) {
         configurator.online_sdk_version = Version(pReply->readAll().toStdString());
+
+        this->ui->preferences_download->setText(
+            format("Download Latest Vulkan SDK %s", configurator.online_sdk_version.str().c_str()).c_str());
     } else {
         configurator.online_sdk_version = Version::NONE;
     }
@@ -430,9 +437,6 @@ void TabPreferences::on_release_downloaded(QNetworkReply *pReply) {
     pReply->deleteLater();
 
     if (configurator.ShouldNotify()) {
-        this->ui->preferences_download->setText(
-            format("Download Latest Vulkan SDK %s", configurator.online_sdk_version.str().c_str()).c_str());
-
         if (configurator.GetUseNotifyReleases()) {
             QMessageBox alert;
             alert.setWindowTitle("A new version of the Vulkan SDK is available");
@@ -452,24 +456,20 @@ void TabPreferences::on_release_downloaded(QNetworkReply *pReply) {
                 this->on_download_pressed();
             }
         }
-    } else {
-        this->ui->preferences_download->setText("Open Vulkan SDK download directory...");
-    }
-
-    // Vulkan Configurator just got updated, the latest online sdk version is considered updated
-    if (configurator.last_vkconfig_version < Version::VKCONFIG) {
-        configurator.latest_sdk_version = configurator.online_sdk_version;
     }
 }
 
 void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
+    this->disconnect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), 0, 0);
+
     this->ui->preferences_download->setEnabled(true);
     this->ui->preferences_progress->setVisible(false);
+    this->ui->preferences_vk_download_label->setVisible(true);
     this->ui->preferences_vk_download_text->setVisible(true);
     this->ui->preferences_vk_download_browse->setVisible(true);
 
     Configurator &configurator = Configurator::Get();
-    configurator.latest_sdk_version = configurator.online_sdk_version;
+    // configurator.latest_sdk_version = configurator.online_sdk_version;
 
     if (pReply->error() == QNetworkReply::NoError) {
         this->downloaded_data = pReply->readAll();
@@ -512,7 +512,7 @@ void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
         alert.exec();
     }
 
-    this->ui->preferences_download->setText("Open Vulkan SDK download directory...");
+    // this->ui->preferences_download->setText("Open Vulkan SDK download directory...");
 
     if (VKC_ENV == VKC_ENV_WIN32) {
         QMessageBox alert;

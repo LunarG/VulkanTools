@@ -158,9 +158,14 @@ class Configurator {
     TabType active_tab = TAB_CONFIGURATIONS;
     bool advanced = true;
     Path last_path_status = Path(Path::HOME).AbsolutePath() + "/diagnostics";
-    Version latest_sdk_version = Version::NONE;
     Version online_sdk_version = Version::NONE;
-    Version last_vkconfig_version = Version::NONE;
+    Version latest_sdk_version = Version::NONE;
+#ifdef SDK_VERSION
+    Version current_sdk_version = Version(SDK_VERSION);
+#else
+    Version current_sdk_version = Version::VKHEADER;
+#endif
+
     QByteArray window_geometry;
     QByteArray window_state;
     ThemeMode current_theme_mode = THEME_MODE_AUTO;
