@@ -2080,6 +2080,44 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeVectorPropertiesNV(
     }
     return result;
 }
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, uint32_t* pQueueFamilyDataGraphPropertyCount, VkQueueFamilyDataGraphPropertiesARM* pQueueFamilyDataGraphProperties) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM", "physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphPropertyCount, pQueueFamilyDataGraphProperties", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM<Format>(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphPropertyCount, pQueueFamilyDataGraphProperties);
+        }
+    }
+    VkResult result = instance_dispatch_table(physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphPropertiesARM(physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphPropertyCount, pQueueFamilyDataGraphProperties);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM<Format>(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphPropertyCount, pQueueFamilyDataGraphProperties);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM* pQueueFamilyDataGraphProcessingEngineInfo, VkQueueFamilyDataGraphProcessingEnginePropertiesARM* pQueueFamilyDataGraphProcessingEngineProperties) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM", "physicalDevice, pQueueFamilyDataGraphProcessingEngineInfo, pQueueFamilyDataGraphProcessingEngineProperties", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM<Format>(ApiDumpInstance::current(), physicalDevice, pQueueFamilyDataGraphProcessingEngineInfo, pQueueFamilyDataGraphProcessingEngineProperties);
+        }
+    }
+    instance_dispatch_table(physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM(physicalDevice, pQueueFamilyDataGraphProcessingEngineInfo, pQueueFamilyDataGraphProcessingEngineProperties);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM<Format>(ApiDumpInstance::current(), physicalDevice, pQueueFamilyDataGraphProcessingEngineInfo, pQueueFamilyDataGraphProcessingEngineProperties);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
 #if defined(VK_USE_PLATFORM_OHOS)
 template <ApiDumpFormat Format>
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateSurfaceOHOS(VkInstance instance, const VkSurfaceCreateInfoOHOS* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface) {
@@ -13672,6 +13710,189 @@ VKAPI_ATTR void VKAPI_CALL vkQueueNotifyOutOfBandNV(VkQueue queue, const VkOutOf
     }
 }
 template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDataGraphPipelinesARM(VkDevice device, VkDeferredOperationKHR deferredOperation, VkPipelineCache pipelineCache, uint32_t createInfoCount, const VkDataGraphPipelineCreateInfoARM* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkPipeline* pPipelines) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCreateDataGraphPipelinesARM", "device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCreateDataGraphPipelinesARM<Format>(ApiDumpInstance::current(), device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->CreateDataGraphPipelinesARM(device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCreateDataGraphPipelinesARM<Format>(ApiDumpInstance::current(), device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDataGraphPipelineSessionARM(VkDevice device, const VkDataGraphPipelineSessionCreateInfoARM* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDataGraphPipelineSessionARM* pSession) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCreateDataGraphPipelineSessionARM", "device, pCreateInfo, pAllocator, pSession", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCreateDataGraphPipelineSessionARM<Format>(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pSession);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->CreateDataGraphPipelineSessionARM(device, pCreateInfo, pAllocator, pSession);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCreateDataGraphPipelineSessionARM<Format>(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pSession);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDataGraphPipelineSessionBindPointRequirementsARM(VkDevice device, const VkDataGraphPipelineSessionBindPointRequirementsInfoARM* pInfo, uint32_t* pBindPointRequirementCount, VkDataGraphPipelineSessionBindPointRequirementARM* pBindPointRequirements) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetDataGraphPipelineSessionBindPointRequirementsARM", "device, pInfo, pBindPointRequirementCount, pBindPointRequirements", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetDataGraphPipelineSessionBindPointRequirementsARM<Format>(ApiDumpInstance::current(), device, pInfo, pBindPointRequirementCount, pBindPointRequirements);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetDataGraphPipelineSessionBindPointRequirementsARM(device, pInfo, pBindPointRequirementCount, pBindPointRequirements);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetDataGraphPipelineSessionBindPointRequirementsARM<Format>(ApiDumpInstance::current(), device, pInfo, pBindPointRequirementCount, pBindPointRequirements);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkGetDataGraphPipelineSessionMemoryRequirementsARM(VkDevice device, const VkDataGraphPipelineSessionMemoryRequirementsInfoARM* pInfo, VkMemoryRequirements2* pMemoryRequirements) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetDataGraphPipelineSessionMemoryRequirementsARM", "device, pInfo, pMemoryRequirements", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetDataGraphPipelineSessionMemoryRequirementsARM<Format>(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+        }
+    }
+    device_dispatch_table(device)->GetDataGraphPipelineSessionMemoryRequirementsARM(device, pInfo, pMemoryRequirements);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetDataGraphPipelineSessionMemoryRequirementsARM<Format>(ApiDumpInstance::current(), device, pInfo, pMemoryRequirements);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkBindDataGraphPipelineSessionMemoryARM(VkDevice device, uint32_t bindInfoCount, const VkBindDataGraphPipelineSessionMemoryInfoARM* pBindInfos) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkBindDataGraphPipelineSessionMemoryARM", "device, bindInfoCount, pBindInfos", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkBindDataGraphPipelineSessionMemoryARM<Format>(ApiDumpInstance::current(), device, bindInfoCount, pBindInfos);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->BindDataGraphPipelineSessionMemoryARM(device, bindInfoCount, pBindInfos);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkBindDataGraphPipelineSessionMemoryARM<Format>(ApiDumpInstance::current(), device, bindInfoCount, pBindInfos);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkDestroyDataGraphPipelineSessionARM(VkDevice device, VkDataGraphPipelineSessionARM session, const VkAllocationCallbacks* pAllocator) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkDestroyDataGraphPipelineSessionARM", "device, session, pAllocator", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkDestroyDataGraphPipelineSessionARM<Format>(ApiDumpInstance::current(), device, session, pAllocator);
+        }
+    }
+    device_dispatch_table(device)->DestroyDataGraphPipelineSessionARM(device, session, pAllocator);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkDestroyDataGraphPipelineSessionARM<Format>(ApiDumpInstance::current(), device, session, pAllocator);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchDataGraphARM(VkCommandBuffer commandBuffer, VkDataGraphPipelineSessionARM session, const VkDataGraphPipelineDispatchInfoARM* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchDataGraphARM", "commandBuffer, session, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdDispatchDataGraphARM<Format>(ApiDumpInstance::current(), commandBuffer, session, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdDispatchDataGraphARM(commandBuffer, session, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdDispatchDataGraphARM<Format>(ApiDumpInstance::current(), commandBuffer, session, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDataGraphPipelineAvailablePropertiesARM(VkDevice device, const VkDataGraphPipelineInfoARM* pPipelineInfo, uint32_t* pPropertiesCount, VkDataGraphPipelinePropertyARM* pProperties) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetDataGraphPipelineAvailablePropertiesARM", "device, pPipelineInfo, pPropertiesCount, pProperties", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetDataGraphPipelineAvailablePropertiesARM<Format>(ApiDumpInstance::current(), device, pPipelineInfo, pPropertiesCount, pProperties);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetDataGraphPipelineAvailablePropertiesARM(device, pPipelineInfo, pPropertiesCount, pProperties);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetDataGraphPipelineAvailablePropertiesARM<Format>(ApiDumpInstance::current(), device, pPipelineInfo, pPropertiesCount, pProperties);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDataGraphPipelinePropertiesARM(VkDevice device, const VkDataGraphPipelineInfoARM* pPipelineInfo, uint32_t propertiesCount, VkDataGraphPipelinePropertyQueryResultARM* pProperties) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetDataGraphPipelinePropertiesARM", "device, pPipelineInfo, propertiesCount, pProperties", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetDataGraphPipelinePropertiesARM<Format>(ApiDumpInstance::current(), device, pPipelineInfo, propertiesCount, pProperties);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetDataGraphPipelinePropertiesARM(device, pPipelineInfo, propertiesCount, pProperties);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetDataGraphPipelinePropertiesARM<Format>(ApiDumpInstance::current(), device, pPipelineInfo, propertiesCount, pProperties);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkCmdSetAttachmentFeedbackLoopEnableEXT(VkCommandBuffer commandBuffer, VkImageAspectFlags aspectMask) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -14869,6 +15090,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceOpticalFlowImageFormatsNV<Format>);
     if (strcmp(pName, "vkGetPhysicalDeviceCooperativeVectorPropertiesNV") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceCooperativeVectorPropertiesNV<Format>);
+    if (strcmp(pName, "vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM<Format>);
+    if (strcmp(pName, "vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM<Format>);
 #if defined(VK_USE_PLATFORM_OHOS)
     if (strcmp(pName, "vkCreateSurfaceOHOS") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateSurfaceOHOS<Format>);
@@ -16075,6 +16300,24 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetLatencyTimingsNV<Format>);
     if (strcmp(pName, "vkQueueNotifyOutOfBandNV") == 0 && (!device || device_dispatch_table(device)->QueueNotifyOutOfBandNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkQueueNotifyOutOfBandNV<Format>);
+    if (strcmp(pName, "vkCreateDataGraphPipelinesARM") == 0 && (!device || device_dispatch_table(device)->CreateDataGraphPipelinesARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateDataGraphPipelinesARM<Format>);
+    if (strcmp(pName, "vkCreateDataGraphPipelineSessionARM") == 0 && (!device || device_dispatch_table(device)->CreateDataGraphPipelineSessionARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateDataGraphPipelineSessionARM<Format>);
+    if (strcmp(pName, "vkGetDataGraphPipelineSessionBindPointRequirementsARM") == 0 && (!device || device_dispatch_table(device)->GetDataGraphPipelineSessionBindPointRequirementsARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDataGraphPipelineSessionBindPointRequirementsARM<Format>);
+    if (strcmp(pName, "vkGetDataGraphPipelineSessionMemoryRequirementsARM") == 0 && (!device || device_dispatch_table(device)->GetDataGraphPipelineSessionMemoryRequirementsARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDataGraphPipelineSessionMemoryRequirementsARM<Format>);
+    if (strcmp(pName, "vkBindDataGraphPipelineSessionMemoryARM") == 0 && (!device || device_dispatch_table(device)->BindDataGraphPipelineSessionMemoryARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkBindDataGraphPipelineSessionMemoryARM<Format>);
+    if (strcmp(pName, "vkDestroyDataGraphPipelineSessionARM") == 0 && (!device || device_dispatch_table(device)->DestroyDataGraphPipelineSessionARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyDataGraphPipelineSessionARM<Format>);
+    if (strcmp(pName, "vkCmdDispatchDataGraphARM") == 0 && (!device || device_dispatch_table(device)->CmdDispatchDataGraphARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatchDataGraphARM<Format>);
+    if (strcmp(pName, "vkGetDataGraphPipelineAvailablePropertiesARM") == 0 && (!device || device_dispatch_table(device)->GetDataGraphPipelineAvailablePropertiesARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDataGraphPipelineAvailablePropertiesARM<Format>);
+    if (strcmp(pName, "vkGetDataGraphPipelinePropertiesARM") == 0 && (!device || device_dispatch_table(device)->GetDataGraphPipelinePropertiesARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDataGraphPipelinePropertiesARM<Format>);
     if (strcmp(pName, "vkCmdSetAttachmentFeedbackLoopEnableEXT") == 0 && (!device || device_dispatch_table(device)->CmdSetAttachmentFeedbackLoopEnableEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetAttachmentFeedbackLoopEnableEXT<Format>);
 #if defined(VK_USE_PLATFORM_SCREEN_QNX)
