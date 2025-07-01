@@ -919,7 +919,7 @@ class ApiDumpGenerator(BaseGenerator):
                 elif call_type in self.vulkan_defined_types or 'StdVideo' in call_type:
                     value_type = f'dump_{call_type}<Format>'
                 elif var.type in TREAT_AS_POINTERS and TREAT_AS_POINTERS[var.type] == var.name:
-                    value_type = 'dump_fake_pointer<Format>'
+                    value_type = 'dump_uint64_t_as_pointer<Format>'
                 self.write(f'{value_type}({value}, settings, "{custom_fullType}", "{var.name}", {indent});')
 
     def write_enum_contents(self, enum):
