@@ -18,6 +18,7 @@
 
 ### Fixes:
   - Fix crashes when `QT_QPA_PLATFORM` is set
+  - Fix invalid new SDK notifications on patch releases
 
 ## Vulkan Configurator 3.2.0 - May 2025
 [Vulkan SDK 1.4.313.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.313)

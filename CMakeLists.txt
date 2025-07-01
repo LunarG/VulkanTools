@@ -95,6 +95,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux|BSD")
     option(BUILD_MONITOR "Build monitor layer" ON)
     option(BUILD_SCREENSHOT "Build screenshot layer" ON)
     option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
+    set(SDK_VERSION "" CACHE STRING "Vulkan SDK version")
 
 elseif(ANDROID)
 

@@ -37,6 +37,8 @@ target_compile_options(vkconfig-core PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/MP>)
 target_compile_definitions(vkconfig-core PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
 target_compile_definitions(vkconfig-core PRIVATE INSTALL_FULL_SYSCONFDIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}")
 target_compile_definitions(vkconfig-core PRIVATE INSTALL_FULL_DATAROOTDIR="${CMAKE_INSTALL_FULL_DATAROOTDIR}")
+target_compile_definitions(vkconfig-core PRIVATE SDK_VERSION="${SDK_VERSION}")
+add_definitions( -DVERSION_LIBINTERFACE=${LIBINTERFACE_VERSION} )
 set_target_properties(vkconfig-core PROPERTIES FOLDER "vkconfig")
 
 if(WIN32)

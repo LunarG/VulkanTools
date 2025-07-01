@@ -3191,7 +3191,7 @@
                 <property name="spacing">
                  <number>0</number>
                 </property>
-                <item row="1" column="0">
+                <item row="2" column="0">
                  <layout class="QHBoxLayout" name="horizontalLayout_8">
                   <property name="spacing">
                    <number>0</number>
@@ -3209,7 +3209,7 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QLabel" name="label_4">
+                   <widget class="QLabel" name="preferences_vk_download_label">
                     <property name="maximumSize">
                      <size>
                       <width>16777215</width>
@@ -3305,6 +3305,32 @@
                   </item>
                  </layout>
                 </item>
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="preferences_open_page">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Open Vulkan SDK download web page...</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="0" column="0">
                  <layout class="QHBoxLayout" name="horizontalLayout_11">
                   <property name="spacing">
@@ -3360,57 +3386,73 @@
                   </item>
                  </layout>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="preferences_download">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>24</height>
-                   </size>
+                <item row="2" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_16">
+                  <property name="spacing">
+                   <number>0</number>
                   </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>24</height>
-                   </size>
+                  <property name="topMargin">
+                   <number>0</number>
                   </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="preferences_open_page">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Arial</family>
-                    <pointsize>10</pointsize>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Open Vulkan SDK download web page...</string>
-                  </property>
-                 </widget>
+                  <item>
+                   <widget class="QPushButton" name="preferences_download">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Arial</family>
+                      <pointsize>10</pointsize>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>Download last Vulkan SDK</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="preferences_vk_download_open">
+                    <property name="minimumSize">
+                     <size>
+                      <width>24</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>24</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Arial</family>
+                      <pointsize>10</pointsize>
+                      <bold>false</bold>
+                     </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>Open Vulkan SDK download folder</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </item>

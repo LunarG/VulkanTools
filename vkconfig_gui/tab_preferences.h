@@ -41,6 +41,7 @@ class TabPreferences : public Tab {
     void on_vk_home_text_pressed();
     void on_vk_home_browse_pressed();
     void on_vk_download_browse_pressed();
+    void on_vk_download_open_pressed();
     void on_reset_hard_pressed();
     void on_layer_dev_mode_toggled(bool checked);
     void on_show_override_settings_toggled(bool checked);
