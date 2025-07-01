@@ -858,7 +858,6 @@ class ApiDumpGenerator(BaseGenerator):
         else:
             indent = 'indents + (Format == ApiDumpFormat::Json ? 2 : 1)'
 
-
         value = f'{object_access}{var.name}'
         if self.get_is_array(var):
             element_type = f'dump_type<Format, {custom_type}>'
@@ -911,6 +910,8 @@ class ApiDumpGenerator(BaseGenerator):
                     value_type = 'dump_pNext<Format>'
                 elif var.type == 'char':
                     value_type = 'dump_char<Format>'
+                elif var.fullType == 'VkDeviceAddress':
+                    value_type = f'dump_type_hex<Format, {var.fullType}>'
                 elif var.fullType == 'uint8_t': # ostream << treats uint8_t as char which we dont want
                     value_type = 'dump_type<Format, uint32_t>'
                 elif var.fullType == 'int8_t': # ostream << treats int8_t as char which we dont want
