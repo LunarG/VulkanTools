@@ -151,7 +151,7 @@ if(BUILD_LAYERMGR)
         add_subdirectory(vkconfig_cmd)
         add_subdirectory(vkconfig_gui)
 
-        if(WIN32 AND BUILD_TESTS AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
+        if(WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
             set_property(TARGET vkconfig-gui vkconfig-cmd vkconfig-core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
             message(STATUS "INFO: vkconfig will link against static runtime")
         endif()
