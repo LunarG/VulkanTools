@@ -1,5 +1,5 @@
 ## Vulkan Configurator 3.3.0 - July 2025
-[Vulkan SDK 1.4.320.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.320)
+[Vulkan SDK 1.4.321.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.321)
 
 ### Features:
 - Add support for layer-defined messages
