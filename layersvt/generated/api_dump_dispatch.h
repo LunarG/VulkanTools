@@ -8294,6 +8294,27 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseCapturedPipelineDataKHR(VkDevice device,
     return result;
 }
 template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesKHR(VkDevice device, const VkReleaseSwapchainImagesInfoKHR* pReleaseInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkReleaseSwapchainImagesKHR", "device, pReleaseInfo", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkReleaseSwapchainImagesKHR<Format>(ApiDumpInstance::current(), device, pReleaseInfo);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->ReleaseSwapchainImagesKHR(device, pReleaseInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkReleaseSwapchainImagesKHR<Format>(ApiDumpInstance::current(), device, pReleaseInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleKHR(VkCommandBuffer commandBuffer, uint32_t lineStippleFactor, uint16_t lineStipplePattern) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -10840,7 +10861,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2EXT(VkDevice device, VkIm
     }
 }
 template <ApiDumpFormat Format>
-VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(VkDevice device, const VkReleaseSwapchainImagesInfoEXT* pReleaseInfo) {
+VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(VkDevice device, const VkReleaseSwapchainImagesInfoKHR* pReleaseInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
     dump_function_head(ApiDumpInstance::current(), "vkReleaseSwapchainImagesEXT", "device, pReleaseInfo", "VkResult");
@@ -15738,6 +15759,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPipelineBinaryDataKHR<Format>);
     if (strcmp(pName, "vkReleaseCapturedPipelineDataKHR") == 0 && (!device || device_dispatch_table(device)->ReleaseCapturedPipelineDataKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkReleaseCapturedPipelineDataKHR<Format>);
+    if (strcmp(pName, "vkReleaseSwapchainImagesKHR") == 0 && (!device || device_dispatch_table(device)->ReleaseSwapchainImagesKHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkReleaseSwapchainImagesKHR<Format>);
     if (strcmp(pName, "vkCmdSetLineStippleKHR") == 0 && (!device || device_dispatch_table(device)->CmdSetLineStippleKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetLineStippleKHR<Format>);
     if (strcmp(pName, "vkGetCalibratedTimestampsKHR") == 0 && (!device || device_dispatch_table(device)->GetCalibratedTimestampsKHR))
