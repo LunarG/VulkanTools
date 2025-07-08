@@ -426,15 +426,22 @@ void TabPreferences::on_release_downloaded(QNetworkReply *pReply) {
     Configurator &configurator = Configurator::Get();
 
     if (pReply->error() == QNetworkReply::NoError) {
-        configurator.online_sdk_version = Version(pReply->readAll().toStdString());
-
-        this->ui->preferences_download->setText(
-            format("Download Latest Vulkan SDK %s", configurator.online_sdk_version.str().c_str()).c_str());
-    } else {
-        configurator.online_sdk_version = Version::NONE;
+        std::string data = pReply->readAll().toStdString();
+        if (!data.empty()) {
+            configurator.online_sdk_version = Version(data);
+        }
     }
 
     pReply->deleteLater();
+
+    if (configurator.online_sdk_version == Version::NONE) {
+        this->ui->preferences_download->setText("Couln't Download Latest Vulkan SDK version");
+        this->ui->preferences_download->setEnabled(false);
+        return;
+    } else {
+        this->ui->preferences_download->setText(
+            format("Download Latest Vulkan SDK %s", configurator.online_sdk_version.str().c_str()).c_str());
+    }
 
     if (configurator.ShouldNotify()) {
         if (configurator.GetUseNotifyReleases()) {
@@ -473,6 +480,7 @@ void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
 
     if (pReply->error() == QNetworkReply::NoError) {
         this->downloaded_data = pReply->readAll();
+        pReply->deleteLater();
     } else {
         QMessageBox alert;
         alert.setWindowTitle("Error while downloading the latest Vulkan SDK...");
@@ -481,10 +489,10 @@ void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
                 .c_str());
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
+
+        pReply->deleteLater();
         return;
     }
-
-    pReply->deleteLater();
 
     const Path &path_latest = ::AbsolutePath(Path::DOWNLOAD) + Path::Separator() + GetInstallerFilename(VKC_PLATFORM);
     QFile file_latest(path_latest.AbsolutePath().c_str());
