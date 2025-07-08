@@ -68,7 +68,14 @@ Configurator& Configurator::Get() {
 
 void Configurator::Release() { ::configurator.reset(); }
 
-Configurator::Configurator() : mode(init_mode) {}
+Configurator::Configurator() : mode(init_mode) {
+#ifdef SDK_VERSION
+    const Version sdk_version(SDK_VERSION);
+    if (sdk_version != Version::NONE) {
+        this->current_sdk_version = sdk_version;
+    }
+#endif
+}
 
 Configurator::~Configurator() {
     if (this->reset_hard) {

@@ -160,11 +160,7 @@ class Configurator {
     Path last_path_status = Path(Path::HOME).AbsolutePath() + "/diagnostics";
     Version online_sdk_version = Version::NONE;
     Version latest_sdk_version = Version::NONE;
-#ifdef SDK_VERSION
-    Version current_sdk_version = Version(SDK_VERSION);
-#else
     Version current_sdk_version = Version::VKHEADER;
-#endif
 
     QByteArray window_geometry;
     QByteArray window_state;
