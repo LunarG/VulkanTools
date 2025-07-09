@@ -151,8 +151,6 @@ int main(int argc, char* argv[]) {
         result = app.exec();
     }
 
-    configurator.Surrender(OVERRIDE_AREA_ALL);
-
     if (configurator.reset_hard) {
         configurator.Release();
 
