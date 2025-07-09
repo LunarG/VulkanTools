@@ -78,6 +78,10 @@ Configurator::Configurator() : mode(init_mode) {
 }
 
 Configurator::~Configurator() {
+    if (this->init_mode == CONFIGURATOR_MODE_GUI) {
+        this->Surrender(OVERRIDE_AREA_ALL);
+    }
+
     if (this->reset_hard) {
         return;
     }
@@ -295,7 +299,6 @@ bool Configurator::Export(ExportEnvMode mode, const Path& export_path) const {
         return false;
     }
 
-    bool has_missing_layers = false;
     const Configuration* configuration = this->GetActiveConfiguration();
 
     QTextStream stream(&file);
@@ -354,7 +357,6 @@ bool Configurator::Export(ExportEnvMode mode, const Path& export_path) const {
         const Layer* layer = this->layers.Find(parameter.key.c_str(), parameter.api_version);
         if (layer == nullptr) {
             if (parameter.control == LAYER_CONTROL_ON) {
-                has_missing_layers = true;
                 fprintf(stderr,
                         "vkconfig: [ERROR] `%s` layer is set to `%s` in `%s` loader configuration but missing and being "
                         "ignored\n",
@@ -554,7 +556,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
             if (configuration->override_settings) {
                 QFile original_file(configuration->override_settings_path.AbsolutePath().c_str());
                 bool result_original_file = original_file.open(QIODevice::ReadOnly);
-                if (!result_settings_file) {
+                if (!result_original_file) {
                     fprintf(stderr, "vkconfig: [ERROR] Cannot open override settings file:\t%s\n",
                             configuration->override_settings_path.AbsolutePath().c_str());
                     continue;
