@@ -1220,9 +1220,6 @@ bool Configurator::Load() {
             if (json_object.value("latest_sdk_version") != QJsonValue::Undefined) {
                 this->latest_sdk_version = Version(json_object.value("latest_sdk_version").toString().toStdString().c_str());
             }
-            if (this->latest_sdk_version < this->current_sdk_version) {
-                this->latest_sdk_version = this->current_sdk_version;
-            }
 
             if (json_object.value("use_system_tray") != QJsonValue::Undefined) {
                 this->use_system_tray = json_object.value("use_system_tray").toBool();
@@ -1246,6 +1243,10 @@ bool Configurator::Load() {
     } else {
         this->executables.Reset();
         this->layers.LoadAllInstalledLayers(this->mode);
+    }
+
+    if (this->latest_sdk_version < this->current_sdk_version) {
+        this->latest_sdk_version = this->current_sdk_version;
     }
 
     this->configurations.LoadAllConfigurations(this->layers);
