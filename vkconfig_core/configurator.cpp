@@ -130,7 +130,7 @@ bool Configurator::Init(ConfiguratorMode configurator_mode) {
     return true;
 }
 
-static QJsonArray CreateDeviceConfigurations(const VulkanPhysicalDeviceInfo& info) {
+static QJsonObject CreateDeviceConfigurations(const VulkanPhysicalDeviceInfo& info) {
     QJsonObject json_device;
     json_device.insert("deviceName", info.deviceName.c_str());
 
@@ -138,12 +138,9 @@ static QJsonArray CreateDeviceConfigurations(const VulkanPhysicalDeviceInfo& inf
     for (std::size_t i = 0, n = std::size(info.deviceUUID); i < n; ++i) {
         json_uuid.append(info.deviceUUID[i]);
     }
-
     json_device.insert("deviceUUID", json_uuid);
 
-    QJsonArray json_devices;
-    json_devices.append(json_device);
-    return json_devices;
+    return json_device;
 }
 
 static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings,
@@ -187,21 +184,57 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
     }
     if (loader_settings.override_driver) {
         bool found = false;
-        for (std::size_t i = 0, n = vulkan_system_info.physicalDevices.size(); i < n; ++i) {
-            const VulkanPhysicalDeviceInfo& info = vulkan_system_info.physicalDevices[i];
-            if (info.deviceName == loader_settings.override_driver_name) {
-                json_settings.insert("device_configurations", ::CreateDeviceConfigurations(vulkan_system_info.physicalDevices[i]));
-                found = true;
-                break;
-            }
+
+        QJsonArray json_devices;
+        /*
+                for (std::size_t i = 0, n = vulkan_system_info.physicalDevices.size(); i < n; ++i) {
+                    const VulkanPhysicalDeviceInfo& info = vulkan_system_info.physicalDevices[i];
+                    //if (info.deviceName == loader_settings.override_driver_name)
+                    {
+                        json_devices.append(::CreateDeviceConfigurations(vulkan_system_info.physicalDevices[1 - i]));
+                        found = true;
+                        //break;
+                    }
+                }
+        */
+        {
+            QJsonObject json_device;
+            json_device.insert("deviceName", "llvmpipe (LLVM 20.1.6, 256 bits)");
+
+            QJsonArray json_uuid;
+            json_uuid.append(0x6D);
+            json_uuid.append(0x65);
+            json_uuid.append(0x73);
+            json_uuid.append(0x61);
+
+            json_uuid.append(0x32);
+            json_uuid.append(0x35);
+            json_uuid.append(0x2E);
+            json_uuid.append(0x30);
+
+            json_uuid.append(0x2E);
+            json_uuid.append(0x37);
+            json_uuid.append(0x00);
+            json_uuid.append(0x00);
+
+            json_uuid.append(0x00);
+            json_uuid.append(0x00);
+            json_uuid.append(0x00);
+            json_uuid.append(0x00);
+
+            json_device.insert("deviceUUID", json_uuid);
+            json_devices.append(json_device);
+            found = true;
         }
+
+        json_settings.insert("device_configurations", json_devices);
 
         if (!found) {
             json_settings.insert("device_configurations", ::CreateDeviceConfigurations(vulkan_system_info.physicalDevices[0]));
         }
     }
 
-    json_settings.insert("use_additional_drivers_exclusively", true);
+    json_settings.insert("additional_drivers_use_exclusively", false);
 
     QJsonArray json_drivers_paths;
     QJsonObject json_drivers_path;
