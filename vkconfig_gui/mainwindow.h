@@ -24,6 +24,7 @@
 #include "../vkconfig_core/type_executable_mode.h"
 
 #include "tab_configurations.h"
+#include "tab_drivers.h"
 #include "tab_layers.h"
 #include "tab_applications.h"
 #include "tab_diagnostics.h"

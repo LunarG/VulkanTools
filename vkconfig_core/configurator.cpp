@@ -27,6 +27,7 @@
 #if VKC_ENV == VKC_ENV_WIN32
 #include "registry.h"
 #endif
+#include "vulkan_util.h"
 
 #include <QDir>
 #include <QTextStream>
@@ -129,7 +130,21 @@ bool Configurator::Init(ConfiguratorMode configurator_mode) {
     return true;
 }
 
-static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings) {
+static QJsonObject CreateDeviceConfigurations(const VulkanPhysicalDeviceInfo& info) {
+    QJsonObject json_device;
+    json_device.insert("deviceName", info.deviceName.c_str());
+
+    QJsonArray json_uuid;
+    for (std::size_t i = 0, n = std::size(info.deviceUUID); i < n; ++i) {
+        json_uuid.append(info.deviceUUID[i]);
+    }
+    json_device.insert("deviceUUID", json_uuid);
+
+    return json_device;
+}
+
+static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings,
+                                           const VulkanSystemInfo& vulkan_system_info) {
     QJsonArray json_layers;
     for (std::size_t j = 0, o = loader_settings.layers.size(); j < o; ++j) {
         const Configurator::LoaderLayerSettings& layer = loader_settings.layers[j];
@@ -167,6 +182,68 @@ static QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& l
     if (loader_settings.override_loader) {
         json_settings.insert("stderr_log", json_stderr_log);
     }
+    if (loader_settings.override_driver) {
+        bool found = false;
+
+        QJsonArray json_devices;
+        /*
+                for (std::size_t i = 0, n = vulkan_system_info.physicalDevices.size(); i < n; ++i) {
+                    const VulkanPhysicalDeviceInfo& info = vulkan_system_info.physicalDevices[i];
+                    //if (info.deviceName == loader_settings.override_driver_name)
+                    {
+                        json_devices.append(::CreateDeviceConfigurations(vulkan_system_info.physicalDevices[1 - i]));
+                        found = true;
+                        //break;
+                    }
+                }
+        */
+        {
+            QJsonObject json_device;
+            json_device.insert("deviceName", "llvmpipe (LLVM 20.1.6, 256 bits)");
+
+            QJsonArray json_uuid;
+            json_uuid.append(0x6D);
+            json_uuid.append(0x65);
+            json_uuid.append(0x73);
+            json_uuid.append(0x61);
+
+            json_uuid.append(0x32);
+            json_uuid.append(0x35);
+            json_uuid.append(0x2E);
+            json_uuid.append(0x30);
+
+            json_uuid.append(0x2E);
+            json_uuid.append(0x37);
+            json_uuid.append(0x00);
+            json_uuid.append(0x00);
+
+            json_uuid.append(0x00);
+            json_uuid.append(0x00);
+            json_uuid.append(0x00);
+            json_uuid.append(0x00);
+
+            json_device.insert("deviceUUID", json_uuid);
+            json_devices.append(json_device);
+            found = true;
+        }
+
+        json_settings.insert("device_configurations", json_devices);
+
+        if (!found) {
+            json_settings.insert("device_configurations", ::CreateDeviceConfigurations(vulkan_system_info.physicalDevices[0]));
+        }
+    }
+
+    json_settings.insert("additional_drivers_use_exclusively", false);
+
+    QJsonArray json_drivers_paths;
+    QJsonObject json_drivers_path;
+    json_drivers_path.insert("path",
+                             "C:\\Users\\Piranha\\VulkanSDK\\Lavapipe\\mesa3d-25.0.7-release-msvc\\x64\\lvp_icd.x86_64.json");
+
+    json_drivers_paths.append(json_drivers_path);
+    json_settings.insert("additional_drivers", json_drivers_paths);
+
     return json_settings;
 }
 
@@ -186,6 +263,8 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
     result.override_loader = configuration->override_loader;
     result.override_layers = configuration->override_layers;
     result.stderr_log_flags = full_loader_log ? ~0 : configuration->loader_log_messages_flags;
+    result.override_driver = configuration->override_driver;
+    result.override_driver_name = configuration->override_driver_name;
 
     for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
         LoaderLayerSettings loader_layer_settings;
@@ -265,11 +344,11 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
             if (::EnabledExecutables(this->executable_scope)) {
                 QJsonArray json_settings_array;
                 for (std::size_t i = 0, n = loader_settings_array.size(); i < n; ++i) {
-                    json_settings_array.append(CreateJsonSettingObject(loader_settings_array[i]));
+                    json_settings_array.append(CreateJsonSettingObject(loader_settings_array[i], this->vulkan_system_info));
                 }
                 root.insert("settings_array", json_settings_array);
             } else if (!loader_settings_array.empty()) {
-                root.insert("settings", CreateJsonSettingObject(loader_settings_array[0]));
+                root.insert("settings", CreateJsonSettingObject(loader_settings_array[0], this->vulkan_system_info));
             }
             QJsonDocument doc(root);
 
@@ -1008,7 +1087,7 @@ std::string Configurator::Log() const {
         } else {
             log += format("   * Driver: %s %s\n", GetLabel(info.vendorID).c_str(), Version(info.driverVersion).str().c_str());
         }
-        log += format("   * deviceUUID: %s\n", info.deviceUUID.c_str());
+        log += format("   * deviceUUID: %s\n", ::GetUUIDString(info.deviceUUID).c_str());
         log += format("   * driverUUID: %s\n", info.driverUUID.c_str());
         log += format("   * deviceLUID: %s\n", info.deviceLUID.c_str());
     }
