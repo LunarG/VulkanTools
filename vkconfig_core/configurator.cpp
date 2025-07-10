@@ -894,6 +894,11 @@ std::string Configurator::Log() const {
     log += format(" - Qt version: %s %s-%s\n", QLibraryInfo::version().toString().toStdString().c_str(),
                   QLibraryInfo::isSharedBuild() ? "Shared" : "Static", QLibraryInfo::isDebugBuild() ? "Debug" : "Release");
 #endif
+#ifdef SDK_VERSION
+    log += format(" - ${SDK_VERSION}: %s\n", SDK_VERSION);
+#else
+    log += "${SDK_VERSION}: unset\n";
+#endif
 
     if (Path(Path::SDK).Empty()) {
         log += " - ${VULKAN_SDK}: unset\n";
@@ -917,7 +922,7 @@ std::string Configurator::Log() const {
         log += format(" - ${XDG_CURRENT_DESKTOP}: %s\n", qgetenv("XDG_CURRENT_DESKTOP").toStdString().c_str());
     }
 
-    log += format(" - CPU architechture: %s\n", QSysInfo::currentCpuArchitecture().toStdString().c_str());
+    log += format(" - CPU architecture: %s\n", QSysInfo::currentCpuArchitecture().toStdString().c_str());
     log += format(" - Logical CPU core count: %d\n", std::thread::hardware_concurrency());
 
     log += "\n";

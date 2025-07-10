@@ -1204,8 +1204,8 @@ void TabConfigurations::on_configurations_executable_remove_pressed() {
     if (!(configurator.Get(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE))) {
         QMessageBox message;
         message.setWindowTitle(format("Removing an executable from %s", VKCONFIG_NAME).c_str());
-        message.setText(format("The '%s' executable is being removed from %s with it's options that will be definitly lost.",
-                               VKCONFIG_NAME, executable->path.AbsolutePath().c_str())
+        message.setText(format("The '%s' executable '%s' is being removed, and its options will be lost.", VKCONFIG_NAME,
+                               executable->path.AbsolutePath().c_str())
                             .c_str());
         message.setInformativeText("Do you want to continue?");
         message.setIcon(QMessageBox::Warning);
