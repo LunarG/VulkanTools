@@ -61,8 +61,14 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     this->ui->preferences_theme_mode->setToolTip(
-        "Control of the theme mode requires Vulkan Configurator to be build against Qt 6.8.0 or newer");
+        "Control of the theme mode requires Vulkan Configurator to be build against Qt 6.8.0 or newer.");
 #endif
+
+    this->ui->preferences_keep_running->setEnabled(QSystemTrayIcon::isSystemTrayAvailable());
+    if (!QSystemTrayIcon::isSystemTrayAvailable()) {
+        this->ui->preferences_keep_running->setToolTip("I couldn't detect any system tray on this system.");
+    }
+
     this->ui->preferences_theme_mode->setEnabled(QT_VERSION >= QT_VERSION_CHECK(6, 8, 0));
     this->ui->preferences_theme_mode->blockSignals(true);
     this->ui->preferences_theme_mode->setCurrentIndex(configurator.current_theme_mode);
