@@ -340,11 +340,11 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
                 if (configurator.GetUseLayerDebugMode()) {
                     if (value.view == SETTING_VIEW_HIDDEN) {
-                        return;
+                        continue;
                     }
                 } else {
                     if (value.view != SETTING_VIEW_STANDARD) {
-                        return;
+                        continue;
                     }
                 }
 
@@ -369,11 +369,11 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
                 if (configurator.GetUseLayerDebugMode()) {
                     if (value.view == SETTING_VIEW_HIDDEN) {
-                        return;
+                        continue;
                     }
                 } else {
                     if (value.view != SETTING_VIEW_STANDARD) {
-                        return;
+                        continue;
                     }
                 }
 
