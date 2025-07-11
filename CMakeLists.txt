@@ -50,7 +50,7 @@ if (BUILD_WERROR)
 endif()
 
 option(BUILD_TESTS "Build tests")
-option(RUN_ON_GITHUB "Build only tests that can run on Github" OFF)
+option(RUN_ON_CI "Build only tests that can run on C.I." ON)
 
 if(BUILD_TESTS)
     if (WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
