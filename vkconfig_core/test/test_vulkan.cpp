@@ -22,7 +22,7 @@
 
 #include <gtest/gtest.h>
 
-#ifndef RUN_ON_GITHUB
+#ifndef RUN_ON_CI
 
 TEST(test_vulkan, system_info) {
     const VulkanSystemInfo& vulkan_system_info = BuildVulkanSystemInfo();
@@ -33,4 +33,4 @@ TEST(test_vulkan, system_info) {
     EXPECT_TRUE(!vulkan_system_info.physicalDevices.empty());
 }
 
-#endif  // RUN_ON_GITHUB
+#endif  // RUN_ON_CI
