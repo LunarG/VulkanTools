@@ -86,10 +86,20 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
 
     this->ui->preferences_download->setText("Searching Latest Vulkan SDK...");
 
-    QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
-    QNetworkRequest request(url);
-    this->network_manager.get(request);
-    this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_release_downloaded(QNetworkReply *)));
+#if WORKAROUND_WINARM_RELEASE_NOTIFICATION_BUG
+    // Windows ARM crash, it looks like a Qt bug in 6.8.2...
+    if (VKC_PLATFORM == PLATFORM_WINDOWS_ARM) {
+        this->ui->preferences_group_box_releases->setVisible(false);
+    } else {
+#endif
+        QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
+        QNetworkRequest request(url);
+        this->network_manager.get(request);
+        this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), this,
+                      SLOT(on_release_downloaded(QNetworkReply *)));
+#if WORKAROUND_WINARM_RELEASE_NOTIFICATION_BUG
+    }
+#endif
 }
 
 TabPreferences::~TabPreferences() {}

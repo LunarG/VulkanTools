@@ -67,6 +67,8 @@ enum PlatformFlags {
     PLATFORM_MOBILE_BIT = PLATFORM_ANDROID_BIT | PLATFORM_IOS_BIT
 };
 
+#define WORKAROUND_WINARM_RELEASE_NOTIFICATION_BUG 1
+
 int GetPlatformFlags(const std::vector<std::string>& platform_strings);
 std::vector<std::string> GetPlatformTokens(int platform_flags);
 
