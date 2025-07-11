@@ -74,7 +74,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '5.15.*'
-      - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
+      - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D RUN_ON_GITHUB=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
       - run: cmake --build build
       - run: ctest --output-on-failure --test-dir build --timeout 10
       - run: cmake --install build --prefix build/install
@@ -89,7 +89,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.8.2'
-      - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
+      - run: cmake -S . -B build -D UPDATE_DEPS=ON -D BUILD_TESTS=ON -D RUN_ON_GITHUB=ON -D CMAKE_BUILD_TYPE=Debug -G Ninja
       - run: cmake --build build
       - run: ctest --output-on-failure --test-dir build --timeout 10
       - run: cmake --install build --prefix build/install
