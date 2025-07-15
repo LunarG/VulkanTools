@@ -92,7 +92,6 @@
         <file alias="Frame Capture.json">../vkconfig_core/configurations/3.0.0/Frame Capture.json</file>
         <file alias="Log Loader Messages.json">../vkconfig_core/configurations/3.0.0/Log Loader Messages.json</file>
         <file alias="Portability.json">../vkconfig_core/configurations/3.0.0/Portability.json</file>
-        <file alias="Synchronization.json">../vkconfig_core/configurations/3.0.0/Synchronization.json</file>
         <file alias="Validation.json">../vkconfig_core/configurations/3.0.0/Validation.json</file>
     </qresource>
 

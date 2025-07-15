@@ -1,3 +1,9 @@
+## Vulkan Configurator 3.4.0 - September 2025
+[Vulkan SDK main](https://github.com/LunarG/VulkanTools/tree/main)
+
+### Deprecation:
+- Deprecate the synchronization configuration
+
 ## Vulkan Configurator 3.3.0 - July 2025
 [Vulkan SDK 1.4.321.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.321)
 
