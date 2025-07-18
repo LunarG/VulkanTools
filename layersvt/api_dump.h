@@ -1506,6 +1506,31 @@ void dump_pointer_array(const T *array, size_t len, const ApiDumpSettings &setti
     dump_array_end<Format>(array, len, settings, indents);
 }
 
+template <ApiDumpFormat Format, typename T, typename DumpElement>
+void dump_double_pointer_array(const T *const *array, size_t len, const ApiDumpSettings &settings, const char *type_string,
+                               const char *name, const char *element_type, int indents, DumpElement dump_element) {
+    if (array == nullptr || len == 0) {
+        dump_nullptr<Format>(settings, type_string, name, indents);
+        return;
+    }
+    dump_array_start<Format>(array, len, settings, type_string, name, indents);
+    for (size_t i = 0; i < len; ++i) {
+        std::stringstream stream;
+        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+            stream << name;
+        }
+        stream << "[" << i << "]";
+        std::string indexName = stream.str();
+        dump_pointer<Format>(array[i], settings, element_type, indexName.c_str(), indents + (Format == ApiDumpFormat::Json ? 2 : 1),
+                     dump_element);
+        if constexpr (Format == ApiDumpFormat::Json) {
+            if (i < len - 1) settings.stream() << ',';
+            settings.stream() << "\n";
+        }
+    }
+    dump_array_end<Format>(array, len, settings, indents);
+}
+
 template <ApiDumpFormat Format>
 void dump_before_pre_dump_formatting(const ApiDumpSettings &settings) {
     if constexpr (Format == ApiDumpFormat::Text) {
