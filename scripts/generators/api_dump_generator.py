@@ -887,7 +887,7 @@ class ApiDumpGenerator(BaseGenerator):
 
             else:
                 if var.fullType.count('*') > 1 and var.type not in ['void', 'char'] and (call_type in self.vulkan_defined_types or 'StdVideo' in call_type):
-                    self.write(f'dump_pointer_array<Format>(*{value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
+                    self.write(f'dump_double_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
                 else:
                     self.write(f'dump_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
 
