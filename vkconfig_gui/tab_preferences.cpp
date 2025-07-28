@@ -421,7 +421,6 @@ void TabPreferences::on_open_page_pressed() { QDesktopServices::openUrl(QUrl("ht
 
 void TabPreferences::on_download_pressed() {
     Configurator &configurator = Configurator::Get();
-    // if (configurator.latest_sdk_version != configurator.online_sdk_version && configurator.online_sdk_version != Version::NONE) {
 
     this->ui->preferences_download->setEnabled(false);
     this->ui->preferences_progress->setVisible(true);
@@ -537,6 +536,8 @@ void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
         alert.setWindowTitle("Couldn't save downloaded Vulkan SDK installer...");
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
+    } else {
+        configurator.latest_sdk_version = configurator.online_sdk_version;
     }
 
     if (VKC_ENV == VKC_ENV_WIN32) {
