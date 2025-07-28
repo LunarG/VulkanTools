@@ -5,6 +5,9 @@
 - Add additional driver paths tab
 - Add force physical device to loader configuration
 
+### Fixes:
+- Fix invalid downloaded SDK filename
+
 ### Deprecation:
 - Deprecate the synchronization configuration
 

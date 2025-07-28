@@ -523,7 +523,7 @@ void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
     }
 
     const Path &path_version = ::AbsolutePath(Path::DOWNLOAD) + Path::Separator() +
-                               format(GetVersionedFilename(VKC_PLATFORM), configurator.latest_sdk_version.str().c_str());
+                               format(GetVersionedFilename(VKC_PLATFORM), configurator.online_sdk_version.str().c_str());
     QFile file_version(path_version.AbsolutePath().c_str());
 
     const bool result_version = file_version.open(QFile::WriteOnly);
@@ -538,8 +538,6 @@ void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
     }
-
-    // this->ui->preferences_download->setText("Open Vulkan SDK download directory...");
 
     if (VKC_ENV == VKC_ENV_WIN32) {
         QMessageBox alert;
