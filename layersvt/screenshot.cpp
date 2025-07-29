@@ -424,6 +424,12 @@ void waitScreenshotThreadIsOver() {
     if (screenshotWriterThread.joinable()) {
         screenshotWriterThread.join();
     }
+    screenshotThreadStarted = false;
+}
+
+static void shutdown_screenshot() {
+    stopScreenshotThread();
+    waitScreenshotThreadIsOver();
 }
 
 VkQueue getQueueForScreenshot(VkDevice device) {
@@ -1279,7 +1285,14 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     return result;
 }
 
-// TODO hook DestroyInstance to cleanup
+VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
+    VkuInstanceDispatchTable *pTable = instance_dispatch_table(instance);
+    pTable->DestroyInstance(instance, pAllocator);
+
+    shutdown_screenshot();
+
+    // TODO - screenshot doesn't support multiple instances at the same time
+}
 
 static void createDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo, VkDevice device) {
     uint32_t i;
@@ -1595,8 +1608,8 @@ void screenshotWriterThreadFunc() {
     printf("screenshot: Images thread is over\n");
     fflush(stdout);
 #endif
+
     shutdownScreenshotThread = false;
-    screenshotThreadStarted = false;
 }
 
 void onQueuePresentKHR(VkQueue queue, VkPresentInfoKHR &presentInfo) {
@@ -1785,6 +1798,7 @@ static PFN_vkVoidFunction intercept_core_instance_command(const char *name) {
     } core_instance_commands[] = {
         {"vkGetInstanceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetInstanceProcAddr)},
         {"vkCreateInstance", reinterpret_cast<PFN_vkVoidFunction>(CreateInstance)},
+        {"vkDestroyInstance", reinterpret_cast<PFN_vkVoidFunction>(DestroyInstance)},
         {"vkCreateDevice", reinterpret_cast<PFN_vkVoidFunction>(CreateDevice)},
         {"vkEnumeratePhysicalDevices", reinterpret_cast<PFN_vkVoidFunction>(EnumeratePhysicalDevices)},
         {"vkEnumeratePhysicalDeviceGroups", reinterpret_cast<PFN_vkVoidFunction>(EnumeratePhysicalDeviceGroups)},
