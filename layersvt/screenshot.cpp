@@ -105,7 +105,7 @@ static unordered_map<VkImage, ImageMapStruct> imageMap;
 //   set of queues created for this device
 //   queue to queueFamilyIndex map
 //   physical device
-struct DeviceMapStruct{
+struct DeviceMapStruct {
     bool wsi_enabled;
     set<VkQueue> queues;
     unordered_map<VkQueue, uint32_t> queueIndexMap;
@@ -1135,7 +1135,7 @@ bool prepareScreenshotData(ScreenshotQueueData &data, VkImage image1) {
 //
 // Returns true if successfull, false otherwise.
 static bool queueScreenshot(ScreenshotQueueData &data, VkImage image1, const VkPresentInfoKHR *presentInfo) {
-    PROFILE("screenshot.queue");   
+    PROFILE("screenshot.queue");
     if (data.device == VK_NULL_HANDLE) {
         if (!prepareScreenshotData(data, image1)) {
             assert(false);
@@ -1481,33 +1481,33 @@ VKAPI_ATTR void DestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, c
         PROFILE("screenshot.finish");
         std::unique_lock<std::mutex> lock(globalLock);
         // Wait for all related screenshots are done
-        screenshotSavedCV.wait(lock, [&] { 
-            for (const auto& data : screenshotsData) {
-                if(data->swapchain == swapchain) {
+        screenshotSavedCV.wait(lock, [&] {
+            for (const auto &data : screenshotsData) {
+                if (data->swapchain == swapchain) {
                     return false;
                 }
             }
-            return true; 
+            return true;
         });
         // Free swapchain images and their cache
         for (auto it = imageMap.begin(); it != imageMap.end();) {
             if (it->second.swapchain == swapchain) {
-                it = imageMap.erase(it); 
+                it = imageMap.erase(it);
                 continue;
-            } 
+            }
             ++it;
         }
-        if(swapchainMap.find(swapchain) != swapchainMap.end()) {
+        if (swapchainMap.find(swapchain) != swapchainMap.end()) {
             // Free surface image cache entries related to this swapchain
             for (auto surface : swapchainMap[swapchain].imageList) {
-                auto& cache = screenshotDataCache[surface];
+                auto &cache = screenshotDataCache[surface];
                 for (auto cacheIt = cache.begin(); cacheIt != cache.end();) {
                     auto curCacheIt = cacheIt++;
                     if ((*curCacheIt)->swapchain == swapchain) {
                         cache.erase(curCacheIt);
                     }
                 }
-            }            
+            }
             swapchainMap.erase(swapchain);
         }
     }
@@ -1560,8 +1560,8 @@ void screenshotWriterThreadFunc() {
         {
             PROFILE("Waiting for GPU")
             while (fenceWaitResult == VK_TIMEOUT) {
-                fenceWaitResult = dataToSave->pTableDevice->WaitForFences(
-                    dataToSave->device, 1, &dataToSave->fence, VK_TRUE, UINT64_MAX);
+                fenceWaitResult =
+                    dataToSave->pTableDevice->WaitForFences(dataToSave->device, 1, &dataToSave->fence, VK_TRUE, UINT64_MAX);
             }
         }
 
@@ -1599,7 +1599,7 @@ void screenshotWriterThreadFunc() {
     screenshotThreadStarted = false;
 }
 
-void onQueuePresentKHR(VkQueue queue, VkPresentInfoKHR& presentInfo) {
+void onQueuePresentKHR(VkQueue queue, VkPresentInfoKHR &presentInfo) {
     static int frameNumber = -1;
     ++frameNumber;
     if (!settings.isFrameToCapture(frameNumber)) {
@@ -1627,7 +1627,7 @@ void onQueuePresentKHR(VkQueue queue, VkPresentInfoKHR& presentInfo) {
     }
     // We'll dump only one image: the first
     VkSwapchainKHR swapchain = presentInfo.pSwapchains[0];
-    if(swapchainMap.find(swapchain) == swapchainMap.end()) {
+    if (swapchainMap.find(swapchain) == swapchainMap.end()) {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "screenshot", "Present with inactive swapchain: %p", swapchain);
 #else
@@ -1639,7 +1639,7 @@ void onQueuePresentKHR(VkQueue queue, VkPresentInfoKHR& presentInfo) {
         static int skippedFrames = 0;
         PROFILE_COUNTER("screenshot.SkippedFrames", ++skippedFrames);
         return;
-    } 
+    }
     std::shared_ptr<ScreenshotQueueData> data;
     VkImage image = swapchainMap[swapchain].imageList[presentInfo.pImageIndices[0]];
     if (!screenshotDataCache[image].empty()) {
