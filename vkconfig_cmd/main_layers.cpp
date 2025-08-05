@@ -31,7 +31,7 @@ static int RunLayersOverride(Configurator& configurator, const CommandLine& comm
     const bool load_result = configurator.configurations.ImportConfiguration(
         configurator.layers, command_line.layers_configuration_path, configuration_name);
     if (!load_result) {
-        fprintf(stderr, "vkconfig: [ERROR] Failed to load `%s` loader configuration file...\n",
+        fprintf(stderr, "vkconfig: [ERROR] Failed to load `%s` layers configuration file...\n",
                 command_line.layers_configuration_path.AbsolutePath().c_str());
         return -1;
     }

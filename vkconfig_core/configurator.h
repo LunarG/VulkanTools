@@ -34,6 +34,7 @@
 #include "type_executable_mode.h"
 #include "type_configurator_mode.h"
 #include "type_diagnostic_mode.h"
+#include "type_driver_mode.h"
 #include "type_theme_mode.h"
 #include "serialization.h"
 
@@ -80,7 +81,8 @@ class Configurator {
     bool Load();
     bool Save() const;
     std::string Log() const;
-    std::string LogConfiguration(const std::string& configuration_key) const;
+    std::string LogLayers(const std::string& configuration_key) const;
+    std::string LogLoaderMessage() const;
 
     bool Surrender(OverrideArea override_area);
     bool Override(OverrideArea override_area);
@@ -143,6 +145,9 @@ class Configurator {
     Configurator(const Configurator&) = delete;
     Configurator& operator=(const Configurator&) = delete;
 
+    QJsonObject CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings) const;
+    QJsonObject CreateJsonGlobalObject() const;
+
     void BuildLoaderSettings(const std::string& configuration_key, const std::string& executable_path,
                              std::vector<LoaderSettings>& loader_settings_array, bool full_loader_log) const;
 
@@ -169,7 +174,15 @@ class Configurator {
     Version latest_sdk_version = Version::NONE;
     Version current_sdk_version = Version::VKHEADER;
 
+    bool driver_override_enabled = false;
+    DriverMode driver_override_mode = DRIVER_MODE_SINGLE;
+    std::string driver_override_name = DEFAULT_PHYSICAL_DEVICE;
+    std::vector<std::string> driver_override_list;
     std::map<Path, bool> driver_paths;
+    bool driver_paths_enabled = false;
+
+    bool loader_log_enabled = false;
+    int loader_log_messages_flags = GetBit(LOG_ERROR);
 
     QByteArray window_geometry;
     QByteArray window_state;

@@ -45,6 +45,16 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->diagnostic_search_whole, SIGNAL(toggled(bool)), this, SLOT(on_search_whole_toggled(bool)));
     this->connect(this->ui->diagnostic_search_regex, SIGNAL(toggled(bool)), this, SLOT(on_search_regex_toggled(bool)));
 
+    this->connect(this->ui->diagnostic_group_box_loader_log, SIGNAL(toggled(bool)), this,
+                  SLOT(on_diagnostic_loader_messages_toggled(bool)));
+    this->connect(this->ui->diagnostic_loader_errors, SIGNAL(toggled(bool)), this, SLOT(on_diagnostic_loader_errors_toggled(bool)));
+    this->connect(this->ui->diagnostic_loader_warns, SIGNAL(toggled(bool)), this, SLOT(on_diagnostic_loader_warns_toggled(bool)));
+    this->connect(this->ui->diagnostic_loader_infos, SIGNAL(toggled(bool)), this, SLOT(on_diagnostic_loader_infos_toggled(bool)));
+    this->connect(this->ui->diagnostic_loader_debug, SIGNAL(toggled(bool)), this, SLOT(on_diagnostic_loader_debug_toggled(bool)));
+    this->connect(this->ui->diagnostic_loader_layers, SIGNAL(toggled(bool)), this, SLOT(on_diagnostic_loader_layers_toggled(bool)));
+    this->connect(this->ui->diagnostic_loader_drivers, SIGNAL(toggled(bool)), this,
+                  SLOT(on_diagnostic_loader_drivers_toggled(bool)));
+
     QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->diagnostic_status_text);
     this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
     QShortcut *shortcut_next = new QShortcut(QKeySequence(Qt::Key_F3), this->ui->diagnostic_status_text);
@@ -255,7 +265,38 @@ void TabDiagnostics::UpdateStatus() {
 void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
     (void)mode;
 
+    const Configurator &configurator = Configurator::Get();
+
     this->on_mode_changed(this->mode);
+
+    this->ui->diagnostic_loader_errors->blockSignals(true);
+    this->ui->diagnostic_loader_errors->setChecked(configurator.loader_log_messages_flags & GetBit(LOG_ERROR));
+    this->ui->diagnostic_loader_errors->setEnabled(configurator.loader_log_enabled);
+    this->ui->diagnostic_loader_errors->blockSignals(false);
+    this->ui->diagnostic_loader_warns->blockSignals(true);
+    this->ui->diagnostic_loader_warns->setChecked(configurator.loader_log_messages_flags & GetBit(LOG_WARN));
+    this->ui->diagnostic_loader_warns->setEnabled(configurator.loader_log_enabled);
+    this->ui->diagnostic_loader_warns->blockSignals(false);
+    this->ui->diagnostic_loader_infos->blockSignals(true);
+    this->ui->diagnostic_loader_infos->setChecked(configurator.loader_log_messages_flags & GetBit(LOG_INFO));
+    this->ui->diagnostic_loader_infos->setEnabled(configurator.loader_log_enabled);
+    this->ui->diagnostic_loader_infos->blockSignals(false);
+    this->ui->diagnostic_loader_debug->blockSignals(true);
+    this->ui->diagnostic_loader_debug->setChecked(configurator.loader_log_messages_flags & GetBit(LOG_DEBUG));
+    this->ui->diagnostic_loader_debug->setEnabled(configurator.loader_log_enabled);
+    this->ui->diagnostic_loader_debug->blockSignals(false);
+    this->ui->diagnostic_loader_layers->blockSignals(true);
+    this->ui->diagnostic_loader_layers->setChecked(configurator.loader_log_messages_flags & GetBit(LOG_LAYER));
+    this->ui->diagnostic_loader_layers->setEnabled(configurator.loader_log_enabled);
+    this->ui->diagnostic_loader_layers->blockSignals(false);
+    this->ui->diagnostic_loader_drivers->blockSignals(true);
+    this->ui->diagnostic_loader_drivers->setChecked(configurator.loader_log_messages_flags & GetBit(LOG_DRIVER));
+    this->ui->diagnostic_loader_drivers->setEnabled(configurator.loader_log_enabled);
+    this->ui->diagnostic_loader_drivers->blockSignals(false);
+
+    this->ui->diagnostic_group_box_loader_log->blockSignals(true);
+    this->ui->diagnostic_group_box_loader_log->setChecked(configurator.loader_log_enabled);
+    this->ui->diagnostic_group_box_loader_log->blockSignals(false);
     // this->UpdateStatus();
 }
 
@@ -278,6 +319,42 @@ bool TabDiagnostics::EventFilter(QObject *target, QEvent *event) {
 
     return false;
 }
+
+void TabDiagnostics::on_diagnostic_loader_messages_toggled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+    configurator.loader_log_enabled = checked;
+    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+
+    this->UpdateUI(UPDATE_REFRESH_UI);
+}
+
+void TabDiagnostics::OnCheckedLoaderMessageTypes(bool checked) {
+    (void)checked;
+
+    Configurator &configurator = Configurator::Get();
+    configurator.loader_log_messages_flags = 0;
+
+    configurator.loader_log_messages_flags |= this->ui->diagnostic_loader_errors->isChecked() ? GetBit(LOG_ERROR) : 0;
+    configurator.loader_log_messages_flags |= this->ui->diagnostic_loader_warns->isChecked() ? GetBit(LOG_WARN) : 0;
+    configurator.loader_log_messages_flags |= this->ui->diagnostic_loader_infos->isChecked() ? GetBit(LOG_INFO) : 0;
+    configurator.loader_log_messages_flags |= this->ui->diagnostic_loader_debug->isChecked() ? GetBit(LOG_DEBUG) : 0;
+    configurator.loader_log_messages_flags |= this->ui->diagnostic_loader_layers->isChecked() ? GetBit(LOG_LAYER) : 0;
+    configurator.loader_log_messages_flags |= this->ui->diagnostic_loader_drivers->isChecked() ? GetBit(LOG_DRIVER) : 0;
+
+    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+}
+
+void TabDiagnostics::on_diagnostic_loader_errors_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
+
+void TabDiagnostics::on_diagnostic_loader_warns_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
+
+void TabDiagnostics::on_diagnostic_loader_infos_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
+
+void TabDiagnostics::on_diagnostic_loader_debug_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
+
+void TabDiagnostics::on_diagnostic_loader_layers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
+
+void TabDiagnostics::on_diagnostic_loader_drivers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
 void TabDiagnostics::on_mode_changed(int index) {
     this->mode = static_cast<DiagnosticMode>(index);

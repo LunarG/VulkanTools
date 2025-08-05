@@ -64,12 +64,12 @@ class Configuration {
     LayerControl default_control = LAYER_CONTROL_AUTO;
     bool override_settings = false;
     Path override_settings_path;
-    bool override_layers = true;
+    // bool override_layers = true; // Keep or not ?
     std::string selected_layer_name;
-    bool override_driver = false;
-    std::string override_driver_name = DEFAULT_PHYSICAL_DEVICE;
-    bool override_loader = true;
-    int loader_log_messages_flags = GetBit(LOG_ERROR);
+    // bool override_driver = false;
+    // std::string override_driver_name = DEFAULT_PHYSICAL_DEVICE;
+    // bool override_loader = true;
+    // int loader_log_messages_flags = GetBit(LOG_ERROR);
 
     std::vector<Parameter> parameters;
 

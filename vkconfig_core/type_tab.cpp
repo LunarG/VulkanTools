@@ -25,14 +25,14 @@
 
 const char* GetLabel(TabType type) {
     static const char* TOKENS[]{
-        "Vulkan Loader Management",  // TAB_CONFIGURATIONS
-        "Vulkan Drivers Paths",      // TAB_DRIVERS
-        "Vulkan Layers Paths",       // TAB_LAYERS
-        "Application Launcher",      // TAB_APPLICATIONS
-        "Diagnostic",                // TAB_DIAGNOSTIC
-        "Documentation",             // TAB_DOCUMENTATION
-        "Preferences",               // TAB_PREFERENCES
-        "About"                      // TAB_ABOUT
+        "Vulkan Layers",         // TAB_CONFIGURATIONS
+        "Vulkan Layers Paths",   // TAB_LAYERS
+        "Vulkan Drivers",        // TAB_DRIVERS
+        "Application Launcher",  // TAB_APPLICATIONS
+        "Diagnostics",           // TAB_DIAGNOSTIC
+        "Documentation",         // TAB_DOCUMENTATION
+        "Preferences",           // TAB_PREFERENCES
+        "About"                  // TAB_ABOUT
     };
 
     static_assert(std::size(TOKENS) == TAB_COUNT, "The tranlation table size doesn't match the enum number of elements");
@@ -43,8 +43,8 @@ const char* GetLabel(TabType type) {
 const char* GetToken(TabType type) {
     static const char* TOKENS[]{
         "CONFIGURATIONS",  // TAB_CONFIGURATIONS
-        "DRIVERS",         // TAB_DRIVERS
         "LAYERS",          // TAB_LAYERS
+        "DRIVERS",         // TAB_DRIVERS
         "APPLICATIONS",    // TAB_APPLICATIONS
         "DIAGNOSTIC",      // TAB_DIAGNOSTIC
         "DOCUMENTATION",   // TAB_DOCUMENTATION
