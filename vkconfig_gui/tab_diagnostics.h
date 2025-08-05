@@ -57,6 +57,14 @@ class TabDiagnostics : public Tab {
     void on_search_whole_activated();
     void on_search_regex_activated();
 
+    void on_diagnostic_loader_messages_toggled(bool checked);
+    void on_diagnostic_loader_errors_toggled(bool checked);
+    void on_diagnostic_loader_warns_toggled(bool checked);
+    void on_diagnostic_loader_infos_toggled(bool checked);
+    void on_diagnostic_loader_debug_toggled(bool checked);
+    void on_diagnostic_loader_layers_toggled(bool checked);
+    void on_diagnostic_loader_drivers_toggled(bool checked);
+
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
     void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
@@ -69,6 +77,8 @@ class TabDiagnostics : public Tab {
     bool search_case = false;
     bool search_whole = false;
     bool search_regex = false;
+
+    void OnCheckedLoaderMessageTypes(bool checked);
 
     std::string BuildStatus(DiagnosticMode selected_mode, std::size_t mode_index);
     void UpdateStatus();

@@ -91,7 +91,7 @@
        <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -208,7 +208,7 @@
                      </font>
                     </property>
                     <property name="title">
-                     <string>Vulkan Loader Configuration Scope:</string>
+                     <string>Vulkan Layers Configuration Scope:</string>
                     </property>
                     <layout class="QHBoxLayout" name="horizontalLayout_2">
                      <property name="spacing">
@@ -368,7 +368,7 @@
                      </font>
                     </property>
                     <property name="title">
-                     <string>Apply a Vulkan Loader Configuration:</string>
+                     <string>Apply a Vulkan Layers Configuration:</string>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_4">
                      <property name="spacing">
@@ -573,10 +573,10 @@
                      <string>Configure Layers Ordering and Selection</string>
                     </property>
                     <property name="title">
-                     <string>Include Vulkan Layers Selection and Execution Order:</string>
+                     <string>Vulkan Layers Selection and Execution Order:</string>
                     </property>
                     <property name="checkable">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_5">
                      <property name="spacing">
@@ -718,194 +718,6 @@
                         <number>0</number>
                        </property>
                       </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QGroupBox" name="configurations_group_box_driver">
-                    <property name="font">
-                     <font>
-                      <family>Arial</family>
-                      <pointsize>10</pointsize>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="title">
-                     <string>Include Forced Vulkan Device:</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_15">
-                     <property name="leftMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="QComboBox" name="configuration_driver_name">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="font">
-                        <font>
-                         <family>Arial</family>
-                         <pointsize>10</pointsize>
-                         <bold>false</bold>
-                        </font>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QGroupBox" name="configurations_group_box_loader">
-                    <property name="font">
-                     <font>
-                      <family>Arial</family>
-                      <pointsize>10</pointsize>
-                      <bold>true</bold>
-                     </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>Configure Loader Messages</string>
-                    </property>
-                    <property name="title">
-                     <string>Include Vulkan Loader Messages:</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_10">
-                     <property name="spacing">
-                      <number>0</number>
-                     </property>
-                     <property name="leftMargin">
-                      <number>5</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>5</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_5">
-                       <property name="spacing">
-                        <number>0</number>
-                       </property>
-                       <property name="leftMargin">
-                        <number>2</number>
-                       </property>
-                       <property name="topMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="bottomMargin">
-                        <number>0</number>
-                       </property>
-                       <item>
-                        <widget class="QCheckBox" name="configuration_loader_errors">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Errors</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="configuration_loader_warns">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Warnings</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="configuration_loader_infos">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Information</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="configuration_loader_debug">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Debug</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="configuration_loader_layers">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Layers</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="configuration_loader_drivers">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="text">
-                          <string>Drivers</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
                      </item>
                     </layout>
                    </widget>
@@ -1135,116 +947,12 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_driver">
-       <attribute name="title">
-        <string>Tab 2</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_12">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>5</number>
-        </property>
-        <property name="topMargin">
-         <number>5</number>
-        </property>
-        <property name="rightMargin">
-         <number>5</number>
-        </property>
-        <property name="bottomMargin">
-         <number>5</number>
-        </property>
-        <item>
-         <widget class="QGroupBox" name="groupBox_10">
-          <property name="title">
-           <string/>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_18">
-           <property name="spacing">
-            <number>11</number>
-           </property>
-           <property name="leftMargin">
-            <number>5</number>
-           </property>
-           <property name="topMargin">
-            <number>5</number>
-           </property>
-           <property name="rightMargin">
-            <number>5</number>
-           </property>
-           <property name="bottomMargin">
-            <number>5</number>
-           </property>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_16">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QLineEdit" name="driver_path_lineedit">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>24</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="driver_browse_button">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>24</width>
-                 <height>24</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>24</width>
-                 <height>24</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Append a user-defined driver path</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QListWidget" name="driver_paths_list">
-             <property name="frameShape">
-              <enum>QFrame::Shape::NoFrame</enum>
-             </property>
-             <property name="verticalScrollBarPolicy">
-              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="tab_layers">
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
        <attribute name="title">
-        <string>Tab 3</string>
+        <string>Tab 2</string>
        </attribute>
        <attribute name="toolTip">
         <string>Locate Vulkan Layers versions</string>
@@ -1272,7 +980,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_29">
            <property name="spacing">
-            <number>11</number>
+            <number>7</number>
            </property>
            <property name="leftMargin">
             <number>5</number>
@@ -1467,6 +1175,400 @@
                <string notr="true">1</string>
               </property>
              </column>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_driver">
+       <attribute name="title">
+        <string>Tab 3</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_12">
+        <property name="spacing">
+         <number>7</number>
+        </property>
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="driver_group_box_override">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="title">
+           <string>Override Vulkan Devices to all Vulkan applications:</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_20">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
+           <item>
+            <layout class="QGridLayout" name="gridLayout_5">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item row="1" column="0">
+              <widget class="QLabel" name="driver_name_label">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Forced Vulkan physical device name: </string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Vulkan Devices override mode: </string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="driver_mode">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Force a single Vulkan physical device</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Order Vulkan physical devices</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QComboBox" name="driver_forced_name">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="drivers_label_first">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>9</pointsize>
+               <italic>true</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>First Physical Device</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignHCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="drivers_device_list">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::Shape::NoFrame</enum>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+             </property>
+             <property name="dragEnabled">
+              <bool>true</bool>
+             </property>
+             <property name="dragDropMode">
+              <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
+             </property>
+             <property name="defaultDropAction">
+              <enum>Qt::DropAction::MoveAction</enum>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="drivers_label_last">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>9</pointsize>
+               <italic>true</italic>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Last Physical Device</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="driver_group_box_paths">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="title">
+           <string>Add Vulkan Devices Paths</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_18">
+           <property name="spacing">
+            <number>7</number>
+           </property>
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_16">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLineEdit" name="driver_path_lineedit">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="driver_browse_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Append a user-defined driver path</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QListWidget" name="driver_paths_list">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::Shape::NoFrame</enum>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+             </property>
             </widget>
            </item>
           </layout>
@@ -2265,7 +2367,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_14">
         <property name="spacing">
-         <number>0</number>
+         <number>7</number>
         </property>
         <property name="leftMargin">
          <number>5</number>
@@ -2281,11 +2383,18 @@
         </property>
         <item>
          <widget class="QGroupBox" name="groupBox_6">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="autoFillBackground">
            <bool>false</bool>
           </property>
           <property name="title">
-           <string/>
+           <string>Diagnostic Logs</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_28">
            <property name="spacing">
@@ -2334,6 +2443,13 @@
                  <height>24</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -2352,6 +2468,13 @@
                  <width>16777215</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
                </property>
                <property name="sizeAdjustPolicy">
                 <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
@@ -2412,6 +2535,13 @@
                  <height>24</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
                <property name="sizeAdjustPolicy">
                 <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                </property>
@@ -2430,6 +2560,13 @@
                  <width>24</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
                </property>
                <property name="toolTip">
                 <string>Export Diagnostic File</string>
@@ -2452,6 +2589,13 @@
                  <width>16777215</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
                </property>
               </widget>
              </item>
@@ -2662,6 +2806,184 @@
               <double>10.000000000000000</double>
              </property>
             </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="diagnostic_group_box_loader_log">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="title">
+           <string>Enable Vulkan Loader Log to all Vulkan applications</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_17">
+           <property name="leftMargin">
+            <number>11</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="diagnostic_loader_errors">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="statusTip">
+              <string>Log Errors preventing the correct execution of the Vulkan Loader</string>
+             </property>
+             <property name="text">
+              <string>Errors</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="diagnostic_loader_warns">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="statusTip">
+              <string>Log Warnings which may result in unexpected behavior of the Vulkan Loader</string>
+             </property>
+             <property name="text">
+              <string>Warnings</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="diagnostic_loader_infos">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="statusTip">
+              <string>Log Information relative to the expected Vulkan Loader execution</string>
+             </property>
+             <property name="text">
+              <string>Information</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="diagnostic_loader_debug">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="statusTip">
+              <string>Log Verbose Information relative to the expected Vulkan Loader execution</string>
+             </property>
+             <property name="text">
+              <string>Debug  </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="diagnostic_loader_area">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Additional Areas: </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="diagnostic_loader_layers">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="statusTip">
+              <string>Enable a log area relative to the Vulkan Layers handling by the Vulkan Loader</string>
+             </property>
+             <property name="text">
+              <string>Layers</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="diagnostic_loader_drivers">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="statusTip">
+              <string>Enable a log area relative to the Vulkan Drivers handling by the Vulkan Loader</string>
+             </property>
+             <property name="text">
+              <string>Drivers</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>

@@ -90,29 +90,8 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
                   SLOT(on_configurations_executable_remove_pressed()));
 
     this->connect(this->ui->configurations_group_box_list, SIGNAL(toggled(bool)), this, SLOT(on_configurations_list_toggled(bool)));
-    this->connect(this->ui->configurations_group_box_layers, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configurations_layers_ordering_toggled(bool)));
-    this->connect(this->ui->configurations_group_box_driver, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configurations_driver_toggled(bool)));
-    this->connect(this->ui->configuration_driver_name, SIGNAL(currentIndexChanged(int)), this,
-                  SLOT(on_configurations_driver_name_currentIndexChanged(int)));
-    this->connect(this->ui->configurations_group_box_loader, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configurations_loader_messages_toggled(bool)));
     this->connect(this->ui->configurations_group_box_settings, SIGNAL(toggled(bool)), this,
                   SLOT(on_configurations_layers_settings_toggled(bool)));
-
-    this->connect(this->ui->configuration_loader_errors, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_errors_toggled(bool)));
-    this->connect(this->ui->configuration_loader_warns, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_warns_toggled(bool)));
-    this->connect(this->ui->configuration_loader_infos, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_infos_toggled(bool)));
-    this->connect(this->ui->configuration_loader_debug, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_debug_toggled(bool)));
-    this->connect(this->ui->configuration_loader_layers, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_layers_toggled(bool)));
-    this->connect(this->ui->configuration_loader_drivers, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_loader_drivers_toggled(bool)));
 
     this->connect(this->ui->configurations_list, SIGNAL(itemChanged(QListWidgetItem *)), this,
                   SLOT(on_configurations_list_itemChanged(QListWidgetItem *)));
@@ -155,12 +134,6 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     ExecutableScope current_scope = configurator.GetExecutableScope();
     this->ui->configurations_executable_scope->setCurrentIndex(current_scope);
     this->ui->configurations_executable_scope->blockSignals(false);
-
-    if (configurator.vulkan_system_info.loaderVersion < Version(1, 4, 323)) {
-        this->ui->configurations_group_box_driver->setEnabled(false);
-        this->ui->configurations_group_box_driver->setToolTip(
-            "Forced Vulkan Physical Device requires Vulkan Loader 1.4.323 or newer");
-    }
 
     this->advanced_mode = new ResizeButton(this->ui->configurations_group_box_layers, 0);
     this->advanced_mode->setMinimumSize(24, 24);
@@ -211,22 +184,6 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
         if (configurator.GetActiveConfiguration() == &configuration) {
             item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_ON));
             item->setToolTip(format("Using the '%s' configuration with Vulkan executables", configuration.key.c_str()).c_str());
-            ui->configurations_group_box_layers->blockSignals(true);
-            ui->configurations_group_box_layers->setChecked(configuration.override_layers);
-            ui->configurations_group_box_layers->blockSignals(false);
-            ui->configurations_group_box_loader->blockSignals(true);
-            ui->configurations_group_box_loader->setChecked(configuration.override_loader);
-            if (configurator.vulkan_system_info.loaderVersion <= Version(1, 4, 304)) {
-                ui->configurations_group_box_loader->setCheckable(configuration.override_layers);
-                ui->configurations_group_box_loader->setEnabled(configuration.override_layers);
-                if (configuration.override_layers) {
-                    ui->configurations_group_box_loader->setToolTip("Configure Loader Messages");
-                } else {
-                    ui->configurations_group_box_loader->setToolTip(
-                        "Due to a Vulkan Loader 304 bug, layers must be overridden for loader messages to be enabled.");
-                }
-            }
-            ui->configurations_group_box_loader->blockSignals(false);
             current_row = static_cast<int>(i);
         } else if (has_missing_layer) {
             item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_INVALID));
@@ -293,59 +250,6 @@ void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
     }
 
     this->ui->configurations_executable_list->blockSignals(false);
-}
-
-void TabConfigurations::UpdateUI_Drivers(UpdateUIMode ui_update_mode) {
-    const Configurator &configurator = Configurator::Get();
-
-    const Configuration *configuration = configurator.GetActiveConfiguration();
-
-    this->ui->configurations_group_box_driver->setChecked(configuration->override_driver);
-
-    this->ui->configuration_driver_name->blockSignals(true);
-    this->ui->configuration_driver_name->clear();
-    for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
-        this->ui->configuration_driver_name->addItem(configurator.vulkan_system_info.physicalDevices[i].deviceName.c_str());
-    }
-    this->ui->configuration_driver_name->setCurrentIndex(configurator.GetActiveDeviceIndex());
-    this->ui->configuration_driver_name->blockSignals(false);
-}
-
-void TabConfigurations::UpdateUI_LoaderMessages() {
-    const Configurator &configurator = Configurator::Get();
-
-    const Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        const bool enabled =
-            configurator.vulkan_system_info.loaderVersion <= Version(1, 4, 304) ? configuration->override_layers : true;
-
-        ui->configuration_loader_errors->blockSignals(true);
-        ui->configuration_loader_errors->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_ERROR));
-        ui->configuration_loader_errors->setEnabled(enabled);
-        ui->configuration_loader_errors->blockSignals(false);
-        ui->configuration_loader_warns->blockSignals(true);
-        ui->configuration_loader_warns->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_WARN));
-        ui->configuration_loader_warns->setEnabled(enabled);
-        ui->configuration_loader_warns->blockSignals(false);
-        ui->configuration_loader_infos->blockSignals(true);
-        ui->configuration_loader_infos->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_INFO));
-        ui->configuration_loader_infos->setEnabled(enabled);
-        ui->configuration_loader_infos->blockSignals(false);
-        ui->configuration_loader_debug->blockSignals(true);
-        ui->configuration_loader_debug->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DEBUG));
-        ui->configuration_loader_debug->setEnabled(enabled);
-        ui->configuration_loader_debug->blockSignals(false);
-        ui->configuration_loader_layers->blockSignals(true);
-        ui->configuration_loader_layers->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_LAYER));
-        ui->configuration_loader_layers->setEnabled(enabled);
-        ui->configuration_loader_layers->blockSignals(false);
-        ui->configuration_loader_drivers->blockSignals(true);
-        ui->configuration_loader_drivers->setChecked(configuration->loader_log_messages_flags & GetBit(LOG_DRIVER));
-        ui->configuration_loader_drivers->setEnabled(enabled);
-        ui->configuration_loader_drivers->blockSignals(false);
-    }
-
-    this->ui->configurations_group_box_loader->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LOADER));
 }
 
 void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
@@ -431,8 +335,6 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
 void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->UpdateUI_Configurations(ui_update_mode);
     this->UpdateUI_Applications(ui_update_mode);
-    this->UpdateUI_Drivers(ui_update_mode);
-    this->UpdateUI_LoaderMessages();
     this->UpdateUI_Layers(ui_update_mode);
     this->UpdateUI_Settings(ui_update_mode);
 
@@ -897,7 +799,6 @@ void TabConfigurations::OnContextMenuNewClicked(ListItem *item) {
     configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
-    this->UpdateUI_LoaderMessages();
     this->UpdateUI_Layers(UPDATE_REBUILD_UI);
     this->UpdateUI_Settings(UPDATE_REBUILD_UI);
 }
@@ -924,7 +825,6 @@ void TabConfigurations::OnContextMenuImportClicked(ListItem *item) {
         configurator.Override(OVERRIDE_AREA_ALL);
 
         this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
-        this->UpdateUI_LoaderMessages();
         this->UpdateUI_Layers(UPDATE_REBUILD_UI);
         this->UpdateUI_Settings(UPDATE_REBUILD_UI);
     } else {
@@ -1271,51 +1171,6 @@ void TabConfigurations::on_configurations_list_toggled(bool checked) {
     this->UpdateUI(UPDATE_REFRESH_UI);
 }
 
-void TabConfigurations::on_configurations_layers_ordering_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        configuration->override_layers = checked;
-
-        configurator.Override(OVERRIDE_AREA_ALL);
-    }
-
-    this->UpdateUI(UPDATE_REFRESH_UI);
-}
-
-void TabConfigurations::on_configurations_driver_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
-
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        configuration->override_driver = checked;
-
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    }
-}
-
-void TabConfigurations::on_configurations_driver_name_currentIndexChanged(int index) {
-    Configurator &configurator = Configurator::Get();
-
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        configuration->override_driver_name = this->ui->configuration_driver_name->itemText(index).toStdString();
-
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    }
-}
-
-void TabConfigurations::on_configurations_loader_messages_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
-
-    Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        configuration->override_loader = checked;
-
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    }
-}
-
 void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
 
@@ -1329,38 +1184,6 @@ void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) 
     // The layer version combobox is on even when the layer settings group is unchecked
     this->UpdateUI_Settings(UPDATE_REFRESH_UI);
 }
-
-void TabConfigurations::OnCheckedLoaderMessageTypes(bool checked) {
-    (void)checked;
-
-    Configurator &configurator = Configurator::Get();
-
-    Configuration *active_configuration = configurator.GetActiveConfiguration();
-    if (active_configuration != nullptr) {
-        int loader_log_messages_bits = 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_errors->isChecked() ? GetBit(LOG_ERROR) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_warns->isChecked() ? GetBit(LOG_WARN) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_infos->isChecked() ? GetBit(LOG_INFO) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_debug->isChecked() ? GetBit(LOG_DEBUG) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_layers->isChecked() ? GetBit(LOG_LAYER) : 0;
-        loader_log_messages_bits |= this->ui->configuration_loader_drivers->isChecked() ? GetBit(LOG_DRIVER) : 0;
-        active_configuration->loader_log_messages_flags = loader_log_messages_bits;
-
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    }
-}
-
-void TabConfigurations::on_configuration_loader_errors_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
-
-void TabConfigurations::on_configuration_loader_warns_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
-
-void TabConfigurations::on_configuration_loader_infos_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
-
-void TabConfigurations::on_configuration_loader_debug_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
-
-void TabConfigurations::on_configuration_loader_layers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
-
-void TabConfigurations::on_configuration_loader_drivers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
 void TabConfigurations::on_configurations_list_itemDoubleClicked(QListWidgetItem *item) { ui->configurations_list->editItem(item); }
 

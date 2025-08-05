@@ -39,10 +39,10 @@ const char* GetLabel(ExecutableScope scope) {
 
 const char* GetTooltip(ExecutableScope scope) {
     static const char* TABLE[]{
-        "Vulkan Configurator won't affect any executable running on the system.",  // EXECUTABLE_NONE
-        "Apply the active loader configuration to any executable running.",        // EXECUTABLE_ANY
-        "Apply the active loader configuration to all enabled executables.",       // EXECUTABLE_ALL
-        "Apply a dedicated loader configuration for each Vulkan executable.",      // EXECUTABLE_PER
+        "Vulkan Configurator won't affect the Vulkan layers for any executable running on the system.",  // EXECUTABLE_NONE
+        "Apply the active layers configuration to any executable running.",                              // EXECUTABLE_ANY
+        "Apply the active layers configuration to all enabled executables.",                             // EXECUTABLE_ALL
+        "Apply a dedicated layers configuration for each Vulkan executable.",                            // EXECUTABLE_PER
     };
 
     static_assert(std::size(TABLE) == EXECUTABLE_SCOPE_COUNT,
