@@ -205,8 +205,8 @@ static QJsonObject CreateJsonSettingObject(const std::map<Path, bool>& driver_pa
         if (info != nullptr) {
             json_devices.append(::CreateDeviceConfigurations(*info));
             json_settings.insert("device_configurations", json_devices);
-            json_settings.insert("additional_drivers_use_exclusively",
-                                 ::Find(vulkan_system_info_hardware, loader_settings.override_driver_name) == nullptr);
+            json_settings.insert("additional_drivers_use_exclusively", false);
+            //                     ::Find(vulkan_system_info_hardware, loader_settings.override_driver_name) == nullptr);
         }
     }
 
