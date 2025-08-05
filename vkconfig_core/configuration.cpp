@@ -134,27 +134,6 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
         this->override_settings_path = ReadString(json_configuration_object, "override_settings_path");
     }
 
-    if (json_configuration_object.value("override_layers") != QJsonValue::Undefined) {
-        this->override_layers = ReadBoolValue(json_configuration_object, "override_layers");
-    }
-
-    if (json_configuration_object.value("override_driver") != QJsonValue::Undefined) {
-        this->override_driver = ReadBoolValue(json_configuration_object, "override_driver");
-    }
-
-    if (json_configuration_object.value("override_driver_name") != QJsonValue::Undefined) {
-        this->override_driver_name = ReadString(json_configuration_object, "override_driver_name");
-    }
-
-    if (json_configuration_object.value("override_loader") != QJsonValue::Undefined) {
-        this->override_loader = ReadBoolValue(json_configuration_object, "override_loader");
-    }
-
-    if (json_configuration_object.value("loader_message_types") != QJsonValue::Undefined) {
-        const std::vector<std::string>& loader_messsage_types = ReadStringArray(json_configuration_object, "loader_message_types");
-        this->loader_log_messages_flags = GetLogFlags(loader_messsage_types);
-    }
-
     if (json_configuration_object.value("selected_layer_name") != QJsonValue::Undefined) {
         this->selected_layer_name = ReadString(json_configuration_object, "selected_layer_name");
     }
@@ -318,11 +297,6 @@ bool Configuration::Save(const Path& full_path, bool export_mode) const {
     json_configuration.insert("default_layer_control", ::GetToken(this->default_control));
     json_configuration.insert("override_settings", this->override_settings);
     json_configuration.insert("override_settings_path", this->override_settings_path.RelativePath().c_str());
-    json_configuration.insert("override_layers", this->override_layers);
-    json_configuration.insert("override_driver", this->override_driver);
-    json_configuration.insert("override_driver_name", this->override_driver_name.c_str());
-    json_configuration.insert("override_loader", this->override_loader);
-    SaveStringArray(json_configuration, "loader_message_types", GetLogTokens(this->loader_log_messages_flags));
     json_configuration.insert("selected_layer_name", this->selected_layer_name.c_str());
     json_configuration.insert("layers", json_layers);
 
@@ -370,10 +344,6 @@ const Parameter* Configuration::Find(const std::string& layer_key) const {
 }
 
 Parameter* Configuration::GetActiveParameter() {
-    if (!this->override_layers) {
-        return nullptr;
-    }
-
     if (this->selected_layer_name.empty()) {
         return nullptr;
     }

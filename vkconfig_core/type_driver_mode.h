@@ -20,30 +20,16 @@
 
 #pragma once
 
-#include "tab.h"
+enum DriverMode {
+    DRIVER_MODE_SINGLE = 0,
+    DRIVER_MODE_SORTED,
 
-class TabDrivers : public Tab {
-    Q_OBJECT
-
-   public:
-    TabDrivers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui);
-    virtual ~TabDrivers();
-
-    virtual void UpdateUI(UpdateUIMode mode) override;
-    virtual void CleanUI() override;
-    virtual bool EventFilter(QObject *target, QEvent *event) override;
-
-   public Q_SLOTS:
-    void on_driver_override_toggled(bool checked);
-    void on_driver_mode_changed(int index);
-    void on_driver_name_changed(int index);
-
-    void on_driver_paths_toggled(bool checked);
-    void on_paths_changed();
-    void on_paths_toggled();
-    void on_driver_append_pressed();
-    void on_driver_browse_pressed();
-
-   private:
-    std::string new_path;
+    DRIVER_MODE_FIRST = DRIVER_MODE_SINGLE,
+    DRIVER_MODE_LAST = DRIVER_MODE_SORTED
 };
+
+enum { DRIVER_MODE_COUNT = DRIVER_MODE_LAST - DRIVER_MODE_FIRST + 1 };
+
+const char* GetToken(DriverMode mode);
+
+DriverMode GetDriverMode(const char* token);
