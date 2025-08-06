@@ -1,6 +1,7 @@
 # Build Instructions
 
 1. [Requirements](#requirements)
+1. [Generated Code](#generated-code)
 1. [Building Overview](#building-overview)
 1. [Dependencies](#dependencies)
 1. [Linux Build](#building-on-linux)
@@ -21,6 +22,41 @@
 - *[Qt 6](https://www.qt.io/download)* is required to build *[Vulkan Configurator]*(./vkconfig/vkconfig.md).
   - The Qt `bin` directory requires to be added to the `PATH` environment variable for *Qt* to be detected and Vulkan Configurator built.
   - If `Qt` is not directed, *[Vulkan Configurator]* build will be skipped.
+
+## Generated Code
+
+Some of the source code in this repository is generated in `layersvt/generated/`, from data descriptive headers in the Vulkan-Headers repository.
+
+### How to generate the code
+
+- Linux:
+```bash
+scripts/generate_source.py external/Vulkan-Headers/[config]/[architecture]/registry/
+     where
+config is, for example, 'Debug' or 'Release', and architecture is '64' or '32'.
+```
+
+- Windows Powershell:
+```powershell
+pwsh -Command { python3 scripts/generate_source.py external/Vulkan-Headers/[config]/[arch]/registry/ }
+```
+
+- Windows Command:
+```cmd
+cmd /C "python3 scripts/generate_source.py external/Vulkan-Headers/[config]/[arch]/registry/"
+```
+
+When making change to the `scripts/` folder, make sure to run `generate_source.py` and check in both the changes to
+`scripts/` and `layersvt/generated/` in any PR. (Code generation does **not** happen automatically at build time.)
+
+## CMake helper
+
+A helper CMake target `vt_codegen` is also provided to simplify the invocation of `scripts/generate_source.py` from the build directory:
+
+```bash
+cmake -S . -B build -D VT_CODEGEN=ON
+cmake --build build --target vt_codegen
+```
 
 ## Building Overview
 
