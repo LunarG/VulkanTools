@@ -2,8 +2,9 @@
 [Vulkan SDK main](https://github.com/LunarG/VulkanTools/tree/main)
 
 ### Features:
-- Add additional driver paths tab
-- Add force physical device to loader configuration
+- Add Vulkan drivers tab
+  - Add force physical device
+  - Add additional Vulkan drivers
 
 ### Fixes:
 - Fix invalid downloaded SDK filename

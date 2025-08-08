@@ -18,26 +18,28 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
+#include "type_driver_mode.h"
 
-enum TabType {
-    TAB_CONFIGURATIONS = 0,
-    TAB_LAYERS,
-    TAB_DRIVERS,
-    TAB_APPLICATIONS,
-    TAB_DIAGNOSTIC,
-    TAB_DOCUMENTATION,
-    TAB_PREFERENCES,
-    TAB_ABOUT,
+#include <array>
+#include <cstring>
 
-    TAB_FIRST = TAB_CONFIGURATIONS,
-    TAB_LAST = TAB_ABOUT
-};
+const char* GetToken(DriverMode mode) {
+    static const char* TOKENS[] = {
+        "Single",  // DRIVER_MODE_SINGLE
+        "Sorted",  // DRIVER_MODE_SORTED
+    };
+    static_assert(std::size(TOKENS) == DRIVER_MODE_COUNT);
 
-enum { TAB_COUNT = TAB_LAST - TAB_FIRST + 1 };
+    return TOKENS[mode];
+}
 
-const char* GetLabel(TabType type);
+DriverMode GetDriverMode(const char* token) {
+    for (int i = DRIVER_MODE_FIRST, l = DRIVER_MODE_LAST; i <= l; ++i) {
+        const DriverMode mode = static_cast<DriverMode>(i);
+        if (std::strcmp(::GetToken(mode), token) == 0) {
+            return mode;
+        }
+    }
 
-const char* GetToken(TabType type);
-
-TabType GetTabType(const char* token);
+    return DRIVER_MODE_FIRST;
+}
