@@ -152,6 +152,7 @@ Executable::Executable(const DefaultExecutable& default_executable) {
     }
 
     this->path = default_paths.executable_path;
+    this->removable = default_executable.removable;
 
     if (default_executable.options.empty()) {
         ExecutableOptions options;

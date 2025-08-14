@@ -40,7 +40,7 @@ static void PathInvalid(const Path &path, const char *message) {
 }
 
 TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
-    : Tab(TAB_APPLICATIONS, window, ui), _launch_application(nullptr) {
+    : Tab(TAB_APPLICATIONS, window, ui), _launch_application(new QProcess(this)) {
     this->connect(this->ui->launch_executable_list, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_launch_executable_list_activated(int)));
     this->connect(this->ui->launch_executable_list->lineEdit(), SIGNAL(textEdited(QString)), this,
@@ -81,6 +81,25 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
 
     this->ui->launch_options_args_edit->setToolTip("Eg: '--argA --argB=valueB \"--argC=value C\" --argD=\"value D\"'");
     this->ui->launch_options_envs_edit->setToolTip("Eg: 'ENV_A= ENV_B=ValueB \"ENV_C=Value C\" ENV_D=\"Value D\"'");
+
+    this->connect(this->_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
+    this->connect(this->_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
+    this->connect(this->_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
+                  SLOT(processClosed(int, QProcess::ExitStatus)));
+
+    // Dummy first launch so that following Vulkan Loader logging work...
+    Configurator &configurator = Configurator::Get();
+    int active_index = configurator.executables.GetActiveExecutableIndex();
+
+    int vulkan_info = configurator.executables.GetVulkanInfoIndex();
+    configurator.executables.SetActiveExecutable(vulkan_info);
+
+    this->on_launch_button_pressed();
+
+    configurator.executables.SetActiveExecutable(active_index);
+
+    this->on_launch_button_pressed();
+    this->on_launch_clear_log_pressed();
 }
 
 TabApplications::~TabApplications() { this->ResetLaunchApplication(); }
@@ -199,6 +218,21 @@ void TabApplications::on_launch_executable_list_activated(int index) {
         this->ui->launch_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
         this->ui->launch_options_remove->setEnabled(executable->GetOptions().size() > 1);
         this->on_launch_options_list_activated(executable->GetActiveOptionsIndex());
+
+        this->ui->launch_executable_search->setEnabled(executable->removable);
+        this->ui->launch_executable_remove->setEnabled(executable->removable);
+
+        if (executable->removable) {
+            this->ui->launch_executable_search->setToolTip("Update the current executable path");
+            this->ui->launch_executable_remove->setToolTip("Delete the current executable path");
+        } else {
+            this->ui->launch_executable_search->setToolTip(
+                "The current executable path can't be updated because the executable is necessary is Vulkan Configurator "
+                "execution");
+            this->ui->launch_executable_remove->setToolTip(
+                "The current executable path can't be deleted because the executable is necessary is Vulkan Configurator "
+                "execution");
+        }
     }
     this->ui->launcher_options_list_layout->setEnabled(executable != nullptr);
     this->ui->launcher_applications_options->setEnabled(executable != nullptr);
@@ -466,14 +500,6 @@ void TabApplications::on_launch_button_pressed() {
     this->Log(launch_log.c_str(), true);
 
     // Launch the test application
-    if (this->_launch_application == nullptr) {
-        this->_launch_application.reset(new QProcess(this));
-        this->connect(this->_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
-        this->connect(this->_launch_application.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
-        this->connect(this->_launch_application.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this,
-                      SLOT(processClosed(int, QProcess::ExitStatus)));
-    }
-
     this->_launch_application->setProgram(active_executable->path.AbsolutePath().c_str());
     this->_launch_application->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
 

@@ -121,20 +121,24 @@ const char* GetExecutable(ExecutableId id) {
 static const DefaultExecutable defaults_executables[] = {
     {GetExecutable(EXECUTABLE_VKCUBE),
      "vkcube",
+     true,
      {{"Simple Launch", "", "--suppress_popups", ""},
       {"API Validated Launch", "", "--suppress_popups --validate", ""},
       {"Env Validated Launch", "", "--suppress_popups", "VK_LOADER_LAYERS_ENABLE=*validation"}}},
     {GetExecutable(EXECUTABLE_VKCUBEPP),
      "vkcubepp",
+     true,
      {{"Simple Launch", "", "--suppress_popups", ""},
       {"API Validated Launch", "", "--suppress_popups --validate", ""},
       {"Env Validated Launch", "", "--suppress_popups", "VK_LOADER_LAYERS_ENABLE=*validation"}}},
     {GetExecutable(EXECUTABLE_VKINFO),
      "vulkaninfo",
+     false,
      {{"Vulkan Info stdout summary", "${VULKAN_HOME}", "--summary"},
       {"GPU 0 Vulkan Profile JSON export", "${VULKAN_HOME}", "--json=0 --show-promoted-structs"}}},
     {GetExecutable(EXECUTABLE_VKCAPSVIEWER),
      "vulkanCapsViewer",
+     true,
      {{"Open GUI", "${VULKAN_HOME}", ""}, {"Export GPU Info", "${VULKAN_HOME}", "--deviceindex=0 \"-s vulkanCapsViewer.json\""}}}};
 
 std::string ExecutableManager::Log() const {
@@ -175,6 +179,9 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object, ConfiguratorMo
         const QJsonObject& json_application_object = json_list_object.value(json_list_keys[i]).toObject();
         executable.path = json_list_keys[i].toStdString();
         executable.enabled = json_application_object.value("enabled").toBool();
+        if (json_application_object.value("removable") != QJsonValue::Undefined) {
+            executable.removable = json_application_object.value("removable").toBool();
+        }
         if (json_application_object.value("configuration") != QJsonValue::Undefined) {
             executable.configuration = json_application_object.value("configuration").toString().toStdString();
         }
@@ -233,6 +240,7 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
 
         QJsonObject json_executable_object;
         json_executable_object.insert("enabled", executable.enabled);
+        json_executable_object.insert("removable", executable.removable);
         json_executable_object.insert("configuration", executable.configuration.c_str());
         json_executable_object.insert("active_option", executable.GetActiveOptionsName().c_str());
 
@@ -286,6 +294,16 @@ void ExecutableManager::SetActiveExecutable(int executable_index) {
 int ExecutableManager::GetActiveExecutableIndex() const {
     for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
         if (this->data[i].path == this->active_executable) {
+            return static_cast<int>(i);
+        }
+    }
+
+    return -1;  // Not found, but the list is present, so return the first item.
+}
+
+int ExecutableManager::GetVulkanInfoIndex() const {
+    for (std::size_t i = 0, n = this->data.size(); i < n; ++i) {
+        if (this->data[i].path.Filename() == ::GetExecutable(EXECUTABLE_VKINFO)) {
             return static_cast<int>(i);
         }
     }
