@@ -32,6 +32,7 @@ struct DefaultOptions {
 struct DefaultExecutable {
     std::string key;
     std::string name;
+    bool removable = true;
     std::vector<DefaultOptions> options;
 };
 
@@ -58,6 +59,7 @@ struct Executable {
     Path path;
     std::string configuration = "Validation";
     bool enabled = true;
+    bool removable = true;
 
     int GetActiveOptionsIndex() const;
     bool RemoveActiveOptions();

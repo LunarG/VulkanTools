@@ -8,6 +8,7 @@
 
 ### Fixes:
 - Fix invalid downloaded SDK filename
+- Fix Vulkan Loader not sending log on first application run
 
 ### Deprecation:
 - Deprecate the synchronization configuration

@@ -51,6 +51,8 @@ class ExecutableManager : public Serialize {
 
     void SetActiveExecutable(int executable_index);
     int GetActiveExecutableIndex() const;
+    int GetVulkanInfoIndex() const;
+
     bool AppendExecutable(const Executable& executable);
     bool AppendExecutable(const Path& executable_path);
     bool RemoveExecutable();
@@ -63,6 +65,9 @@ class ExecutableManager : public Serialize {
     const Executable* GetExecutable(std::size_t executable_index) const;
     Executable* GetExecutable(std::size_t executable_index);
 
+    // Create a list of default executables, eg vkcube
+    std::vector<Executable> CreateDefaultExecutables() const;
+
     // Search for all the applications in the list, an remove the application which executable can't be found
     std::vector<Executable> RemoveMissingExecutables(const std::vector<Executable>& executables) const;
 
@@ -73,9 +78,7 @@ class ExecutableManager : public Serialize {
     Path active_executable;
     std::vector<Executable> data;
 
-    // Create a list of default executables, eg vkcube
-    std::vector<Executable> CreateDefaultExecutables() const;
-    Executable CreateDefaultExecutable(const DefaultExecutable& default_executable) const;
+    // Executable CreateDefaultExecutable(const DefaultExecutable& default_executable) const;
 };
 
 const char* GetExecutableFilter();
