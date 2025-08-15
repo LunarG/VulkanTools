@@ -25,8 +25,10 @@
 #include "../vkconfig_core/configurator.h"
 
 #include <QFileDialog>
-#include <QDesktopServices>
 #include <QMessageBox>
+#include <QMenu>
+#include <QDesktopServices>
+#include <QShortcut>
 
 static void PathInvalid(const Path &path, const char *message) {
     const std::string text = format("'%s' is not a valid path.", path.AbsolutePath().c_str());
@@ -71,6 +73,38 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(this->ui->launch_clear_at_launch, SIGNAL(toggled(bool)), this, SLOT(on_launch_clear_at_launch_toggled(bool)));
     this->connect(this->ui->launch_clear_log, SIGNAL(clicked()), this, SLOT(on_launch_clear_log_pressed()));
     this->connect(this->ui->launch_button, SIGNAL(clicked()), this, SLOT(on_launch_button_pressed()));
+
+    this->connect(this->ui->launch_export_file, SIGNAL(clicked()), this, SLOT(on_export_file()));
+    this->connect(this->ui->launch_search_edit, SIGNAL(textEdited(QString)), this, SLOT(on_search_textEdited(QString)));
+    this->connect(this->ui->launch_search_edit, SIGNAL(returnPressed()), this, SLOT(on_search_next_pressed()));
+    this->connect(this->ui->launch_search_clear, SIGNAL(clicked()), this, SLOT(on_search_clear_pressed()));
+    this->connect(this->ui->launch_search_next, SIGNAL(clicked()), this, SLOT(on_search_next_pressed()));
+    this->connect(this->ui->launch_search_prev, SIGNAL(clicked()), this, SLOT(on_search_prev_pressed()));
+    this->connect(this->ui->launch_log_text, SIGNAL(customContextMenuRequested(QPoint)), this,
+                  SLOT(on_context_menu(const QPoint &)));
+    this->connect(this->ui->launch_search_case, SIGNAL(toggled(bool)), this, SLOT(on_search_case_toggled(bool)));
+    this->connect(this->ui->launch_search_whole, SIGNAL(toggled(bool)), this, SLOT(on_search_whole_toggled(bool)));
+    this->connect(this->ui->launch_search_regex, SIGNAL(toggled(bool)), this, SLOT(on_search_regex_toggled(bool)));
+
+    QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->launch_log_text);
+    this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
+    QShortcut *shortcut_next = new QShortcut(QKeySequence(Qt::Key_F3), this->ui->launch_log_text);
+    this->connect(shortcut_next, SIGNAL(activated()), this, SLOT(on_search_next_pressed()));
+    QShortcut *shortcut_prev = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3), this->ui->launch_log_text);
+    this->connect(shortcut_prev, SIGNAL(activated()), this, SLOT(on_search_prev_pressed()));
+
+    QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->launch_log_text);
+    this->connect(shortcut_case, SIGNAL(activated()), this, SLOT(on_search_case_activated()));
+    QShortcut *shortcut_whole = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_W), this->ui->launch_log_text);
+    this->connect(shortcut_whole, SIGNAL(activated()), this, SLOT(on_search_whole_activated()));
+    QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->launch_log_text);
+    this->connect(shortcut_regex, SIGNAL(activated()), this, SLOT(on_search_regex_activated()));
+
+    this->on_search_clear_pressed();
+
+    this->ui->launch_log_text->installEventFilter(&window);
+    this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
+    this->ui->launch_log_text->setContextMenuPolicy(Qt::CustomContextMenu);
 
     // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
     // Whenever the control surpasses this block count, old blocks are discarded.
@@ -133,7 +167,17 @@ void TabApplications::CleanUI() { this->ResetLaunchApplication(); }
 
 bool TabApplications::EventFilter(QObject *target, QEvent *event) {
     (void)target;
-    (void)event;
+
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        switch (keyEvent->key()) {
+            case Qt::Key_Enter:
+            case Qt::Key_Return:
+                this->SearchFind(false);
+                return false;
+        }
+        return false;
+    }
 
     return false;
 }
@@ -418,9 +462,11 @@ void TabApplications::on_launch_clear_at_launch_toggled(bool checked) {
 }
 
 void TabApplications::on_launch_clear_log_pressed() {
-    ui->launch_log_text->clear();
-    ui->launch_log_text->update();
-    ui->launch_clear_log->setEnabled(false);
+    this->ui->launch_export_file->setEnabled(false);
+    this->ui->launch_search_edit->setEnabled(false);
+    this->ui->launch_clear_log->setEnabled(false);
+    this->ui->launch_log_text->clear();
+    this->ui->launch_log_text->update();
 }
 
 void TabApplications::on_launch_button_pressed() {
@@ -628,9 +674,11 @@ void TabApplications::errorOutputAvailable() {
 }
 
 void TabApplications::Log(const QString &log, bool flush) {
-    this->ui->launch_log_text->appendPlainText(log);
-    this->ui->launch_log_text->moveCursor(QTextCursor::End);
+    this->ui->launch_export_file->setEnabled(true);
+    this->ui->launch_search_edit->setEnabled(true);
     this->ui->launch_clear_log->setEnabled(true);
+    this->ui->launch_log_text->append(log);
+    this->ui->launch_log_text->moveCursor(QTextCursor::End);
 
     if (this->_log_file.isOpen()) {
         this->_log_file.write(log.toStdString().c_str(), log.size());
@@ -638,4 +686,131 @@ void TabApplications::Log(const QString &log, bool flush) {
             this->_log_file.flush();
         }
     }
+}
+
+void TabApplications::on_export_file() {
+    Configurator &configurator = Configurator::Get();
+
+    Path export_path = configurator.last_path_launch_log;
+
+    export_path = QFileDialog::getSaveFileName(this->ui->launch_export_file, "Save file...", export_path.AbsolutePath().c_str(),
+                                               "Log (*.txt)")
+                      .toStdString();
+
+    if (!export_path.Empty()) {
+        configurator.last_path_launch_log = export_path.AbsoluteDir();
+
+        QFile json_file(export_path.AbsolutePath().c_str());
+        const bool result = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
+        if (result) {
+            json_file.write(this->ui->launch_log_text->toPlainText().toStdString().c_str());
+            json_file.close();
+
+            QDesktopServices::openUrl(QUrl::fromLocalFile(export_path.AbsolutePath().c_str()));
+        } else {
+            QMessageBox message;
+            message.setIcon(QMessageBox::Critical);
+            message.setWindowTitle("Failed to save the diagnostic log!");
+            message.setText(format("Couldn't write to '%s'.", export_path.AbsolutePath().c_str()).c_str());
+            message.setInformativeText("Select a file path with 'write' rights.");
+        }
+    }
+}
+
+void TabApplications::on_focus_search() {
+    this->ui->launch_search_edit->setFocus();
+    this->ui->launch_log_text->moveCursor(QTextCursor::Start);
+}
+
+void TabApplications::on_search_textEdited(const QString &text) {
+    if (!this->ui->launch_search_clear->isEnabled()) {
+        this->ui->launch_log_text->moveCursor(QTextCursor::Start);
+    }
+
+    this->ui->launch_search_next->setEnabled(!this->ui->launch_search_edit->text().isEmpty());
+    this->ui->launch_search_prev->setEnabled(!this->ui->launch_search_edit->text().isEmpty());
+
+    this->search_text = text.toStdString();
+    this->ui->launch_search_clear->setEnabled(!text.isEmpty());
+}
+
+void TabApplications::on_search_clear_pressed() {
+    this->search_text.clear();
+    this->ui->launch_export_file->setEnabled(false);
+    this->ui->launch_search_edit->clear();
+    this->ui->launch_search_next->setEnabled(false);
+    this->ui->launch_search_prev->setEnabled(false);
+    this->ui->launch_search_clear->setEnabled(false);
+}
+
+void TabApplications::on_search_next_pressed() { this->SearchFind(false); }
+
+void TabApplications::on_search_prev_pressed() { this->SearchFind(true); }
+
+void TabApplications::SearchFind(bool prev) {
+    QTextDocument::FindFlags flags = prev ? QTextDocument::FindBackward : QTextDocument::FindFlags(0);
+
+    if (this->search_case) {
+        flags |= QTextDocument::FindCaseSensitively;
+    }
+    if (this->search_whole) {
+        flags |= QTextDocument::FindWholeWords;
+    }
+
+    this->ui->launch_log_text->setFocus();
+
+    if (this->search_regex) {
+        this->ui->launch_log_text->find(QRegularExpression(this->ui->launch_search_edit->text()), flags);
+    } else {
+        this->ui->launch_log_text->find(this->ui->launch_search_edit->text(), flags);
+    }
+}
+
+void TabApplications::on_search_case_activated() { this->ui->launch_search_case->setChecked(!this->search_case); }
+
+void TabApplications::on_search_case_toggled(bool checked) {
+    this->search_case = checked;
+    this->ui->launch_log_text->setFocus();
+}
+
+void TabApplications::on_search_whole_activated() { this->ui->launch_search_whole->setChecked(!this->search_whole); }
+
+void TabApplications::on_search_whole_toggled(bool checked) {
+    this->search_whole = checked;
+    this->ui->launch_log_text->setFocus();
+}
+
+void TabApplications::on_search_regex_activated() { this->ui->launch_search_regex->setChecked(!this->search_regex); }
+
+void TabApplications::on_search_regex_toggled(bool checked) {
+    this->search_regex = checked;
+    this->ui->launch_log_text->setFocus();
+}
+
+void TabApplications::on_context_menu(const QPoint &pos) {
+    Configurator &configurator = Configurator::Get();
+
+    QMenu *menu = this->ui->launch_log_text->createStandardContextMenu();
+    menu->addSeparator();
+
+    QAction *action_clear = new QAction("Clear", nullptr);
+    action_clear->setEnabled(true);
+    menu->addAction(action_clear);
+
+    menu->addSeparator();
+
+    QAction *action_search = new QAction("Search...", nullptr);
+    action_search->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
+    action_search->setEnabled(true);
+    menu->addAction(action_search);
+
+    QAction *action = menu->exec(this->ui->launch_log_text->mapToGlobal(pos));
+
+    if (action == action_clear) {
+        this->on_launch_clear_log_pressed();
+    } else if (action == action_search) {
+        this->on_focus_search();
+    }
+
+    menu->deleteLater();
 }

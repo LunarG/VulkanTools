@@ -170,6 +170,7 @@ class Configurator {
     bool advanced = true;
     Path last_path_status = Path(Path::HOME).AbsolutePath() + "/diagnostics";
     Path last_driver_path = Path(Path::HOME).AbsolutePath();
+    Path last_path_launch_log = Path(Path::HOME).AbsolutePath() + "/application_log.txt";
     Version online_sdk_version = Version::NONE;
     Version latest_sdk_version = Version::NONE;
     Version current_sdk_version = Version::VKHEADER;

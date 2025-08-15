@@ -5,6 +5,7 @@
 - Add Vulkan drivers tab
   - Add force physical device
   - Add additional Vulkan drivers
+- Add log search bar to Application Launcher tab
 
 ### Fixes:
 - Fix invalid downloaded SDK filename
