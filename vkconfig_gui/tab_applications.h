@@ -60,6 +60,21 @@ class TabApplications : public Tab {
     void on_launch_options_log_pressed();
     void on_launch_options_log_open_pressed();
 
+    void on_context_menu(const QPoint& pos);
+    void on_export_file();
+
+    void on_focus_search();
+    void on_search_textEdited(const QString& text);
+    void on_search_clear_pressed();
+    void on_search_next_pressed();
+    void on_search_prev_pressed();
+    void on_search_case_toggled(bool checked);
+    void on_search_whole_toggled(bool checked);
+    void on_search_regex_toggled(bool checked);
+    void on_search_case_activated();
+    void on_search_whole_activated();
+    void on_search_regex_activated();
+
     void on_launch_clear_at_launch_toggled(bool checked);
     void on_launch_clear_log_pressed();
     void on_launch_button_pressed();
@@ -71,9 +86,15 @@ class TabApplications : public Tab {
    private:
     void EnableOptions();
     void RebuildOptions();
+    void SearchFind(bool prev);
 
     void Log(const QString& log, bool flush);
 
     std::unique_ptr<QProcess> _launch_application;  // Keeps track of the monitored app
     QFile _log_file;                                // Log file for layer output
+
+    std::string search_text;
+    bool search_case = false;
+    bool search_whole = false;
+    bool search_regex = false;
 };

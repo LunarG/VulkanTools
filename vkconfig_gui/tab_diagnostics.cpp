@@ -239,17 +239,6 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
         } break;
     }
 
-    /*
-        if (this->log_path.Empty()) {
-            this->ui->diagnostic_status_text->setText(log_status.c_str());
-        }
-    */
-
-    // this->ui->diagnostic_search_clear->setVisible(!this->ui->diagnostic_search_edit->text().isEmpty());
-    // this->ui->diagnostic_search_edit->setFocus();
-
-    // configurator.Override(OVERRIDE_AREA_ALL);
-
     return log_status;
 }
 
@@ -258,7 +247,7 @@ void TabDiagnostics::UpdateStatus() {
 
     this->ui->diagnostic_status_text->setText(this->status.c_str());
 
-    this->ui->diagnostic_search_clear->setVisible(!this->ui->diagnostic_search_edit->text().isEmpty());
+    this->ui->diagnostic_search_clear->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
     this->ui->diagnostic_search_edit->setFocus();
 }
 
@@ -304,7 +293,6 @@ void TabDiagnostics::CleanUI() {}
 
 bool TabDiagnostics::EventFilter(QObject *target, QEvent *event) {
     (void)target;
-    (void)event;
 
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
@@ -551,13 +539,13 @@ void TabDiagnostics::on_search_textEdited(const QString &text) {
     this->ui->diagnostic_search_prev->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
 
     this->diagnostic_search_text = text.toStdString();
-    this->ui->diagnostic_search_clear->setVisible(!text.isEmpty());
+    this->ui->diagnostic_search_clear->setEnabled(!text.isEmpty());
 }
 
 void TabDiagnostics::on_search_clear_pressed() {
     this->diagnostic_search_text.clear();
     this->ui->diagnostic_search_edit->clear();
-    this->ui->diagnostic_search_clear->setVisible(false);
+    this->ui->diagnostic_search_clear->setEnabled(false);
 }
 
 void TabDiagnostics::on_search_next_pressed() { this->SearchFind(false); }
@@ -613,11 +601,7 @@ void TabDiagnostics::on_context_menu(const QPoint &pos) {
     QAction *action_refresh = new QAction(this->status.empty() ? "Refresh" : "Clear", nullptr);
     action_refresh->setEnabled(true);
     menu->addAction(action_refresh);
-    /*
-    QAction *action_save = new QAction("Save...", nullptr);
-    action_save->setEnabled(!this->status.empty());
-    menu->addAction(action_save);
-    */
+
     menu->addSeparator();
 
     QAction *action_search = new QAction("Search...", nullptr);
@@ -637,31 +621,7 @@ void TabDiagnostics::on_context_menu(const QPoint &pos) {
         }
     } else if (action == action_search) {
         this->on_focus_search();
-    } /* else if (action == action_save) {
-        const QString selected_path =
-            QFileDialog::getSaveFileName(this->ui->diagnostic_status_text, "Select Log file...",
-                                         configurator.last_path_status.AbsolutePath().c_str(), "Log (*.txt)");
-
-        if (!selected_path.isEmpty()) {
-            QFile file(selected_path.toStdString().c_str());
-            const bool result = file.open(QFile::WriteOnly);
-            if (!result) {
-                QMessageBox message;
-                message.setIcon(QMessageBox::Critical);
-                message.setWindowTitle("Failed to save 'Vulkan Development Status'!");
-                message.setText(format("Couldn't write to '%s'.", selected_path.toStdString().c_str()).c_str());
-                message.setInformativeText("Select a file path with 'write' rights.");
-                return;
-            }
-
-            file.write(this->status.c_str());
-            file.close();
-
-            configurator.last_path_status = selected_path.toStdString();
-
-            QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path.toStdString().c_str()));
-        }
-    } */
+    }
 
     menu->deleteLater();
 }

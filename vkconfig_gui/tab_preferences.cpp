@@ -175,6 +175,14 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->launch_options_log_button->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
     this->ui->launch_options_log_open->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
 
+    this->ui->launch_export_file->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
+    this->ui->launch_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
+    this->ui->launch_search_next->setIcon(::Get(new_theme_mode, ::ICON_NEXT));
+    this->ui->launch_search_prev->setIcon(::Get(new_theme_mode, ::ICON_PREV));
+    this->ui->launch_search_case->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_CASE));
+    this->ui->launch_search_whole->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_WHOLE));
+    this->ui->launch_search_regex->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_REGEX));
+
     // Diagnostics
     this->ui->diagnostic_export_folder->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_EXPORT));
     this->ui->diagnostic_export_file->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
