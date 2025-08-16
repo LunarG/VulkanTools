@@ -610,6 +610,8 @@ class ApiDumpGenerator(BaseGenerator):
 
             self.write('')
             for member in struct.members:
+                if (struct.name == 'StdVideoH265HrdParameters' and (member.name == 'pSubLayerHrdParametersNal' or member.name == 'pSubLayerHrdParametersVcl')):
+                    continue
                 custom_fullType = get_fulltype(member)
                 validity_check = self.get_validity_check(member, struct)
                 if member != struct.members[0]:
