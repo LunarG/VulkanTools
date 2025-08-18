@@ -28,7 +28,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     name: "Ubuntu Backcompat"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
@@ -59,7 +59,7 @@ jobs:
       with:
         version: '6.8.3'
     - name: Clone repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
     - run: python3 scripts/github_ci_linux.py --config Debug --tests GitHubCI
     - run: python3 scripts/generate_source.py --verify external/Vulkan-Headers/registry
@@ -68,7 +68,7 @@ jobs:
     runs-on: windows-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ilammy/msvc-dev-cmd@v1
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -83,7 +83,7 @@ jobs:
     runs-on: windows-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ilammy/msvc-dev-cmd@v1
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -98,7 +98,7 @@ jobs:
     runs-on: macos-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: lukka/get-cmake@latest
       - name: Configure
         run: |
@@ -117,7 +117,7 @@ jobs:
     runs-on: macos-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
@@ -138,7 +138,7 @@ jobs:
     runs-on: macos-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v5
         - uses: actions/setup-python@v5
           with:
             python-version: '3.10'
@@ -167,7 +167,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
@@ -192,6 +192,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
       - run: python scripts/gn/gn.py
