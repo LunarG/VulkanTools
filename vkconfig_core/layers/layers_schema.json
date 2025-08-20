@@ -99,7 +99,7 @@
                                 "operator": {
                                     "type": "string",
                                     "enum": [ "NONE", "NOT" ]
-                                },
+                                }
                             }
                         }
                     },
