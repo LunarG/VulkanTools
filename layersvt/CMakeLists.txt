@@ -53,6 +53,7 @@ if(BUILD_APIDUMP)
     else()
         add_library(VkLayer_api_dump MODULE)
     endif()
+    set_target_properties(VkLayer_api_dump PROPERTIES FOLDER "layers/api_dump")
 
     target_sources(VkLayer_api_dump PRIVATE
         api_dump_handwritten_dispatch.cpp
@@ -92,6 +93,7 @@ endif ()
 
 if(BUILD_MONITOR)
     add_library(VkLayer_monitor MODULE)
+    set_target_properties(VkLayer_monitor PROPERTIES FOLDER "layers/monitor")
     target_sources(VkLayer_monitor PRIVATE
         monitor.cpp
         vk_layer_table.cpp
@@ -103,6 +105,7 @@ endif ()
 
 if(BUILD_SCREENSHOT)
     add_library(VkLayer_screenshot MODULE)
+    set_target_properties(VkLayer_screenshot PROPERTIES FOLDER "layers/screenshot")
     target_sources(VkLayer_screenshot PRIVATE
         screenshot.cpp
         screenshot_parsing.h
