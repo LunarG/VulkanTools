@@ -1,6 +1,6 @@
 # ~~~
-# Copyright (c) 2023-2023 Valve Corporation
-# Copyright (c) 2023-2023 LunarG, Inc.
+# Copyright (c) 2023-2025 Valve Corporation
+# Copyright (c) 2023-2025 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ function(LayerTest NAME)
         "VK_LAYER_PATH=$<TARGET_FILE_DIR:VkLayer_${NAME}>"
     )
 
-    set_target_properties(${TEST_NAME} PROPERTIES FOLDER "VkLayer_${NAME}/Test")
+    set_target_properties(${TEST_NAME} PROPERTIES FOLDER "layers/${NAME}/Test")
 
     if(WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
       set_property(TARGET ${TEST_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
