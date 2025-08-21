@@ -36,9 +36,14 @@ WidgetSettingFilesystem::WidgetSettingFilesystem(QTreeWidget* tree, QTreeWidgetI
       data_set(data_set),
       item_child(new QTreeWidgetItem()),
       field(new QLineEdit(this)),
-      button(new QPushButton(this)) {
+      button(new QPushButton(this)),
+      timer(new QTimer(this)) {
     this->field->show();
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(textFieldChanged(const QString&)));
+    this->connect(this->field, SIGNAL(returnPressed()), this, SLOT(textFieldReturnPressed()));
+    this->connect(this->timer, SIGNAL(timeout()), this, SLOT(textFieldReturnPressed()));
+
+    this->timer->setSingleShot(true);
 
     this->button->setText("...");
     this->button->show();
@@ -199,24 +204,28 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     }
 
     this->field->setText(this->data().GetValue().RelativePath().c_str());
-    this->field->setToolTip(new_path.AbsolutePath().c_str());
 
-    this->LoadPath(new_path);
-
-    emit itemChanged();
+    this->textFieldReturnPressed();
 }
 
 void WidgetSettingFilesystem::textFieldChanged(const QString& value) {
     Path path(value.toStdString());
 
     this->data().SetValue(path.RelativePath().c_str());
+
+    this->timer->start(2000);
+}
+
+void WidgetSettingFilesystem::textFieldReturnPressed() {
+    Path path = this->data().GetValue();
+
     this->field->setToolTip(path.AbsolutePath().c_str());
 
     if (path.Exists()) {
         this->LoadPath(path);
     }
 
-    emit itemChanged();
+    emit refreshEnableOnly();
 }
 
 SettingDataFilesystem& WidgetSettingFilesystem::data() {

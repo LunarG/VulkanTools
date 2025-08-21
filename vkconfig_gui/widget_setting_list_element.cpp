@@ -86,7 +86,7 @@ void WidgetSettingListElement::resizeEvent(QResizeEvent* event) {
 void WidgetSettingListElement::OnElementChecked(bool checked) {
     this->element.enabled = checked;
 
-    emit itemChanged();
+    emit refreshEnableOnly();
 }
 
 void WidgetSettingListElement::OnElementRemoved() {
@@ -98,7 +98,7 @@ void WidgetSettingListElement::OnElementRemoved() {
     value.erase(it);
 
     emit itemSelected(this->field->text());  // Remove the element from the parent WidgetSettingList
-    emit itemChanged();                      // Notify the setting tree that settings have changed
+    emit refreshEnableAndState();            // Notify the setting tree that settings have changed
 }
 
 SettingDataList& WidgetSettingListElement::data() {

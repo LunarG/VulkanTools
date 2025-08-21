@@ -90,7 +90,7 @@ void WidgetSettingFlag::OnClicked(bool checked) {
         RemoveString(this->data().value, this->flag);
     }
 
-    emit itemChanged();
+    emit refreshEnableOnly();
 }
 
 SettingDataFlags& WidgetSettingFlag::data() {

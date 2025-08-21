@@ -66,7 +66,7 @@ void WidgetSettingBool::OnClicked() {
 
     ::CheckMessage(configurator.ignored_messages, this->meta, this->data_set);
 
-    emit itemChanged();
+    emit refreshEnableOnly();
 }
 
 SettingDataBool& WidgetSettingBool::data() {

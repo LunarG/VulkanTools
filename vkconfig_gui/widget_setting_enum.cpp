@@ -218,7 +218,7 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         this->setToolTip(tooltip.c_str());
     }
 
-    emit itemChanged();
+    emit refreshEnableOnly();
 }
 
 SettingDataEnum& WidgetSettingEnum::data() {

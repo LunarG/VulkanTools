@@ -40,7 +40,7 @@ class WidgetSettingFlag : public WidgetSettingBase {
     void OnClicked(bool checked);
 
    Q_SIGNALS:
-    void itemChanged();
+    void refreshEnableOnly();
 
    private:
     SettingDataFlags& data();

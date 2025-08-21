@@ -10,6 +10,7 @@
 ### Fixes:
 - Fix invalid downloaded SDK filename
 - Fix Vulkan Loader not sending log on first application run
+- Fix layer settings cursor update #2475
 
 ### Deprecation:
 - Deprecate the synchronization configuration

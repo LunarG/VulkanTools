@@ -122,12 +122,16 @@ void WidgetSettingFrames::OnErrorValue() {
     }
 
     this->timer_error->stop();
+
+    emit refreshEnableOnly();
 }
 
 void WidgetSettingFrames::OnValidValue() {
-    emit itemChanged();
+    emit refreshEnableOnly();
 
     this->timer_valid->stop();
+
+    emit refreshEnableOnly();
 }
 
 void WidgetSettingFrames::Resize() {
@@ -153,8 +157,6 @@ void WidgetSettingFrames::OnTextEdited(const QString& new_value) {
     } else {
         this->timer_error->start(3000);
     }
-
-    emit itemChanged();
 }
 
 SettingDataFrames& WidgetSettingFrames::data() {

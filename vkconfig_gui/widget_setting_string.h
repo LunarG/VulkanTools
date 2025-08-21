@@ -27,6 +27,7 @@
 
 #include <QResizeEvent>
 #include <QLineEdit>
+#include <QTimer>
 
 class WidgetSettingString : public WidgetSettingBase {
     Q_OBJECT
@@ -38,9 +39,10 @@ class WidgetSettingString : public WidgetSettingBase {
 
    public Q_SLOTS:
     void OnTextEdited(const QString& value);
+    void OnTextReturnPressed();
 
    Q_SIGNALS:
-    void itemChanged();
+    void refreshEnableOnly();
 
    protected:
     void resizeEvent(QResizeEvent* event) override;
@@ -53,5 +55,6 @@ class WidgetSettingString : public WidgetSettingBase {
     SettingDataSet& data_set;
 
     QLineEdit* field;
+    QTimer* timer;
     QSize resize;
 };

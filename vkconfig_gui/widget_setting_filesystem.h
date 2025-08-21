@@ -29,6 +29,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QResizeEvent>
+#include <QTimer>
 
 class WidgetSettingFilesystem : public WidgetSettingBase {
     Q_OBJECT
@@ -42,9 +43,10 @@ class WidgetSettingFilesystem : public WidgetSettingBase {
    public Q_SLOTS:
     void browseButtonClicked();
     void textFieldChanged(const QString &value);
+    void textFieldReturnPressed();
 
    Q_SIGNALS:
-    void itemChanged();
+    void refreshEnableOnly();
 
    protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -59,4 +61,5 @@ class WidgetSettingFilesystem : public WidgetSettingBase {
     QTreeWidgetItem *item_child;
     QLineEdit *field;
     QPushButton *button;
+    QTimer *timer;
 };

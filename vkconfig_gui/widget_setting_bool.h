@@ -39,7 +39,7 @@ class WidgetSettingBool : public WidgetSettingBase {
     void OnClicked();
 
    Q_SIGNALS:
-    void itemChanged();
+    void refreshEnableOnly();
 
    private:
     SettingDataBool& data();
