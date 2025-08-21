@@ -45,7 +45,7 @@ class WidgetSettingFrames : public WidgetSettingBase {
     void OnValidValue();
 
    Q_SIGNALS:
-    void itemChanged();
+    void refreshEnableOnly();
 
    protected:
     void resizeEvent(QResizeEvent* event) override;

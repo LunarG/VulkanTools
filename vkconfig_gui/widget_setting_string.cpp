@@ -22,13 +22,15 @@
 #include "widget_setting_string.h"
 #include "widget_setting.h"
 
+#include "../vkconfig_core/configurator.h"
+
 #include <cassert>
 
 static const int MIN_FIELD_WIDTH = 120;
 
 WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaString& meta,
                                          SettingDataSet& data_set)
-    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new QLineEdit(this)) {
+    : WidgetSettingBase(tree, item), meta(meta), data_set(data_set), field(new QLineEdit(this)), timer(new QTimer(this)) {
     this->field->setText(this->data().GetValue());
     QFont font = tree->font();
     if (meta.key == "force_device_uuid") {
@@ -40,6 +42,10 @@ WidgetSettingString::WidgetSettingString(QTreeWidget* tree, QTreeWidgetItem* ite
     this->field->show();
 
     this->connect(this->field, SIGNAL(textEdited(const QString&)), this, SLOT(OnTextEdited(const QString&)));
+    this->connect(this->field, SIGNAL(returnPressed()), this, SLOT(OnTextReturnPressed()));
+    this->connect(this->timer, SIGNAL(timeout()), this, SLOT(OnTextReturnPressed()));
+
+    this->timer->setSingleShot(true);
 
     this->item->setText(0, GetLabel(this->meta).c_str());
     this->item->setFont(0, this->tree->font());
@@ -82,9 +88,15 @@ void WidgetSettingString::resizeEvent(QResizeEvent* event) {
 
 void WidgetSettingString::OnTextEdited(const QString& value) {
     this->data().SetValue(value.toStdString().c_str());
+
+    this->timer->start(2000);
+}
+
+void WidgetSettingString::OnTextReturnPressed() {
     this->field->setToolTip(this->field->text());
 
-    emit itemChanged();
+    Configurator& configurator = Configurator::Get();
+    configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
 }
 
 SettingDataString& WidgetSettingString::data() {

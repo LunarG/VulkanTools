@@ -40,7 +40,7 @@ class WidgetSettingEnum : public WidgetSettingBase {
     void OnIndexChanged(int index);
 
    Q_SIGNALS:
-    void itemChanged();
+    void refreshEnableOnly();
 
    private:
     void resizeEvent(QResizeEvent* event) override;

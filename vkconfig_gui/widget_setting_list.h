@@ -43,12 +43,14 @@ class WidgetSettingList : public WidgetSettingBase {
     void OnCompleted(const QString &value);
     void OnElementAppended();
     void OnTextEdited(const QString &value);
-    void OnSettingChanged();
+    void OnRefreshEnableOnly();
+    void OnRefreshEnableAndState();
     void OnElementRemoved(const QString &value);
 
    Q_SIGNALS:
     void itemSelected(const QString &value);
-    void itemChanged();
+    void refreshEnableOnly();
+    void refreshEnableAndState();
 
    protected:
     void resizeEvent(QResizeEvent *event) override;

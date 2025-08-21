@@ -159,7 +159,7 @@ void WidgetSettingFloat::OnErrorValue() {
 }
 
 void WidgetSettingFloat::OnValidValue() {
-    emit itemChanged();
+    emit refreshEnableOnly();
 
     this->timer_valid->stop();
 }
@@ -188,7 +188,7 @@ void WidgetSettingFloat::OnTextEdited(const QString& new_value) {
         this->timer_error->start(2000);
     }
 
-    emit itemChanged();
+    emit refreshEnableOnly();
 }
 
 SettingDataFloat& WidgetSettingFloat::data() {

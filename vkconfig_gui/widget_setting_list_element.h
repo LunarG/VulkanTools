@@ -42,7 +42,8 @@ class WidgetSettingListElement : public WidgetSettingBase {
 
    Q_SIGNALS:
     void itemSelected(const QString& value);
-    void itemChanged();
+    void refreshEnableOnly();
+    void refreshEnableAndState();
 
    protected:
     void resizeEvent(QResizeEvent* event) override;

@@ -288,21 +288,21 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
             const SettingMetaBool &meta = static_cast<const SettingMetaBool &>(meta_object);
 
             WidgetSettingBool *widget = new WidgetSettingBool(this->ui->configurations_settings, item, meta, parameter->settings);
-            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            this->connect(widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
         } break;
 
         case SETTING_INT: {
             const SettingMetaInt &meta = static_cast<const SettingMetaInt &>(meta_object);
 
             WidgetSettingInt *widget = new WidgetSettingInt(this->ui->configurations_settings, item, meta, parameter->settings);
-            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            this->connect(widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
         } break;
 
         case SETTING_FLOAT: {
             const SettingMetaFloat &meta = static_cast<const SettingMetaFloat &>(meta_object);
 
             WidgetSettingFloat *widget = new WidgetSettingFloat(this->ui->configurations_settings, item, meta, parameter->settings);
-            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            this->connect(widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
         } break;
 
         case SETTING_FRAMES: {
@@ -310,7 +310,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
             WidgetSettingFrames *widget =
                 new WidgetSettingFrames(this->ui->configurations_settings, item, meta, parameter->settings);
-            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            this->connect(widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
         } break;
 
         case SETTING_SAVE_FILE:
@@ -321,7 +321,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
             WidgetSettingFilesystem *widget =
                 new WidgetSettingFilesystem(this->ui->configurations_settings, item, meta, parameter->settings);
-            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            this->connect(widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
         } break;
 
         case SETTING_ENUM: {
@@ -329,7 +329,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
             WidgetSettingEnum *enum_widget =
                 new WidgetSettingEnum(this->ui->configurations_settings, item, meta, parameter->settings);
-            this->connect(enum_widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            this->connect(enum_widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
 
             for (std::size_t i = 0, n = meta.enum_values.size(); i < n; ++i) {
                 const SettingEnumValue &value = meta.enum_values[i];
@@ -383,7 +383,7 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
                 WidgetSettingFlag *widget =
                     new WidgetSettingFlag(this->ui->configurations_settings, child, meta, parameter->settings, value.key);
-                this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+                this->connect(widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
 
                 if (value.status == STATUS_DEPRECATED && !value.deprecated_by_key.empty()) {
                     const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
@@ -406,14 +406,15 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem *parent, const SettingMe
 
             WidgetSettingString *widget =
                 new WidgetSettingString(this->ui->configurations_settings, item, meta, parameter->settings);
-            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            this->connect(widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
         } break;
 
         case SETTING_LIST: {
             const SettingMetaList &meta = static_cast<const SettingMetaList &>(meta_object);
 
             WidgetSettingList *widget = new WidgetSettingList(this->ui->configurations_settings, item, meta, parameter->settings);
-            this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+            this->connect(widget, SIGNAL(refreshEnableAndState()), this, SLOT(OnRefreshEnableAndState()));
+            this->connect(widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
         } break;
 
         default: {
@@ -500,11 +501,24 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
     parameter->ApplyPresetSettings(preset);
 
     this->Refresh(REFRESH_ENABLE_AND_STATE);
+
+    configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
 }
 
-void SettingsTreeManager::OnSettingChanged() {
+void SettingsTreeManager::OnRefreshEnableAndState() {
     this->RefreshPresetLabel();
     this->Refresh(REFRESH_ENABLE_AND_STATE);
+
+    Configurator &configurator = Configurator::Get();
+    configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
+}
+
+void SettingsTreeManager::OnRefreshEnableOnly() {
+    this->RefreshPresetLabel();
+    this->Refresh(REFRESH_ENABLE_ONLY);
+
+    Configurator &configurator = Configurator::Get();
+    configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
 }
 
 void SettingsTreeManager::RefreshPresetLabel() {
@@ -515,16 +529,6 @@ void SettingsTreeManager::RefreshPresetLabel() {
     const int preset_index = layer->FindPresetIndex(parameter->settings) + 1;
     this->ui->configurations_presets->setCurrentIndex(preset_index);
 }
-
-/*
-void SettingsTreeManager::RefreshVersion() {
-    if (this->layer_version != nullptr) {
-        this->layer_version->setEnabled(true);
-        QEvent resize_event(QEvent::Resize);
-        this->layer_version->eventFilter(nullptr, &resize_event);
-    }
-}
-*/
 
 void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     Configurator &configurator = Configurator::Get();
@@ -537,9 +541,6 @@ void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
     }
 
     this->ui->configurations_settings->blockSignals(false);
-
-    // Refresh layer configuration
-    configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
 }
 
 void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent) {

@@ -143,12 +143,14 @@ void WidgetSettingInt::OnErrorValue() {
     }
 
     this->timer_error->stop();
+
+    emit refreshEnableOnly();
 }
 
 void WidgetSettingInt::OnValidValue() {
-    emit itemChanged();
-
     this->timer_valid->stop();
+
+    emit refreshEnableOnly();
 }
 
 void WidgetSettingInt::Resize() {
@@ -174,8 +176,6 @@ void WidgetSettingInt::OnTextEdited(const QString& new_value) {
     } else {
         this->timer_error->start(2000);
     }
-
-    emit itemChanged();
 }
 
 SettingDataInt& WidgetSettingInt::data() {

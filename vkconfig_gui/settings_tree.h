@@ -45,12 +45,12 @@ class SettingsTreeManager : public QObject {
     void CleanupGUI();
 
     void RefreshPresetLabel();
-    // void RefreshVersion();
     void Refresh(RefreshAreas refresh_areas);
 
    public Q_SLOTS:
     void OnLayerVersionChanged(int layer_version_index);
-    void OnSettingChanged();
+    void OnRefreshEnableAndState();
+    void OnRefreshEnableOnly();
     void OnPresetChanged(int combox_preset_index);
 
     void on_item_collapsed(QTreeWidgetItem *item);

@@ -174,7 +174,8 @@ void WidgetSettingList::AddElement(EnabledNumberOrString &element) {
     WidgetSettingListElement *widget = new WidgetSettingListElement(this->tree, child, this->meta, this->data_set, element);
     this->tree->setItemWidget(child, 0, widget);
 
-    this->connect(widget, SIGNAL(itemChanged()), this, SLOT(OnSettingChanged()));
+    this->connect(widget, SIGNAL(refreshEnableOnly()), this, SLOT(OnRefreshEnableOnly()));
+    this->connect(widget, SIGNAL(refreshEnableAndState()), this, SLOT(OnRefreshEnableAndState()));
     this->connect(widget, SIGNAL(itemSelected(const QString &)), this, SLOT(OnElementRemoved(const QString &)));
 }
 
@@ -219,7 +220,7 @@ void WidgetSettingList::OnElementAppended() {
     std::sort(value.begin(), value.end());
     ::RemoveValue(this->list, entry);
 
-    emit itemChanged();
+    emit refreshEnableAndState();
 }
 
 void WidgetSettingList::OnTextEdited(const QString &value) {
@@ -244,7 +245,9 @@ void WidgetSettingList::OnElementRemoved(const QString &element) {
     RemoveValue(this->data().value, EnabledNumberOrString(list_value));
 }
 
-void WidgetSettingList::OnSettingChanged() { emit itemChanged(); }
+void WidgetSettingList::OnRefreshEnableOnly() { emit refreshEnableOnly(); }
+
+void WidgetSettingList::OnRefreshEnableAndState() { emit refreshEnableAndState(); }
 
 SettingDataList &WidgetSettingList::data() {
     SettingDataList *data = FindSetting<SettingDataList>(this->data_set, this->meta.key.c_str());
