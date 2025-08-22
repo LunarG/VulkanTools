@@ -110,6 +110,7 @@ class Configurator {
     bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
     bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
     bool Export(ExportEnvMode mode, const Path& export_path) const;
+    bool WriteExtensionCode(const Path& export_path) const;
 
     void Set(HideMessageType type);
     bool Get(HideMessageType type) const;
