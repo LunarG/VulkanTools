@@ -120,10 +120,12 @@ const char* GetCodeTypeString(SettingType type) {
     return table[type];
 }
 
-bool IsSettingTypeString(SettingType type) {
+bool IsString(SettingType type) {
     return type == SETTING_STRING || type == SETTING_SAVE_FILE || type == SETTING_LOAD_FILE || type == SETTING_SAVE_FOLDER ||
            type == SETTING_LOAD_FOLDER || type == SETTING_ENUM || type == SETTING_FLAGS || type == SETTING_LIST;
 }
+
+bool IsArray(SettingType type) { return type == SETTING_FLAGS || type == SETTING_LIST; }
 
 SettingData::SettingData(const std::string& key, const SettingType& type) : key(key), type(type) { assert(!this->key.empty()); }
 
@@ -136,7 +138,7 @@ bool SettingData::Equal(const SettingData& other) const {
 }
 
 SettingMeta::SettingMeta(Layer& layer, const std::string& key, const SettingType type)
-    : key(key), type(type), env(), dependence_mode(DEPENDENCE_NONE), layer(layer) {
+    : key(key), type(type), env(), dependence_mode(DEPENDENCE_NONE), layer_key(layer.key), layer(layer) {
     assert(!this->key.empty());
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 }

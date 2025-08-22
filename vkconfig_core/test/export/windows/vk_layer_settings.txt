@@ -1,0 +1,1125 @@
+
+# VK_LAYER_NV_optimus
+
+
+# VK_LAYER_RENDERDOC_Capture
+
+
+# VK_LAYER_VALVE_steam_fossilize
+
+
+# VK_LAYER_VALVE_steam_overlay
+
+
+# VK_LAYER_KHRONOS_validation
+
+# Fine Grained Locking - fine_grained_locking
+# ==========================================
+# Enable fine grained locking for Core Validation, which should improve
+# performance in multithreaded applications. This setting allows the
+# optimization to be disabled for debugging.
+khronos_validation.fine_grained_locking = true
+
+# Core - validate_core
+# ==========================================
+# The main, heavy-duty validation checks. This may be valuable early in the
+# development cycle to reduce validation output while correcting
+# parameter/object usage errors.
+khronos_validation.validate_core = true
+
+# Image Layout - check_image_layout
+# ==========================================
+# Check that the layout of each image subresource is correct whenever it is used
+# by a command buffer. These checks are very CPU intensive for some
+# applications.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_core = true
+khronos_validation.check_image_layout = true
+
+# Command Buffer State - check_command_buffer
+# ==========================================
+# Check that all Vulkan objects used by a command buffer have not been
+# destroyed. These checks can be CPU intensive for some applications.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_core = true
+khronos_validation.check_command_buffer = true
+
+# Object in Use - check_object_in_use
+# ==========================================
+# Check that Vulkan objects are not in use by a command buffer when they are
+# destroyed.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_core = true
+khronos_validation.check_object_in_use = true
+
+# Query - check_query
+# ==========================================
+# Checks for commands that use VkQueryPool objects.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_core = true
+khronos_validation.check_query = true
+
+# Shader - check_shaders
+# ==========================================
+# This will validate the contents of the SPIR-V which can be CPU intensive
+# during application start up. This does internal checks as well as calling
+# spirv-val.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_core = true
+khronos_validation.check_shaders = true
+
+# Caching - check_shaders_caching
+# ==========================================
+# Creates an internal instance of VK_EXT_validation_cache and upon
+# vkDestroyInstance, will cache the shader validation so sequential usage of the
+# validation layers will be skipped.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_core = true
+# - khronos_validation.check_shaders = true
+khronos_validation.check_shaders_caching = true
+
+# Disable spirv-val - debug_disable_spirv_val
+# ==========================================
+# Allows normal shader validation to run, but removes just spirv-val for
+# performance reasons
+khronos_validation.debug_disable_spirv_val = false
+
+# Handle Wrapping - unique_handles
+# ==========================================
+# Handle wrapping checks. Disable this feature if you are experiencing crashes
+# when creating new extensions or developing new Vulkan objects/structures.
+khronos_validation.unique_handles = true
+
+# Object Lifetime - object_lifetime
+# ==========================================
+# Object tracking checks. This may not always be necessary late in a development
+# cycle.
+khronos_validation.object_lifetime = true
+
+# Stateless Parameter - stateless_param
+# ==========================================
+# Stateless parameter checks. This may not always be necessary late in a
+# development cycle.
+khronos_validation.stateless_param = true
+
+# Thread Safety - thread_safety
+# ==========================================
+# Thread checks. In order to not degrade performance, it might be best to run
+# your program with thread-checking disabled most of the time, enabling it
+# occasionally for a quick sanity check or when debugging difficult application
+# behaviors.
+khronos_validation.thread_safety = true
+
+# Synchronization - validate_sync
+# ==========================================
+# Check for resource access conflicts caused by missing or incorrectly used
+# synchronization operations.
+khronos_validation.validate_sync = false
+
+# Submit time validation - syncval_submit_time_validation
+# ==========================================
+# Enable synchronization validation on the boundary between submitted command
+# buffers. This also validates accesses from presentation operations. This
+# option can incur a significant performance cost.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_sync = true
+# khronos_validation.syncval_submit_time_validation = true (Commented out as the set of dependences is not satisfied)
+
+# Shader accesses heuristic - syncval_shader_accesses_heuristic
+# ==========================================
+# Take into account memory accesses performed by the shader based on SPIR-V
+# static analysis. Warning: can produce false-positives, can ignore certain
+# types of accesses.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_sync = true
+# khronos_validation.syncval_shader_accesses_heuristic = false (Commented out as the set of dependences is not satisfied)
+
+# Extra properties - syncval_message_extra_properties
+# ==========================================
+# Append a section of key-value properties to the error message. Useful for
+# filtering errors.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_sync = true
+# khronos_validation.syncval_message_extra_properties = false (Commented out as the set of dependences is not satisfied)
+
+# Debug Printf only preset - printf_only_preset
+# ==========================================
+# A single, quick setting to turn on only DebugPrintf and turn off everything
+# else
+khronos_validation.printf_only_preset = false
+
+# Debug Printf - printf_enable
+# ==========================================
+# Enable DebugPrintf and will print anything use NonSemantic.DebugPrintf in
+# their SPIR-V
+khronos_validation.printf_enable = false
+
+# Redirect Printf messages to stdout - printf_to_stdout
+# ==========================================
+# Enable redirection of Debug Printf messages from the debug callback to stdout
+# This setting requires ALL of the following values:
+# - khronos_validation.printf_enable = true
+# khronos_validation.printf_to_stdout = true (Commented out as the set of dependences is not satisfied)
+
+# Printf verbose - printf_verbose
+# ==========================================
+# Will print out handles, instruction location, position in command buffer, and
+# more
+# This setting requires ALL of the following values:
+# - khronos_validation.printf_enable = true
+# khronos_validation.printf_verbose = false (Commented out as the set of dependences is not satisfied)
+
+# Printf buffer size - printf_buffer_size
+# ==========================================
+# Set the size in bytes of the buffer per draw/dispatch/traceRays to hold the
+# messages
+# This setting requires ALL of the following values:
+# - khronos_validation.printf_enable = true
+# khronos_validation.printf_buffer_size = 1024 (Commented out as the set of dependences is not satisfied)
+
+# GPU Assisted Validation - gpuav_enable
+# ==========================================
+# Enable validation that cannot be done the CPU and needs hooks into the GPU
+# execution
+khronos_validation.gpuav_enable = false
+
+# Safe Mode - gpuav_safe_mode
+# ==========================================
+# Will have GPU-AV try and prevent crashes, but will be much slower to validate.
+# If using Safe Mode, consider using selective shader instrumentation, to only
+# instrument the shaders/pipelines causing issues.
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_safe_mode = false (Commented out as the set of dependences is not satisfied)
+
+# Force on robustness features - gpuav_force_on_robustness
+# ==========================================
+# This will enable all possible robustness features for the app at device
+# creation time. This can be used to quickly detect if with robustness, your
+# issue disappears. GPU-AV will also skip validating things already covered by
+# robustness, so turning on should reduce GPU-AV performance overhead.
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_force_on_robustness = false (Commented out as the set of dependences is not satisfied)
+
+# Shader instrumentation - gpuav_shader_instrumentation
+# ==========================================
+# Instrument shaders to validate descriptors, descriptor indexing, buffer device
+# addresses and ray queries. Warning: will considerably slow down shader
+# executions.
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_shader_instrumentation = true (Commented out as the set of dependences is not satisfied)
+
+# Enable instrumenting shaders selectively - gpuav_select_instrumented_shaders
+# ==========================================
+# Select which shaders to instrument by passing a VkValidationFeaturesEXT struct
+# with GPU-AV enabled in the VkShaderModuleCreateInfo pNext or using a regex
+# matching a shader/pipeline debug name. Because this only validates the
+# selected shaders, it will allow GPU-AV to run much faster.
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_shader_instrumentation = true
+# khronos_validation.gpuav_select_instrumented_shaders = false (Commented out as the set of dependences is not satisfied)
+
+# Shader/pipeline name regexes - gpuav_shaders_to_instrument
+# ==========================================
+# Any shader or pipeline library debug name (set with
+# vkSetDebugUtilsObjectNameEXT) fully matching any listed regular expression
+# will be instrumented when creating pipelines with those shaders or libraries.
+# Regex grammar: Modified ECMAScript. No support for shader objects yet.
+# Warning: instrumentation being performed at final pipeline creation time, if
+# shaders modules have already been destroyed at this step (possible when using
+# pipeline libraries), they won't be found by this regex selection system. In
+# this case, consider naming pipeline libraries instead.
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_shader_instrumentation = true
+# - khronos_validation.gpuav_select_instrumented_shaders = true
+# khronos_validation.gpuav_shaders_to_instrument =  (Commented out as the set of dependences is not satisfied)
+
+# Descriptors indexing - gpuav_descriptor_checks
+# ==========================================
+# Enable descriptors and buffer out of bounds validation when using descriptor
+# indexing
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_shader_instrumentation = true
+# khronos_validation.gpuav_descriptor_checks = true (Commented out as the set of dependences is not satisfied)
+
+# Post process descriptor indexing - gpuav_post_process_descriptor_indexing
+# ==========================================
+# Track which descriptor indexes were used in shader to run normal validation
+# afterwards
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_shader_instrumentation = true
+# khronos_validation.gpuav_post_process_descriptor_indexing = true (Commented out as the set of dependences is not satisfied)
+
+# Out of bounds buffer device addresses - gpuav_buffer_address_oob
+# ==========================================
+# Check for invalid access using buffer device address
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_shader_instrumentation = true
+# khronos_validation.gpuav_buffer_address_oob = true (Commented out as the set of dependences is not satisfied)
+
+# Deprecated and disabled setting - gpuav_max_buffer_device_addresses (DEPRECATED)
+# ==========================================
+
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_shader_instrumentation = true
+# - khronos_validation.gpuav_buffer_address_oob = true
+# khronos_validation.gpuav_max_buffer_device_addresses = 10000 (Commented out as the set of dependences is not satisfied)
+
+# RayQuery SPIR-V instructions - gpuav_validate_ray_query
+# ==========================================
+# Enable shader instrumentation on OpRayQueryInitializeKHR
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_shader_instrumentation = true
+# khronos_validation.gpuav_validate_ray_query = true (Commented out as the set of dependences is not satisfied)
+
+# Out of bounds vertex attribute fetching - gpuav_vertex_attribute_fetch_oob
+# ==========================================
+# Validate that no vertex attribute fetching is out of bonds
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_shader_instrumentation = true
+# khronos_validation.gpuav_vertex_attribute_fetch_oob = true (Commented out as the set of dependences is not satisfied)
+
+# Buffer content validation - gpuav_buffers_validation
+# ==========================================
+# Validate buffers containing parameters used in indirect Vulkan commands, or
+# used in copy commands
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_buffers_validation = true (Commented out as the set of dependences is not satisfied)
+
+# Indirect draws parameters - gpuav_indirect_draws_buffers
+# ==========================================
+# Validate buffers containing draw parameters used in indirect draw commands.
+# Includes vkCmdDrawMeshTasks* calls as well
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_buffers_validation = true
+# khronos_validation.gpuav_indirect_draws_buffers = true (Commented out as the set of dependences is not satisfied)
+
+# Indirect dispatches parameters - gpuav_indirect_dispatches_buffers
+# ==========================================
+# Validate buffers containing dispatch parameters used in indirect dispatch
+# commands
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_buffers_validation = true
+# khronos_validation.gpuav_indirect_dispatches_buffers = true (Commented out as the set of dependences is not satisfied)
+
+# Indirect trace rays parameters - gpuav_indirect_trace_rays_buffers
+# ==========================================
+# Validate buffers containing ray tracing parameters used in indirect ray
+# tracing commands
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_buffers_validation = true
+# khronos_validation.gpuav_indirect_trace_rays_buffers = true (Commented out as the set of dependences is not satisfied)
+
+# Buffer copies - gpuav_buffer_copies
+# ==========================================
+# Validate copies involving a VkBuffer. Right now only validates copy buffer to
+# image.
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_buffers_validation = true
+# khronos_validation.gpuav_buffer_copies = true (Commented out as the set of dependences is not satisfied)
+
+# Index buffers - gpuav_index_buffers
+# ==========================================
+# Validate that indexed draws do not fetch indices outside of the bounds of the
+# index buffer.
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# - khronos_validation.gpuav_buffers_validation = true
+# khronos_validation.gpuav_index_buffers = true (Commented out as the set of dependences is not satisfied)
+
+# Reserve Descriptor Set Binding Slot - gpuav_reserve_binding_slot (DEPRECATED)
+# ==========================================
+# Specifies that the validation layers reserve a descriptor set binding slot for
+# their own use. The layer reports a value for
+# VkPhysicalDeviceLimits::maxBoundDescriptorSets that is one less than the value
+# reported by the device. If the device supports the binding of only one
+# descriptor set, the validation layer does not perform GPU-assisted validation.
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_reserve_binding_slot = true (Commented out as the set of dependences is not satisfied)
+
+# Linear Memory Allocation Mode - gpuav_vma_linear_output (DEPRECATED)
+# ==========================================
+# Use VMA linear memory allocations for GPU-AV output buffers instead of finding
+# best place for new allocations among free regions to optimize memory usage.
+# Enabling this setting reduces performance cost but disabling this method
+# minimizes memory usage.
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_vma_linear_output = true (Commented out as the set of dependences is not satisfied)
+
+# Disable all of GPU-AV - gpuav_debug_disable_all
+# ==========================================
+# Acts as a VkValidationFeatureDisableEXT to override the
+# VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT passed by the user
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_debug_disable_all = false (Commented out as the set of dependences is not satisfied)
+
+# Validate instrumented shaders - gpuav_debug_validate_instrumented_shaders
+# ==========================================
+# Run spirv-val after doing shader instrumentation
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_debug_validate_instrumented_shaders = false (Commented out as the set of dependences is not satisfied)
+
+# Dump instrumented shaders - gpuav_debug_dump_instrumented_shaders
+# ==========================================
+# Will dump the instrumented shaders (before and after) to working directory
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_debug_dump_instrumented_shaders = false (Commented out as the set of dependences is not satisfied)
+
+# Limit how many time a pass can instrument the SPIR-V - gpuav_debug_max_instrumentations_count
+# ==========================================
+# Zero is same as unlimited
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_debug_max_instrumentations_count = 0 (Commented out as the set of dependences is not satisfied)
+
+# Print SPIR-V instrumentation info - gpuav_debug_print_instrumentation_info
+# ==========================================
+# Prints verbose information about the instrumentation of the SPIR-V
+# This setting requires ALL of the following values:
+# - khronos_validation.gpuav_enable = true
+# khronos_validation.gpuav_debug_print_instrumentation_info = false (Commented out as the set of dependences is not satisfied)
+
+# Best Practices - validate_best_practices
+# ==========================================
+# Outputs warnings related to common misuse of the API, but which are not
+# explicitly prohibited by the specification.
+khronos_validation.validate_best_practices = false
+
+# ARM-specific best practices - validate_best_practices_arm
+# ==========================================
+# Outputs warnings for spec-conforming but non-ideal code on ARM GPUs.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_best_practices = true
+# khronos_validation.validate_best_practices_arm = false (Commented out as the set of dependences is not satisfied)
+
+# AMD-specific best practices - validate_best_practices_amd
+# ==========================================
+# Outputs warnings for spec-conforming but non-ideal code on AMD GPUs.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_best_practices = true
+# khronos_validation.validate_best_practices_amd = false (Commented out as the set of dependences is not satisfied)
+
+# IMG-specific best practices - validate_best_practices_img
+# ==========================================
+# Outputs warnings for spec-conforming but non-ideal code on Imagination GPUs.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_best_practices = true
+# khronos_validation.validate_best_practices_img = false (Commented out as the set of dependences is not satisfied)
+
+# NVIDIA-specific best practices - validate_best_practices_nvidia
+# ==========================================
+# Outputs warnings for spec-conforming but non-ideal code on NVIDIA GPUs.
+# This setting requires ALL of the following values:
+# - khronos_validation.validate_best_practices = true
+# khronos_validation.validate_best_practices_nvidia = false (Commented out as the set of dependences is not satisfied)
+
+# Debug Action - debug_action
+# ==========================================
+# Specifies what action is to be taken when a layer reports information
+khronos_validation.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG
+
+# Log Filename - log_filename
+# ==========================================
+# Specifies the output filename
+khronos_validation.log_filename = stdout
+
+# Message Severity - report_flags
+# ==========================================
+# Comma-delineated list of options specifying the types of messages to be
+# reported
+khronos_validation.report_flags = error
+
+# Limit Duplicated Messages - enable_message_limit
+# ==========================================
+# Enable limiting of duplicate messages.
+khronos_validation.enable_message_limit = true
+
+# Max Duplicated Messages - duplicate_message_limit
+# ==========================================
+# Maximum number of times any single validation message should be reported.
+# This setting requires ALL of the following values:
+# - khronos_validation.enable_message_limit = true
+khronos_validation.duplicate_message_limit = 10
+
+# Mute Message VUIDs - message_id_filter
+# ==========================================
+# List of VUIDs and VUID identifiers which are to be IGNORED by the validation
+# layer
+khronos_validation.message_id_filter = 
+
+# JSON - message_format_json
+# ==========================================
+# Display Validation as JSON (VkDebugUtilsMessengerCallbackDataEXT::pMessage
+# will contain JSON)
+khronos_validation.message_format_json = false
+
+# Display Application Name - message_format_display_application_name
+# ==========================================
+# Useful when running multiple instances to know which instance the message is
+# from.
+khronos_validation.message_format_display_application_name = false
+
+
+# VK_LAYER_LUNARG_api_dump
+
+# Output Range - output_range
+# ==========================================
+# Comma separated list of frames to output or a range of frames with a start,
+# count, and optional interval separated by a dash. A count of 0 will output
+# every frame after the start of the range. Example: "5-8-2" will output frame
+# 5, continue until frame 13, dumping every other frame. Example: "3,8-2" will
+# output frames 3, 8, and 9.
+lunarg_api_dump.output_range = 0-0
+
+# Output Format - output_format
+# ==========================================
+# Specifies the format used for output; can be HTML, JSON, or  Text (default --
+# outputs plain text)
+lunarg_api_dump.output_format = text
+
+# Pre-dump the parameters. - pre_dump
+# ==========================================
+# Setting this to true causes parameters to calls be logged before the function
+# as well as after the function.
+# This setting requires ALL of the following values:
+# - lunarg_api_dump.output_format = text
+lunarg_api_dump.pre_dump = false
+
+# Output to File - file
+# ==========================================
+# Setting this to true indicates that output should be written to file instead
+# of stdout
+lunarg_api_dump.file = false
+
+# Log Filename - log_filename
+# ==========================================
+# Specifies the file to dump to when output files are enabled
+# This setting requires ALL of the following values:
+# - lunarg_api_dump.file = true
+# lunarg_api_dump.log_filename = stdout (Commented out as the set of dependences is not satisfied)
+
+# Log Flush After Write - flush
+# ==========================================
+# Setting this to true causes IO to be flushed after each API call that is
+# written
+lunarg_api_dump.flush = true
+
+# Name Size - name_size
+# ==========================================
+# The number of characters the name of a variable should consume, assuming more
+# are not required
+lunarg_api_dump.name_size = 32
+
+# Show Types - show_types
+# ==========================================
+# Dump types in addition to values
+lunarg_api_dump.show_types = true
+
+# Type Size - type_size
+# ==========================================
+# The number of characters the name of a type should consume, assuming more are
+# not required
+# This setting requires ALL of the following values:
+# - lunarg_api_dump.show_types = true
+lunarg_api_dump.type_size = 0
+
+# Show Timestamp - timestamp
+# ==========================================
+# Show the timestamp of function calls since start in microseconds
+lunarg_api_dump.timestamp = false
+
+# Show Shader - show_shader
+# ==========================================
+# Dump the shader binary code in pCode
+lunarg_api_dump.show_shader = false
+
+# Show Parameter Details - detailed
+# ==========================================
+# Dump parameter details in addition to API calls
+lunarg_api_dump.detailed = true
+
+# Hide Addresses - no_addr
+# ==========================================
+# Dump "address" in place of hex addresses
+lunarg_api_dump.no_addr = false
+
+# Use Spaces - use_spaces
+# ==========================================
+# Setting this to true causes all tab characters to be replaced with spaces
+lunarg_api_dump.use_spaces = true
+
+# Indent Size - indent_size
+# ==========================================
+# Specifies the number of spaces that a tab is equal to
+# This setting requires ALL of the following values:
+# - lunarg_api_dump.use_spaces = true
+lunarg_api_dump.indent_size = 4
+
+# Show Thread and Frame - show_thread_and_frame
+# ==========================================
+# Show the thread and frame of each function called
+lunarg_api_dump.show_thread_and_frame = true
+
+
+# VK_LAYER_LUNARG_crash_diagnostic
+
+# Watchdog timeout (ms) - watchdog_timeout_ms
+# ==========================================
+# If set to a non-zero number, a watchdog thread will be created. This will
+# trigger if the application fails to submit new commands within a set time (in
+# milliseconds) and a log will be created as if the a lost device error was
+# encountered.
+lunarg_crash_diagnostic.watchdog_timeout_ms = 30000
+
+# Output Path - output_path
+# ==========================================
+# The directory where dump files and shader binaries are written.
+lunarg_crash_diagnostic.output_path = 
+
+# Dump queue submissions - dump_queue_submits
+# ==========================================
+# Control which queue submissions are included in the dump.
+lunarg_crash_diagnostic.dump_queue_submits = running
+
+# Dump command buffers - dump_command_buffers
+# ==========================================
+# Control which command buffers are included in the dump.
+lunarg_crash_diagnostic.dump_command_buffers = running
+
+# Dump commands - dump_commands
+# ==========================================
+# Control which commands are included in the dump.
+lunarg_crash_diagnostic.dump_commands = running
+
+# Dump shaders - dump_shaders
+# ==========================================
+# Control of shader dumping.
+lunarg_crash_diagnostic.dump_shaders = off
+
+# Message Severity - message_severity
+# ==========================================
+# Comma-delineated list of options specifying the types of log messages to be
+# reported
+lunarg_crash_diagnostic.message_severity = error
+
+# Log file name - log_file
+# ==========================================
+# none = no logging, stderr or stdout = to the console, otherwise an absolute or
+# relative path
+lunarg_crash_diagnostic.log_file = stderr
+
+# Enable Tracing - trace_on
+# ==========================================
+# All Vulkan API calls intercepted by the layer will be logged to the console.
+lunarg_crash_diagnostic.trace_on = false
+
+# Enable semaphore log tracing. - trace_all_semaphores
+# ==========================================
+# Semaphore events will be logged to console.
+lunarg_crash_diagnostic.trace_all_semaphores = false
+
+# Synchronize commands - sync_after_commands
+# ==========================================
+# Add pipeline barriers after instrumented commands.
+lunarg_crash_diagnostic.sync_after_commands = false
+
+# Instrument all commands - instrument_all_commands
+# ==========================================
+# All commands will be instrumented.
+lunarg_crash_diagnostic.instrument_all_commands = false
+
+# Track semaphores - track_semaphores
+# ==========================================
+# Enable semaphore tracking.
+lunarg_crash_diagnostic.track_semaphores = true
+
+
+# VK_LAYER_LUNARG_gfxreconstruct
+
+# Hotkey Capture Trigger - capture_trigger
+# ==========================================
+# Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to
+# start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One
+# capture file will be generated for each pair of start/stop hotkey presses.
+# Default is: Empty string (hotkey capture trigger is disabled).
+lunarg_gfxreconstruct.capture_trigger = 
+
+# Hotkey Capture Frame Limit - capture_trigger_frames
+# ==========================================
+# Specify a limit on the number of frames to be captured via hotkey. Example: 1
+# will capture exactly one frame when the trigger key is pressed. Default is:
+# Empty string (no limit)
+lunarg_gfxreconstruct.capture_trigger_frames = 
+
+# Capture Specific Frames - capture_frames
+# ==========================================
+# Specify one or more comma-separated frame ranges to capture. Each range will
+# be written to its own file. A frame range can be specified as a single value,
+# to specify a single frame to capture, or as two hyphenated values, to specify
+# the first and last frame to capture. Frame ranges should be specified in
+# ascending order and cannot overlap. Note that frame numbering is 1-based (i.e.
+# the first frame is frame 1). Example: 200,301-305 will create two capture
+# files, one containing a single frame and one containing five frames. Default
+# is: Empty string (all frames are captured).
+lunarg_gfxreconstruct.capture_frames = 
+
+# Capture File Name - capture_file
+# ==========================================
+# Path to use when creating the capture file. Default is: gfxrecon_capture.gfxr
+lunarg_gfxreconstruct.capture_file = gfxrecon_capture.gfxr
+
+# Capture File Name with Timestamp - capture_file_timestamp
+# ==========================================
+# Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.
+lunarg_gfxreconstruct.capture_file_timestamp = true
+
+# Capture File Flush After Write - capture_file_flush
+# ==========================================
+# Flush output stream after each packet is written to the capture file. Default
+# is: false.
+lunarg_gfxreconstruct.capture_file_flush = false
+
+# Compression Format - capture_compression_type
+# ==========================================
+# Compression format to use with the capture file. Valid values are: LZ4, ZLIB,
+# ZSTD, and NONE. Default is: LZ4
+lunarg_gfxreconstruct.capture_compression_type = LZ4
+
+# Memory Tracking Mode - memory_tracking_mode
+# ==========================================
+# Specifies the memory tracking mode to use for detecting modifications to
+# mapped Vulkan memory objects. Available options are: page_guard, assisted, and
+# unassisted.
+lunarg_gfxreconstruct.memory_tracking_mode = page_guard
+
+# Page Guard Copy on Map - page_guard_copy_on_map
+# ==========================================
+# When the page_guard memory tracking mode is enabled, copies the content of the
+# mapped memory to the shadow memory immediately after the memory is mapped.
+# This setting requires ALL of the following values:
+# - lunarg_gfxreconstruct.memory_tracking_mode = page_guard
+lunarg_gfxreconstruct.page_guard_copy_on_map = true
+
+# Page Guard Separate Read Tracking - page_guard_separate_read
+# ==========================================
+# When the page_guard memory tracking mode is enabled, copies the content of
+# pages accessed for read from mapped memory to shadow memory on each read. Can
+# overwrite unprocessed shadow memory content when an application is reading
+# from and writing to the same page.
+# This setting requires ALL of the following values:
+# - lunarg_gfxreconstruct.memory_tracking_mode = page_guard
+lunarg_gfxreconstruct.page_guard_separate_read = true
+
+# Page Guard External Memory - page_guard_external_memory
+# ==========================================
+# When the page_guard memory tracking mode is enabled, use the
+# VK_EXT_external_memory_host extension to eliminate the need for shadow memory
+# allocations. For each memory allocation from a host visible memory type, the
+# capture layer will create an allocation from system memory, which it can
+# monitor for write access, and provide that allocation to vkAllocateMemory as
+# external memory. Only available on Windows.
+# This setting requires ALL of the following values:
+# - lunarg_gfxreconstruct.memory_tracking_mode = page_guard
+lunarg_gfxreconstruct.page_guard_external_memory = false
+
+# Page Guard Persistent Memory - page_guard_persistent_memory
+# ==========================================
+# When the page_guard memory tracking mode is enabled, this option changes the
+# way that the shadow memory used to detect modifications to mapped memory is
+# allocated. The default behavior is to allocate and copy the mapped memory
+# range on map and free the allocation on unmap. When this option is enabled, an
+# allocation with a size equal to that of the object being mapped is made once
+# on the first map and is not freed until the object is destroyed. This option
+# is intended to be used with applications that frequently map and unmap large
+# memory ranges, to avoid frequent allocation and copy operations that can have
+# a negative impact on performance. This option is ignored when
+# GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY is enabled.
+# This setting requires ALL of the following values:
+# - lunarg_gfxreconstruct.memory_tracking_mode = page_guard
+# - lunarg_gfxreconstruct.page_guard_external_memory = false
+lunarg_gfxreconstruct.page_guard_persistent_memory = false
+
+# Page Guard Align Buffer Sizes - page_guard_align_buffer_sizes
+# ==========================================
+# When the page_guard memory tracking mode is enabled, this option overrides the
+# Vulkan API calls that report buffer memory properties to report that buffer
+# sizes and alignments must be a multiple of the system page size. This option
+# is intended to be used with applications that perform CPU writes and GPU
+# writes/copies to different buffers that are bound to the same page of mapped
+# memory, which may result in data being lost when copying pages from the
+# page_guard shadow allocation to the real allocation. This data loss can result
+# in visible corruption during capture. Forcing buffer sizes and alignments to a
+# multiple of the system page size prevents multiple buffers from being bound to
+# the same page, avoiding data loss from simultaneous CPU writes to the shadow
+# allocation and GPU writes to the real allocation for different buffers bound
+# to the same page. This option is only available for the Vulkan API.
+# This setting requires ALL of the following values:
+# - lunarg_gfxreconstruct.memory_tracking_mode = page_guard
+# - lunarg_gfxreconstruct.page_guard_external_memory = false
+lunarg_gfxreconstruct.page_guard_align_buffer_sizes = true
+
+# Page Guard unblock SIGSEGV from thread's signal mask - page_guard_unblock_sigsegv
+# ==========================================
+# When the page_guard memory tracking mode is enabled, this option overrides
+# enables SIGSEGV in thread's signal mask in the case that it has been disabled.
+# This setting requires ALL of the following values:
+# - lunarg_gfxreconstruct.memory_tracking_mode = page_guard
+# - lunarg_gfxreconstruct.page_guard_external_memory = false
+lunarg_gfxreconstruct.page_guard_unblock_sigsegv = false
+
+# Level - log_level
+# ==========================================
+# Specify the minimum severity level of messages to log. Options are: debug,
+# info, warning, error, and fatal. The specified level and all higher levels
+# will be enabled for logging. For example, choosing the warning level will also
+# enable the error and fatal levels.
+lunarg_gfxreconstruct.log_level = info
+
+# Log Name and Line Number - log_detailed
+# ==========================================
+# Include name and line number from the file responsible.
+lunarg_gfxreconstruct.log_detailed = false
+
+# Apply additional indentation - log_allow_indents
+# ==========================================
+# Apply additional indentation formatting to log messages.
+lunarg_gfxreconstruct.log_allow_indents = false
+
+# Log Output to Console / stdout - log_output_to_console
+# ==========================================
+# Log messages will be written to stdout.
+lunarg_gfxreconstruct.log_output_to_console = true
+
+# Trigger Debug Break on Error - log_break_on_error
+# ==========================================
+# Trigger a debug break when logging an error.
+lunarg_gfxreconstruct.log_break_on_error = false
+
+# Log Output to Debug Console - log_output_to_os_debug_string
+# ==========================================
+# Windows only option. Log messages will be written to the Debug Console with
+# OutputDebugStringA
+lunarg_gfxreconstruct.log_output_to_os_debug_string = false
+
+# Log File - log_file
+# ==========================================
+# When set, log messages will be written to a file at the specified path.
+# Default is: Empty string (file logging disabled).
+lunarg_gfxreconstruct.log_file = 
+
+# Log File Flush After Write - log_file_flush_after_write
+# ==========================================
+# Flush the log file to disk after each write when true.
+lunarg_gfxreconstruct.log_file_flush_after_write = false
+
+# Log File Keep Open - log_file_keep_open
+# ==========================================
+# Keep the log file open between log messages when true, or close and reopen the
+# log file for each message when false.
+lunarg_gfxreconstruct.log_file_keep_open = true
+
+# Log File Overwrite - log_file_create_new
+# ==========================================
+# Specifies that log file initialization should overwrite an existing file when
+# true, or append to an existing file when false.
+lunarg_gfxreconstruct.log_file_create_new = true
+
+
+# VK_LAYER_LUNARG_monitor
+
+
+# VK_LAYER_LUNARG_screenshot
+
+# Frames - frames
+# ==========================================
+# Specifies list of frames to output as screenshots. It is specified as a
+# comma-separated list of frames or a range of frames with a start, count, and
+# optional interval separated by a dash. Setting the variable to "all" will
+# output every frame. Example: "5-8-2" will output frame 5, continue until frame
+# 13, dumping every other frame. Example: "3,8-2" will output frames 3, 8, and
+# 9. If it is not set or it set to an empty string, no screenshots are created.
+lunarg_screenshot.frames = 
+
+# Directory - dir
+# ==========================================
+# Specifies the directory in which to create the screenshot files. If it is not
+# set or is set to an empty string, the files will be created in the current
+# working directory.
+lunarg_screenshot.dir = 
+
+# Format - format
+# ==========================================
+# Specify a color space for the output. If it is not set, set to null, or set to
+# USE_SWAPCHAIN_COLORSPACE the format will be set to use the same color space as
+# the swapchain object.
+lunarg_screenshot.format = USE_SWAPCHAIN_COLORSPACE
+
+
+# VK_LAYER_KHRONOS_profiles
+
+# Force Device - force_device
+# ==========================================
+# On system with multiple physical devices, force the use of one specific
+# physical device.
+khronos_profiles.force_device = FORCE_DEVICE_OFF
+
+# Device UUID - force_device_uuid
+# ==========================================
+# Device UUID of the forced physical devices
+khronos_profiles.force_device_uuid = 
+
+# Device Name - force_device_name
+# ==========================================
+# Device Name of the forced physical devices
+khronos_profiles.force_device_name = ${VP_PHYSICAL_DEVICES}
+
+# Emulate a Vulkan Profile - profile_emulation
+# ==========================================
+# Emulate a Vulkan Profile on the Developer System
+khronos_profiles.profile_emulation = true
+
+# Loading Directory - profile_dirs
+# ==========================================
+# Select the location all the profiles.
+# This setting requires ALL of the following values:
+# - khronos_profiles.profile_emulation = true
+khronos_profiles.profile_dirs = 
+
+# Name - profile_name
+# ==========================================
+# Name of the profile specified by the profile file to use.
+# This setting requires ALL of the following values:
+# - khronos_profiles.profile_emulation = true
+khronos_profiles.profile_name = ${VP_DEFAULT}
+
+# Schema Validation - profile_validation
+# ==========================================
+# Validate the profile files against the Vulkan SDK profile schema if the file
+# is found.
+# This setting requires ALL of the following values:
+# - khronos_profiles.profile_emulation = true
+khronos_profiles.profile_validation = false
+
+# Simulate Profile Capabilities - simulate_capabilities
+# ==========================================
+# Control of the simulated capabilities of the Vulkan physical device from the
+# selected Vulkan Profile.
+khronos_profiles.simulate_capabilities = SIMULATE_API_VERSION_BIT,SIMULATE_FEATURES_BIT,SIMULATE_PROPERTIES_BIT
+
+# Unspecified Features - default_feature_values
+# ==========================================
+# Feature values when not specified in the select Vulkan profiles.
+khronos_profiles.default_feature_values = DEFAULT_FEATURE_VALUES_DEVICE
+
+# Emulate VK_KHR_portability_subset - emulate_portability
+# ==========================================
+# Emulate the VK_KHR_portability_subset extension on the device.
+khronos_profiles.emulate_portability = true
+
+# constantAlphaColorBlendFactors - constantAlphaColorBlendFactors
+# ==========================================
+# Indicates whether this implementation supports constant alpha Blend Factors
+# used as source or destination color Blending.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.constantAlphaColorBlendFactors = false
+
+# events - events
+# ==========================================
+# Indicates whether this implementation supports synchronization using Events
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.events = false
+
+# imageViewFormatReinterpretation - imageViewFormatReinterpretation
+# ==========================================
+# Indicates whether this implementation supports a VkImageView being created
+# with a texel format containing a different number of components, or a
+# different number of bits in each component, than the texel format of the
+# underlying VkImage.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.imageViewFormatReinterpretation = false
+
+# imageViewFormatSwizzle - imageViewFormatSwizzle
+# ==========================================
+# Indicates whether this implementation supports remapping format components
+# using VkImageViewCreateInfo::components.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.imageViewFormatSwizzle = false
+
+# imageView2DOn3DImage - imageView2DOn3DImage
+# ==========================================
+# Indicates whether this implementation supports a VkImage being created with
+# the VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT flag set, permitting a 2D or 2D
+# array image view to be created on a 3D VkImage.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.imageView2DOn3DImage = false
+
+# multisampleArrayImage - multisampleArrayImage
+# ==========================================
+# Indicates whether this implementation supports a VkImage being created as a 2D
+# array with multiple samples per texel.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.multisampleArrayImage = false
+
+# mutableComparisonSamplers - mutableComparisonSamplers
+# ==========================================
+# Indicates whether this implementation allows descriptors with comparison
+# samplers to be updated.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.mutableComparisonSamplers = false
+
+# pointPolygons - pointPolygons
+# ==========================================
+# Indicates whether this implementation supports Rasterization using a point
+# Polygon Mode.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.pointPolygons = false
+
+# samplerMipLodBias - samplerMipLodBias
+# ==========================================
+# Indicates whether this implementation supports setting a mipmap LOD bias value
+# when creating a sampler.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.samplerMipLodBias = false
+
+# separateStencilMaskRef - separateStencilMaskRef
+# ==========================================
+# Indicates whether this implementation supports separate front and back Stencil
+# Test reference values.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.separateStencilMaskRef = false
+
+# shaderSampleRateInterpolationFunctions - shaderSampleRateInterpolationFunctions
+# ==========================================
+# Indicates whether this implementation supports fragment shaders which use the
+# InterpolationFunction capability.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.shaderSampleRateInterpolationFunctions = false
+
+# tessellationIsolines - tessellationIsolines
+# ==========================================
+# Indicates whether this implementation supports isoline output from the
+# Tessellation stage of a graphics pipeline. This member is only meaningful if
+# tessellationShader are supported.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.tessellationIsolines = false
+
+# triangleFans - triangleFans
+# ==========================================
+# Indicates whether this implementation supports Triangle Fans primitive
+# topology.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.triangleFans = false
+
+# vertexAttributeAccessBeyondStride - vertexAttributeAccessBeyondStride
+# ==========================================
+# Indicates whether this implementation supports accessing a vertex input
+# attribute beyond the stride of the corresponding vertex input binding.
+# This setting requires ALL of the following values:
+# - khronos_profiles.emulate_portability = true
+khronos_profiles.vertexAttributeAccessBeyondStride = false
+
+# minVertexInputBindingStrideAlignment - minVertexInputBindingStrideAlignment
+# ==========================================
+# Indicates whether this implementation supports accessing a vertex input
+# attribute beyond the stride of the corresponding vertex input binding.
+# This setting requires ALL of the following values:
+# - khronos_profiles.vertexAttributeAccessBeyondStride = false
+khronos_profiles.minVertexInputBindingStrideAlignment = 4
+
+# Exclude Device Extensions - exclude_device_extensions
+# ==========================================
+# Removes the listed device extensions from being reported by the Vulkan
+# physical device.
+khronos_profiles.exclude_device_extensions = 
+
+# Exclude Formats - exclude_formats
+# ==========================================
+# Removes the format feature flags from being reported by the Vulkan physical
+# device.
+khronos_profiles.exclude_formats = 
+
+# Debug Actions - debug_actions
+# ==========================================
+# This indicates what action is to be taken when a layer wants to report
+# information
+khronos_profiles.debug_actions = DEBUG_ACTION_STDOUT_BIT
+
+# Log Filename - debug_filename
+# ==========================================
+# Specifies the output filename
+khronos_profiles.debug_filename = profiles_layer_log.txt
+
+# Clear Log at Launch - debug_file_clear
+# ==========================================
+# Discard the content of the log file between each layer run
+khronos_profiles.debug_file_clear = true
+
+# Fail on Error - debug_fail_on_error
+# ==========================================
+# If the device doesn't support the capabilities of the selected Profile, the
+# layer fail to load. When enabled, vkEnumeratePhysicalDevices will fail when
+# the selected Profile is not supported.
+khronos_profiles.debug_fail_on_error = false
+
+# Message Types - debug_reports
+# ==========================================
+# This is a comma-delineated list of options telling the layer what types of
+# messages it should report back
+khronos_profiles.debug_reports = DEBUG_REPORT_NOTIFICATION_BIT,DEBUG_REPORT_WARNING_BIT,DEBUG_REPORT_ERROR_BIT
+
+
+# VK_LAYER_KHRONOS_shader_object
+
+# Force Enable - force_enable
+# ==========================================
+# Force the layer to be active even if the underlying driver also implements the
+# shader object extension.
+khronos_shader_object.force_enable = false
+
+# Disable Pipeline Pre-Caching - disable_pipeline_pre_caching
+# ==========================================
+# Disable the layer from pre-caching pipelines, reducing the memory overhead.
+khronos_shader_object.disable_pipeline_pre_caching = false
+
+
+# VK_LAYER_KHRONOS_synchronization2
+
+# Force Enable - force_enable
+# ==========================================
+# Force the layer to be active even if the underlying driver also implements the
+# synchonization2 extension.
+khronos_synchronization2.force_enable = false
+

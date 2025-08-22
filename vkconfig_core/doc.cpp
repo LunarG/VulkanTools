@@ -291,7 +291,7 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
                 text += "<tbody>\n";
 
                 {
-                    const char* string_char = IsSettingTypeString(setting->type) ? "\"" : "";
+                    const char* string_char = IsString(setting->type) ? "\"" : "";
                     std::string default_value = setting->Export(EXPORT_MODE_DOC);
                     if (setting->type == SETTING_BOOL) {
                         if (default_value == "true") {
@@ -528,7 +528,7 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
                 text += "| --- | --- |\n";
 
                 {
-                    const char* string_char = IsSettingTypeString(setting->type) ? "\"" : "";
+                    const char* string_char = IsString(setting->type) ? "\"" : "";
                     std::string default_value = setting->Export(EXPORT_MODE_DOC);
                     if (setting->type == SETTING_BOOL) {
                         if (default_value == "true") {
