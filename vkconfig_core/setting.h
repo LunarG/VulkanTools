@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,9 +97,10 @@ DependenceMode GetDependenceMode(const char* token);
 enum ExportMode {
     EXPORT_MODE_OVERRIDE = 0,
     EXPORT_MODE_DOC,
+    EXPORT_MODE_CPP_DECLARATION_AND_INIT,
 
     EXPORT_MODE_FIRST = EXPORT_MODE_OVERRIDE,
-    EXPORT_MODE_LAST = EXPORT_MODE_DOC
+    EXPORT_MODE_LAST = EXPORT_MODE_CPP_DECLARATION_AND_INIT
 };
 
 enum { EXPORT_MODE_COUNT = EXPORT_MODE_LAST - EXPORT_MODE_FIRST + 1 };

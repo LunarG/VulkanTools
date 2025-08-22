@@ -366,6 +366,15 @@ std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char
     return results;
 }
 
+std::string GetCodeType(const std::string &layer_key) {
+    std::string key = TrimVendor(layer_key);
+    key.erase(std::remove_if(key.begin(), key.end(), [](char c) { return c == '_'; }), key.end());
+    key[0] = std::toupper(key[0]);
+    return key + "SettingData";
+}
+
+std::string GetCodeData(const std::string &layer_key) { return TrimVendor(layer_key); }
+
 const char *GetLabel(VkPhysicalDeviceType deviceType) {
     static const char *TABLES[] = {
         "",            // VK_PHYSICAL_DEVICE_TYPE_OTHER

@@ -230,18 +230,33 @@ bool SettingDataFlags::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataFlags::Export(ExportMode export_mode) const {
-    (void)export_mode;
+    switch (export_mode) {
+        default: {
+            std::string result;
 
-    std::string result;
+            for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
+                result += this->value[i];
+                if (i < n - 1) {
+                    result += ",";
+                }
+            }
 
-    for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
-        result += this->value[i].c_str();
-        if (i < n - 1) {
-            result += ",";
+            return result;
+        }
+        case EXPORT_MODE_CPP_DECLARATION_AND_INIT: {
+            std::string actual_value;
+
+            for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
+                actual_value += "\"" + this->value[i] + "\"";
+                if (i < n - 1) {
+                    actual_value += ", ";
+                }
+            }
+
+            return format("\tstd::array<%s, %d> %s = [%s];\n", ::GetCodeTypeString(this->type), this->value.size(),
+                          this->key.c_str(), actual_value.c_str());
         }
     }
-
-    return result;
 }
 
 bool SettingDataFlags::Equal(const SettingData& other) const {
