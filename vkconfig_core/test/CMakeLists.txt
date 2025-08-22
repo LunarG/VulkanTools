@@ -49,6 +49,7 @@ function(vkConfigTest NAME)
 endfunction()
 
 vkConfigTest(test_date)
+vkConfigTest(test_export)
 vkConfigTest(test_util)
 vkConfigTest(test_version)
 vkConfigTest(test_command_line)

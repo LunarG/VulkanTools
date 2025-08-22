@@ -19,6 +19,7 @@
  */
 
 #include "setting_flags.h"
+#include "vulkan_util.h"
 #include "json.h"
 #include "layer.h"
 #include "setting.h"
@@ -108,6 +109,50 @@ void SettingDataEnum::Copy(const SettingData* data) {
 }
 
 void SettingDataEnum::Reset() { this->value = this->meta->default_value; }
+
+std::string SettingDataEnum::Export(ExportMode export_mode) const {
+    const std::string actual_value = this->IsValid() ? this->value : this->meta->default_value;
+
+    switch (export_mode) {
+        default: {
+            return actual_value;
+        }
+        case EXPORT_MODE_CPP_DECLARATION_AND_INIT: {
+            if (actual_value.find("${") != std::string::npos) {
+                return format("std::string %s = \"%s\";\n", this->key.c_str(), actual_value.c_str());
+            } else {
+                std::string setting_name = ::GetSettingValueName(this->meta->layer_key, this->key, actual_value.c_str());
+                return format("std::string %s = %s;\n", this->key.c_str(), setting_name.c_str());
+            }
+        }
+        case EXPORT_MODE_CPP_DECLARATION_VALUES: {
+            std::string result;
+            if (!this->meta->enum_values.empty()) {
+                result +=
+                    format("// Possible values for `%s` layer `%s` setting:\n", this->meta->layer_key.c_str(), this->key.c_str());
+            }
+
+            for (std::size_t i = 0, n = this->meta->enum_values.size(); i < n; ++i) {
+                const SettingEnumValue& value = this->meta->enum_values[i];
+                if (value.view == SETTING_VIEW_HIDDEN) {
+                    continue;
+                }
+
+                const std::string& value_name = ::GetSettingValueName(this->meta->layer_key, this->key, value.key);
+                const std::string& value_key = ::ToUpperCase(value.key);
+
+                result +=
+                    format("static %s %s = \"%s\";\n", ::GetCodeTypeString(this->type), value_name.c_str(), value.key.c_str());
+            }
+
+            if (!this->meta->enum_values.empty()) {
+                result += "\n";
+            }
+
+            return result;
+        }
+    }
+}
 
 // SettingMetaFlags
 
@@ -230,18 +275,58 @@ bool SettingDataFlags::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataFlags::Export(ExportMode export_mode) const {
-    (void)export_mode;
+    switch (export_mode) {
+        default: {
+            std::string result;
 
-    std::string result;
+            for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
+                result += this->value[i];
+                if (i < n - 1) {
+                    result += ",";
+                }
+            }
 
-    for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
-        result += this->value[i].c_str();
-        if (i < n - 1) {
-            result += ",";
+            return result;
+        }
+        case EXPORT_MODE_CPP_DECLARATION_AND_INIT: {
+            std::string actual_value;
+
+            for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
+                actual_value += ::GetSettingValueName(this->meta->layer_key, this->key, this->value[i]);
+                if (i < n - 1) {
+                    actual_value += ", ";
+                }
+            }
+
+            return format("std::vector<std::string> %s = {%s};\n", this->key.c_str(), actual_value.c_str());
+        }
+        case EXPORT_MODE_CPP_DECLARATION_VALUES: {
+            std::string result;
+
+            if (!this->meta->enum_values.empty()) {
+                result += format("// Possible values for %s layer %s setting:\n", this->meta->layer_key.c_str(), this->key.c_str());
+            }
+
+            for (std::size_t i = 0, n = this->meta->enum_values.size(); i < n; ++i) {
+                const SettingEnumValue& value = this->meta->enum_values[i];
+                if (value.view == SETTING_VIEW_HIDDEN) {
+                    continue;
+                }
+
+                const std::string& value_name = ::GetSettingValueName(this->meta->layer_key, this->key, value.key);
+                const std::string& value_key = ::ToUpperCase(value.key);
+
+                result +=
+                    format("static %s %s = \"%s\";\n", ::GetCodeTypeString(this->type), value_name.c_str(), value.key.c_str());
+            }
+
+            if (!this->meta->enum_values.empty()) {
+                result += "\n";
+            }
+
+            return result;
         }
     }
-
-    return result;
 }
 
 bool SettingDataFlags::Equal(const SettingData& other) const {

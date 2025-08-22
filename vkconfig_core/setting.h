@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,8 @@ SettingType GetSettingType(const char* token);
 const char* GetToken(SettingType type);
 const char* GetLayerSettingTypeString(SettingType type);
 const char* GetCodeTypeString(SettingType type);
-bool IsSettingTypeString(SettingType type);
+bool IsString(SettingType type);
+bool IsArray(SettingType type);
 
 inline bool IsEnum(SettingType type) {
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
@@ -97,9 +98,11 @@ DependenceMode GetDependenceMode(const char* token);
 enum ExportMode {
     EXPORT_MODE_OVERRIDE = 0,
     EXPORT_MODE_DOC,
+    EXPORT_MODE_CPP_DECLARATION_VALUES,
+    EXPORT_MODE_CPP_DECLARATION_AND_INIT,
 
     EXPORT_MODE_FIRST = EXPORT_MODE_OVERRIDE,
-    EXPORT_MODE_LAST = EXPORT_MODE_DOC
+    EXPORT_MODE_LAST = EXPORT_MODE_CPP_DECLARATION_AND_INIT
 };
 
 enum { EXPORT_MODE_COUNT = EXPORT_MODE_LAST - EXPORT_MODE_FIRST + 1 };
@@ -131,10 +134,11 @@ struct SettingMeta : public Header {
     SettingDataSet dependence;
     DependenceMode dependence_mode;
     std::vector<Message> messages;
+    const std::string layer_key;
 
    protected:
-    virtual bool Equal(const SettingMeta& other) const;
     Layer& layer;
+    virtual bool Equal(const SettingMeta& other) const;
 
     std::vector<SettingData*> instances;
 };

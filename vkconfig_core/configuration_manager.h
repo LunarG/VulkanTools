@@ -40,7 +40,7 @@ class ConfigurationManager : public Serialize {
     bool Empty() const;
     std::size_t Size() const;
 
-    void LoadAllConfigurations(const LayerManager& layers);
+    void LoadAllConfigurations(const LayerManager& layers, ConfiguratorMode mode);
     void SaveAllConfigurations() const;
 
     void UpdateConfigurations(const LayerManager& layers);

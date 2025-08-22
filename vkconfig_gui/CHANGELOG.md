@@ -6,6 +6,7 @@
   - Add force physical device
   - Add additional Vulkan drivers
 - Add log search bar to Application Launcher tab
+- Add code export to VK_EXT_layer_settings extension
 
 ### Fixes:
 - Fix invalid downloaded SDK filename

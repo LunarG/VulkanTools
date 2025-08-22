@@ -113,14 +113,15 @@ bool SettingDataFloat::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataFloat::Export(ExportMode export_mode) const {
-    (void)export_mode;
-
     const std::string float_format = this->meta->GetFloatFormat();
+    const float actual_value = this->IsValid() ? this->value : this->meta->default_value;
 
-    if (this->IsValid()) {
-        return format(float_format.c_str(), this->value);
-    } else {
-        return format(float_format.c_str(), this->meta->default_value);
+    switch (export_mode) {
+        default:
+            return format(float_format.c_str(), actual_value);
+        case EXPORT_MODE_CPP_DECLARATION_AND_INIT:
+            std::string export_format = "%s %s = " + float_format + ";\n";
+            return format(export_format.c_str(), ::GetCodeTypeString(this->type), this->key.c_str(), actual_value);
     }
 }
 

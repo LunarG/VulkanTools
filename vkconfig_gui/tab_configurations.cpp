@@ -451,9 +451,13 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             action_new->setEnabled(true);
             menu.addAction(action_new);
 
-            QAction *action_import = new QAction("Import a new Configuration...", nullptr);
+            QAction *action_import = new QAction("Import a Configuration file...", nullptr);
             action_import->setEnabled(true);
             menu.addAction(action_import);
+
+            QAction *action_export_config = new QAction("Export the Configuration file...", nullptr);
+            action_export_config->setEnabled(item != nullptr);
+            menu.addAction(action_export_config);
 
             menu.addSeparator();
 
@@ -471,6 +475,12 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
+            QAction *action_external_settings = new QAction("Use External vk_layer_settings.txt file...", nullptr);
+            action_external_settings->setEnabled(item != nullptr);
+            menu.addAction(action_external_settings);
+
+            menu.addSeparator();
+
             QAction *action_reset_one = new QAction("Reset the Default Configuration", nullptr);
             action_reset_one->setEnabled(configurator.configurations.IsDefaultConfiguration(name));
             action_reset_one->setToolTip("Reset the configuration, discarding all changes of this configuration.");
@@ -483,27 +493,22 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
-            QAction *action_export_config = new QAction("Export the Configuration...", nullptr);
-            action_export_config->setEnabled(item != nullptr);
-            menu.addAction(action_export_config);
-
-            QAction *action_export_settings = new QAction("Export the Layers Settings...", nullptr);
+            QAction *action_export_settings = new QAction("Generate vk_layer_settings.txt layers Settings file...", nullptr);
             action_export_settings->setEnabled(item != nullptr);
             menu.addAction(action_export_settings);
 
-            QAction *action_export_env_variables_bash_script = new QAction("Export the Bash script...", nullptr);
+            QAction *action_export_env_variables_bash_script = new QAction("Generate Env Variables Bash script...", nullptr);
             action_export_env_variables_bash_script->setEnabled(item != nullptr);
             menu.addAction(action_export_env_variables_bash_script);
 
-            QAction *action_export_env_variables_cmd_script = new QAction("Export the Command Prompt script...", nullptr);
+            QAction *action_export_env_variables_cmd_script =
+                new QAction("Generate Env Variables Command Prompt script...", nullptr);
             action_export_env_variables_cmd_script->setEnabled(item != nullptr);
             menu.addAction(action_export_env_variables_cmd_script);
 
-            menu.addSeparator();
-
-            QAction *action_external_settings = new QAction("Use External Layers Settings file...", nullptr);
-            action_external_settings->setEnabled(item != nullptr);
-            menu.addAction(action_external_settings);
+            QAction *action_export_extension_code = new QAction("Generate VK_EXT_layer_settings C++ code...", nullptr);
+            action_export_extension_code->setEnabled(item != nullptr);
+            menu.addAction(action_export_extension_code);
 
             QPoint point(right_click->globalX(), right_click->globalY());
             QAction *action = menu.exec(point);
@@ -528,6 +533,8 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 this->OnContextMenuExportEnvVariablesBashClicked(item);
             } else if (action == action_export_env_variables_cmd_script) {
                 this->OnContextMenuExportEnvVariablesCMDClicked(item);
+            } else if (action == action_export_extension_code) {
+                this->OnContextMenuExportExtensionCodeClicked(item);
             } else if (action == action_export_settings) {
                 this->OnContextMenuExportSettingsClicked(item);
             } else if (action == action_external_settings) {
@@ -986,6 +993,7 @@ void TabConfigurations::OnContextMenuExportEnvVariablesBashClicked(ListItem *ite
     } else {
         Path path(selected_path.toStdString());
         QDesktopServices::openUrl(QUrl::fromLocalFile(path.AbsoluteDir().c_str()));
+        configurator.configurations.last_path_export_config = selected_path.toStdString();
     }
 }
 
@@ -1008,6 +1016,31 @@ void TabConfigurations::OnContextMenuExportEnvVariablesCMDClicked(ListItem *item
     } else {
         Path path(selected_path.toStdString());
         QDesktopServices::openUrl(QUrl::fromLocalFile(path.AbsoluteDir().c_str()));
+        configurator.configurations.last_path_export_config = selected_path.toStdString();
+    }
+}
+
+void TabConfigurations::OnContextMenuExportExtensionCodeClicked(ListItem *item) {
+    assert(item);
+    Configurator &configurator = Configurator::Get();
+
+    const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".hpp";
+    const QString &selected_path =
+        QFileDialog::getSaveFileName(&this->window, "Export VK_EXT_layer_settings layer settings C++ code",
+                                     path_export.AbsolutePath().c_str(), "VK_EXT_layer_settings C++ code (*.h,*.hpp)");
+
+    const bool result = configurator.WriteExtensionCode(selected_path.toStdString());
+
+    if (!result) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setWindowTitle("Exporting of a file failed...");
+        msg.setText(format("Couldn't be create '%s' file.", selected_path.toStdString().c_str()).c_str());
+        msg.exec();
+    } else {
+        Path path(selected_path.toStdString());
+        QDesktopServices::openUrl(QUrl::fromLocalFile(path.AbsoluteDir().c_str()));
+        configurator.configurations.last_path_export_config = selected_path.toStdString();
     }
 }
 

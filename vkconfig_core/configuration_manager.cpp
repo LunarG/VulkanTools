@@ -89,10 +89,12 @@ bool ConfigurationManager::Empty() const { return this->available_configurations
 
 std::size_t ConfigurationManager::Size() const { return this->available_configurations.size(); }
 
-void ConfigurationManager::LoadAllConfigurations(const LayerManager &layers) {
+void ConfigurationManager::LoadAllConfigurations(const LayerManager &layers, ConfiguratorMode mode) {
     this->available_configurations.clear();
 
-    this->LoadConfigurationsPath(layers);
+    if (mode != CONFIGURATOR_MODE_NONE) {
+        this->LoadConfigurationsPath(layers);
+    }
 
     // If built-in configurations were updated, replace the stored configuration
     this->LoadDefaultConfigurations(layers);

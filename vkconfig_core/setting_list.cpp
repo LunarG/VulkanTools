@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2025 Valve Corporation
+ * Copyright (c) 2020-2025 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,8 +148,6 @@ bool SettingMetaList::Load(const QJsonObject& json_setting) {
 }
 
 std::string SettingMetaList::Export(ExportMode export_mode) const {
-    (void)export_mode;
-
     std::string result;
 
     for (std::size_t i = 0, n = this->default_value.size(); i < n; ++i) {
@@ -247,22 +245,38 @@ bool SettingDataList::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataList::Export(ExportMode export_mode) const {
-    (void)export_mode;
+    switch (export_mode) {
+        default: {
+            std::string result;
 
-    std::string result;
-
-    for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
-        if (!this->value[i].enabled) continue;
-        if (i != 0) {
-            result += ",";
+            for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
+                if (!this->value[i].enabled) {
+                    continue;
+                }
+                if (i != 0) {
+                    result += ",";
+                }
+                if (this->value[i].key.empty()) {
+                    result += format("%d", this->value[i].number);
+                } else {
+                    result += this->value[i].key.c_str();
+                }
+            }
+            return result;
         }
-        if (this->value[i].key.empty()) {
-            result += format("%d", this->value[i].number);
-        } else {
-            result += this->value[i].key.c_str();
+        case EXPORT_MODE_CPP_DECLARATION_AND_INIT: {
+            std::string actual_value;
+
+            for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
+                actual_value += this->value[i].key.empty() ? format("%d", this->value[i].number) : this->value[i].key;
+                if (i < n - 1) {
+                    actual_value += ", ";
+                }
+            }
+
+            return format("std::vector<std::string> %s = {%s};\n", this->key.c_str(), actual_value.c_str());
         }
     }
-    return result;
 }
 
 bool SettingDataList::Equal(const SettingData& other) const {

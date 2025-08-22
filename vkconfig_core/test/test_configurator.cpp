@@ -22,7 +22,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(test_configurator, get) {
+TEST(test_configurator, default_ctor) {
     Configurator& configurator = Configurator::Get();
 
     EXPECT_EQ(configurator.has_crashed, false);
@@ -31,12 +31,11 @@ TEST(test_configurator, get) {
     EXPECT_EQ(configurator.GetExecutableScope(), EXECUTABLE_ANY);
 }
 
-/*
-TEST(test_configurator, init) {
+TEST(test_configurator, default_init) {
     Configurator& configurator = Configurator::Get();
-    configurator.Init();
+    configurator.Init(CONFIGURATOR_MODE_NONE);
 
-    EXPECT_TRUE(configurator.layers.Size() > 0);
-    // EXPECT_TRUE(configurator.configurations.Size() > 0);
+    // This is one so that if it's not back to false on exist, it meant Vulkan Configurator crashed
+    EXPECT_EQ(configurator.has_crashed, true);
+    EXPECT_EQ(configurator.executables.Size(), 4);
 }
-*/

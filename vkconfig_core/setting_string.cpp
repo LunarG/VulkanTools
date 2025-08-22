@@ -93,12 +93,14 @@ bool SettingDataString::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataString::Export(ExportMode export_mode) const {
-    (void)export_mode;
+    const std::string actual_value = this->IsValid() ? this->value : this->meta->default_value;
 
-    if (this->IsValid()) {
-        return this->value;
-    } else {
-        return this->meta->default_value;
+    switch (export_mode) {
+        default:
+            return actual_value;
+        case EXPORT_MODE_CPP_DECLARATION_AND_INIT: {
+            return format("std::string %s = \"%s\";\n", this->key.c_str(), actual_value.c_str());
+        }
     }
 }
 
