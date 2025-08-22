@@ -102,12 +102,13 @@ bool SettingDataInt::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataInt::Export(ExportMode export_mode) const {
-    (void)export_mode;
+    int actual_value = this->IsValid() ? this->meta->default_value : this->value;
 
-    if (this->IsValid()) {
-        return format("%d", this->value);
-    } else {
-        return format("%d", this->meta->default_value);
+    switch (export_mode) {
+        default:
+            return format("%d", actual_value);
+        case EXPORT_MODE_CPP_DECLARATION_AND_INIT:
+            return format("%s %s = %d;\n", ::GetCodeTypeString(this->type), this->key.c_str(), actual_value);
     }
 }
 

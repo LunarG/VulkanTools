@@ -82,8 +82,13 @@ bool SettingDataBool::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataBool::Export(ExportMode export_mode) const {
-    (void)export_mode;
-    return this->value ? "true" : "false";
+    switch (export_mode) {
+        default:
+            return format("%s", this->value ? "true" : "false");
+        case EXPORT_MODE_CPP_DECLARATION_AND_INIT:
+            return format("%s %s = %s;\n", ::GetCodeTypeString(this->type), this->key.c_str(),
+                          this->value ? "VK_TRUE" : "VK_FALSE");
+    }
 }
 
 bool SettingDataBool::Equal(const SettingData& other) const {

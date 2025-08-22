@@ -67,5 +67,5 @@ bool SettingDataGroup::Save(QJsonObject& json_setting) const {
 
 std::string SettingDataGroup::Export(ExportMode export_mode) const {
     (void)export_mode;
-    return "";
+    return "";  // This type of setting doesn't have any data
 }
