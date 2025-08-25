@@ -38,7 +38,7 @@ TRACKED_STATE = {
 }
 
 PARAMETER_STATE = {
-    'VkPipelineViewportStateCreateInfo': {
+    'pDynamicState': {
         'VkGraphicsPipelineCreateInfo':
             'ApiDumpInstance::current().setIsDynamicViewport('
             'object.pDynamicState && '
@@ -56,23 +56,19 @@ PARAMETER_STATE = {
             '));'
             'ApiDumpInstance::current().setIsGPLPreRasterOrFragmentShader(checkForGPLPreRasterOrFragmentShader(object));',
     },
-    'VkCommandBufferBeginInfo': {
+    'commandBuffer': {
         'vkBeginCommandBuffer':
             'ApiDumpInstance::current().setCmdBuffer(commandBuffer);',
     },
-    'VkPhysicalDeviceMemoryProperties': {
+    'memoryProperties': {
         'VkPhysicalDeviceMemoryProperties2':
             'ApiDumpInstance::current().setMemoryHeapCount(object.memoryProperties.memoryHeapCount);',
     },
-    'VkDescriptorDataEXT': {
+    'type': {
         'VkDescriptorGetInfoEXT':
             'ApiDumpInstance::current().setDescriptorType(object.type);',
-    },
-    'VkIndirectExecutionSetInfoEXT':{
         'VkIndirectExecutionSetInfoEXT':
             'ApiDumpInstance::current().setIndirectExecutionSetInfoType(object.type);',
-    },
-    'VkIndirectCommandsTokenDataEXT':{
         'VkIndirectCommandsLayoutTokenEXT':
             'ApiDumpInstance::current().setIndirectCommandsLayoutToken(object.type);',
     }
@@ -816,9 +812,8 @@ class ApiDumpGenerator(BaseGenerator):
         return type_to_check
 
     def get_parameter_state(self, var, parent):
-        typeID = self.get_unaliased_type(var.type)
-        if typeID in PARAMETER_STATE and parent.name in PARAMETER_STATE[typeID]:
-            return PARAMETER_STATE[typeID][parent.name]
+        if var.name in PARAMETER_STATE and parent.name in PARAMETER_STATE[var.name]:
+            return PARAMETER_STATE[var.name][parent.name]
         return None
 
     def get_validity_check(self, var, parent):
