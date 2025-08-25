@@ -1855,6 +1855,26 @@ void dump_StdVideoH265HrdParameters(const StdVideoH265HrdParameters& object, con
     dump_single_array<Format>(object.elemental_duration_in_tc_minus1, STD_VIDEO_H265_SUBLAYERS_LIST_SIZE, settings, "uint16_t[STD_VIDEO_H265_SUBLAYERS_LIST_SIZE]", "elemental_duration_in_tc_minus1", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
     dump_separate_members<Format>(settings);
     dump_single_array<Format>(object.reserved, 3, settings, "uint16_t[3]", "reserved", "uint16_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint16_t>);
+    dump_separate_members<Format>(settings);
+    if (object.flags.nal_hrd_parameters_present_flag == 1) {
+        dump_pointer_array<Format>(object.pSubLayerHrdParametersNal, ApiDumpInstance::current().getIsInVps() ? ApiDumpInstance::current().getVpsMaxSubLayersMinus1() : ApiDumpInstance::current().getSpsMaxSubLayersMinus1(), settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersNal", "const StdVideoH265SubLayerHrdParameters", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoH265SubLayerHrdParameters<Format>);
+    } else {
+        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+            dump_special<Format>("UNUSED", settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersNal", indents + 1);
+        } else if constexpr (Format == ApiDumpFormat::Json) {
+            dump_json_UNUSED(settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersNal", indents + 2);
+        }
+    }
+    dump_separate_members<Format>(settings);
+    if (object.flags.vcl_hrd_parameters_present_flag == 1) {
+        dump_pointer_array<Format>(object.pSubLayerHrdParametersVcl, ApiDumpInstance::current().getIsInVps() ? ApiDumpInstance::current().getVpsMaxSubLayersMinus1() : ApiDumpInstance::current().getSpsMaxSubLayersMinus1(), settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersVcl", "const StdVideoH265SubLayerHrdParameters", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_StdVideoH265SubLayerHrdParameters<Format>);
+    } else {
+        if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {
+            dump_special<Format>("UNUSED", settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersVcl", indents + 1);
+        } else if constexpr (Format == ApiDumpFormat::Json) {
+            dump_json_UNUSED(settings, "const StdVideoH265SubLayerHrdParameters*", "pSubLayerHrdParametersVcl", indents + 2);
+        }
+    }
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
@@ -1896,6 +1916,8 @@ void dump_StdVideoH265ProfileTierLevel(const StdVideoH265ProfileTierLevel& objec
 template <ApiDumpFormat Format>
 void dump_StdVideoH265VideoParameterSet(const StdVideoH265VideoParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    ApiDumpInstance::current().setVpsMaxSubLayersMinus1(object.vps_max_sub_layers_minus1);
+    ApiDumpInstance::current().setIsInVps(true);
     dump_StdVideoH265VpsFlags<Format>(object.flags, settings, "StdVideoH265VpsFlags", "flags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.vps_video_parameter_set_id, settings, "uint8_t", "vps_video_parameter_set_id", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -2154,6 +2176,8 @@ void dump_StdVideoH265LongTermRefPicsSps(const StdVideoH265LongTermRefPicsSps& o
 template <ApiDumpFormat Format>
 void dump_StdVideoH265SequenceParameterSet(const StdVideoH265SequenceParameterSet& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    ApiDumpInstance::current().setSpsMaxSubLayersMinus1(object.sps_max_sub_layers_minus1);
+    ApiDumpInstance::current().setIsInVps(false);
     dump_StdVideoH265SpsFlags<Format>(object.flags, settings, "StdVideoH265SpsFlags", "flags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
     dump_StdVideoH265ChromaFormatIdc<Format>(object.chroma_format_idc, settings, "StdVideoH265ChromaFormatIdc", "chroma_format_idc", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
