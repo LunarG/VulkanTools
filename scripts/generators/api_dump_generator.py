@@ -71,7 +71,17 @@ PARAMETER_STATE = {
             'ApiDumpInstance::current().setIndirectExecutionSetInfoType(object.type);',
         'VkIndirectCommandsLayoutTokenEXT':
             'ApiDumpInstance::current().setIndirectCommandsLayoutToken(object.type);',
-    }
+    },
+    'sps_max_sub_layers_minus1':{
+        'StdVideoH265SequenceParameterSet':
+            'ApiDumpInstance::current().setSpsMaxSubLayersMinus1(object.sps_max_sub_layers_minus1);'
+            'ApiDumpInstance::current().setIsInVps(false);',
+    },
+    'vps_max_sub_layers_minus1':{
+        'StdVideoH265VideoParameterSet':
+            'ApiDumpInstance::current().setVpsMaxSubLayersMinus1(object.vps_max_sub_layers_minus1);'
+            'ApiDumpInstance::current().setIsInVps(true);',
+    },
 }
 
 VALIDITY_CHECKS = {
@@ -141,6 +151,21 @@ VALIDITY_CHECKS = {
         'pIndexBuffer': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT',
         'pExecutionSet': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT',
     },
+    'StdVideoH265HrdParameters':{
+        'pSubLayerHrdParametersNal': 'object.flags.nal_hrd_parameters_present_flag == 1',
+        'pSubLayerHrdParametersVcl': 'object.flags.vcl_hrd_parameters_present_flag == 1',
+    }
+}
+
+SPECIAL_LENGTH = {
+    'VkPhysicalDeviceMemoryBudgetPropertiesEXT': {
+        'heapBudget': 'ApiDumpInstance::current().getMemoryHeapCount()',
+        'heapUsage': 'ApiDumpInstance::current().getMemoryHeapCount()',
+    },
+    'StdVideoH265HrdParameters':{
+        'pSubLayerHrdParametersNal':'ApiDumpInstance::current().getIsInVps() ? ApiDumpInstance::current().getVpsMaxSubLayersMinus1() : ApiDumpInstance::current().getSpsMaxSubLayersMinus1()',
+        'pSubLayerHrdParametersVcl':'ApiDumpInstance::current().getIsInVps() ? ApiDumpInstance::current().getVpsMaxSubLayersMinus1() : ApiDumpInstance::current().getSpsMaxSubLayersMinus1()',
+    }
 }
 
 HANDWRITTEN_FUNCTIONS = ['vkCreateInstance',
@@ -232,9 +257,10 @@ def get_array_length(var, parent):
                 lengthIsPointer = True
             break
 
-    # Special case due to the length being non-constant non-local
-    if parent.name == 'VkPhysicalDeviceMemoryBudgetPropertiesEXT' and var.name in ['heapBudget', 'heapUsage']:
-        return 'ApiDumpInstance::current().getMemoryHeapCount()'
+    # Some lengths come from 'parent' structures that aren't available without first stashing the length value in the ApiDumpInstance
+    if parent.name in SPECIAL_LENGTH:
+        if var.name in SPECIAL_LENGTH[parent.name]:
+            return SPECIAL_LENGTH[parent.name][var.name]
 
     # If the length is a number or an API Constant, just return it
     if not lengthIsMember:
@@ -606,8 +632,6 @@ class ApiDumpGenerator(BaseGenerator):
 
             self.write('')
             for member in struct.members:
-                if (struct.name == 'StdVideoH265HrdParameters' and (member.name == 'pSubLayerHrdParametersNal' or member.name == 'pSubLayerHrdParametersVcl')):
-                    continue
                 custom_fullType = get_fulltype(member)
                 validity_check = self.get_validity_check(member, struct)
                 if member != struct.members[0]:
