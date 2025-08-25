@@ -818,7 +818,7 @@ class ApiDumpGenerator(BaseGenerator):
 
     def get_validity_check(self, var, parent):
         if parent.name in VALIDITY_CHECKS and var.name in VALIDITY_CHECKS[parent.name]:
-            if var.noAutoValidity or (isinstance(parent, Struct) and parent.union):
+            if var.noAutoValidity or (isinstance(parent, Struct)):
                 return VALIDITY_CHECKS[parent.name][var.name]
         return None
 
