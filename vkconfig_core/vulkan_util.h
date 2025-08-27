@@ -63,6 +63,8 @@ VulkanSystemInfo BuildVulkanSystemInfo();
 
 std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]);
 
+std::string GetCodeType(const std::string &layer_key);
+std::string GetCodeData(const std::string &layer_key);
 std::string TrimPrefix(const std::string &layer_key);
 std::vector<std::string> BuildEnvVariablesList(const char *layer_key, const char *setting_key, bool android_sysprop = false);
 

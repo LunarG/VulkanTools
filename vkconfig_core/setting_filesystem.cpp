@@ -101,6 +101,10 @@ std::string SettingDataFilesystem::Export(ExportMode export_mode) const {
         default:
             assert(0);
             return "";
+        case EXPORT_MODE_CPP_DECLARATION_AND_INIT: {
+            return format("\t%s %s = \"%s\";\n", ::GetCodeTypeString(this->type), this->key.c_str(),
+                          this->value.RelativePath().c_str());
+        }
         case EXPORT_MODE_OVERRIDE: {
             Path file(this->value);
             return file.AbsolutePath();
