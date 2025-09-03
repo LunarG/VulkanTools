@@ -70,17 +70,10 @@ def RunGenerators(api: str, registry: str, video_registry: str, directory: str, 
         'api_dump_dispatch.h' : {
             'generator' : ApiDumpGenerator,
             'genCombined': True,
-            'registry' : 'vk',
         },
         'api_dump_implementation.h' : {
             'generator' : ApiDumpGenerator,
             'genCombined': True,
-            'registry' : 'vk',
-        },
-        'api_dump_video_implementation.h' : {
-            'generator' : ApiDumpGenerator,
-            'genCombined': True,
-            'registry' : 'video',
         },
     }
 
@@ -124,27 +117,19 @@ def RunGenerators(api: str, registry: str, video_registry: str, directory: str, 
         # options. The options are set before XML loading as they may affect it.
         reg = Registry(generator, baseOptions)
 
-        # Parse the specified registry XML into an ElementTree object
-        if generators[target]['registry'] == 'vk':
-            tree = ElementTree.parse(registry)
-
-        elif generators[target]['registry'] == 'video':
-            tree = ElementTree.parse(video_registry)
-        else:
-            print(f'{target} didn\'t specify the registry to use')
-            return -1
-
-        # Filter out extensions that are not on the API list
-        [exts.remove(e) for exts in tree.findall('extensions') for e in exts.findall('extension') if (sup := e.get('supported')) is not None and all(api not in sup.split(',') for api in apiList)]
+        tree = ElementTree.parse(registry)
 
         # Load the XML tree into the registry object
         reg.loadElementTree(tree)
+
+        # Set the path to the video registry so that videoStd is available
+        reg.genOpts.videoXmlPath = video_registry
 
         # The cached data is saved inside the BaseGenerator, so search for it and try
         # to reuse the parsing for each generator file.
         if caching:
             # Old cache is stale, delete it since it doesn't match the currently cached registry
-            if os.path.isfile(cachePath) and cacheType is not None and cacheType == generators[target]['registry']:
+            if os.path.isfile(cachePath) and cacheType is not None and cacheType == generators[target]:
                 os.remove(cachePath)
                 cacheData = None
             elif not cacheData and os.path.isfile(cachePath):
@@ -153,7 +138,7 @@ def RunGenerators(api: str, registry: str, video_registry: str, directory: str, 
                 file.close()
 
 
-        if caching and (cacheData) and ('regenerate' not in generators[target] or not generators[target]['regenerate']) and cacheType == generators[target]['registry']:
+        if caching and (cacheData) and ('regenerate' not in generators[target] or not generators[target]['regenerate']) and cacheType == generators[target]:
             # TODO - We shouldn't have to regenerate any files, need to investigate why we some scripts need it
             reg.gen.generateFromCache(cacheData, reg.genOpts)
         else:
@@ -161,7 +146,7 @@ def RunGenerators(api: str, registry: str, video_registry: str, directory: str, 
             reg.apiGen()
 
         if caching:
-            cacheType = generators[target]['registry']
+            cacheType = generators[target]
 
         # Run clang-format on the file
         if has_clang_format:
@@ -226,7 +211,7 @@ def main(argv):
     if args.output_directory is not None:
         gen_dir = args.output_directory
 
-    registry = os.path.abspath(os.path.join(args.registry,  'vk.xml'))
+    registry = os.path.abspath(os.path.join(args.registry, 'vk.xml'))
     if not os.path.isfile(registry):
         print(f'{registry} does not exist')
         return -1

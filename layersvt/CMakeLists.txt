@@ -59,7 +59,6 @@ if(BUILD_APIDUMP)
         api_dump_handwritten_dispatch.cpp
         generated/api_dump_dispatch.h
         generated/api_dump_implementation.h
-        generated/api_dump_video_implementation.h
         api_dump.h
         api_dump_handwritten_functions.h
         vk_layer_table.cpp

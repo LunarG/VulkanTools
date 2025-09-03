@@ -314,8 +314,6 @@ class ApiDumpGenerator(BaseGenerator):
             self.generate_dispatch_codegen()
         elif self.filename == 'api_dump_implementation.h':
             self.generate_implementation()
-        elif self.filename == 'api_dump_video_implementation.h':
-            self.generate_implementation(video=True)
 
 
     def generate_copyright(self):
@@ -520,31 +518,8 @@ class ApiDumpGenerator(BaseGenerator):
         self.write('\n    return nullptr;')
         self.write('}')
 
-    def generate_implementation(self, video=False):
-        self.write('#pragma once\n')
-
-        self.write('\n#include "api_dump.h"')
-
-        if not video:
-            self.write('\n#include "api_dump_video_implementation.h"')
-
-        protect = PlatformGuardHelper()
-        if not video:
-            self.write('\n//========================== Handle Implementations =========================//\n')
-            for handle in self.vk.handles.values():
-                type_erase_handle = 'TYPE_ERASE_HANDLE(object)'
-                if handle.dispatchable:
-                    type_erase_handle = 'static_cast<void*>(object)'
-                protect.add_guard(self, handle.protect)
-                self.write(f'''
-                    template <ApiDumpFormat Format>
-                    void dump_{handle.name}(const {handle.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
-                        dump_handle<Format>({type_erase_handle}, settings, type_name, var_name, indents, address);
-                    }}''')
-            protect.add_guard(self, None)
-
-        self.write('\n//=========================== Enum Implementations ==========================//\n')
-        for enum in self.vk.enums.values():
+    def generate_enums(self, enums, protect):
+        for enum in enums.values():
             protect.add_guard(self, enum.protect)
             if enum.name in self.return_types:
                 self.write('template <ApiDumpFormat Format>')
@@ -563,56 +538,8 @@ class ApiDumpGenerator(BaseGenerator):
             self.write('}')
         protect.add_guard(self, None)
 
-        self.write('\n//========================= Bitmask Implementations =========================//\n')
-        for bitmask in self.vk.bitmasks.values():
-            protect.add_guard(self, bitmask.protect)
-            self.write(f'''
-                template <ApiDumpFormat Format>
-                void dump_{bitmask.name}(const {bitmask.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
-                    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
-                    dump_value_start<Format>(settings);
-                    settings.stream() << object;
-                    bool is_first = true;''')
-            for field in bitmask.flags:
-                self.write(f'if(object {"==" if  field.zero or field.multiBit else "&"} {field.name}) {{')
-                self.write(f'settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
-                self.write('}')
-            self.write('''
-                if(!is_first)
-                settings.stream() << ")";
-                dump_value_end<Format>(settings);
-                dump_end<Format>(settings, OutputConstruct::value, indents);
-                }''')
-        protect.add_guard(self, None)
-
-        self.write('\n//=========================== Flag Implementations ==========================//\n')
-
-        for flag in self.vk.flags.values():
-            protect.add_guard(self, flag.protect)
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'void dump_{flag.name}(const {flag.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{')
-            if flag.bitmaskName is not None:
-                self.write(f'dump_{flag.bitmaskName}<Format>(static_cast<{flag.bitmaskName}>(object), settings, type_name, var_name, indents, address);')
-            else:
-                self.write('dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-                self.write('dump_value<Format>(settings, object);')
-                self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
-            self.write('}')
-        protect.add_guard(self, None)
-
-        self.write('\n//======================= Func Pointer Implementations ======================//\n')
-
-        for funcpointer in self.vk.funcPointers.values():
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'''void dump_{funcpointer.name}(const {funcpointer.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
-                dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
-                dump_address<Format>(settings, &object);
-                dump_end<Format>(settings, OutputConstruct::value, indents);
-            }}''')
-
-        self.write('\n//====================== Struct and Union Implementations =====================//\n')
-
-        for struct in self.vk.structs.values():
+    def generate_structs(self, structs, protect):
+        for struct in structs.values():
             protect.add_guard(self, struct.protect)
 
             self.write('template <ApiDumpFormat Format>')
@@ -663,77 +590,155 @@ class ApiDumpGenerator(BaseGenerator):
             self.write('}')
         protect.add_guard(self, None)
 
-        self.write('\n//======================== pNext Chain Implementation =======================//\n')
-        if not video:
-            self.write('''
-                template <ApiDumpFormat Format>
-                void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents) {
-                    if (object == nullptr) {
-                        dump_nullptr<Format>(settings, type_name, var_name, indents);
-                        return;
-                    }
-                    VkBaseInStructure base_struct{};
-                    memcpy(&base_struct, object, sizeof(VkBaseInStructure));
-                    if (base_struct.sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO || base_struct.sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO) {
-                        if (base_struct.pNext != nullptr) {
-                            dump_pNext_struct_name<Format>(base_struct.pNext, settings, type_name, var_name, indents);
-                        } else {
-                            dump_nullptr<Format>(settings, "const void*", "pNext", indents);
-                        }
-                        return;
-                    }
-                    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents);
-                    switch(base_struct.sType) {''')
-            for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-                protect.add_guard(self, struct.protect)
-                if struct.sType is not None:
-                    self.write(f'''
-                        case {struct.sType}:
-                            dump_string<Format>(settings, "{struct.name}");
-                            break;''')
-            protect.add_guard(self, None)
-            self.write('''
-                    default:
-                        dump_string<Format>(settings, "NULL");
-                        break;
-                    }
-                    dump_end<Format>(settings, OutputConstruct::value, indents);
-                }
+    def generate_implementation(self):
+        self.write('#pragma once\n')
 
+        self.write('\n#include "api_dump.h"')
+
+        protect = PlatformGuardHelper()
+
+        self.write('\n//========================== Handle Implementations =========================//\n')
+        for handle in self.vk.handles.values():
+            type_erase_handle = 'TYPE_ERASE_HANDLE(object)'
+            if handle.dispatchable:
+                type_erase_handle = 'static_cast<void*>(object)'
+            protect.add_guard(self, handle.protect)
+            self.write(f'''
                 template <ApiDumpFormat Format>
-                void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents) {
-                    if (object == NULL) {
-                        if constexpr (Format == ApiDumpFormat::Html || Format == ApiDumpFormat::Json) {
-                            dump_nullptr<Format>(settings, type_name, var_name, indents);
-                        }
-                        return;
-                    }
-                    VkBaseInStructure base_struct{};
-                    memcpy(&base_struct, object, sizeof(VkBaseInStructure));
-                    switch(base_struct.sType) {''')
-            for struct in [ x for x in self.vk.structs.values() if not x.union ]:
-                protect.add_guard(self, struct.protect)
-                if struct.sType is not None:
-                    self.write(f'''
-                        case {struct.sType}:
-                            dump_{struct.name}<Format>(*reinterpret_cast<const {struct.name}*>(object), settings, (Format == ApiDumpFormat::Json ? "{struct.name}*" : "{struct.name}"), "pNext", indents, reinterpret_cast<const {struct.name}*>(object));
-                            break;''')
-            protect.add_guard(self, None)
+                void dump_{handle.name}(const {handle.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                    dump_handle<Format>({type_erase_handle}, settings, type_name, var_name, indents, address);
+                }}''')
+        protect.add_guard(self, None)
+
+        self.write('\n//======================== Video Enum Implementations =======================//\n')
+        self.generate_enums(self.vk.videoStd.enums, protect)
+
+        self.write('\n//=========================== Enum Implementations ==========================//\n')
+        self.generate_enums(self.vk.enums, protect)
+
+        self.write('\n//========================= Bitmask Implementations =========================//\n')
+        for bitmask in self.vk.bitmasks.values():
+            protect.add_guard(self, bitmask.protect)
+            self.write(f'''
+                template <ApiDumpFormat Format>
+                void dump_{bitmask.name}(const {bitmask.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+                    dump_value_start<Format>(settings);
+                    settings.stream() << object;
+                    bool is_first = true;''')
+            for field in bitmask.flags:
+                self.write(f'if(object {"==" if  field.zero or field.multiBit else "&"} {field.name}) {{')
+                self.write(f'settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
+                self.write('}')
             self.write('''
-                    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
-                    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
-                        if (base_struct.pNext != nullptr) {
-                            dump_pNext_trampoline<Format>(reinterpret_cast<const void*>(base_struct.pNext), settings, type_name, var_name, indents);
-                        } else {
-                            dump_nullptr<Format>(settings, "const void*", "pNext", indents);
-                        }
-                        break;
-                    default:
-                        dump_start<Format>(settings, OutputConstruct::value, "const void*", "pNext", indents);
-                        dump_value<Format>(settings, "UNKNOWN (", (int64_t) (base_struct.sType), ")");
-                        dump_end<Format>(settings, OutputConstruct::value, indents);
-                        }
-                    }''')
+                if(!is_first)
+                settings.stream() << ")";
+                dump_value_end<Format>(settings);
+                dump_end<Format>(settings, OutputConstruct::value, indents);
+                }''')
+        protect.add_guard(self, None)
+
+        self.write('\n//=========================== Flag Implementations ==========================//\n')
+
+        for flag in self.vk.flags.values():
+            protect.add_guard(self, flag.protect)
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'void dump_{flag.name}(const {flag.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{')
+            if flag.bitmaskName is not None:
+                self.write(f'dump_{flag.bitmaskName}<Format>(static_cast<{flag.bitmaskName}>(object), settings, type_name, var_name, indents, address);')
+            else:
+                self.write('dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+                self.write('dump_value<Format>(settings, object);')
+                self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
+            self.write('}')
+        protect.add_guard(self, None)
+
+        self.write('\n//======================= Func Pointer Implementations ======================//\n')
+
+        for funcpointer in self.vk.funcPointers.values():
+            self.write('template <ApiDumpFormat Format>')
+            self.write(f'''void dump_{funcpointer.name}(const {funcpointer.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+                dump_address<Format>(settings, &object);
+                dump_end<Format>(settings, OutputConstruct::value, indents);
+            }}''')
+
+        self.write('\n//=================== Video Struct and Union Implementations ==================//\n')
+        self.generate_structs(self.vk.videoStd.structs, protect)
+
+        self.write('\n//====================== Struct and Union Implementations =====================//\n')
+        self.generate_structs(self.vk.structs, protect)
+
+        self.write('\n//======================== pNext Chain Implementation =======================//\n')
+        self.write('''
+            template <ApiDumpFormat Format>
+            void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents) {
+                if (object == nullptr) {
+                    dump_nullptr<Format>(settings, type_name, var_name, indents);
+                    return;
+                }
+                VkBaseInStructure base_struct{};
+                memcpy(&base_struct, object, sizeof(VkBaseInStructure));
+                if (base_struct.sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO || base_struct.sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO) {
+                    if (base_struct.pNext != nullptr) {
+                        dump_pNext_struct_name<Format>(base_struct.pNext, settings, type_name, var_name, indents);
+                    } else {
+                        dump_nullptr<Format>(settings, "const void*", "pNext", indents);
+                    }
+                    return;
+                }
+                dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents);
+                switch(base_struct.sType) {''')
+        for struct in [ x for x in self.vk.structs.values() if not x.union ]:
+            protect.add_guard(self, struct.protect)
+            if struct.sType is not None:
+                self.write(f'''
+                    case {struct.sType}:
+                        dump_string<Format>(settings, "{struct.name}");
+                        break;''')
+        protect.add_guard(self, None)
+        self.write('''
+                default:
+                    dump_string<Format>(settings, "NULL");
+                    break;
+                }
+                dump_end<Format>(settings, OutputConstruct::value, indents);
+            }
+
+            template <ApiDumpFormat Format>
+            void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents) {
+                if (object == NULL) {
+                    if constexpr (Format == ApiDumpFormat::Html || Format == ApiDumpFormat::Json) {
+                        dump_nullptr<Format>(settings, type_name, var_name, indents);
+                    }
+                    return;
+                }
+                VkBaseInStructure base_struct{};
+                memcpy(&base_struct, object, sizeof(VkBaseInStructure));
+                switch(base_struct.sType) {''')
+        for struct in [ x for x in self.vk.structs.values() if not x.union ]:
+            protect.add_guard(self, struct.protect)
+            if struct.sType is not None:
+                self.write(f'''
+                    case {struct.sType}:
+                        dump_{struct.name}<Format>(*reinterpret_cast<const {struct.name}*>(object), settings, (Format == ApiDumpFormat::Json ? "{struct.name}*" : "{struct.name}"), "pNext", indents, reinterpret_cast<const {struct.name}*>(object));
+                        break;''')
+        protect.add_guard(self, None)
+        self.write('''
+                case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
+                case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
+                    if (base_struct.pNext != nullptr) {
+                        dump_pNext_trampoline<Format>(reinterpret_cast<const void*>(base_struct.pNext), settings, type_name, var_name, indents);
+                    } else {
+                        dump_nullptr<Format>(settings, "const void*", "pNext", indents);
+                    }
+                    break;
+                default:
+                    dump_start<Format>(settings, OutputConstruct::value, "const void*", "pNext", indents);
+                    dump_value<Format>(settings, "UNKNOWN (", (int64_t) (base_struct.sType), ")");
+                    dump_end<Format>(settings, OutputConstruct::value, indents);
+                    }
+                }''')
 
         self.write('\n//========================== Function Helpers ===============================//\n')
 
@@ -761,13 +766,12 @@ class ApiDumpGenerator(BaseGenerator):
             }''')
         protect.add_guard(self, None)
 
-        if not video:
-            self.write('\n//========================== Type Implementations =========================//\n')
-            self.write('''
-                template <ApiDumpFormat Format>
-                void dump_return_value_VkDeviceAddress(const VkDeviceAddress& address, const ApiDumpSettings& settings) {
-                    dump_value_hex<Format>(settings, static_cast<uint64_t>(address));
-                }''')
+        self.write('\n//========================== Type Implementations =========================//\n')
+        self.write('''
+            template <ApiDumpFormat Format>
+            void dump_return_value_VkDeviceAddress(const VkDeviceAddress& address, const ApiDumpSettings& settings) {
+                dump_value_hex<Format>(settings, static_cast<uint64_t>(address));
+            }''')
 
     def build_alias_map(self):
         for handle in self.vk.handles.values():
@@ -805,15 +809,17 @@ class ApiDumpGenerator(BaseGenerator):
         self.vulkan_defined_types.update(self.vk.funcPointers.keys())
         self.vulkan_defined_types.update(self.vk.handles.keys())
         self.vulkan_defined_types.update(self.vk.structs.keys())
+        self.vulkan_defined_types.update(self.vk.videoStd.enums.keys())
+        self.vulkan_defined_types.update(self.vk.videoStd.structs.keys())
 
     def build_only_use_as_pointer_types(self):
         for command in self.vk.commands.values():
             for param in command.params:
-                if param.type not in self.vulkan_defined_types and 'StdVideo' not in param.type:
+                if param.type not in self.vulkan_defined_types:
                     self.only_use_as_pointer_types.add(param.type)
         for struct in self.vk.structs.values():
             for member in struct.members:
-                if member.type not in self.vulkan_defined_types and 'StdVideo' not in member.type:
+                if member.type not in self.vulkan_defined_types:
                     self.only_use_as_pointer_types.add(member.type)
 
         for command in self.vk.commands.values():
@@ -889,7 +895,7 @@ class ApiDumpGenerator(BaseGenerator):
             elif custom_type == 'int8_t': # ostream << treats int8_t as char which we dont want
                 element_type = 'dump_type<Format, int32_t>'
 
-            elif call_type in self.vulkan_defined_types or 'StdVideo' in call_type:
+            elif call_type in self.vulkan_defined_types:
                 element_type = f'dump_{call_type}<Format>'
 
             array_len = get_array_length(var, parent)
@@ -907,7 +913,7 @@ class ApiDumpGenerator(BaseGenerator):
                 self.write(f'dump_single_array<Format>({value}, {fixed_array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
 
             else:
-                if var.fullType.count('*') > 1 and var.type not in ['void', 'char'] and (call_type in self.vulkan_defined_types or 'StdVideo' in call_type):
+                if var.fullType.count('*') > 1 and var.type not in ['void', 'char'] and (call_type in self.vulkan_defined_types):
                     self.write(f'dump_double_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
                 else:
                     self.write(f'dump_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
@@ -919,7 +925,7 @@ class ApiDumpGenerator(BaseGenerator):
         else:
             if var.pointer and var.type not in self.only_use_as_pointer_types and var.type not in self.vk.funcPointers.keys() and var.type not in ['void', 'char'] and not (var.name == 'pNext' and var.fullType in ['void*', 'const void*']):
                 pointer_type = f'dump_type<Format, {custom_type}>'
-                if (var.type in self.vulkan_defined_types or 'StdVideo' in call_type):
+                if (var.type in self.vulkan_defined_types):
                     pointer_type = f'dump_{call_type}<Format>'
 
                 self.write(f'dump_pointer<Format>({value}, settings, "{custom_fullType}", "{var.name}", {indent}, {pointer_type});')
@@ -937,7 +943,7 @@ class ApiDumpGenerator(BaseGenerator):
                     value_type = 'dump_type<Format, uint32_t>'
                 elif var.fullType == 'int8_t': # ostream << treats int8_t as char which we dont want
                     value_type = 'dump_type<Format, int32_t>'
-                elif call_type in self.vulkan_defined_types or 'StdVideo' in call_type:
+                elif call_type in self.vulkan_defined_types:
                     value_type = f'dump_{call_type}<Format>'
                 elif var.type in TREAT_AS_POINTERS and TREAT_AS_POINTERS[var.type] == var.name:
                     value_type = 'dump_uint64_t_as_pointer<Format>'
