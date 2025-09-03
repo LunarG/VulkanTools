@@ -94,14 +94,6 @@ class Handle:
 
 
 @dataclass
-class BaseType:
-    """<basetype>"""
-    name: str  # ex) MTLDevice_id
-    pointer: bool # If the underlying type is a pointer type, ex) void* MTLDevice_id
-    cDeclaration: str # C string of param, ex) struct ANativeWindow;
-    protect: (str | None) # ex) 'VK_ENABLE_BETA_EXTENSIONS'
-
-@dataclass
 class FuncPointerParam:
     """<funcpointer/param>"""
     name: str
@@ -116,12 +108,6 @@ class FuncPointerParam:
     # C string of param, ex) void* pUserData
     cDeclaration: str
 
-@dataclass
-class PlatformType:
-    """<type> which represents a platform defined type"""
-    name: str # ex) HINSTANCE
-    requires: (str | None) # ex) "windows.h"
-    protect: (str | None) # ex) 'VK_USE_PLATFORM_WIN32_KHR'
 
 @dataclass
 class FuncPointer:
@@ -619,8 +605,6 @@ class VulkanObject():
     constants: dict[str, Constant]   = field(default_factory=dict, init=False)
     formats:   dict[str, Format]     = field(default_factory=dict, init=False)
 
-    baseTypes:     dict[str, BaseType]     = field(default_factory=dict, init=False)
-    platformTypes: dict[str, PlatformType] = field(default_factory=dict, init=False)
     funcPointers:  dict[str, FuncPointer]  = field(default_factory=dict, init=False)
 
     syncStage:    list[SyncStage]    = field(default_factory=list, init=False)
