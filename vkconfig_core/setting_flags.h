@@ -67,6 +67,7 @@ struct SettingDataEnum : public SettingDataString {
     SettingDataEnum(const SettingMetaEnum* meta);
 
     void Copy(const SettingData* data) override;
+    std::string Export(ExportMode export_mode) const override;
     void Reset() override;
 
     const SettingMetaEnum* meta;
