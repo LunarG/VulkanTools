@@ -25,6 +25,7 @@
 #include "main_layers.h"
 #include "main_loader.h"
 #include "main_doc.h"
+#include "main_export.h"
 
 #include "../vkconfig_core/path.h"
 #include "../vkconfig_core/version.h"
@@ -150,6 +151,9 @@ int main(int argc, char* argv[]) {
         }
         case COMMAND_DOC: {
             return run_doc(command_line);
+        }
+        case COMMAND_EXPORT: {
+            return run_export(command_line);
         }
         default: {
             assert(0);

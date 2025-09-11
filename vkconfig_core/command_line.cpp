@@ -36,16 +36,17 @@ struct CommandHelpDesc {
     const char* token;
 };
 
-static const CommandHelpDesc command_help_desc[] = {
-    {HELP_HELP, "help"},     {HELP_VERSION, "version"}, {HELP_LAYERS, "layers"},
-    {HELP_LOADER, "loader"}, {HELP_DOC, "doc"},         {HELP_RESET, "reset"},
-};
+static const CommandHelpDesc command_help_desc[] = {{HELP_HELP, "help"},     {HELP_VERSION, "version"}, {HELP_LAYERS, "layers"},
+                                                    {HELP_LOADER, "loader"}, {HELP_DOC, "doc"},         {HELP_EXPORT, "export"},
+                                                    {HELP_RESET, "reset"}};
 
 static HelpType GetCommandHelpId(const char* token) {
     assert(token != nullptr);
 
     for (std::size_t i = 0, n = std::size(command_help_desc); i < n; ++i) {
-        if (std::strcmp(command_help_desc[i].token, token) == 0) return command_help_desc[i].arguments;
+        if (std::strcmp(command_help_desc[i].token, token) == 0) {
+            return command_help_desc[i].arguments;
+        }
     }
 
     return HELP_NONE;
@@ -71,6 +72,8 @@ static const ModeDesc mode_desc[] = {
     {COMMAND_LOADER, "loader", HELP_LOADER},       // COMMAND_LOADER
     {COMMAND_DOC, "--doc", HELP_DOC},              // COMMAND_DOC
     {COMMAND_DOC, "doc", HELP_DOC},                // COMMAND_DOC
+    {COMMAND_EXPORT, "--export", HELP_EXPORT},     // COMMAND_EXPORT
+    {COMMAND_EXPORT, "export", HELP_EXPORT},       // COMMAND_EXPORT
     {COMMAND_GUI, "--gui", HELP_GUI},              // COMMAND_GUI
     {COMMAND_GUI, "gui", HELP_GUI},                // COMMAND_GUI
     {COMMAND_RESET, "--reset", HELP_RESET},        // COMMAND_RESET
@@ -81,7 +84,9 @@ static CommandType GetModeId(const char* token) {
     assert(token != nullptr);
 
     for (std::size_t i = 0, n = std::size(mode_desc); i < n; ++i) {
-        if (std::strcmp(mode_desc[i].token, token) == 0) return mode_desc[i].mode;
+        if (std::strcmp(mode_desc[i].token, token) == 0) {
+            return mode_desc[i].mode;
+        }
     }
 
     return COMMAND_NONE;
@@ -89,7 +94,9 @@ static CommandType GetModeId(const char* token) {
 
 static const ModeDesc& GetModeDesc(CommandType command_type) {
     for (std::size_t i = 0, n = std::size(mode_desc); i < n; ++i) {
-        if (mode_desc[i].mode == command_type) return mode_desc[i];
+        if (mode_desc[i].mode == command_type) {
+            return mode_desc[i];
+        }
     }
 
     assert(0);
@@ -111,7 +118,9 @@ static CommandResetArg GetCommandResetId(const char* token) {
     assert(token != nullptr);
 
     for (std::size_t i = 0, n = std::size(command_reset_desc); i < n; ++i) {
-        if (std::strcmp(command_reset_desc[i].token, token) == 0) return command_reset_desc[i].arguments;
+        if (std::strcmp(command_reset_desc[i].token, token) == 0) {
+            return command_reset_desc[i].arguments;
+        }
     }
 
     return COMMAND_RESET_NONE;
@@ -163,11 +172,26 @@ static const CommandDocDesc command_doc_desc[] = {
     {COMMAND_DOC_SETTINGS, "--settings", 3},
 };
 
+struct CommandExportDesc {
+    CommandExportArg arguments;
+    const char* token;
+    int required_arguments;
+};
+
+static const CommandExportDesc command_export_desc[] = {
+    {COMMAND_EXPORT_EXT_CODE, "--ext", 3},
+    {COMMAND_EXPORT_ENV_BASH, "--bash", 3},
+    {COMMAND_EXPORT_ENV_CMD, "--bat", 3},
+    {COMMAND_EXPORT_SETTINGS_TXT, "--txt", 3},
+};
+
 static CommandLayersArg GetCommandLayersId(const char* token) {
     assert(token != nullptr);
 
     for (std::size_t i = 0, n = std::size(command_layers_desc); i < n; ++i) {
-        if (std::strcmp(command_layers_desc[i].token, token) == 0) return command_layers_desc[i].arguments;
+        if (std::strcmp(command_layers_desc[i].token, token) == 0) {
+            return command_layers_desc[i].arguments;
+        }
     }
 
     return COMMAND_LAYERS_NONE;
@@ -177,7 +201,9 @@ static const CommandLayersDesc& GetCommandLayers(CommandLayersArg layers_arg) {
     assert(layers_arg != COMMAND_LAYERS_NONE);
 
     for (std::size_t i = 0, n = std::size(command_layers_desc); i < n; ++i) {
-        if (command_layers_desc[i].arguments == layers_arg) return command_layers_desc[i];
+        if (command_layers_desc[i].arguments == layers_arg) {
+            return command_layers_desc[i];
+        }
     }
 
     assert(0);
@@ -188,7 +214,9 @@ static CommandLoaderArg GetCommandLoaderId(const char* token) {
     assert(token != nullptr);
 
     for (std::size_t i = 0, n = std::size(command_loader_desc); i < n; ++i) {
-        if (std::strcmp(command_loader_desc[i].token, token) == 0) return command_loader_desc[i].arguments;
+        if (std::strcmp(command_loader_desc[i].token, token) == 0) {
+            return command_loader_desc[i].arguments;
+        }
     }
 
     return COMMAND_LOADER_NONE;
@@ -198,7 +226,9 @@ static const CommandLoaderDesc& GetCommandLoader(CommandLoaderArg loader_arg) {
     assert(loader_arg != COMMAND_LOADER_NONE);
 
     for (std::size_t i = 0, n = std::size(command_loader_desc); i < n; ++i) {
-        if (command_loader_desc[i].arguments == loader_arg) return command_loader_desc[i];
+        if (command_loader_desc[i].arguments == loader_arg) {
+            return command_loader_desc[i];
+        }
     }
 
     assert(0);
@@ -209,10 +239,50 @@ static CommandDocArg GetCommandDocId(const char* token) {
     assert(token != nullptr);
 
     for (std::size_t i = 0, n = std::size(command_doc_desc); i < n; ++i) {
-        if (std::strcmp(command_doc_desc[i].token, token) == 0) return command_doc_desc[i].arguments;
+        if (std::strcmp(command_doc_desc[i].token, token) == 0) {
+            return command_doc_desc[i].arguments;
+        }
     }
 
     return COMMAND_DOC_NONE;
+}
+
+static CommandExportArg GetCommandExportId(const char* token) {
+    assert(token != nullptr);
+
+    for (std::size_t i = 0, n = std::size(command_export_desc); i < n; ++i) {
+        if (std::strcmp(command_export_desc[i].token, token) == 0) {
+            return command_export_desc[i].arguments;
+        }
+    }
+
+    return COMMAND_EXPORT_NONE;
+}
+
+static const CommandExportDesc& GetCommanExport(CommandExportArg export_arg) {
+    assert(export_arg != COMMAND_EXPORT_NONE);
+
+    for (std::size_t i = 0, n = std::size(command_export_desc); i < n; ++i) {
+        if (command_export_desc[i].arguments == export_arg) {
+            return command_export_desc[i];
+        }
+    }
+
+    assert(0);
+    return command_export_desc[0];
+}
+
+static const char* GetDefaultFilaname(CommandExportArg arg) {
+    static const char* TABLE[] = {
+        "none",                       // COMMAND_EXPORT_NONE
+        "vk_layer_settings.txt",      // COMMAND_EXPORT_SETTINGS_TXT
+        "vulkan_layer_settings.hpp",  // COMMAND_EXPORT_EXT_CODE
+        "vk_layer_settings.sh",       // COMMAND_EXPORT_ENV_BASH
+        "vk_layer_settings.bat"       // COMMAND_EXPORT_ENV_CMD
+    };
+    static_assert(std::size(TABLE) == COMMAND_EXPORT_COUNT);
+
+    return TABLE[arg - COMMAND_EXPORT_FIRST];
 }
 
 CommandLine::CommandLine(int argc, char* argv[])
@@ -225,12 +295,16 @@ CommandLine::CommandLine(int argc, char* argv[])
       command_doc_arg(_command_doc_arg),
       doc_layer_name(_doc_layer_name),
       doc_out_dir(_doc_out_dir),
+      command_export_arg(_command_export_arg),
+      export_configuration_name(_export_configuration_name),
+      export_filename(_export_filename),
       error(_error),
       error_args(_error_args),
       _command_reset_arg(COMMAND_RESET_NONE),
       _command_layers_arg(COMMAND_LAYERS_NONE),
       _command_loader_arg(COMMAND_LOADER_NONE),
       _command_doc_arg(COMMAND_DOC_NONE),
+      _command_export_arg(COMMAND_EXPORT_NONE),
       _error(ERROR_NONE),
       _help(HELP_DEFAULT) {
     assert(argc >= 1);
@@ -362,14 +436,50 @@ CommandLine::CommandLine(int argc, char* argv[])
                 _error_args.push_back(argv[arg_offset + 1]);
                 break;
             }
+
             _doc_layer_name = argv[arg_offset + 2];
             if (argc == 5) {
                 // Output dir arg was specified
                 _doc_out_dir = argv[arg_offset + 3];
-            } else
+            } else {
                 // Output dir arg was not specified
                 _doc_out_dir = ".";
+            }
+        } break;
+        case COMMAND_EXPORT: {
+            if (argc <= arg_offset + 1) {
+                _error = ERROR_MISSING_COMMAND_ARGUMENT;
+                _error_args.push_back(argv[arg_offset + 0]);
+                break;
+            }
 
+            if (argc > 5) {
+                _error = ERROR_TOO_MANY_COMMAND_ARGUMENTS;
+                _error_args.push_back(argv[arg_offset + 0]);
+                break;
+            }
+
+            _command_export_arg = GetCommandExportId(argv[arg_offset + 1]);
+            if (_command_export_arg == COMMAND_EXPORT_NONE) {
+                _error = ERROR_INVALID_COMMAND_ARGUMENT;
+                _error_args.push_back(argv[arg_offset + 0]);
+                _error_args.push_back(argv[arg_offset + 1]);
+                break;
+            }
+
+            if (argc <= 3) {
+                _export_configuration_name = "default";
+            } else {
+                _export_configuration_name = argv[arg_offset + 2];
+            }
+
+            if (argc == 5) {
+                // <output_file> arg was specified
+                _export_filename = argv[arg_offset + 3];
+            } else {
+                // <output_file> arg was not specified
+                _export_filename = ::GetDefaultFilaname(_command_export_arg);
+            }
         } break;
         case COMMAND_RESET: {
             if (argc <= arg_offset + 1) {
@@ -459,18 +569,16 @@ void CommandLine::usage() const {
         }
         case HELP_DEFAULT: {
             printf("Usage\n");
-            printf("\tvkconfig [[help] | [version] | [gui] | [layers <args>] | [loader <args>] | [reset] | [doc]]\n");
+            printf("\tvkconfig [[help] | [version] | [gui] | [layers <args>] | [loader <args>] | [reset <args>] | [doc <args>]]\n");
             printf("\n");
             printf("Command:\n");
-            printf("\thelp                      = Display usage and documentation.\n");
-            printf("\tgui                       = Launch the GUI interface.\n");
-            printf("\tversion                   = Display %s version.\n", VKCONFIG_NAME);
-            printf(
-                "\tloader                    = Manage system Vulkan Loader configurations, including layers, loader logging and "
-                "drivers.\n");
-            printf("\tlayers                    = List Vulkan layers.\n");
-            printf("\treset                     = Reset layers configurations.\n");
-            printf("\tdoc                       = Create doc files for layer.\n");
+            printf("\thelp          = Display usage and documentation.\n");
+            printf("\tgui           = Launch the GUI interface.\n");
+            printf("\tversion       = Display %s version.\n", VKCONFIG_NAME);
+            printf("\tloader        = Manage system Vulkan Loader configurations, including layers, loader logging and drivers.\n");
+            printf("\tlayers        = List Vulkan layers.\n");
+            printf("\treset         = Reset layers configurations.\n");
+            printf("\tdoc           = Create doc files for layer.\n");
             printf("\n");
             printf("  (Use 'vkconfig help <command>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
             break;
@@ -588,6 +696,34 @@ void CommandLine::usage() const {
             printf("\tvkconfig doc --settings <layer_name> [<output_dir>]\n");
             printf("\t\tCreate the vk_layers_settings.txt file for the given layer.\n");
             printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
+            break;
+        }
+        case HELP_EXPORT: {
+            printf("Name\n");
+            printf("\t'export' - Command to generate VK_EXT_layer_settings and environment variables\n");
+            printf("\n");
+            printf("Synopsis\n");
+            printf("\tvkconfig export --bash (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
+            printf("\tvkconfig export --bat (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
+            printf("\tvkconfig export --ext (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
+            printf("\tvkconfig export --txt (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
+            printf("\n");
+            printf("Description\n");
+            printf("\tvkconfig export --bash (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
+            printf("\t\tGenerate the environment variables bash script of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
+            printf("\n");
+            printf("\tvkconfig export --bat (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
+            printf("\t\tGenerate the environment variables command prompt script of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
+            printf("\n");
+            printf("\tvkconfig export --ext (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
+            printf("\t\tGenerate VK_EXT_layer_settings code of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
+            printf("\n");
+            printf("\tvkconfig export --txt (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
+            printf("\t\tGenerate vk_layer_settings.txt file of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
             break;
         }
         case HELP_RESET: {
