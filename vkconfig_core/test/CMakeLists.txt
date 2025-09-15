@@ -37,6 +37,8 @@ function(vkConfigTest NAME)
       target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
     endif()
 
+    target_compile_definitions(${TEST_NAME} PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
     if (RUN_ON_CI)
         target_compile_definitions(${TEST_NAME} PRIVATE RUN_ON_CI)
     endif()

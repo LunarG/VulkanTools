@@ -6,7 +6,11 @@
   - Add force physical device
   - Add additional Vulkan drivers
 - Add log search bar to Application Launcher tab
-- Add code export to VK_EXT_layer_settings extension
+- Add code export to `VK_EXT_layer_settings` extension code for Vulkan application of layers configurations
+- Add command line `export` argument to generate:
+  - `VK_EXT_layer_settings` extension code for Vulkan application of layers configurations
+  - Environment variables script of layers configurations
+  - `vk_layer_settings.txt` layers settings file
 
 ### Fixes:
 - Fix invalid downloaded SDK filename
@@ -30,7 +34,7 @@
   - Add detailed description layer setting field
   - Add display of deprecated setting information in generated layer documentation
   - Add optional information about which setting replaced a deprecated setting
-  - Add layer setting dependences to generated vk_layer_settings.txt
+  - Add layer setting dependences to generated `vk_layer_settings.txt`
 - Add theme mode control in preference tab
   - Add custom alternate rows color
 

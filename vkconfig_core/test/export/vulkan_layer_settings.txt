@@ -48,6 +48,8 @@ static const char* VL_REFERENCE_1_2_1_FLAGS_WITH_OPTIONAL_FLAG1 = "flag1";
 // `VK_LAYER_LUNARG_reference_1_2_1` settings for version 1.2.170
 // For more information about the layer: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html
 struct Reference121SettingData {
+	static const uint32_t VERSION = VK_MAKE_API_VERSION(1, 2, 170, 0);
+
 	// toogle (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
 	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#toogle
 	VkBool32 toogle = VK_TRUE;

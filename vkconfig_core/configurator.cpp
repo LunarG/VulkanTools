@@ -1017,6 +1017,10 @@ bool Configurator::WriteExtensionCode(const Path& export_path) const {
         }
 
         stream << format("struct %s {\n", ::GetCodeType(parameter.key).c_str()).c_str();
+        stream << format("\tstatic const uint32_t VERSION = VK_MAKE_API_VERSION(%d, %d, %d, %d);\n\n",
+                         layer->api_version.GetMajor(), layer->api_version.GetMinor(), layer->api_version.GetPatch(),
+                         layer->api_version.GetRevision())
+                      .c_str();
 
         for (std::size_t setting_index = 0, setting_count = parameter.settings.size(); setting_index < setting_count;
              ++setting_index) {
