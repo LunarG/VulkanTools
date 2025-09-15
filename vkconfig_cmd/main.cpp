@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
         case COMMAND_DOC: {
             return run_doc(command_line);
         }
-        case COMMAND_EXPORT: {
+        case COMMAND_SETTINGS: {
             return run_export(command_line);
         }
         default: {

@@ -41,7 +41,7 @@ static int run_export_env_cmd(Configurator& configurator, const CommandLine& com
 }
 
 int run_export(const CommandLine& command_line) {
-    assert(command_line.command == COMMAND_EXPORT);
+    assert(command_line.command == COMMAND_SETTINGS);
     assert(command_line.error == ERROR_NONE);
 
     ConfiguratorGuard configurator_guard(CONFIGURATOR_MODE_CMD);
@@ -62,19 +62,19 @@ int run_export(const CommandLine& command_line) {
     int result = -1;
 
     switch (command_line.command_export_arg) {
-        case COMMAND_EXPORT_SETTINGS_TXT: {
+        case COMMAND_SETTINGS_TXT: {
             result = run_export_txt_settings(configurator, command_line);
             break;
         }
-        case COMMAND_EXPORT_EXT_CODE: {
+        case COMMAND_SETTINGS_HPP: {
             result = run_export_ext_code(configurator, command_line);
             break;
         }
-        case COMMAND_EXPORT_ENV_BASH: {
+        case COMMAND_SETTINGS_BASH: {
             result = run_export_env_bash(configurator, command_line);
             break;
         }
-        case COMMAND_EXPORT_ENV_CMD: {
+        case COMMAND_SETTINGS_CMD: {
             result = run_export_env_cmd(configurator, command_line);
             break;
         }

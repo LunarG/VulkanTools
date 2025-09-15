@@ -11,10 +11,10 @@
     </qresource>
 
     <qresource prefix="/test/generated">
-        <file alias="environment_variables.bat">./generated/environment_variables.bat</file>
-        <file alias="environment_variables.sh">./generated/environment_variables.sh</file>
-        <file alias="vulkan_layer_settings.hpp">./generated/vulkan_layer_settings.txt</file>
         <file alias="vk_layer_settings.txt">./generated/vk_layer_settings.txt</file>
+        <file alias="vk_layer_settings.bat">./generated/vk_layer_settings.bat</file>
+        <file alias="vk_layer_settings.sh">./generated/vk_layer_settings.sh</file>
+        <file alias="vulkan_layer_settings.hpp">./generated/vulkan_layer_settings.txt</file>
     </qresource>
 
     <qresource prefix="/sdk">
