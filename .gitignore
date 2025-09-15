@@ -36,3 +36,4 @@ out64/*
 .vscode/
 .cache
 .DS_Store
+/vkconfig_core/test/tmp
