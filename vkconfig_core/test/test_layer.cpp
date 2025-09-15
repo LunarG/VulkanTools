@@ -124,7 +124,7 @@ TEST(test_layer, load_setting_interit) {
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.platforms);
     EXPECT_EQ(STATUS_BETA, layer.status);
     EXPECT_EQ(2, layer.settings.size());
-    EXPECT_EQ(0, layer.presets.size());
+    EXPECT_EQ(1, layer.presets.size());
 
     EXPECT_STREQ("int_inherit", layer.settings[0]->key.c_str());
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.settings[0]->platform_flags);
@@ -147,21 +147,21 @@ TEST(test_layer, load_preset_interit) {
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.platforms);
     EXPECT_EQ(STATUS_BETA, layer.status);
     EXPECT_EQ(1, layer.settings.size());
-    EXPECT_EQ(2, layer.presets.size());
+    EXPECT_EQ(3, layer.presets.size());
 
-    EXPECT_STREQ("Preset Inherit", layer.presets[0].label.c_str());
-    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.presets[0].platform_flags);
-    EXPECT_EQ(STATUS_STABLE, layer.presets[0].status);
+    EXPECT_STREQ("Preset Inherit", layer.presets[1].label.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.presets[1].platform_flags);
+    EXPECT_EQ(STATUS_STABLE, layer.presets[1].status);
 
-    EXPECT_STREQ("Preset Override", layer.presets[1].label.c_str());
-    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[1].platform_flags);
-    EXPECT_EQ(STATUS_ALPHA, layer.presets[1].status);
+    EXPECT_STREQ("Preset Override", layer.presets[2].label.c_str());
+    EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_MACOS_BIT, layer.presets[2].platform_flags);
+    EXPECT_EQ(STATUS_ALPHA, layer.presets[2].status);
 
     const LayerLoadStatus reloaded =
         layer.Load(":/layers/VK_LAYER_LUNARG_test_04.json", LAYER_TYPE_EXPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(reloaded, LAYER_LOAD_ADDED);
     EXPECT_EQ(1, layer.settings.size());
-    EXPECT_EQ(2, layer.presets.size());
+    EXPECT_EQ(3, layer.presets.size());
 }
 
 TEST(test_layer, load_setting_children_interit) {
@@ -171,7 +171,7 @@ TEST(test_layer, load_setting_children_interit) {
     EXPECT_EQ(load_loaded, LAYER_LOAD_ADDED);
 
     EXPECT_EQ(Version(1, 2, 0), layer.file_format_version);
-    EXPECT_EQ(0, layer.presets.size());
+    EXPECT_EQ(1, layer.presets.size());
     EXPECT_EQ(1, layer.settings.size());
     EXPECT_EQ(1, layer.settings[0]->children.size());
     EXPECT_EQ(2, CountSettings(layer.settings));
@@ -198,7 +198,7 @@ TEST(test_layer, load_setting_enum_interit) {
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT | PLATFORM_MACOS_BIT | PLATFORM_ANDROID_BIT, layer.platforms);
     EXPECT_EQ(STATUS_BETA, layer.status);
     EXPECT_EQ(2, layer.settings.size());
-    EXPECT_EQ(0, layer.presets.size());
+    EXPECT_EQ(1, layer.presets.size());
 
     SettingMetaEnum* setting_inherit = static_cast<SettingMetaEnum*>(layer.settings[0]);
     EXPECT_EQ(2, setting_inherit->enum_values.size());
@@ -241,7 +241,7 @@ TEST(test_layer, load_setting_missing) {
     EXPECT_EQ(PLATFORM_WINDOWS_BIT | PLATFORM_LINUX_BIT, layer.platforms);
     EXPECT_EQ(STATUS_BETA, layer.status);
     EXPECT_EQ(1, layer.settings.size());
-    EXPECT_EQ(1, layer.presets.size());
+    EXPECT_EQ(2, layer.presets.size());
 
     LayerControl layer_controlA = layer.GetActualControl();
     EXPECT_EQ(layer_controlA, LAYER_CONTROL_ON);
@@ -249,7 +249,7 @@ TEST(test_layer, load_setting_missing) {
     const LayerLoadStatus reloaded =
         layer.Load(":/layers/VK_LAYER_LUNARG_test_07.json", LAYER_TYPE_IMPLICIT, false, Dummy(), CONFIGURATOR_MODE_CMD);
     EXPECT_EQ(1, layer.settings.size());
-    EXPECT_EQ(1, layer.presets.size());
+    EXPECT_EQ(2, layer.presets.size());
 }
 
 TEST(test_layer, load_env_variable) {
@@ -353,7 +353,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Enum
     {
-        const std::size_t index = 0;
+        const std::size_t index = 1;
 
         const SettingDataEnum* setting_only =
             static_cast<const SettingDataEnum*>(FindSetting(layer.presets[index].settings, "enum_required_only"));
@@ -372,7 +372,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Flags
     {
-        const std::size_t index = 1;
+        const std::size_t index = 2;
 
         const SettingDataFlags* setting_only =
             static_cast<const SettingDataFlags*>(FindSetting(layer.presets[index].settings, "flags_required_only"));
@@ -393,7 +393,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset String
     {
-        const std::size_t index = 2;
+        const std::size_t index = 3;
 
         const SettingDataString* setting_only =
             static_cast<const SettingDataString*>(FindSetting(layer.presets[index].settings, "string_required_only"));
@@ -412,7 +412,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Bool
     {
-        const std::size_t index = 3;
+        const std::size_t index = 4;
 
         EXPECT_STREQ("Preset Bool", layer.presets[index].label.c_str());
         EXPECT_STREQ("Description Bool", layer.presets[index].description.c_str());
@@ -426,7 +426,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Load File
     {
-        const std::size_t index = 4;
+        const std::size_t index = 5;
 
         const SettingDataFileLoad* setting_only =
             static_cast<const SettingDataFileLoad*>(FindSetting(layer.presets[index].settings, "load_file_required_only"));
@@ -445,7 +445,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Load Folder
     {
-        const std::size_t index = 5;
+        const std::size_t index = 6;
 
         const SettingDataFolderLoad* setting_only =
             static_cast<const SettingDataFolderLoad*>(FindSetting(layer.presets[index].settings, "load_folder_required_only"));
@@ -464,7 +464,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Save File
     {
-        const std::size_t index = 6;
+        const std::size_t index = 7;
 
         const SettingDataFileSave* setting_only =
             static_cast<const SettingDataFileSave*>(FindSetting(layer.presets[index].settings, "save_file_required_only"));
@@ -483,7 +483,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Save Folder
     {
-        const std::size_t index = 7;
+        const std::size_t index = 8;
 
         const SettingDataFolderSave* setting_only =
             static_cast<const SettingDataFolderSave*>(FindSetting(layer.presets[index].settings, "save_folder_required_only"));
@@ -502,7 +502,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset int
     {
-        const std::size_t index = 8;
+        const std::size_t index = 9;
 
         const SettingDataInt* setting_only =
             static_cast<const SettingDataInt*>(FindSetting(layer.presets[index].settings, "int_required_only"));
@@ -521,7 +521,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset Frames
     {
-        const std::size_t index = 9;
+        const std::size_t index = 10;
 
         EXPECT_STREQ("Preset Frames", layer.presets[index].label.c_str());
         EXPECT_STREQ("Description Frames", layer.presets[index].description.c_str());
@@ -537,7 +537,7 @@ TEST(test_layer, load_1_2_0_preset_and_setting_type) {
 
     // Preset List
     {
-        const std::size_t index = 10;
+        const std::size_t index = 11;
 
         const SettingDataList* setting_only =
             static_cast<const SettingDataList*>(FindSetting(layer.presets[index].settings, "list_required_only"));

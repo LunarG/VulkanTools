@@ -75,7 +75,7 @@ TEST(test_layer_preset, find_preset_index_no_preset) {
     ::CollectDefaultSettingData(layer.settings, layer_settings);
 
     int index = layer.FindPresetIndex(layer_settings);
-    EXPECT_EQ(index, Layer::NO_PRESET);
+    EXPECT_EQ(index, 0);  // Default settings
 }
 
 TEST(test_layer_preset, find_preset_index_empty) {
@@ -100,15 +100,15 @@ TEST(test_layer_preset, find_preset_index_found) {
     SettingDataInt& setting = static_cast<SettingDataInt&>(*layer_settings[0]);
 
     int indexDefault = layer.FindPresetIndex(layer_settings);
-    EXPECT_EQ(indexDefault, Layer::NO_PRESET);
+    EXPECT_EQ(indexDefault, 0);
 
     setting.value = 75;
     int index75 = layer.FindPresetIndex(layer_settings);
-    EXPECT_EQ(index75, 0);
+    EXPECT_EQ(index75, 1);
 
     setting.value = 76;
     int index76 = layer.FindPresetIndex(layer_settings);
-    EXPECT_EQ(index76, 1);
+    EXPECT_EQ(index76, 2);
 
     setting.value = 99;
     int index99 = layer.FindPresetIndex(layer_settings);

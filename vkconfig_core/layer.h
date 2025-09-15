@@ -94,6 +94,8 @@ class Layer {
     void AddSettingsDependences(const QJsonValue& json_settings_value);
     void AddSettingsMessages(const QJsonValue& json_settings_value);
 
+    void FillPresetSettings(SettingDataSet& setting_data, const std::vector<SettingMeta*>& settings) const;
+
    public:
     std::string key;
     std::string prefix;
