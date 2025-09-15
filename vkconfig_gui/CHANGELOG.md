@@ -11,6 +11,7 @@
   - `VK_EXT_layer_settings` extension code for Vulkan application of layers configurations
   - Environment variables script of layers configurations
   - `vk_layer_settings.txt` layers settings file
+- Add an automatic default layer preset, to reset the layer settings to default
 
 ### Fixes:
 - Fix invalid downloaded SDK filename
