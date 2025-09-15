@@ -53,8 +53,8 @@ int run_export(const CommandLine& command_line) {
     }
 
     if (command_line.export_configuration_name == "default") {
-        Configuration& configuration = configurator.configurations.CreateConfiguration(configurator.layers, "default");
-        configurator.SetActiveConfigurationName(configuration.key);
+        Configuration& configuration = configurator.configurations.CreateConfiguration(configurator.layers, "_default");
+        configurator.SetActiveConfigurationName("_default");
     } else {
         configurator.SetActiveConfigurationName(command_line.export_configuration_name);
     }
@@ -83,11 +83,11 @@ int run_export(const CommandLine& command_line) {
         }
     }
 
-    if (!configuration_key.empty()) {
-        configurator.configurations.RemoveConfiguration(configuration_key);
+    if (command_line.export_configuration_name == "default") {
+        configurator.configurations.RemoveConfiguration("_default");
     }
 
-    if (command_line.export_configuration_name == "default") {
+    if (!configuration_key.empty()) {
         configurator.SetActiveConfigurationName(configuration_key);
     }
 

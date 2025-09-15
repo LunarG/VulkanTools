@@ -13,7 +13,7 @@
     <qresource prefix="/test/export">
         <file alias="environment_variables.bat">./export/environment_variables.bat</file>
         <file alias="environment_variables.sh">./export/environment_variables.sh</file>
-        <file alias="VK_EXT_layer_settings.txt">./export/VK_EXT_layer_settings.txt</file>
+        <file alias="vulkan_layer_settings.hpp">./export/vulkan_layer_settings.txt</file>
         <file alias="vk_layer_settings.txt">./export/vk_layer_settings.txt</file>
     </qresource>
 

@@ -40,8 +40,8 @@ Configurator& GetTestConfigurator() {
     return configurator;
 }
 
-std::string Read(const char* path) {
-    QFile file(path);
+std::string Read(const std::string& path) {
+    QFile file(path.c_str());
     bool open = file.open(QIODevice::ReadOnly | QIODevice::Text);
     EXPECT_TRUE(open);
     QString data = file.readAll();
@@ -51,44 +51,41 @@ std::string Read(const char* path) {
 
 TEST(test_export, extension_code) {
     Configurator& configurator = GetTestConfigurator();
+    std::string data_reference = ::Read(":/test/export/vulkan_layer_settings.hpp");
 
-    configurator.WriteExtensionCode("./generated/VK_EXT_layer_settings.txt");  // .txt to avoid C++ code formating...
-
-    std::string data_reference = ::Read(":/test/export/VK_EXT_layer_settings.txt");
-    std::string data_generated = ::Read("./generated/VK_EXT_layer_settings.txt");
+    configurator.WriteExtensionCode(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/export/vulkan_layer_settings.txt");
+    std::string data_generated = ::Read(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/export/vulkan_layer_settings.txt");
 
     EXPECT_STREQ(data_reference.c_str(), data_generated.c_str());
 }
 
 TEST(test_export, vk_layer_settings_txt) {
     Configurator& configurator = GetTestConfigurator();
-
-    configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, "./generated/vk_layer_settings.txt");
-
     std::string data_reference = ::Read(":/test/export/vk_layer_settings.txt");
-    std::string data_generated = ::Read("./generated/vk_layer_settings.txt");
+
+    configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT,
+                                     std::string(CMAKE_CURRENT_SOURCE_DIR) + "/export/vk_layer_settings.txt");
+    std::string data_generated = ::Read(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/export/vk_layer_settings.txt");
 
     EXPECT_STREQ(data_reference.c_str(), data_generated.c_str());
 }
 
 TEST(test_export, environment_variables_bash) {
     Configurator& configurator = GetTestConfigurator();
-
-    configurator.Export(EXPORT_ENV_BASH, "./generated/environment_variables.sh");
-
     std::string data_reference = ::Read(":/test/export/environment_variables.sh");
-    std::string data_generated = ::Read("./generated/environment_variables.sh");
+
+    configurator.Export(EXPORT_ENV_BASH, std::string(CMAKE_CURRENT_SOURCE_DIR) + "/export/environment_variables.sh");
+    std::string data_generated = ::Read(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/export/environment_variables.sh");
 
     EXPECT_STREQ(data_reference.c_str(), data_generated.c_str());
 }
 
 TEST(test_export, environment_variables_cmd) {
     Configurator& configurator = GetTestConfigurator();
-
-    configurator.Export(EXPORT_ENV_CMD, "./generated/environment_variables.bat");
-
     std::string data_reference = ::Read(":/test/export/environment_variables.bat");
-    std::string data_generated = ::Read("./generated/environment_variables.bat");
+
+    configurator.Export(EXPORT_ENV_CMD, std::string(CMAKE_CURRENT_SOURCE_DIR) + "/export/environment_variables.bat");
+    std::string data_generated = ::Read(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/export/environment_variables.bat");
 
     EXPECT_STREQ(data_reference.c_str(), data_generated.c_str());
 }
