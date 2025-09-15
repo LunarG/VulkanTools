@@ -166,14 +166,14 @@ struct Reference121SettingData {
 
 	// List (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
 	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list_required_only
-	std::vector<std::string> list_required_only = {76, 82, stringB, stringC, stringD};
+	std::vector<std::string> list_required_only = {"76", "82", "stringB", "stringC", "stringD"};
 
 	// List (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
 	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list_with_optional
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
-	std::vector<std::string> list_with_optional = {76, 82, stringB, stringC, stringD};
+	std::vector<std::string> list_with_optional = {"76", "82", "stringB", "stringC", "stringD"};
 
 	// List (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
 	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list_empty
@@ -216,7 +216,15 @@ private:
 struct LayerSettings {
 	Reference121SettingData reference_1_2_1;
 
-	const std::vector<VkLayerSettingEXT>& info() {
+	// Use for VkLayerSettingsCreateInfoEXT `settingCount` and `pSettings` argument
+	// Provided by VK_EXT_layer_settings
+	// typedef struct VkLayerSettingsCreateInfoEXT {
+	// 	VkStructureType             sType;
+	// 	const void*                 pNext;
+	// 	uint32_t                    settingCount;
+	// 	const VkLayerSettingEXT*    pSettings;
+	// } VkLayerSettingsCreateInfoEXT;
+	std::vector<VkLayerSettingEXT> info() {
 		this->reference_1_2_1.init();
 
 		std::vector<VkLayerSettingEXT> init{

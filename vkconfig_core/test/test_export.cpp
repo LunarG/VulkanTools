@@ -19,14 +19,14 @@
  */
 
 #include "../configurator.h"
+#include "./generated/vulkan_layer_settings.txt"
 
 #include <gtest/gtest.h>
 
 #include <vector>
 #include <array>
 
-// #include "Validation.hpp"
-// LayerSettings layer_settings;
+LayerSettings layer_settings;
 
 Configurator& GetTestConfigurator() {
     Path path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
@@ -73,9 +73,9 @@ TEST(test_export, vk_layer_settings_txt) {
 
 TEST(test_export, environment_variables_bash) {
     Configurator& configurator = GetTestConfigurator();
-    std::string data_reference = ::Read(":/test/generated/environment_variables.sh");
+    std::string data_reference = ::Read(":/test/generated/vk_layer_settings.sh");
 
-    const Path path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp/environment_variables.sh");
+    const Path path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp/vk_layer_settings.sh");
     configurator.Export(EXPORT_ENV_BASH, path);
     std::string data_generated = ::Read(path);
 
@@ -84,9 +84,9 @@ TEST(test_export, environment_variables_bash) {
 
 TEST(test_export, environment_variables_cmd) {
     Configurator& configurator = GetTestConfigurator();
-    std::string data_reference = ::Read(":/test/generated/environment_variables.bat");
+    std::string data_reference = ::Read(":/test/generated/vk_layer_settings.bat");
 
-    const Path path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp/environment_variables.bat");
+    const Path path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp/vk_layer_settings.bat");
     configurator.Export(EXPORT_ENV_CMD, path);
     std::string data_generated = ::Read(path);
 

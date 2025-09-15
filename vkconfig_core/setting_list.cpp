@@ -268,7 +268,8 @@ std::string SettingDataList::Export(ExportMode export_mode) const {
             std::string actual_value;
 
             for (std::size_t i = 0, n = this->value.size(); i < n; ++i) {
-                actual_value += this->value[i].key.empty() ? format("%d", this->value[i].number) : this->value[i].key;
+                actual_value += this->value[i].key.empty() ? format("\"%d\"", this->value[i].number)
+                                                           : format("\"%s\"", this->value[i].key.c_str());
                 if (i < n - 1) {
                     actual_value += ", ";
                 }
