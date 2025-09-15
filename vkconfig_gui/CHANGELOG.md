@@ -7,10 +7,14 @@
   - Add additional Vulkan drivers
 - Add log search bar to Application Launcher tab
 - Add code export to `VK_EXT_layer_settings` extension code for Vulkan application of layers configurations
-- Add command line `export` argument to generate:
+- Add command line `settings` argument to generate:
   - `VK_EXT_layer_settings` extension code for Vulkan application of layers configurations
   - Environment variables script of layers configurations
   - `vk_layer_settings.txt` layers settings file
+- Add an automatic default layer preset, to reset the layer settings to default
+
+### Improvements:
+- Clean up Vulkan Configurator command line `help`
 
 ### Fixes:
 - Fix invalid downloaded SDK filename

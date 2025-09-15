@@ -1140,6 +1140,14 @@ bool Configurator::WriteExtensionCode(const Path& export_path) const {
     }
 
     stream << "\n";
+    stream << "\t// Use for VkLayerSettingsCreateInfoEXT `settingCount` and `pSettings` argument\n";
+    stream << "\t// Provided by VK_EXT_layer_settings\n";
+    stream << "\t// typedef struct VkLayerSettingsCreateInfoEXT {\n";
+    stream << "\t\t// VkStructureType             sType;\n";
+    stream << "\t\t// const void*                 pNext;\n";
+    stream << "\t\t// uint32_t                    settingCount;\n";
+    stream << "\t\t// const VkLayerSettingEXT*    pSettings;\n";
+    stream << "\t// } VkLayerSettingsCreateInfoEXT;\n";
     stream << "\tconst std::vector<VkLayerSettingEXT>& info() {\n";
     for (std::size_t parameter_index = 0, parameter_count = configuration->parameters.size(); parameter_index < parameter_count;
          ++parameter_index) {

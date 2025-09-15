@@ -194,6 +194,15 @@ SettingMeta* Layer::Instantiate(SettingMetaSet& meta_set, const std::string& key
     return setting_meta;
 }
 
+void Layer::FillPresetSettings(SettingDataSet& settings_data, const std::vector<SettingMeta*>& settings) const {
+    for (std::size_t i = 0, n = settings.size(); i < n; ++i) {
+        SettingMeta* setting_meta = settings[i];
+        settings_data.push_back(setting_meta->Instantiate());
+
+        this->FillPresetSettings(settings_data, setting_meta->children);
+    }
+}
+
 LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
                             const std::map<Path, LayerStatus>& layers_found, ConfiguratorMode configurator_mode) {
     this->type = type;  // Set layer type, no way to know this from the json file
@@ -375,8 +384,19 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
             this->AddSettingsSet(this->settings, nullptr, json_settings_value);
         }
 
-        // Load layer presets
+        // Load default settings preset
         this->presets.clear();
+        if (!this->settings.empty()) {
+            LayerPreset preset;
+            preset.label = "Default";
+            preset.platform_flags = this->platforms;
+
+            this->FillPresetSettings((SettingDataSet&)preset.settings, this->settings);
+
+            this->presets.push_back(preset);
+        }
+
+        // Load layer presets
         const QJsonValue& json_presets_value = json_features_object.value("presets");
         if (json_presets_value != QJsonValue::Undefined) {
             assert(json_presets_value.isArray());
