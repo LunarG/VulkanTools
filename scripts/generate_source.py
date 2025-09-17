@@ -20,6 +20,7 @@
 import argparse
 import filecmp
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -259,6 +260,15 @@ def main(argv):
                not filecmp.cmp(temp_filename, out_filename, shallow=False):
                 print('update', out_filename)
                 shutil.copyfile(temp_filename, out_filename)
+
+    # write out the header version used to generate the code to a checked in CMake file
+    if args.generated_version:
+        # Update the CMake project version
+        with open(common_codegen.repo_relative('CMakeLists.txt'), "r+") as f:
+            data = f.read()
+            f.seek(0)
+            f.write(re.sub("project.*VERSION.*", f"project(VULKAN_TOOLS VERSION {args.generated_version} LANGUAGES CXX)", data))
+            f.truncate()
 
     return 0
 

@@ -16,7 +16,8 @@
 
 cmake_minimum_required(VERSION 3.22.1)
 
-project(VULKAN_TOOLS LANGUAGES CXX)
+# The VERSION field is generated with the "--generated-version" flag in the generate_source.py script
+project(VULKAN_TOOLS VERSION 1.4.326 LANGUAGES CXX)
 
 add_subdirectory(scripts)
 
