@@ -67,10 +67,12 @@ TEST(test_setting_type_folder_save, value) {
 
     SettingMetaFolderSave* meta = InstantiateFolderSave(layer, "key");
     meta->default_value = "${VULKAN_CONTENT}/value";
-    EXPECT_STREQ(Path("${VULKAN_CONTENT}/value").RelativePath().c_str(), meta->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ(::ConvertStandardSeparators(Path("${VULKAN_CONTENT}/value").RelativePath()).c_str(),
+                 meta->Export(EXPORT_MODE_DOC).c_str());
     EXPECT_STRNE(Path("${VULKAN_CONTENT}/value").RelativePath().c_str(), meta->Export(EXPORT_MODE_OVERRIDE).c_str());
 
     SettingDataFolderSave* data = Instantiate<SettingDataFolderSave>(meta);
-    EXPECT_STREQ(Path("${VULKAN_CONTENT}/value").RelativePath().c_str(), data->Export(EXPORT_MODE_DOC).c_str());
+    EXPECT_STREQ(::ConvertStandardSeparators(Path("${VULKAN_CONTENT}/value").RelativePath()).c_str(),
+                 data->Export(EXPORT_MODE_DOC).c_str());
     EXPECT_STRNE(Path("${VULKAN_CONTENT}/value").RelativePath().c_str(), data->Export(EXPORT_MODE_OVERRIDE).c_str());
 }

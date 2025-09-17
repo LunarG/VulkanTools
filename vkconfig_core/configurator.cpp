@@ -127,7 +127,9 @@ bool Configurator::Init(ConfiguratorMode configurator_mode) {
     this->has_crashed = true;  // This is set to `false` when saving on exit.
     this->Save();
 
-    this->UpdateVulkanSystemInfo();
+    if (::RequireLoading(this->mode)) {
+        this->UpdateVulkanSystemInfo();
+    }
 
     return true;
 }
@@ -1241,6 +1243,10 @@ bool Configurator::WriteExtensionCode(const Path& export_path) const {
 }
 
 bool Configurator::Override(OverrideArea override_area) {
+    if (this->mode == CONFIGURATOR_MODE_DRY) {
+        return true;
+    }
+
     const Path& loader_settings_path = ::Path(Path::LOADER_SETTINGS);
     const Path& layers_settings_path = ::Path(Path::LAYERS_SETTINGS);
 
@@ -1262,6 +1268,10 @@ bool Configurator::Override(OverrideArea override_area) {
 }
 
 bool Configurator::Surrender(OverrideArea override_area) {
+    if (this->mode == CONFIGURATOR_MODE_DRY) {
+        return true;
+    }
+
     const Path& loader_settings_path = ::Path(Path::LOADER_SETTINGS);
     const Path& layers_settings_path = ::Path(Path::LAYERS_SETTINGS);
 
@@ -1686,7 +1696,7 @@ bool Configurator::Load() {
     QFile file(vkconfig_init_path.AbsolutePath().c_str());
     const bool has_init_file = file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    if (has_init_file && this->mode != CONFIGURATOR_MODE_NONE) {
+    if (has_init_file && ::RequireLoading(this->mode)) {
         QString init_data = file.readAll();
         file.close();
 

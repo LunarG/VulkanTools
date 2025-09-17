@@ -67,20 +67,39 @@ enum CommandSettingsArg {
     COMMAND_SETTINGS_BASH,
     COMMAND_SETTINGS_CMD,
     COMMAND_SETTINGS_HPP,
+    COMMAND_SETTINGS_HTML,
+    COMMAND_SETTINGS_MARKDOWN,
+    COMMAND_SETTINGS_OUTPUT,
+    COMMAND_SETTINGS_DRY_RUN,
 
     COMMAND_SETTINGS_FIRST = COMMAND_SETTINGS_NONE,
-    COMMAND_SETTINGS_LAST = COMMAND_SETTINGS_HPP,
+    COMMAND_SETTINGS_LAST = COMMAND_SETTINGS_DRY_RUN,
 };
 
 enum { COMMAND_SETTINGS_COUNT = COMMAND_SETTINGS_LAST - COMMAND_SETTINGS_FIRST + 1 };
 
+enum SettingsFormat {
+    SETTINGS_FORMAT_NONE = 0,
+
+    SETTINGS_FORMAT_HTML,
+    SETTINGS_FORMAT_MARKDOWN,
+    SETTINGS_FORMAT_TXT,
+    SETTINGS_FORMAT_BASH,
+    SETTINGS_FORMAT_CMD,
+    SETTINGS_FORMAT_HPP,
+
+    SETTINGS_FORMAT_FIRST = SETTINGS_FORMAT_NONE,
+    SETTINGS_FORMAT_LAST = SETTINGS_FORMAT_HPP,
+};
+
+enum { SETTINGS_FORMAT_COUNT = SETTINGS_FORMAT_LAST - SETTINGS_FORMAT_FIRST + 1 };
+
 enum CommandError {
     ERROR_NONE = 0,
-    ERROR_INVALID_COMMAND_USAGE,
+    ERROR_INVALID_COMMAND,
     ERROR_INVALID_COMMAND_ARGUMENT,
     ERROR_TOO_MANY_COMMAND_ARGUMENTS,
     ERROR_MISSING_COMMAND_ARGUMENT,
-    ERROR_UNKNOWN_ARGUMENT,
     ERROR_FILE_NOTFOUND
 };
 
@@ -108,14 +127,13 @@ class CommandLine {
     const CommandResetArg& command_reset_arg;
     const CommandLayersArg& command_layers_arg;
     const CommandLoaderArg& command_loader_arg;
-    const std::string& layers_configuration_name;
-    const Path& layers_configuration_path;
     const CommandDocArg& command_doc_arg;
-    const std::string& doc_layer_name;
-    const std::string& doc_out_dir;
-    const CommandSettingsArg& command_export_arg;
-    const std::string& export_configuration_name;
-    const Path& export_filename;
+    const SettingsFormat& settings_format;
+    const std::string& selected_layer_name;
+    const std::string& selected_configuration_name;
+    const Path& input_path;
+    const Path& output_path;
+    const bool& dry_run;
 
     const CommandError& error;
     const std::vector<std::string>& error_args;
@@ -128,14 +146,13 @@ class CommandLine {
     CommandResetArg _command_reset_arg = COMMAND_RESET_NONE;
     CommandLayersArg _command_layers_arg = COMMAND_LAYERS_NONE;
     CommandLoaderArg _command_loader_arg = COMMAND_LOADER_NONE;
-    std::string _layers_configuration_name;
-    Path _layers_configuration_path;
     CommandDocArg _command_doc_arg = COMMAND_DOC_NONE;
-    std::string _doc_layer_name;
-    std::string _doc_out_dir;
-    CommandSettingsArg _command_settings_arg = COMMAND_SETTINGS_NONE;
-    std::string _export_configuration_name;
-    Path _export_filename;
+    SettingsFormat _settings_format = SETTINGS_FORMAT_NONE;
+    std::string _selected_layer_name;
+    std::string _selected_configuration_name;
+    Path _input_path;
+    Path _output_path;
+    bool _dry_run = false;
 
     CommandError _error = ERROR_NONE;
     std::vector<std::string> _error_args;

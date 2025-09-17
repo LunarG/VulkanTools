@@ -29,38 +29,38 @@
 #include <cassert>
 
 int run_doc_html(Configurator& configurator, const CommandLine& command_line) {
-    const Layer* layer = configurator.layers.Find(command_line.doc_layer_name.c_str(), Version::LATEST);
+    const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
 
     if (layer == nullptr) {
-        fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
+        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
         fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
         return -1;
     }
 
-    const std::string path = format("%s/%s.html", command_line.doc_out_dir.c_str(), layer->key.c_str());
+    const std::string path = format("%s/%s.html", command_line.output_path.AbsolutePath().c_str(), layer->key.c_str());
 
     return ExportHtmlDoc(*layer, path);
 }
 
 int run_doc_markdown(Configurator& configurator, const CommandLine& command_line) {
-    const Layer* layer = configurator.layers.Find(command_line.doc_layer_name.c_str(), Version::LATEST);
+    const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
 
     if (layer == nullptr) {
-        fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
+        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
         fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
         return -1;
     }
 
-    const std::string path = format("%s/%s.md", command_line.doc_out_dir.c_str(), layer->key.c_str());
+    const std::string path = format("%s/%s.md", command_line.output_path.AbsolutePath().c_str(), layer->key.c_str());
 
     return ExportMarkdownDoc(*layer, path);
 }
 
 int run_doc_settings(Configurator& configurator, const CommandLine& command_line) {
-    const Layer* layer = configurator.layers.Find(command_line.doc_layer_name.c_str(), Version::LATEST);
+    const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
 
     if (layer == nullptr) {
-        fprintf(stderr, "vkconfig: Could not load layer %s\n", command_line.doc_layer_name.c_str());
+        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
         fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
         return -1;
     }
@@ -74,7 +74,7 @@ int run_doc_settings(Configurator& configurator, const CommandLine& command_line
         }
     }
 
-    return ExportSettingsDoc(configurator, command_line.doc_out_dir + "/vk_layer_settings.txt");
+    return ExportSettingsDoc(configurator, command_line.output_path.AbsolutePath() + "/vk_layer_settings.txt");
 }
 
 int run_doc(const CommandLine& command_line) {

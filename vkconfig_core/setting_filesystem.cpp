@@ -45,7 +45,7 @@ std::string SettingMetaFilesystem::Export(ExportMode export_mode) const {
         case EXPORT_MODE_OVERRIDE:
             return this->default_value.AbsolutePath();
         case EXPORT_MODE_DOC:
-            return this->default_value.RelativePath();
+            return ::ConvertStandardSeparators(this->default_value.RelativePath());
     }
 }
 
@@ -110,7 +110,7 @@ std::string SettingDataFilesystem::Export(ExportMode export_mode) const {
             return ::ConvertStandardSeparators(file.AbsolutePath());
         }
         case EXPORT_MODE_DOC:
-            return Path(this->value).RelativePath();
+            return ::ConvertStandardSeparators(Path(this->value).RelativePath());
     }
 }
 

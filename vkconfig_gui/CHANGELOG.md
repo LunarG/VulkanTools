@@ -23,6 +23,7 @@
 
 ### Deprecation:
 - Deprecate the synchronization configuration
+- Deprecate Vulkan Configurator command line `doc`, replaced by `settings`
 
 ## Vulkan Configurator 3.3.0 - July 2025
 [Vulkan SDK 1.4.321.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.321)

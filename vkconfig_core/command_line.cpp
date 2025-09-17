@@ -106,13 +106,10 @@ static const ModeDesc& GetModeDesc(CommandType command_type) {
 struct CommandResetDesc {
     CommandResetArg arguments;
     const char* token;
-    int required_arguments;
 };
 
-static const CommandResetDesc command_reset_desc[] = {{COMMAND_RESET_SOFT, "--soft", 2},
-                                                      {COMMAND_RESET_SOFT, "-s", 2},
-                                                      {COMMAND_RESET_HARD, "--hard", 2},
-                                                      {COMMAND_RESET_HARD, "-h", 2}};
+static const CommandResetDesc command_reset_desc[] = {
+    {COMMAND_RESET_SOFT, "--soft"}, {COMMAND_RESET_SOFT, "-s"}, {COMMAND_RESET_HARD, "--hard"}, {COMMAND_RESET_HARD, "-h"}};
 
 static CommandResetArg GetCommandResetId(const char* token) {
     assert(token != nullptr);
@@ -129,59 +126,55 @@ static CommandResetArg GetCommandResetId(const char* token) {
 struct CommandLayersDesc {
     CommandLayersArg arguments;
     const char* token;
-    int required_arguments;
 };
 
 static const CommandLayersDesc command_layers_desc[] = {
-    {COMMAND_LAYERS_LIST, "--list", 2},
-    {COMMAND_LAYERS_LIST, "-l", 2},
-    {COMMAND_LAYERS_PATH, "--path", 2},
-    {COMMAND_LAYERS_PATH, "-p", 2},
-    {COMMAND_LAYERS_VERBOSE, "--list-verbose", 2},
-    {COMMAND_LAYERS_VERBOSE, "-lv", 2},
-    {COMMAND_LAYERS_OVERRIDE, "--override", 3},
-    {COMMAND_LAYERS_OVERRIDE, "-o", 3},
-    {COMMAND_LAYERS_SURRENDER, "--surrender", 2},
-    {COMMAND_LAYERS_SURRENDER, "-s", 2},
+    {COMMAND_LAYERS_LIST, "--list"},
+    {COMMAND_LAYERS_LIST, "-l"},
+    {COMMAND_LAYERS_PATH, "--path"},
+    {COMMAND_LAYERS_PATH, "-p"},
+    {COMMAND_LAYERS_VERBOSE, "--list-verbose"},
+    {COMMAND_LAYERS_VERBOSE, "-lv"},
+    {COMMAND_LAYERS_OVERRIDE, "--override"},
+    {COMMAND_LAYERS_OVERRIDE, "-o"},
+    {COMMAND_LAYERS_SURRENDER, "--surrender"},
+    {COMMAND_LAYERS_SURRENDER, "-s"},
 };
 
 struct CommandLoaderDesc {
     CommandLoaderArg arguments;
     const char* token;
-    int required_arguments;
 };
 
 static const CommandLoaderDesc command_loader_desc[] = {
-    {COMMAND_LOADER_LIST, "--list", 2},           {COMMAND_LOADER_LIST, "-l", 2},
-    {COMMAND_LOADER_OVERRIDE, "--override", 3},   {COMMAND_LOADER_OVERRIDE, "-o", 3},
-    {COMMAND_LOADER_SURRENDER, "--surrender", 2}, {COMMAND_LOADER_SURRENDER, "-s", 2},
-    {COMMAND_LOADER_IMPORT, "--import", 3},       {COMMAND_LOADER_IMPORT, "-i", 3},
-    {COMMAND_LOADER_EXPORT, "--export", 4},       {COMMAND_LOADER_EXPORT, "-e", 4},
-    {COMMAND_LOADER_DELETE, "--delete", 3},       {COMMAND_LOADER_DELETE, "-d", 3},
+    {COMMAND_LOADER_LIST, "--list"},           {COMMAND_LOADER_LIST, "-l"},
+    {COMMAND_LOADER_OVERRIDE, "--override"},   {COMMAND_LOADER_OVERRIDE, "-o"},
+    {COMMAND_LOADER_SURRENDER, "--surrender"}, {COMMAND_LOADER_SURRENDER, "-s"},
+    {COMMAND_LOADER_IMPORT, "--import"},       {COMMAND_LOADER_IMPORT, "-i"},
+    {COMMAND_LOADER_EXPORT, "--export"},       {COMMAND_LOADER_EXPORT, "-e"},
+    {COMMAND_LOADER_DELETE, "--delete"},       {COMMAND_LOADER_DELETE, "-d"},
 };
 
 struct CommandDocDesc {
     CommandDocArg arguments;
     const char* token;
-    int required_arguments;
 };
 
 static const CommandDocDesc command_doc_desc[] = {
-    {COMMAND_DOC_HTML, "--html", 3},
-    {COMMAND_DOC_MARKDOWN, "--markdown", 3},
-    {COMMAND_DOC_SETTINGS, "--settings", 3},
+    {COMMAND_DOC_HTML, "--html"},
+    {COMMAND_DOC_MARKDOWN, "--markdown"},
+    {COMMAND_DOC_SETTINGS, "--settings"},
 };
 
-struct CommandExportDesc {
+struct CommandSettingsDesc {
     CommandSettingsArg arguments;
     const char* token;
-    int required_arguments;
 };
 
-static const CommandExportDesc command_export_desc[] = {{COMMAND_SETTINGS_TXT, "--txt", 3},
-                                                        {COMMAND_SETTINGS_BASH, "--bash", 3},
-                                                        {COMMAND_SETTINGS_CMD, "--bat", 3},
-                                                        {COMMAND_SETTINGS_HPP, "--hpp", 3}};
+static const CommandSettingsDesc command_settings_desc[] = {
+    {COMMAND_SETTINGS_TXT, "--txt"},       {COMMAND_SETTINGS_BASH, "--bash"}, {COMMAND_SETTINGS_CMD, "--bat"},
+    {COMMAND_SETTINGS_HPP, "--hpp"},       {COMMAND_SETTINGS_HTML, "--html"}, {COMMAND_SETTINGS_MARKDOWN, "--markdown"},
+    {COMMAND_SETTINGS_OUTPUT, "--output"}, {COMMAND_SETTINGS_OUTPUT, "-o"},   {COMMAND_SETTINGS_DRY_RUN, "--dry-run"}};
 
 static CommandLayersArg GetCommandLayersId(const char* token) {
     assert(token != nullptr);
@@ -245,42 +238,61 @@ static CommandDocArg GetCommandDocId(const char* token) {
     return COMMAND_DOC_NONE;
 }
 
-static CommandSettingsArg GetCommandExportId(const char* token) {
+static CommandSettingsArg GetCommandSettingsArgsId(const char* token) {
     assert(token != nullptr);
 
-    for (std::size_t i = 0, n = std::size(command_export_desc); i < n; ++i) {
-        if (std::strcmp(command_export_desc[i].token, token) == 0) {
-            return command_export_desc[i].arguments;
+    for (std::size_t i = 0, n = std::size(command_settings_desc); i < n; ++i) {
+        if (std::strcmp(command_settings_desc[i].token, token) == 0) {
+            return command_settings_desc[i].arguments;
         }
     }
 
     return COMMAND_SETTINGS_NONE;
 }
 
-static const CommandExportDesc& GetCommanExport(CommandSettingsArg export_arg) {
+static const CommandSettingsDesc& GetCommandSettings(CommandSettingsArg export_arg) {
     assert(export_arg != COMMAND_SETTINGS_NONE);
 
-    for (std::size_t i = 0, n = std::size(command_export_desc); i < n; ++i) {
-        if (command_export_desc[i].arguments == export_arg) {
-            return command_export_desc[i];
+    for (std::size_t i = 0, n = std::size(command_settings_desc); i < n; ++i) {
+        if (command_settings_desc[i].arguments == export_arg) {
+            return command_settings_desc[i];
         }
     }
 
     assert(0);
-    return command_export_desc[0];
+    return command_settings_desc[0];
 }
 
-static const char* GetDefaultFilaname(CommandSettingsArg arg) {
+static const char* GetDefaultFilaname(SettingsFormat format) {
     static const char* TABLE[] = {
-        "none",                       // COMMAND_EXPORT_NONE
-        "vk_layer_settings.txt",      // COMMAND_EXPORT_SETTINGS_TXT
-        "vulkan_layer_settings.hpp",  // COMMAND_EXPORT_EXT_CODE
-        "vk_layer_settings.sh",       // COMMAND_EXPORT_ENV_BASH
-        "vk_layer_settings.bat"       // COMMAND_EXPORT_ENV_CMD
+        "N/A",                        // SETTINGS_FORMAT_NONE
+        "vk_layer_settings.html",     // SETTINGS_FORMAT_HTML
+        "vk_layer_settings.mk",       // SETTINGS_FORMAT_MARKDOWN
+        "vk_layer_settings.txt",      // SETTINGS_FORMAT_TXT
+        "vk_layer_settings.sh",       // SETTINGS_FORMAT_BASH
+        "vk_layer_settings.bat",      // SETTINGS_FORMAT_CMD
+        "vulkan_layer_settings.hpp",  // SETTINGS_FORMAT_HPP
+    };
+    static_assert(std::size(TABLE) == SETTINGS_FORMAT_COUNT);
+
+    return TABLE[format - SETTINGS_FORMAT_FIRST];
+}
+
+static SettingsFormat GetSettingsFormat(CommandSettingsArg command_settings_arg) {
+    static const SettingsFormat TABLE[] = {
+        SETTINGS_FORMAT_NONE,      // COMMAND_SETTINGS_NONE
+        SETTINGS_FORMAT_TXT,       // COMMAND_SETTINGS_TXT
+        SETTINGS_FORMAT_BASH,      // COMMAND_SETTINGS_BASH
+        SETTINGS_FORMAT_CMD,       // COMMAND_SETTINGS_CMD
+        SETTINGS_FORMAT_HPP,       // COMMAND_SETTINGS_HPP
+        SETTINGS_FORMAT_HTML,      // COMMAND_SETTINGS_HTML
+        SETTINGS_FORMAT_MARKDOWN,  // COMMAND_SETTINGS_MARKDOWN
+        SETTINGS_FORMAT_NONE,      // COMMAND_SETTINGS_OUTPUT
+        SETTINGS_FORMAT_NONE,      // COMMAND_SETTINGS_DRY_RUN
     };
     static_assert(std::size(TABLE) == COMMAND_SETTINGS_COUNT);
 
-    return TABLE[arg - COMMAND_SETTINGS_FIRST];
+    return TABLE[command_settings_arg];
 }
 
 CommandLine::CommandLine(int argc, char* argv[])
@@ -288,228 +300,324 @@ CommandLine::CommandLine(int argc, char* argv[])
       command_reset_arg(_command_reset_arg),
       command_layers_arg(_command_layers_arg),
       command_loader_arg(_command_loader_arg),
-      layers_configuration_name(_layers_configuration_name),
-      layers_configuration_path(_layers_configuration_path),
       command_doc_arg(_command_doc_arg),
-      doc_layer_name(_doc_layer_name),
-      doc_out_dir(_doc_out_dir),
-      command_export_arg(_command_settings_arg),
-      export_configuration_name(_export_configuration_name),
-      export_filename(_export_filename),
+      settings_format(_settings_format),
+      selected_layer_name(_selected_layer_name),
+      selected_configuration_name(_selected_configuration_name),
+      input_path(_input_path),
+      output_path(_output_path),
+      dry_run(_dry_run),
       error(_error),
       error_args(_error_args),
       _command_reset_arg(COMMAND_RESET_NONE),
       _command_layers_arg(COMMAND_LAYERS_NONE),
       _command_loader_arg(COMMAND_LOADER_NONE),
       _command_doc_arg(COMMAND_DOC_NONE),
-      _command_settings_arg(COMMAND_SETTINGS_NONE),
+      _settings_format(SETTINGS_FORMAT_NONE),
       _error(ERROR_NONE),
       _help(HELP_DEFAULT) {
     assert(argc >= 1);
 
-    if (argc <= 1) return;
+    if (argc <= 1) {
+        return;
+    }
+
     int arg_offset = 1;
 
-    switch (_command = GetModeId(argv[arg_offset + 0])) {
+    std::string command_mode_name = argv[arg_offset];
+
+    switch (_command = GetModeId(command_mode_name.c_str())) {
+        default:
+        case COMMAND_NONE: {
+            this->_error = ERROR_INVALID_COMMAND;
+            this->_error_args.push_back(argv[arg_offset + 0]);
+            break;
+        }
         case COMMAND_LOADER: {
             if (argc <= arg_offset + 1) {
-                _error = ERROR_MISSING_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
+                this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                this->_error_args.push_back(command_mode_name);
                 break;
             }
 
-            _command_loader_arg = GetCommandLoaderId(argv[arg_offset + 1]);
-            if (_command_loader_arg == COMMAND_LOADER_NONE) {
-                _error = ERROR_INVALID_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
-                _error_args.push_back(argv[arg_offset + 1]);
-                break;
-            }
+            arg_offset += 1;
 
-            const CommandLoaderDesc& desc = GetCommandLoader(_command_loader_arg);
-            if (argc < arg_offset + desc.required_arguments) {
-                _error = ERROR_MISSING_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
-                break;
-            } else if (argc > arg_offset + desc.required_arguments) {
-                _error = ERROR_TOO_MANY_COMMAND_ARGUMENTS;
-                _error_args.push_back(argv[arg_offset + 0]);
-                break;
-            }
+            while (arg_offset < argc) {
+                std::string command_argument = argv[arg_offset];
+                this->_command_loader_arg = ::GetCommandLoaderId(command_argument.c_str());
 
-            switch (_command_loader_arg) {
-                default:
-                    break;
-                case COMMAND_LOADER_OVERRIDE: {
-                    const std::string layers_configuration = argv[arg_offset + 2];
+                switch (this->_command_loader_arg) {
+                    default:
+                    case COMMAND_LOADER_NONE: {
+                        this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                    } break;
+                    case COMMAND_LOADER_OVERRIDE: {
+                        if (argc <= arg_offset + 1) {
+                            this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                        } else {
+                            const std::string configuration_name = argv[arg_offset + 1];
 
-                    QFile file(Path(layers_configuration).AbsolutePath().c_str());
-                    const bool result = file.open(QFile::ReadOnly);
-                    if (!result) {
-                        //_error = ERROR_FILE_NOTFOUND;
-                        //_error_args.push_back(argv[arg_offset + 2]);
-                        _layers_configuration_name = layers_configuration;
-                    } else {
-                        _layers_configuration_path = layers_configuration;
-                    }
-                } break;
-                case COMMAND_LOADER_IMPORT: {
-                    _layers_configuration_path = argv[arg_offset + 2];
+                            QFile file(Path(configuration_name).AbsolutePath().c_str());
+                            const bool result = file.open(QFile::ReadOnly);
+                            if (!result) {
+                                this->_selected_configuration_name = configuration_name;
+                            } else {
+                                this->_input_path = configuration_name;
+                            }
+                        }
+                        arg_offset += 2;
+                    } break;
+                    case COMMAND_LOADER_SURRENDER:
+                    case COMMAND_LOADER_LIST: {
+                        ++arg_offset;
+                    } break;
+                    case COMMAND_LOADER_IMPORT: {
+                        if (argc <= arg_offset + 1) {
+                            this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                        } else {
+                            this->_output_path = argv[arg_offset + 1];
 
-                    QFile file(_layers_configuration_path.AbsolutePath().c_str());
-                    const bool result = file.open(QFile::ReadOnly);
-                    if (!result) {
-                        _error = ERROR_FILE_NOTFOUND;
-                        _error_args.push_back(argv[arg_offset + 2]);
-                    }
-                } break;
-                case COMMAND_LOADER_EXPORT: {
-                    _layers_configuration_name = argv[arg_offset + 2];
-                    _layers_configuration_path = argv[arg_offset + 3];
-                    Path ExportDir(_layers_configuration_path.AbsoluteDir());
-                    ExportDir.Create();
-                    if (!ExportDir.Exists()) {
-                        _error = ERROR_FILE_NOTFOUND;
-                    }
-                } break;
-                case COMMAND_LOADER_DELETE: {
-                    _layers_configuration_name = argv[arg_offset + 2];
-                } break;
+                            QFile file(this->_output_path.AbsolutePath().c_str());
+                            const bool result = file.open(QFile::ReadOnly);
+                            if (!result) {
+                                this->_error = ERROR_FILE_NOTFOUND;
+                            }
+                        }
+                        ++arg_offset;
+                    } break;
+                    case COMMAND_LOADER_EXPORT: {
+                        if (argc <= arg_offset + 2) {
+                            this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                        } else {
+                            this->_selected_configuration_name = argv[arg_offset + 1];
+                            this->_output_path = argv[arg_offset + 2];
+                            Path ExportDir(_output_path.AbsoluteDir());
+                            ExportDir.Create();
+                            if (!ExportDir.Exists()) {
+                                this->_error = ERROR_FILE_NOTFOUND;
+                            }
+                        }
+                        arg_offset += 2;
+                    } break;
+                    case COMMAND_LOADER_DELETE: {
+                        if (argc <= arg_offset + 1) {
+                            this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                        } else {
+                            this->_selected_configuration_name = argv[arg_offset + 1];
+                        }
+                        ++arg_offset;
+                    } break;
+                }
+
+                if (this->_error != ERROR_NONE) {
+                    this->_error_args.push_back(command_mode_name);
+                    this->_error_args.push_back(command_argument);
+                    arg_offset = argc;  // End the loop
+                }
             }
         } break;
         case COMMAND_LAYERS: {
             if (argc <= arg_offset + 1) {
-                _error = ERROR_MISSING_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
+                this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                this->_error_args.push_back(command_mode_name);
+                arg_offset = argc;  // End the loop
                 break;
             }
 
-            _command_layers_arg = GetCommandLayersId(argv[arg_offset + 1]);
-            if (_command_layers_arg == COMMAND_LAYERS_NONE) {
-                _error = ERROR_INVALID_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
-                _error_args.push_back(argv[arg_offset + 1]);
-                break;
-            }
+            arg_offset += 1;
 
-            const CommandLayersDesc& desc = GetCommandLayers(_command_layers_arg);
-            if (argc < arg_offset + desc.required_arguments) {
-                _error = ERROR_MISSING_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
-                break;
-            } else if (argc > arg_offset + desc.required_arguments) {
-                _error = ERROR_TOO_MANY_COMMAND_ARGUMENTS;
-                _error_args.push_back(argv[arg_offset + 0]);
-                break;
-            }
+            while (arg_offset < argc) {
+                std::string command_argument = argv[arg_offset];
+                this->_command_layers_arg = ::GetCommandLayersId(command_argument.c_str());
 
-            if (_command_layers_arg == COMMAND_LAYERS_OVERRIDE) {
-                _layers_configuration_path = argv[arg_offset + 2];
-                QFile file(_layers_configuration_path.AbsolutePath().c_str());
-                const bool result = file.open(QFile::ReadOnly);
-                if (!result) {
-                    _error = ERROR_FILE_NOTFOUND;
-                    _error_args.push_back(argv[arg_offset + 2]);
+                switch (this->_command_layers_arg) {
+                    default:
+                    case COMMAND_LAYERS_NONE: {
+                        this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                    } break;
+                    case COMMAND_LAYERS_OVERRIDE: {
+                        if (argc <= arg_offset + 1) {
+                            this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                        } else {
+                            const std::string configuration_name = argv[arg_offset + 1];
+
+                            QFile file(Path(configuration_name).AbsolutePath().c_str());
+                            const bool result = file.open(QFile::ReadOnly);
+                            if (!result) {
+                                this->_selected_configuration_name = configuration_name;
+                            } else {
+                                this->_input_path = configuration_name;
+                            }
+                        }
+                        arg_offset += 2;
+                    } break;
+                    case COMMAND_LAYERS_SURRENDER:
+                    case COMMAND_LAYERS_LIST: {
+                        ++arg_offset;
+                    } break;
                 }
-                break;
+
+                if (this->_error != ERROR_NONE) {
+                    this->_error_args.push_back(command_mode_name);
+                    this->_error_args.push_back(command_argument);
+                    arg_offset = argc;  // End the loop
+                }
             }
         } break;
         case COMMAND_DOC: {
             if (argc <= arg_offset + 2) {
-                _error = ERROR_MISSING_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
+                this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                this->_error_args.push_back(argv[arg_offset + 0]);
+                arg_offset = argc;  // End the loop
                 break;
             }
 
-            if (argc > 5) {
-                _error = ERROR_TOO_MANY_COMMAND_ARGUMENTS;
-                _error_args.push_back(argv[arg_offset + 0]);
+            this->_command_doc_arg = GetCommandDocId(argv[arg_offset + 1]);
+            if (this->_command_doc_arg == COMMAND_DOC_NONE) {
+                this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                this->_error_args.push_back(argv[arg_offset + 0]);
+                this->_error_args.push_back(argv[arg_offset + 1]);
+                arg_offset = argc;  // End the loop
                 break;
             }
 
-            _command_doc_arg = GetCommandDocId(argv[arg_offset + 1]);
-            if (_command_doc_arg == COMMAND_DOC_NONE) {
-                _error = ERROR_INVALID_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
-                _error_args.push_back(argv[arg_offset + 1]);
-                break;
-            }
-
-            _doc_layer_name = argv[arg_offset + 2];
+            this->_selected_layer_name = argv[arg_offset + 2];
             if (argc == 5) {
                 // Output dir arg was specified
-                _doc_out_dir = argv[arg_offset + 3];
+                this->_output_path = argv[arg_offset + 3];
             } else {
                 // Output dir arg was not specified
-                _doc_out_dir = ".";
+                this->_output_path = ".";
+            }
+
+            switch (this->_command_doc_arg) {
+                default:
+                    break;
+                case COMMAND_DOC_HTML:
+                    printf("vkconfig: \"vkconfig doc --html\" is deprecated\n");
+                    printf("\n  (Run \"vkconfig settings --html\" instead)\n");
+                    break;
+                case COMMAND_DOC_MARKDOWN:
+                    printf("vkconfig: \"vkconfig doc --markdown\" is deprecated\n");
+                    printf("\n  (Run \"vkconfig settings --markdown\" instead)\n");
+                    break;
+                case COMMAND_DOC_SETTINGS:
+                    printf("vkconfig: \"vkconfig doc --settings\" is deprecated\n");
+                    printf("\n  (Run \"vkconfig settings --txt\" instead)\n");
+                    break;
             }
         } break;
         case COMMAND_SETTINGS: {
             if (argc <= arg_offset + 1) {
-                _error = ERROR_MISSING_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
+                this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                this->_error_args.push_back(command_mode_name);
+                arg_offset = argc;  // End the loop
                 break;
             }
 
-            if (argc > 5) {
-                _error = ERROR_TOO_MANY_COMMAND_ARGUMENTS;
-                _error_args.push_back(argv[arg_offset + 0]);
-                break;
-            }
+            arg_offset += 1;
 
-            _command_settings_arg = GetCommandExportId(argv[arg_offset + 1]);
-            if (_command_settings_arg == COMMAND_SETTINGS_NONE) {
-                _error = ERROR_INVALID_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
-                _error_args.push_back(argv[arg_offset + 1]);
-                break;
-            }
+            while (arg_offset < argc) {
+                const std::string command_argument = argv[arg_offset];
+                CommandSettingsArg command_settings_arg = GetCommandSettingsArgsId(command_argument.c_str());
 
-            if (argc <= 3) {
-                _export_configuration_name = "default";
-            } else {
-                _export_configuration_name = argv[arg_offset + 2];
-            }
+                switch (command_settings_arg) {
+                    default:
+                    case COMMAND_SETTINGS_NONE: {
+                        this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                    } break;
+                    case COMMAND_SETTINGS_TXT:
+                    case COMMAND_SETTINGS_BASH:
+                    case COMMAND_SETTINGS_CMD:
+                    case COMMAND_SETTINGS_HPP:
+                    case COMMAND_SETTINGS_HTML:
+                    case COMMAND_SETTINGS_MARKDOWN: {
+                        this->_settings_format = ::GetSettingsFormat(command_settings_arg);
 
-            if (argc == 5) {
-                // <output_file> arg was specified
-                _export_filename = argv[arg_offset + 3];
-            } else {
-                // <output_file> arg was not specified
-                _export_filename = ::GetDefaultFilaname(_command_settings_arg);
+                        if (this->_settings_format == SETTINGS_FORMAT_HTML || this->_settings_format == SETTINGS_FORMAT_MARKDOWN) {
+                            if (argc <= arg_offset + 1) {
+                                this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                            } else {
+                                const std::string layer_name = argv[arg_offset + 1];
+                                if (layer_name[0] == '-') {  // Not a value but another argumment
+                                    this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                                } else {
+                                    this->_selected_layer_name = layer_name;
+                                    arg_offset += 2;
+                                }
+                            }
+                        } else {
+                            if (argc <= arg_offset + 1) {
+                                this->_selected_configuration_name = "default";
+                                arg_offset += 1;
+                            } else {
+                                const std::string configuration_name = argv[arg_offset + 1];
+                                if (configuration_name[0] == '-') {  // Not a value but another argumment
+                                    this->_selected_configuration_name = "default";
+                                    arg_offset += 1;
+                                } else {
+                                    this->_selected_configuration_name = configuration_name;
+                                    arg_offset += 2;
+                                }
+                            }
+                        }
+
+                        if (this->_output_path.Empty()) {
+                            this->_output_path = ::GetDefaultFilaname(this->_settings_format);
+                        }
+                    } break;
+                    case COMMAND_SETTINGS_OUTPUT: {
+                        // Missing --output value
+                        if (argc <= arg_offset + 1) {
+                            this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                            break;
+                        }
+
+                        // <output_file> arg was specified
+                        this->_output_path = argv[arg_offset + 1];
+                        arg_offset += 2;
+                    } break;
+                    case COMMAND_SETTINGS_DRY_RUN: {
+                        this->_dry_run = true;
+                        arg_offset += 1;
+                    } break;
+                }
+
+                if (this->_error != ERROR_NONE) {
+                    this->_error_args.push_back(command_mode_name);
+                    this->_error_args.push_back(command_argument);
+                    arg_offset = argc;  // End the loop
+                }
             }
         } break;
         case COMMAND_RESET: {
             if (argc <= arg_offset + 1) {
-                _command_reset_arg = COMMAND_RESET_SOFT;
+                this->_command_reset_arg = COMMAND_RESET_SOFT;  // default for --reset
+                arg_offset += 1;
                 break;
             }
 
-            _command_reset_arg = GetCommandResetId(argv[arg_offset + 1]);
-            if (_command_reset_arg == COMMAND_RESET_NONE) {
-                _error = ERROR_INVALID_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
-                _error_args.push_back(argv[arg_offset + 1]);
+            this->_command_reset_arg = GetCommandResetId(argv[arg_offset + 1]);
+            if (this->_command_reset_arg == COMMAND_RESET_NONE) {
+                this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                this->_error_args.push_back(argv[arg_offset + 0]);
+                this->_error_args.push_back(argv[arg_offset + 1]);
+                arg_offset = argc;  // End the loop
                 break;
             }
         } break;
         case COMMAND_SHOW_USAGE: {
             if (argc <= arg_offset + 1) {
-                _help = HELP_DEFAULT;
+                this->_help = HELP_DEFAULT;
                 break;
             }
 
-            _help = GetCommandHelpId(argv[arg_offset + 1]);
-            if (_help == HELP_NONE) {
-                _error = ERROR_INVALID_COMMAND_ARGUMENT;
-                _error_args.push_back(argv[arg_offset + 0]);
-                _error_args.push_back(argv[arg_offset + 1]);
+            this->_help = GetCommandHelpId(argv[arg_offset + 1]);
+            if (this->_help == HELP_NONE) {
+                this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                this->_error_args.push_back(argv[arg_offset + 0]);
+                this->_error_args.push_back(argv[arg_offset + 1]);
             }
-            break;
-        }
-        case COMMAND_NONE: {
-            _error = ERROR_UNKNOWN_ARGUMENT;
-            _error_args.push_back(argv[arg_offset + 0]);
             break;
         }
         case COMMAND_GUI:
@@ -528,29 +636,43 @@ void CommandLine::log() const {
         case ERROR_NONE: {
             assert(_error_args.empty());
         } break;
-        case ERROR_INVALID_COMMAND_USAGE: {
-            assert(_error_args.size() == 1);
-            printf("vkconfig: Invalid '%s' command usage...\n\n", _error_args[0].c_str());
+        case ERROR_INVALID_COMMAND: {
+            assert(_error_args.size() >= 1);
+            printf("vkconfig: Invalid '%s' command...\n\n", _error_args[0].c_str());
         } break;
         case ERROR_INVALID_COMMAND_ARGUMENT: {
             assert(_error_args.size() == 2);
-            printf("vkconfig: Invalid '%s' command argument: '%s'...\n\n", _error_args[0].c_str(), _error_args[1].c_str());
-        } break;
-        case ERROR_MISSING_COMMAND_ARGUMENT: {
-            assert(_error_args.size() == 1);
-            printf("vkconfig: Missing '%s' command argument...\n\n", _error_args[0].c_str());
+            printf("vkconfig: Invalid '%s' command argument: %s\n\n", _error_args[0].c_str(), _error_args[1].c_str());
         } break;
         case ERROR_TOO_MANY_COMMAND_ARGUMENTS: {
-            assert(_error_args.size() == 1);
-            printf("vkconfig: Too many '%s' command arguments...\n\n", _error_args[0].c_str());
-        }
+            assert(this->_error_args.size() >= 1);
+            if (this->error_args.size() > 1) {
+                printf("vkconfig: Invalid '%s' command usage:", this->_error_args[0].c_str());
+                std::string arguments;
+                for (std::size_t i = 1, n = this->_error_args.size(); i < n; ++i) {
+                    arguments += format(" %s", this->_error_args[i].c_str());
+                }
+                printf("%s\n\n", arguments.c_str());
+            } else {
+                printf("vkconfig: Invalid '%s' command usage...\n\n", _error_args[0].c_str());
+            }
+        } break;
+        case ERROR_MISSING_COMMAND_ARGUMENT: {
+            assert(this->_error_args.size() >= 1);
+            if (this->error_args.size() > 1) {
+                printf("vkconfig: Invalid '%s' command usage:", this->_error_args[0].c_str());
+                std::string arguments;
+                for (std::size_t i = 1, n = this->_error_args.size(); i < n; ++i) {
+                    arguments += format(" %s", this->_error_args[i].c_str());
+                }
+                printf("%s\n\n", arguments.c_str());
+            } else {
+                printf("vkconfig: Invalid '%s' command usage...\n\n", _error_args[0].c_str());
+            }
+        } break;
         case ERROR_FILE_NOTFOUND: {
             assert(_error_args.size() == 1);
             printf("vkconfig: '%s' couldn't be found...\n\n", _error_args[0].c_str());
-        } break;
-        case ERROR_UNKNOWN_ARGUMENT: {
-            assert(_error_args.size() == 1);
-            printf("vkconfig: Unknown argument: '%s'...\n\n", _error_args[0].c_str());
         } break;
         default: {
             assert(0);
@@ -677,6 +799,75 @@ void CommandLine::usage() const {
             printf("\t\t - <configuration_name> is the name of the stored configuration listed with `vkconfig loader --list`.\n");
             break;
         }
+        case HELP_SETTINGS: {
+            printf("Name\n");
+            printf("\t'settings' - Command to generate layer settings files\n");
+            printf("\n");
+            printf("Synopsis\n");
+            // printf("\tvkconfig settings --html <layer_name> [(--output | -o) <output_file>] [--dry-run]\n");
+            // printf("\tvkconfig settings --markdown <layer_name> [(--output | -o) <output_file>] [--dry-run]\n");
+            printf(
+                "\tvkconfig settings --txt [<configuration_index> | <configuration_name> | default] [(--output | -o) "
+                "<output_file>] [--dry-run]\n");
+            printf(
+                "\tvkconfig settings --bash [<configuration_index> | <configuration_name> | default] [(--output | -o) "
+                "<output_file>] [--dry-run]\n");
+            printf(
+                "\tvkconfig settings --bat [<configuration_index> | <configuration_name> | default] [(--output | -o) "
+                "<output_file>] [--dry-run]\n");
+            printf(
+                "\tvkconfig settings --hpp [<configuration_index> | <configuration_name> | default] [(--output | -o) "
+                "<output_file>] [--dry-run]\n");
+            printf("\n");
+            printf("Description\n");
+            printf("\n");
+            /*
+            printf("\tvkconfig settings --html <layer_name> [(--output | -o) <output_file>] [--dry-run]\n");
+            printf("\t\tGenerate vk_layer_settings.txt file of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
+            printf("\t\t `--output`: Specify the output file path.\n");
+            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
+            printf("\n");
+            printf("\tvkconfig settings --markdown <layer_name> [(--output | -o) <output_file>] [--dry-run]\n");
+            printf("\t\tGenerate vk_layer_settings.txt file of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
+            printf("\t\t `--output`: Specify the output file path.\n");
+            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
+            printf("\n");
+*/
+            printf(
+                "\tvkconfig settings --txt [<configuration_index> | <configuration_name> | default] [(--output | -o) "
+                "<output_file>] [--dry-run]\n");
+            printf("\t\tGenerate vk_layer_settings.txt file of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
+            printf("\t\t `--output`: Specify the output file path.\n");
+            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
+            printf("\n");
+            printf(
+                "\tvkconfig settings --bash [<configuration_index> | <configuration_name> | default] [(--output | -o) "
+                "<output_file>] [--dry-run]\n");
+            printf("\t\tGenerate the environment variables bash script of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
+            printf("\t\t `--output`: Specify the output file path.\n");
+            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
+            printf("\n");
+            printf(
+                "\tvkconfig settings --bat (<configuration_index> | <configuration_name> | default) [(--output | -o) "
+                "<output_file>] [--dry-run]\n");
+            printf("\t\tGenerate the environment variables command prompt script of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
+            printf("\t\t `--output`: Specify the output file path.\n");
+            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
+            printf("\n");
+            printf(
+                "\tvkconfig settings --hpp (<configuration_index> | <configuration_name> | default) [(--output | -o) "
+                "<output_file>] [--dry-run]\n");
+            printf("\t\tGenerate VK_EXT_layer_settings code of a layers configuration.\n");
+            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
+            printf("\t\t `--output`: Specify the output file path.\n");
+            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
+            break;
+        }
         case HELP_DOC: {
             printf("Name\n");
             printf("\t'doc' - Command to create Vulkan layer doc files\n");
@@ -698,35 +889,6 @@ void CommandLine::usage() const {
             printf("\tvkconfig doc --settings <layer_name> [<output_dir>]\n");
             printf("\t\tCreate the vk_layers_settings.txt file for the given layer.\n");
             printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
-            break;
-        }
-        case HELP_SETTINGS: {
-            printf("Name\n");
-            printf("\t'settings' - Command to generate layer settings files\n");
-            printf("\n");
-            printf("Synopsis\n");
-            printf("\tvkconfig settings --txt (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
-            printf("\tvkconfig settings --bash (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
-            printf("\tvkconfig settings --bat (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
-            printf("\tvkconfig settings --hpp (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
-            printf("\n");
-            printf("Description\n");
-            printf("\n");
-            printf("\tvkconfig settings --txt (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
-            printf("\t\tGenerate vk_layer_settings.txt file of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
-            printf("\n");
-            printf("\tvkconfig settings --bash (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
-            printf("\t\tGenerate the environment variables bash script of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
-            printf("\n");
-            printf("\tvkconfig settings --bat (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
-            printf("\t\tGenerate the environment variables command prompt script of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
-            printf("\n");
-            printf("\tvkconfig settings --hpp (<configuration_index> | <configuration_name> | default) [<output_file>]\n");
-            printf("\t\tGenerate VK_EXT_layer_settings code of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
             break;
         }
         case HELP_RESET: {

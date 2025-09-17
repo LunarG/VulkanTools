@@ -20,16 +20,12 @@
 
 #pragma once
 
-enum ConfiguratorMode {
-    CONFIGURATOR_MODE_NONE = 0,
-    CONFIGURATOR_MODE_GUI,
-    CONFIGURATOR_MODE_CMD,
-    CONFIGURATOR_MODE_DRY,
+#include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/command_line.h"
 
-    CONFIGURATOR_MODE_FIRST = CONFIGURATOR_MODE_NONE,
-    CONFIGURATOR_MODE_LAST = CONFIGURATOR_MODE_DRY,
-};
-
-enum { CONFIGURATOR_MODE_COUNT = CONFIGURATOR_MODE_LAST - CONFIGURATOR_MODE_FIRST + 1 };
-
-inline bool RequireLoading(ConfiguratorMode mode) { return mode == CONFIGURATOR_MODE_GUI || mode == CONFIGURATOR_MODE_CMD; }
+int generate_settings_html(Configurator& configurator, const CommandLine& command_line);
+int generate_settings_markdown(Configurator& configurator, const CommandLine& command_line);
+int generate_settings_txt(Configurator& configurator, const CommandLine& command_line);
+int generate_settings_bash(Configurator& configurator, const CommandLine& command_line);
+int generate_settings_cmd(Configurator& configurator, const CommandLine& command_line);
+int generate_settings_hpp(Configurator& configurator, const CommandLine& command_line);

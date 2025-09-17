@@ -25,7 +25,7 @@
 #include "main_layers.h"
 #include "main_loader.h"
 #include "main_doc.h"
-#include "main_export.h"
+#include "main_settings.h"
 
 #include "../vkconfig_core/path.h"
 #include "../vkconfig_core/version.h"
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
             return run_doc(command_line);
         }
         case COMMAND_SETTINGS: {
-            return run_export(command_line);
+            return run_generate_settings(command_line);
         }
         default: {
             assert(0);
