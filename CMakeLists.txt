@@ -21,7 +21,7 @@ project(VULKAN_TOOLS VERSION 1.4.326 LANGUAGES CXX)
 
 add_subdirectory(scripts)
 
-find_package(VulkanHeaders REQUIRED CONFIG)
+find_package(VulkanHeaders ${CMAKE_PROJECT_VERSION} REQUIRED CONFIG)
 find_package(VulkanLoader CONFIG)
 find_package(VulkanUtilityLibraries REQUIRED CONFIG)
 find_package(valijson REQUIRED CONFIG)
