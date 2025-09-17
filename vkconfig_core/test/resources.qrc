@@ -11,6 +11,8 @@
     </qresource>
 
     <qresource prefix="/test/generated">
+        <file alias="vk_layer_settings.html">./generated/vk_layer_settings.html</file>
+        <file alias="vk_layer_settings.md">./generated/vk_layer_settings.md</file>
         <file alias="vk_layer_settings.txt">./generated/vk_layer_settings.txt</file>
         <file alias="vk_layer_settings.bat">./generated/vk_layer_settings.bat</file>
         <file alias="vk_layer_settings.sh">./generated/vk_layer_settings.sh</file>

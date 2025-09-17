@@ -42,21 +42,21 @@ static int RunLoaderList(Configurator& configurator, const CommandLine& command_
 
 static int GetConfigurationName(Configurator& configurator, const CommandLine& command_line, bool allow_import,
                                 std::string& configuration_name) {
-    if (allow_import && !command_line.layers_configuration_path.Empty()) {
-        const bool load_result = configurator.configurations.ImportConfiguration(
-            configurator.layers, command_line.layers_configuration_path, configuration_name);
+    if (allow_import && !command_line.input_path.Empty()) {
+        const bool load_result =
+            configurator.configurations.ImportConfiguration(configurator.layers, command_line.input_path, configuration_name);
         if (!load_result) {
             fprintf(stderr, "vkconfig: Failed to load `%s` Layers configuration file...\n\n",
-                    command_line.layers_configuration_path.AbsolutePath().c_str());
+                    command_line.input_path.AbsolutePath().c_str());
 
             ::RunLoaderList(configurator, command_line);
             return -1;
         }
     } else {
-        const bool is_index = IsIndex(command_line.layers_configuration_name);
+        const bool is_index = IsIndex(command_line.selected_configuration_name);
 
         if (is_index) {
-            std::size_t index = std::strtoul(command_line.layers_configuration_name.c_str(), nullptr, 10);
+            std::size_t index = std::strtoul(command_line.selected_configuration_name.c_str(), nullptr, 10);
             if (index >= configurator.configurations.available_configurations.size()) {
                 fprintf(stderr, "vkconfig: Invalid `%zd` Layers configuration index...\n\n", index);
 
@@ -66,7 +66,7 @@ static int GetConfigurationName(Configurator& configurator, const CommandLine& c
 
             configuration_name = configurator.configurations.available_configurations[index].key;
         } else {
-            configuration_name = command_line.layers_configuration_name;
+            configuration_name = command_line.selected_configuration_name;
         }
     }
 
@@ -124,7 +124,7 @@ static int RunLoaderOverride(Configurator& configurator, const CommandLine& comm
         fprintf(stderr, "vkconfig: Failed to activate `%s` Vulkan Layers configuration...\n", configuration_name.c_str());
     }
 
-    if (!command_line.layers_configuration_path.Empty()) {
+    if (!command_line.input_path.Empty()) {
         configurator.configurations.RemoveConfiguration(configuration_name);
     }
 
@@ -153,14 +153,14 @@ static int RunLoaderSurrender(Configurator& configurator, const CommandLine& com
 
 static int RunLoaderImport(Configurator& configurator, const CommandLine& command_line) {
     std::string configuration_name;
-    const bool imported = configurator.configurations.ImportConfiguration(
-        configurator.layers, command_line.layers_configuration_path, configuration_name);
+    const bool imported =
+        configurator.configurations.ImportConfiguration(configurator.layers, command_line.input_path, configuration_name);
     if (imported) {
         fprintf(stdout, "vkconfig: `%s` layers configuration imported from `%s` file.\n", configuration_name.c_str(),
-                command_line.layers_configuration_path.AbsolutePath().c_str());
+                command_line.input_path.AbsolutePath().c_str());
     } else {
         fprintf(stderr, "vkconfig: Failed to import `%s` layers configuration...\n",
-                command_line.layers_configuration_path.AbsolutePath().c_str());
+                command_line.input_path.AbsolutePath().c_str());
         return -1;
     }
 
@@ -174,14 +174,14 @@ static int RunLoaderExport(Configurator& configurator, const CommandLine& comman
         return -1;
     }
 
-    const bool exported = configurator.configurations.ExportConfiguration(
-        configurator.layers, command_line.layers_configuration_path, configuration_name);
+    const bool exported =
+        configurator.configurations.ExportConfiguration(configurator.layers, command_line.output_path, configuration_name);
     if (exported) {
         fprintf(stdout, "vkconfig: `%s` layers configuration exported to:\n `%s`\n\n", configuration_name.c_str(),
-                command_line.layers_configuration_path.AbsolutePath().c_str());
+                command_line.output_path.AbsolutePath().c_str());
     } else {
         fprintf(stderr, "vkconfig: Failed to export `%s` layers configuration...\n",
-                command_line.layers_configuration_path.AbsolutePath().c_str());
+                command_line.output_path.AbsolutePath().c_str());
         return -1;
     }
 

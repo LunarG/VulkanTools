@@ -38,6 +38,7 @@ SOURCES += \
     ../vkconfig_core/doc.cpp \
     ../vkconfig_core/executable.cpp \
     ../vkconfig_core/executable_manager.cpp \
+    ../vkconfig_core/generate_settings_files.cpp \
     ../vkconfig_core/header.cpp \
     ../vkconfig_core/json.cpp \
     ../vkconfig_core/json_validator.cpp \
@@ -129,6 +130,7 @@ HEADERS += \
     ../vkconfig_core/doc.h \
     ../vkconfig_core/executable.h \
     ../vkconfig_core/executable_manager.h \
+    ../vkconfig_core/generate_settings_files.h \
     ../vkconfig_core/header.h \
     ../vkconfig_core/json.h \
     ../vkconfig_core/json_validator.h \

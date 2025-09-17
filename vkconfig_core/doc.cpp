@@ -652,7 +652,8 @@ bool ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += format("\t<li>Layer Manifest: <span class=\"code\">%s</span><ul>\n",
                    QFileInfo(layer.manifest_path.RelativePath().c_str()).fileName().toStdString().c_str());
     text += format("\t\t<li>File Format: %s</li>\n", layer.file_format_version.str().c_str());
-    text += format("\t\t<li>Layer Binary Path: <span class=\"code\">%s</span></li>\n", layer.binary_path.RelativePath().c_str());
+    text += format("\t\t<li>Layer Binary Path: <span class=\"code\">%s</span></li>\n",
+                   ::ConvertStandardSeparators(layer.binary_path.RelativePath()).c_str());
     text += "\t</ul></li>\n";
     if (layer.platforms != 0) {
         text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHtml(layer.platforms).c_str());
@@ -744,8 +745,9 @@ bool ExportMarkdownDoc(const Layer& layer, const std::string& path) {
     text += "- Layer Manifest: `" + QFileInfo(layer.manifest_path.RelativePath().c_str()).fileName().toStdString() + "`\n";
     text += "  - File Format: " + layer.file_format_version.str() + "\n";
     text += "  - Layer Binary: `";
-    text += (layer.binary_path.RelativePath().rfind("./", 0) == 0 ? layer.binary_path.RelativePath().substr(2)
-                                                                  : layer.binary_path.RelativePath()) +
+    text += (::ConvertStandardSeparators(layer.binary_path.RelativePath()).rfind("./", 0) == 0
+                 ? ::ConvertStandardSeparators(layer.binary_path.RelativePath()).substr(2)
+                 : ::ConvertStandardSeparators(layer.binary_path.RelativePath())) +
             "`\n";
     text += "- Variables:\n";
     text += format("  - `vk_layer_settings.txt` namespace: `%s`\n", ToLowerCase(TrimPrefix(layer.key)).c_str());

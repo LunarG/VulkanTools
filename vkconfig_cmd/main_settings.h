@@ -23,4 +23,4 @@
 
 #include "../vkconfig_core/command_line.h"
 
-int run_export(const CommandLine& commandLine);
+int run_generate_settings(const CommandLine& commandLine);

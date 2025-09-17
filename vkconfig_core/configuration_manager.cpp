@@ -92,7 +92,7 @@ std::size_t ConfigurationManager::Size() const { return this->available_configur
 void ConfigurationManager::LoadAllConfigurations(const LayerManager &layers, ConfiguratorMode mode) {
     this->available_configurations.clear();
 
-    if (mode != CONFIGURATOR_MODE_NONE) {
+    if (RequireLoading(mode)) {
         this->LoadConfigurationsPath(layers);
     }
 
