@@ -67,9 +67,13 @@ enum CommandSettingsArg {
     COMMAND_SETTINGS_BASH,
     COMMAND_SETTINGS_CMD,
     COMMAND_SETTINGS_HPP,
+    COMMAND_SETTINGS_HTML,
+    COMMAND_SETTINGS_MARKDOWN,
+    COMMAND_SETTINGS_OUTPUT,
+    COMMAND_SETTINGS_DRY_RUN,
 
     COMMAND_SETTINGS_FIRST = COMMAND_SETTINGS_NONE,
-    COMMAND_SETTINGS_LAST = COMMAND_SETTINGS_HPP,
+    COMMAND_SETTINGS_LAST = COMMAND_SETTINGS_DRY_RUN,
 };
 
 enum { COMMAND_SETTINGS_COUNT = COMMAND_SETTINGS_LAST - COMMAND_SETTINGS_FIRST + 1 };
@@ -116,6 +120,7 @@ class CommandLine {
     const CommandSettingsArg& command_export_arg;
     const std::string& export_configuration_name;
     const Path& export_filename;
+    const bool& dry_run;
 
     const CommandError& error;
     const std::vector<std::string>& error_args;
@@ -136,6 +141,7 @@ class CommandLine {
     CommandSettingsArg _command_settings_arg = COMMAND_SETTINGS_NONE;
     std::string _export_configuration_name;
     Path _export_filename;
+    bool _dry_run = false;
 
     CommandError _error = ERROR_NONE;
     std::vector<std::string> _error_args;
