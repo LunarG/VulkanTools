@@ -16,7 +16,14 @@
         <file alias="vk_layer_settings.txt">./generated/vk_layer_settings.txt</file>
         <file alias="vk_layer_settings.bat">./generated/vk_layer_settings.bat</file>
         <file alias="vk_layer_settings.sh">./generated/vk_layer_settings.sh</file>
-        <file alias="vulkan_layer_settings.hpp">./generated/vulkan_layer_settings.txt</file>
+        <file alias="vulkan_layer_settings.hpp">./generated/vulkan_layer_settings.code</file>
+
+        <file alias="VK_LAYER_LUNARG_reference_1_2_1.html">./generated/VK_LAYER_LUNARG_reference_1_2_1.html</file>
+        <file alias="VK_LAYER_LUNARG_reference_1_2_1.md">./generated/VK_LAYER_LUNARG_reference_1_2_1.md</file>
+        <file alias="VK_LAYER_LUNARG_reference_1_2_1.txt">./generated/VK_LAYER_LUNARG_reference_1_2_1.txt</file>
+        <file alias="VK_LAYER_LUNARG_reference_1_2_1.bat">./generated/VK_LAYER_LUNARG_reference_1_2_1.bat</file>
+        <file alias="VK_LAYER_LUNARG_reference_1_2_1.sh">./generated/VK_LAYER_LUNARG_reference_1_2_1.sh</file>
+        <file alias="VK_LAYER_LUNARG_reference_1_2_1.hpp">./generated/VK_LAYER_LUNARG_reference_1_2_1.code</file>
     </qresource>
 
     <qresource prefix="/sdk">

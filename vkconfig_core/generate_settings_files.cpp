@@ -31,6 +31,23 @@ class ConfigurationSelection {
 
         if (command_line.selected_configuration_name == "default") {
             Configuration& configuration = configurator.configurations.CreateConfiguration(configurator.layers, "_default");
+            if (!command_line.selected_layer_name.empty() && command_line.selected_layer_name != "default") {
+                const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
+
+                if (layer == nullptr) {
+                    fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
+                    fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
+                } else {
+                    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+                        if (command_line.selected_layer_name == configuration.parameters[i].key) {
+                            configuration.parameters[i].control = LAYER_CONTROL_ON;
+                        } else {
+                            configuration.parameters[i].control = LAYER_CONTROL_OFF;
+                        }
+                    }
+                }
+            }
+
             configurator.SetActiveConfigurationName("_default");
         } else if (configurator.configurations.FindConfiguration(command_line.selected_configuration_name) != nullptr) {
             configurator.SetActiveConfigurationName(command_line.selected_configuration_name);
@@ -60,38 +77,30 @@ class ConfigurationSelection {
 };
 
 int generate_settings_html(Configurator& configurator, const CommandLine& command_line) {
-    const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
+    ConfigurationSelection selection(configurator, command_line);
 
-    if (layer == nullptr) {
-        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
-        fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
+    if (selection.Found()) {
+        return ::ExportHtmlDoc(configurator, nullptr, command_line.GetOutputPath()) ? 0 : -1;
+    } else {
         return -1;
     }
-
-    const std::string path = command_line.output_path.AbsolutePath();
-
-    return ::ExportHtmlDoc(*layer, path) ? 0 : -1;
 }
 
 int generate_settings_markdown(Configurator& configurator, const CommandLine& command_line) {
-    const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
+    ConfigurationSelection selection(configurator, command_line);
 
-    if (layer == nullptr) {
-        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
-        fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
+    if (selection.Found()) {
+        return ::ExportMarkdownDoc(configurator, nullptr, command_line.GetOutputPath()) ? 0 : -1;
+    } else {
         return -1;
     }
-
-    const std::string path = command_line.output_path.AbsolutePath();
-
-    return ::ExportMarkdownDoc(*layer, path) ? 0 : -1;
 }
 
 int generate_settings_txt(Configurator& configurator, const CommandLine& command_line) {
     ConfigurationSelection selection(configurator, command_line);
 
     if (selection.Found()) {
-        return configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, command_line.output_path) ? 0 : -1;
+        return configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, command_line.GetOutputPath()) ? 0 : -1;
     } else {
         return -1;
     }
@@ -101,7 +110,7 @@ int generate_settings_bash(Configurator& configurator, const CommandLine& comman
     ConfigurationSelection selection(configurator, command_line);
 
     if (selection.Found()) {
-        return configurator.Export(EXPORT_ENV_BASH, command_line.output_path) ? 0 : -1;
+        return configurator.Export(EXPORT_ENV_BASH, command_line.GetOutputPath()) ? 0 : -1;
     } else {
         return -1;
     }
@@ -111,7 +120,7 @@ int generate_settings_cmd(Configurator& configurator, const CommandLine& command
     ConfigurationSelection selection(configurator, command_line);
 
     if (selection.Found()) {
-        return configurator.Export(EXPORT_ENV_CMD, command_line.output_path) ? 0 : -1;
+        return configurator.Export(EXPORT_ENV_CMD, command_line.GetOutputPath()) ? 0 : -1;
     } else {
         return -1;
     }
@@ -121,7 +130,7 @@ int generate_settings_hpp(Configurator& configurator, const CommandLine& command
     ConfigurationSelection selection(configurator, command_line);
 
     if (selection.Found()) {
-        return configurator.WriteExtensionCode(command_line.output_path) ? 0 : -1;
+        return configurator.WriteExtensionCode(command_line.GetOutputPath()) ? 0 : -1;
     } else {
         return -1;
     }

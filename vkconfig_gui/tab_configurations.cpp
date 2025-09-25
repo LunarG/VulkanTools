@@ -598,12 +598,12 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     QDesktopServices::openUrl(QUrl(layer->url.AbsolutePath(false).c_str()));
                 } else if (action == export_html_action) {
                     const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
-                    ExportHtmlDoc(*layer, path);
+                    ExportHtmlDoc(configurator, layer, path);
                     std::string url = "file:///" + path;
                     QDesktopServices::openUrl(QUrl(url.c_str()));
                 } else if (action == export_markdown_action) {
                     const std::string path = format("%s/%s.md", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
-                    ExportMarkdownDoc(*layer, path);
+                    ExportMarkdownDoc(configurator, layer, path);
                     QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
                 }
             }
@@ -703,7 +703,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     alert.exec();
                 } else if (action == export_html_action) {
                     const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
-                    ExportHtmlDoc(*layer, path);
+                    ExportHtmlDoc(configurator, layer, path);
 
                     std::string url = ConvertStandardSeparators(format("file:///%s#%s-detailed", path.c_str(), item->key.c_str()));
                     QDesktopServices::openUrl(QUrl(url.c_str()));

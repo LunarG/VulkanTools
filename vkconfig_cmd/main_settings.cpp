@@ -31,28 +31,28 @@ int run_generate_settings(const CommandLine& command_line) {
 
     int result = -1;
 
-    switch (command_line.settings_format) {
-        case SETTINGS_FORMAT_HTML: {
+    switch (command_line.generate_settings_mode) {
+        case GENERATE_SETTINGS_HTML: {
             result = generate_settings_html(configurator_guard.Get(), command_line);
             break;
         }
-        case SETTINGS_FORMAT_MARKDOWN: {
+        case GENERATE_SETTINGS_MARKDOWN: {
             result = generate_settings_markdown(configurator_guard.Get(), command_line);
             break;
         }
-        case SETTINGS_FORMAT_TXT: {
+        case GENERATE_SETTINGS_TXT: {
             result = generate_settings_txt(configurator_guard.Get(), command_line);
             break;
         }
-        case SETTINGS_FORMAT_BASH: {
+        case GENERATE_SETTINGS_BASH: {
             result = generate_settings_bash(configurator_guard.Get(), command_line);
             break;
         }
-        case SETTINGS_FORMAT_CMD: {
+        case GENERATE_SETTINGS_CMD: {
             result = generate_settings_cmd(configurator_guard.Get(), command_line);
             break;
         }
-        case SETTINGS_FORMAT_HPP: {
+        case GENERATE_SETTINGS_HPP: {
             result = generate_settings_hpp(configurator_guard.Get(), command_line);
             break;
         }

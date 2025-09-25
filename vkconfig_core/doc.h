@@ -21,8 +21,8 @@
 
 #include "configurator.h"
 
-bool ExportHtmlDoc(const Layer& layer, const std::string& path);
+bool ExportHtmlDoc(Configurator& configurator, const Layer* layer, const Path& path);
 
-bool ExportMarkdownDoc(const Layer& layer, const std::string& path);
+bool ExportMarkdownDoc(Configurator& configurator, const Layer* layer, const Path& path);
 
-bool ExportSettingsDoc(Configurator& configurator, const std::string& path);
+bool ExportSettingsDoc(Configurator& configurator, const Layer* layer, const Path& path);

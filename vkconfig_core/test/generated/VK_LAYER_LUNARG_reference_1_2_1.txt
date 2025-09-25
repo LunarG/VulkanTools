@@ -1,0 +1,184 @@
+# reference layer
+# ==========================================
+# VK_LAYER_LUNARG_reference_1_2_1 - 1.2.170 (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# For more information about the layer: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html
+
+# toogle
+# ------------------------------------------
+# toogle (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# true or false
+lunarg_reference_1_2_1.toogle = true
+
+# enum
+# ------------------------------------------
+# enum_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# enum case
+lunarg_reference_1_2_1.enum_required_only = value1
+
+# enum
+# ------------------------------------------
+# enum_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# enum case
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#enum
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.enum_with_optional = value1
+
+# flags
+# ------------------------------------------
+# flags_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# flags case
+lunarg_reference_1_2_1.flags_required_only = flag0,flag1
+
+# flags
+# ------------------------------------------
+# flags_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# flags case
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.flags_with_optional = flag0,flag1
+
+# String
+# ------------------------------------------
+# string_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# string
+lunarg_reference_1_2_1.string_required_only = A string
+
+# String
+# ------------------------------------------
+# string_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# string
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#string
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.string_with_optional = A string
+
+# bool
+# ------------------------------------------
+# bool_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# true or false
+lunarg_reference_1_2_1.bool_required_only = true
+
+# bool
+# ------------------------------------------
+# bool_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# true or false
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.bool_with_optional = true
+
+# Load file
+# ------------------------------------------
+# load_file_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Load file path
+lunarg_reference_1_2_1.load_file_required_only = ./test.txt
+
+# Load file
+# ------------------------------------------
+# load_file_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Load file path
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.load_file_with_optional = ./test.json
+
+# Save file
+# ------------------------------------------
+# save_file_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Save file path
+lunarg_reference_1_2_1.save_file_required_only = ./test.json
+
+# Save file
+# ------------------------------------------
+# save_file_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Save file path
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.save_file_with_optional = ./test.json
+
+# Save folder
+# ------------------------------------------
+# save_folder_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Save folder path
+lunarg_reference_1_2_1.save_folder_required_only = ./test
+
+# Save folder
+# ------------------------------------------
+# save_folder_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Save folder path
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_folder
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.save_folder_with_optional = ./test
+
+# Integer
+# ------------------------------------------
+# int_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Integer Description
+lunarg_reference_1_2_1.int_required_only = 76
+
+# Integer
+# ------------------------------------------
+# int_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Integer Description
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.int_with_optional = 76
+
+# Float
+# ------------------------------------------
+# float_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Float Description
+lunarg_reference_1_2_1.float_required_only = 76.500000
+
+# Float
+# ------------------------------------------
+# float_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Float Description
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#float
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.float_with_optional = 76.500
+
+# Frames
+# ------------------------------------------
+# frames_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Frames Description
+lunarg_reference_1_2_1.frames_required_only = 76-82,75
+
+# Frames
+# ------------------------------------------
+# frames_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# Frames Description
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.frames_with_optional = 76-82,75
+
+# List
+# ------------------------------------------
+# list_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# List description
+lunarg_reference_1_2_1.list_required_only = 76,82,stringB,stringD
+
+# List
+# ------------------------------------------
+# list_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# List description
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
+# This setting requires ALL of the following values:
+# - lunarg_reference_1_2_1.toogle = true
+lunarg_reference_1_2_1.list_with_optional = 76,82,stringB,stringD
+
+# List
+# ------------------------------------------
+# list_empty (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
+# List description
+# For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
+lunarg_reference_1_2_1.list_empty = 
+
+

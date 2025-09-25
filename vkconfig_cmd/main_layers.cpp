@@ -29,10 +29,10 @@
 static int RunLayersOverride(Configurator& configurator, const CommandLine& command_line) {
     std::string configuration_name;
     const bool load_result =
-        configurator.configurations.ImportConfiguration(configurator.layers, command_line.input_path, configuration_name);
+        configurator.configurations.ImportConfiguration(configurator.layers, command_line.GetInputPath(), configuration_name);
     if (!load_result) {
         fprintf(stderr, "vkconfig: [ERROR] Failed to load `%s` layers configuration file...\n",
-                command_line.input_path.AbsolutePath().c_str());
+                command_line.GetInputPath().AbsolutePath().c_str());
         return -1;
     }
 
@@ -40,7 +40,7 @@ static int RunLayersOverride(Configurator& configurator, const CommandLine& comm
     const bool override_result = configurator.Override(OVERRIDE_AREA_ALL);
     if (override_result) {
         printf("vkconfig: [INFO] \"%s\" applied to all Vulkan Applications, including Vulkan layers:\n",
-               command_line.input_path.AbsolutePath().c_str());
+               command_line.GetInputPath().AbsolutePath().c_str());
         const Configuration* configuration = configurator.GetActiveConfiguration();
 
         printf(" (Execute Closer to the Vulkan Application)\n");
