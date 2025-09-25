@@ -63,13 +63,11 @@ enum CommandResetArg { COMMAND_RESET_NONE = 0, COMMAND_RESET_SOFT, COMMAND_RESET
 
 enum CommandSettingsArg {
     COMMAND_SETTINGS_NONE = 0,
-    COMMAND_SETTINGS_TXT,
-    COMMAND_SETTINGS_BASH,
-    COMMAND_SETTINGS_CMD,
-    COMMAND_SETTINGS_HPP,
-    COMMAND_SETTINGS_HTML,
-    COMMAND_SETTINGS_MARKDOWN,
+    COMMAND_SETTINGS_MODE,
+    COMMAND_SETTINGS_CONFIG,
+    COMMAND_SETTINGS_LAYER,
     COMMAND_SETTINGS_OUTPUT,
+    COMMAND_SETTINGS_OUTPUT_DIR,
     COMMAND_SETTINGS_DRY_RUN,
 
     COMMAND_SETTINGS_FIRST = COMMAND_SETTINGS_NONE,
@@ -78,21 +76,21 @@ enum CommandSettingsArg {
 
 enum { COMMAND_SETTINGS_COUNT = COMMAND_SETTINGS_LAST - COMMAND_SETTINGS_FIRST + 1 };
 
-enum SettingsFormat {
-    SETTINGS_FORMAT_NONE = 0,
+enum GenerateSettingsMode {
+    GENERATE_SETTINGS_NONE = 0,
 
-    SETTINGS_FORMAT_HTML,
-    SETTINGS_FORMAT_MARKDOWN,
-    SETTINGS_FORMAT_TXT,
-    SETTINGS_FORMAT_BASH,
-    SETTINGS_FORMAT_CMD,
-    SETTINGS_FORMAT_HPP,
+    GENERATE_SETTINGS_HTML,
+    GENERATE_SETTINGS_MARKDOWN,
+    GENERATE_SETTINGS_TXT,
+    GENERATE_SETTINGS_BASH,
+    GENERATE_SETTINGS_CMD,
+    GENERATE_SETTINGS_HPP,
 
-    SETTINGS_FORMAT_FIRST = SETTINGS_FORMAT_NONE,
-    SETTINGS_FORMAT_LAST = SETTINGS_FORMAT_HPP,
+    GENERATE_SETTINGS_FIRST = GENERATE_SETTINGS_NONE,
+    GENERATE_SETTINGS_LAST = GENERATE_SETTINGS_HPP,
 };
 
-enum { SETTINGS_FORMAT_COUNT = SETTINGS_FORMAT_LAST - SETTINGS_FORMAT_FIRST + 1 };
+enum { GENERATE_SETTINGS_COUNT = GENERATE_SETTINGS_LAST - GENERATE_SETTINGS_FIRST + 1 };
 
 enum CommandError {
     ERROR_NONE = 0,
@@ -123,17 +121,19 @@ class CommandLine {
     void usage() const;
     void version() const;
 
+    Path GetInputPath() const;
+    Path GetOutputPath() const;
+
     const CommandType& command;
     const CommandResetArg& command_reset_arg;
     const CommandLayersArg& command_layers_arg;
     const CommandLoaderArg& command_loader_arg;
     const CommandDocArg& command_doc_arg;
-    const SettingsFormat& settings_format;
+    const GenerateSettingsMode& generate_settings_mode;
     const std::string& selected_layer_name;
     const std::string& selected_configuration_name;
-    const Path& input_path;
-    const Path& output_path;
     const bool& dry_run;
+    const HelpType& help;
 
     const CommandError& error;
     const std::vector<std::string>& error_args;
@@ -143,19 +143,20 @@ class CommandLine {
     CommandLine& operator=(const CommandLine&) = delete;
 
     CommandType _command = COMMAND_SHOW_USAGE;
-    CommandResetArg _command_reset_arg = COMMAND_RESET_NONE;
+    CommandResetArg _command_reset_arg = COMMAND_RESET_SOFT;
     CommandLayersArg _command_layers_arg = COMMAND_LAYERS_NONE;
     CommandLoaderArg _command_loader_arg = COMMAND_LOADER_NONE;
     CommandDocArg _command_doc_arg = COMMAND_DOC_NONE;
-    SettingsFormat _settings_format = SETTINGS_FORMAT_NONE;
-    std::string _selected_layer_name;
-    std::string _selected_configuration_name;
+    GenerateSettingsMode _generate_settings_mode = GENERATE_SETTINGS_TXT;
+    std::string _selected_layer_name = "default";
+    std::string _selected_configuration_name = "default";
     Path _input_path;
     Path _output_path;
+    Path _output_dir;
     bool _dry_run = false;
 
     CommandError _error = ERROR_NONE;
     std::vector<std::string> _error_args;
 
-    HelpType _help = HELP_NONE;
+    HelpType _help = HELP_DEFAULT;
 };

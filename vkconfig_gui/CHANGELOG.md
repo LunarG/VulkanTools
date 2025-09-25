@@ -14,7 +14,8 @@
 - Add an automatic default layer preset, to reset the layer settings to default
 
 ### Improvements:
-- Clean up Vulkan Configurator command line `help`
+- Clean up command line `help`
+- Improve command line consistency
 
 ### Fixes:
 - Fix invalid downloaded SDK filename

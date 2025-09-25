@@ -60,7 +60,6 @@ struct ModeDesc {
 
 static const ModeDesc mode_desc[] = {
     {COMMAND_NONE, "", HELP_DEFAULT},                 // COMMAND_NONE
-    {COMMAND_SHOW_USAGE, "-h", HELP_HELP},            // COMMAND_SHOW_USAGE
     {COMMAND_SHOW_USAGE, "--help", HELP_HELP},        // COMMAND_SHOW_USAGE
     {COMMAND_SHOW_USAGE, "help", HELP_HELP},          // COMMAND_SHOW_USAGE
     {COMMAND_VERSION, "-v", HELP_VERSION},            // COMMAND_VERSION
@@ -172,9 +171,10 @@ struct CommandSettingsDesc {
 };
 
 static const CommandSettingsDesc command_settings_desc[] = {
-    {COMMAND_SETTINGS_TXT, "--txt"},       {COMMAND_SETTINGS_BASH, "--bash"}, {COMMAND_SETTINGS_CMD, "--bat"},
-    {COMMAND_SETTINGS_HPP, "--hpp"},       {COMMAND_SETTINGS_HTML, "--html"}, {COMMAND_SETTINGS_MARKDOWN, "--markdown"},
-    {COMMAND_SETTINGS_OUTPUT, "--output"}, {COMMAND_SETTINGS_OUTPUT, "-o"},   {COMMAND_SETTINGS_DRY_RUN, "--dry-run"}};
+    {COMMAND_SETTINGS_MODE, "--mode"},     {COMMAND_SETTINGS_MODE, "-m"},          {COMMAND_SETTINGS_CONFIG, "--configuration"},
+    {COMMAND_SETTINGS_CONFIG, "-c"},       {COMMAND_SETTINGS_LAYER, "--layer"},    {COMMAND_SETTINGS_CONFIG, "-l"},
+    {COMMAND_SETTINGS_OUTPUT, "--output"}, {COMMAND_SETTINGS_OUTPUT, "-o"},        {COMMAND_SETTINGS_OUTPUT_DIR, "--output-dir"},
+    {COMMAND_SETTINGS_OUTPUT_DIR, "-d"},   {COMMAND_SETTINGS_DRY_RUN, "--dry-run"}};
 
 static CommandLayersArg GetCommandLayersId(const char* token) {
     assert(token != nullptr);
@@ -263,36 +263,60 @@ static const CommandSettingsDesc& GetCommandSettings(CommandSettingsArg export_a
     return command_settings_desc[0];
 }
 
-static const char* GetDefaultFilaname(SettingsFormat format) {
+static const char* GetDefaultFileExt(GenerateSettingsMode mode) {
     static const char* TABLE[] = {
-        "N/A",                        // SETTINGS_FORMAT_NONE
-        "vk_layer_settings.html",     // SETTINGS_FORMAT_HTML
-        "vk_layer_settings.mk",       // SETTINGS_FORMAT_MARKDOWN
-        "vk_layer_settings.txt",      // SETTINGS_FORMAT_TXT
-        "vk_layer_settings.sh",       // SETTINGS_FORMAT_BASH
-        "vk_layer_settings.bat",      // SETTINGS_FORMAT_CMD
-        "vulkan_layer_settings.hpp",  // SETTINGS_FORMAT_HPP
+        "N/A",    // GENERATE_SETTINGS_NONE
+        ".html",  // GENERATE_SETTINGS_HTML
+        ".md",    // GENERATE_SETTINGS_MARKDOWN
+        ".txt",   // GENERATE_SETTINGS_TXT
+        ".sh",    // GENERATE_SETTINGS_BASH
+        ".bat",   // GENERATE_SETTINGS_CMD
+        ".hpp",   // GENERATE_SETTINGS_HPP
     };
-    static_assert(std::size(TABLE) == SETTINGS_FORMAT_COUNT);
+    static_assert(std::size(TABLE) == GENERATE_SETTINGS_COUNT);
 
-    return TABLE[format - SETTINGS_FORMAT_FIRST];
+    return TABLE[mode - GENERATE_SETTINGS_FIRST];
 }
 
-static SettingsFormat GetSettingsFormat(CommandSettingsArg command_settings_arg) {
-    static const SettingsFormat TABLE[] = {
-        SETTINGS_FORMAT_NONE,      // COMMAND_SETTINGS_NONE
-        SETTINGS_FORMAT_TXT,       // COMMAND_SETTINGS_TXT
-        SETTINGS_FORMAT_BASH,      // COMMAND_SETTINGS_BASH
-        SETTINGS_FORMAT_CMD,       // COMMAND_SETTINGS_CMD
-        SETTINGS_FORMAT_HPP,       // COMMAND_SETTINGS_HPP
-        SETTINGS_FORMAT_HTML,      // COMMAND_SETTINGS_HTML
-        SETTINGS_FORMAT_MARKDOWN,  // COMMAND_SETTINGS_MARKDOWN
-        SETTINGS_FORMAT_NONE,      // COMMAND_SETTINGS_OUTPUT
-        SETTINGS_FORMAT_NONE,      // COMMAND_SETTINGS_DRY_RUN
+static std::string GetDefaultFilename(GenerateSettingsMode mode) {
+    static const char* TABLE[] = {
+        "N/A",                    // GENERATE_SETTINGS_NONE
+        "vk_layer_settings",      // GENERATE_SETTINGS_HTML
+        "vk_layer_settings",      // GENERATE_SETTINGS_MARKDOWN
+        "vk_layer_settings",      // GENERATE_SETTINGS_TXT
+        "vk_layer_settings",      // GENERATE_SETTINGS_BASH
+        "vk_layer_settings",      // GENERATE_SETTINGS_CMD
+        "vulkan_layer_settings",  // GENERATE_SETTINGS_HPP
     };
-    static_assert(std::size(TABLE) == COMMAND_SETTINGS_COUNT);
+    static_assert(std::size(TABLE) == GENERATE_SETTINGS_COUNT);
 
-    return TABLE[command_settings_arg];
+    return std::string(TABLE[mode - GENERATE_SETTINGS_FIRST]) + GetDefaultFileExt(mode);
+}
+
+static const char* GetToken(GenerateSettingsMode mode) {
+    static const char* TABLE[] = {
+        "N/A",       // GENERATE_SETTINGS_NONE
+        "html",      // GENERATE_SETTINGS_HTML
+        "markdown",  // GENERATE_SETTINGS_MARKDOWN
+        "txt",       // GENERATE_SETTINGS_TXT
+        "bash",      // GENERATE_SETTINGS_BASH
+        "bat",       // GENERATE_SETTINGS_CMD
+        "hpp",       // GENERATE_SETTINGS_HPP
+    };
+    static_assert(std::size(TABLE) == GENERATE_SETTINGS_COUNT);
+
+    return TABLE[mode - GENERATE_SETTINGS_FIRST];
+}
+
+static GenerateSettingsMode GetGenerateSettingsMode(const char* token) {
+    for (int i = GENERATE_SETTINGS_FIRST, n = GENERATE_SETTINGS_COUNT; i < n; ++i) {
+        const GenerateSettingsMode mode = static_cast<GenerateSettingsMode>(i);
+        if (std::strcmp(::GetToken(mode), token) == 0) {
+            return mode;
+        }
+    }
+
+    return GENERATE_SETTINGS_NONE;
 }
 
 CommandLine::CommandLine(int argc, char* argv[])
@@ -301,21 +325,13 @@ CommandLine::CommandLine(int argc, char* argv[])
       command_layers_arg(_command_layers_arg),
       command_loader_arg(_command_loader_arg),
       command_doc_arg(_command_doc_arg),
-      settings_format(_settings_format),
+      generate_settings_mode(_generate_settings_mode),
       selected_layer_name(_selected_layer_name),
       selected_configuration_name(_selected_configuration_name),
-      input_path(_input_path),
-      output_path(_output_path),
       dry_run(_dry_run),
       error(_error),
       error_args(_error_args),
-      _command_reset_arg(COMMAND_RESET_NONE),
-      _command_layers_arg(COMMAND_LAYERS_NONE),
-      _command_loader_arg(COMMAND_LOADER_NONE),
-      _command_doc_arg(COMMAND_DOC_NONE),
-      _settings_format(SETTINGS_FORMAT_NONE),
-      _error(ERROR_NONE),
-      _help(HELP_DEFAULT) {
+      help(_help) {
     assert(argc >= 1);
 
     if (argc <= 1) {
@@ -344,9 +360,9 @@ CommandLine::CommandLine(int argc, char* argv[])
 
             while (arg_offset < argc) {
                 std::string command_argument = argv[arg_offset];
-                this->_command_loader_arg = ::GetCommandLoaderId(command_argument.c_str());
+                CommandLoaderArg command_loader = ::GetCommandLoaderId(command_argument.c_str());
 
-                switch (this->_command_loader_arg) {
+                switch (command_loader) {
                     default:
                     case COMMAND_LOADER_NONE: {
                         this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
@@ -409,6 +425,10 @@ CommandLine::CommandLine(int argc, char* argv[])
                     } break;
                 }
 
+                if (this->_command_loader_arg == COMMAND_LOADER_NONE) {
+                    this->_command_loader_arg = command_loader;
+                }
+
                 if (this->_error != ERROR_NONE) {
                     this->_error_args.push_back(command_mode_name);
                     this->_error_args.push_back(command_argument);
@@ -428,9 +448,9 @@ CommandLine::CommandLine(int argc, char* argv[])
 
             while (arg_offset < argc) {
                 std::string command_argument = argv[arg_offset];
-                this->_command_layers_arg = ::GetCommandLayersId(command_argument.c_str());
+                CommandLayersArg command_layers = ::GetCommandLayersId(command_argument.c_str());
 
-                switch (this->_command_layers_arg) {
+                switch (command_layers) {
                     default:
                     case COMMAND_LAYERS_NONE: {
                         this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
@@ -455,6 +475,10 @@ CommandLine::CommandLine(int argc, char* argv[])
                     case COMMAND_LAYERS_LIST: {
                         ++arg_offset;
                     } break;
+                }
+
+                if (this->_command_layers_arg == COMMAND_LAYERS_NONE) {
+                    this->_command_layers_arg = command_layers;
                 }
 
                 if (this->_error != ERROR_NONE) {
@@ -495,15 +519,15 @@ CommandLine::CommandLine(int argc, char* argv[])
                     break;
                 case COMMAND_DOC_HTML:
                     printf("vkconfig: \"vkconfig doc --html\" is deprecated\n");
-                    printf("\n  (Run \"vkconfig settings --html\" instead)\n");
+                    printf("\n  (Run \"vkconfig settings --mode html\" instead)\n");
                     break;
                 case COMMAND_DOC_MARKDOWN:
                     printf("vkconfig: \"vkconfig doc --markdown\" is deprecated\n");
-                    printf("\n  (Run \"vkconfig settings --markdown\" instead)\n");
+                    printf("\n  (Run \"vkconfig settings --mode markdown\" instead)\n");
                     break;
                 case COMMAND_DOC_SETTINGS:
                     printf("vkconfig: \"vkconfig doc --settings\" is deprecated\n");
-                    printf("\n  (Run \"vkconfig settings --txt\" instead)\n");
+                    printf("\n  (Run \"vkconfig settings --mode txt\" instead)\n");
                     break;
             }
         } break;
@@ -526,45 +550,55 @@ CommandLine::CommandLine(int argc, char* argv[])
                     case COMMAND_SETTINGS_NONE: {
                         this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
                     } break;
-                    case COMMAND_SETTINGS_TXT:
-                    case COMMAND_SETTINGS_BASH:
-                    case COMMAND_SETTINGS_CMD:
-                    case COMMAND_SETTINGS_HPP:
-                    case COMMAND_SETTINGS_HTML:
-                    case COMMAND_SETTINGS_MARKDOWN: {
-                        this->_settings_format = ::GetSettingsFormat(command_settings_arg);
-
-                        if (this->_settings_format == SETTINGS_FORMAT_HTML || this->_settings_format == SETTINGS_FORMAT_MARKDOWN) {
-                            if (argc <= arg_offset + 1) {
-                                this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
-                            } else {
-                                const std::string layer_name = argv[arg_offset + 1];
-                                if (layer_name[0] == '-') {  // Not a value but another argumment
-                                    this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
-                                } else {
-                                    this->_selected_layer_name = layer_name;
-                                    arg_offset += 2;
-                                }
-                            }
+                    case COMMAND_SETTINGS_CONFIG: {
+                        if (argc <= arg_offset + 1) {
+                            arg_offset += 1;
                         } else {
-                            if (argc <= arg_offset + 1) {
-                                this->_selected_configuration_name = "default";
+                            const std::string configuration_name = argv[arg_offset + 1];
+                            if (configuration_name[0] == '-') {  // Not a value but another argumment
                                 arg_offset += 1;
                             } else {
-                                const std::string configuration_name = argv[arg_offset + 1];
-                                if (configuration_name[0] == '-') {  // Not a value but another argumment
-                                    this->_selected_configuration_name = "default";
-                                    arg_offset += 1;
-                                } else {
-                                    this->_selected_configuration_name = configuration_name;
-                                    arg_offset += 2;
-                                }
+                                this->_selected_configuration_name = configuration_name;
+                                arg_offset += 2;
                             }
                         }
-
-                        if (this->_output_path.Empty()) {
-                            this->_output_path = ::GetDefaultFilaname(this->_settings_format);
+                    } break;
+                    case COMMAND_SETTINGS_LAYER: {
+                        if (argc <= arg_offset + 1) {
+                            arg_offset += 1;
+                        } else {
+                            const std::string layer_name = argv[arg_offset + 1];
+                            if (layer_name[0] == '-') {  // Not a value but another argumment
+                                this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                            } else {
+                                this->_selected_layer_name = layer_name;
+                                arg_offset += 2;
+                            }
                         }
+                    } break;
+                    case COMMAND_SETTINGS_MODE: {
+                        if (argc <= arg_offset + 1) {
+                            this->_error = ERROR_MISSING_COMMAND_ARGUMENT;
+                        } else {
+                            const std::string mode_name = argv[arg_offset + 1];
+                            if (mode_name[0] == '-') {  // Not a value but another argumment
+                                this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                            } else {
+                                this->_generate_settings_mode = ::GetGenerateSettingsMode(mode_name.c_str());
+                                arg_offset += 2;
+                            }
+                        }
+                    } break;
+                    case COMMAND_SETTINGS_OUTPUT_DIR: {
+                        // Missing --output_dir value
+                        if (argc <= arg_offset + 1) {
+                            this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
+                            break;
+                        }
+
+                        // <output_dir> arg was specified
+                        this->_output_dir = argv[arg_offset + 1];
+                        arg_offset += 2;
                     } break;
                     case COMMAND_SETTINGS_OUTPUT: {
                         // Missing --output value
@@ -702,7 +736,7 @@ void CommandLine::usage() const {
             printf("\tlayers        = List the Vulkan layers found on the system.\n");
             printf("\tsettings      = Create layer setting files for Vulkan developers.\n");
             printf("\n");
-            printf("  (Use 'vkconfig help <command>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
+            printf("  (Run 'vkconfig help <command>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
             break;
         }
         case HELP_HELP: {
@@ -752,11 +786,11 @@ void CommandLine::usage() const {
             printf("\n");
             printf("\tvkconfig layers (--override | -o) <loader_configuration_file>\n");
             printf("\t\tOverride the Vulkan layers using <loader_configuration_file> generated by %s.\n", VKCONFIG_NAME);
-            printf("\t\tDEPRECATED: use `vkconfig loader --override` instead.\n");
+            printf("\t  (DEPRECATED: Use `vkconfig loader --override` instead.)\n");
             printf("\n");
             printf("\tvkconfig layers (--surrender | -s)\n");
             printf("\t\tSurrender the Vulkan layers control to Vulkan applications.\n");
-            printf("\t\tDEPRECATED: use `vkconfig loader --surrender` instead.\n");
+            printf("\t  (DEPRECATED: Use `vkconfig loader --surrender` instead.)\n");
             break;
         }
         case HELP_LOADER: {
@@ -778,6 +812,7 @@ void CommandLine::usage() const {
             printf("\t\tOverride the system Vulkan Layers configuration generated by %s.\n", VKCONFIG_NAME);
             printf("\t\t - <configuration_index> is an index enumerated with `vkconfig loader --list`.\n");
             printf("\t\t - <configuration_name> is the name of the stored configuration listed with `vkconfig loader --list`.\n");
+            printf("\t  (Run 'vkconfig loader --list' to enumerate the available configurations.)\n");
             printf("\n");
             printf("\tvkconfig loader (--surrender | -s)\n");
             printf("\t\tSurrender the Vulkan Loader configuration to Vulkan applications.\n");
@@ -792,11 +827,13 @@ void CommandLine::usage() const {
             printf("\t\tExport a Vulkan Layers configuration stored by %s on the system.\n", VKCONFIG_NAME);
             printf("\t\t - <configuration_index> is an index enumerated with `vkconfig loader --list`.\n");
             printf("\t\t - <configuration_name> is the name of the stored configuration listed with `vkconfig loader --list`.\n");
+            printf("\t  (Run 'vkconfig loader --list' to enumerate the available configurations.)\n");
             printf("\n");
             printf("\tvkconfig loader (--delete | -d) (<configuration_index> | <configuration_name>)\n");
             printf("\t\tRemove a Vulkan Layers configuration stored by %s on the system.\n", VKCONFIG_NAME);
             printf("\t\t - <configuration_index> is an index enumerated with `vkconfig loader --list`.\n");
             printf("\t\t - <configuration_name> is the name of the stored configuration listed with `vkconfig loader --list`.\n");
+            printf("\t  (Run 'vkconfig loader --list' to enumerate the available configurations.)\n");
             break;
         }
         case HELP_SETTINGS: {
@@ -804,68 +841,72 @@ void CommandLine::usage() const {
             printf("\t'settings' - Command to generate layer settings files\n");
             printf("\n");
             printf("Synopsis\n");
-            // printf("\tvkconfig settings --html <layer_name> [(--output | -o) <output_file>] [--dry-run]\n");
-            // printf("\tvkconfig settings --markdown <layer_name> [(--output | -o) <output_file>] [--dry-run]\n");
-            printf(
-                "\tvkconfig settings --txt [<configuration_index> | <configuration_name> | default] [(--output | -o) "
-                "<output_file>] [--dry-run]\n");
-            printf(
-                "\tvkconfig settings --bash [<configuration_index> | <configuration_name> | default] [(--output | -o) "
-                "<output_file>] [--dry-run]\n");
-            printf(
-                "\tvkconfig settings --bat [<configuration_index> | <configuration_name> | default] [(--output | -o) "
-                "<output_file>] [--dry-run]\n");
-            printf(
-                "\tvkconfig settings --hpp [<configuration_index> | <configuration_name> | default] [(--output | -o) "
-                "<output_file>] [--dry-run]\n");
+            printf("\tvkconfig settings\n");
+            printf("\t                  [--mode (html | markdown | txt | bash | bat | hpp)]\n");
+            printf("\t                  [--configuration [<configuration_index> | <configuration_name> | default]]\n");
+            printf("\t                  [--layer [<layer_name> | default]]\n");
+            printf("\t                  [(--output-dir) <output_dir>]\n");
+            printf("\t                  [(--output | -o) <output_file>]\n");
+            printf("\t                  [--dry-run]\n");
             printf("\n");
             printf("Description\n");
             printf("\n");
-            /*
-            printf("\tvkconfig settings --html <layer_name> [(--output | -o) <output_file>] [--dry-run]\n");
-            printf("\t\tGenerate vk_layer_settings.txt file of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
-            printf("\t\t `--output`: Specify the output file path.\n");
-            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
+            printf("\tGenerate layer settings files either for system configuration or documentation of a layers configuration.\n");
             printf("\n");
-            printf("\tvkconfig settings --markdown <layer_name> [(--output | -o) <output_file>] [--dry-run]\n");
-            printf("\t\tGenerate vk_layer_settings.txt file of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
-            printf("\t\t `--output`: Specify the output file path.\n");
-            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
-            printf("\n");
-*/
+            printf("Arguments\n");
+            printf("\t`[--mode (html | markdown | txt | bash | bat | hpp)]`\n");
+            printf("\t\tSpecify the layer settings generation mode, the default value is 'txt':\n");
             printf(
-                "\tvkconfig settings --txt [<configuration_index> | <configuration_name> | default] [(--output | -o) "
-                "<output_file>] [--dry-run]\n");
-            printf("\t\tGenerate vk_layer_settings.txt file of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
-            printf("\t\t `--output`: Specify the output file path.\n");
-            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
-            printf("\n");
+                "\t\t- 'html' to generate the HTML layer settings documentation, the default filename is "
+                "'vk_layer_settings.html'\n");
             printf(
-                "\tvkconfig settings --bash [<configuration_index> | <configuration_name> | default] [(--output | -o) "
-                "<output_file>] [--dry-run]\n");
-            printf("\t\tGenerate the environment variables bash script of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
-            printf("\t\t `--output`: Specify the output file path.\n");
-            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
-            printf("\n");
+                "\t\t- 'markdown' to generate the Markdown layer settings documentation, the default filename is "
+                "'vk_layer_settings.md'\n");
             printf(
-                "\tvkconfig settings --bat (<configuration_index> | <configuration_name> | default) [(--output | -o) "
-                "<output_file>] [--dry-run]\n");
-            printf("\t\tGenerate the environment variables command prompt script of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
-            printf("\t\t `--output`: Specify the output file path.\n");
-            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
-            printf("\n");
+                "\t\t- 'txt' to generate the `vk_layer_settings.txt` layer settings file, the default filename is "
+                "'vk_layer_settings.txt'\n");
             printf(
-                "\tvkconfig settings --hpp (<configuration_index> | <configuration_name> | default) [(--output | -o) "
-                "<output_file>] [--dry-run]\n");
-            printf("\t\tGenerate VK_EXT_layer_settings code of a layers configuration.\n");
-            printf("\t\tThe file is written to <output_file>, or current directory if not specified.\n");
-            printf("\t\t `--output`: Specify the output file path.\n");
-            printf("\t\t `--dry-run`: Run without affecting the system and Vulkan Configurator files.\n");
+                "\t\t- 'bash' to generate the environment variables layer settings script for 'Bash', the default filename is "
+                "'vk_layer_settings.sh'\n");
+            printf(
+                "\t\t- 'bat' to generate the environment variables layer settings script for 'command prompt', the default "
+                "filename is 'vk_layer_settings.bat'\n");
+            printf("\t\t- 'hpp' to generate the C++ layer settings helper code, the default filename is 'vk_layer_settings.hpp'\n");
+            printf("\t  (Run 'vkconfig layers --list' to enumerate the available layers.)\n");
+            printf("\n");
+            printf("\t`[--configuration [<configuration_index> | <configuration_name> | default]]`\n");
+            printf(
+                "\t\tSpecify the configuration name or index in the configuration list. If the argument is not set or set to "
+                "'default', the default layer settings will be used.\n");
+            printf("\t  (Run 'vkconfig loader --list' to enumerate the available configurations.)\n");
+            printf("\n");
+            printf("\t`[--layer <layer_name>]`\n");
+            printf(
+                "\t\tSpecify the layer name, if the argument is not set or set to 'default', all the found layers will be used.\n");
+            printf("\t  (Run 'vkconfig layers --list' to enumerate the available layers.)\n");
+            printf("\n");
+            printf("\t`[--output-dir | -d] <output_dir>`\n");
+            printf(
+                "\t\tSpecify the output directory path. The filename used will be the default filename if <output_file> is not "
+                "set\n");
+            printf("\t\t- If the 'mode' is set to 'html', the default filename is 'vk_layer_settings.html'\n");
+            printf("\t\t- If the 'mode' is set to 'markdown', the default filename is 'vk_layer_settings.md'\n");
+            printf("\t\t- If the 'mode' is set to 'txt', the default filename is 'vk_layer_settings.txt'\n");
+            printf("\t\t- If the 'mode' is set to 'bash', the default filename is 'vk_layer_settings.sh'\n");
+            printf("\t\t- If the 'mode' is set to 'bat', the default filename is 'vk_layer_settings.bat'\n");
+            printf("\t\t- If the 'mode' is set to 'hpp', the default filename is 'vk_layer_settings.hpp'\n");
+            printf("\n");
+            printf("\t`[(--output | -o) <output_file>]`\n");
+            printf("\t\tSpecify the output file path. If <output_dir> is set, then <output_file> must be the filename only.\n");
+            printf("\t\t- If the 'mode' is set to 'html', the default filename is 'vk_layer_settings.html'\n");
+            printf("\t\t- If the 'mode' is set to 'markdown', the default filename is 'vk_layer_settings.md'\n");
+            printf("\t\t- If the 'mode' is set to 'txt', the default filename is 'vk_layer_settings.txt'\n");
+            printf("\t\t- If the 'mode' is set to 'bash', the default filename is 'vk_layer_settings.sh'\n");
+            printf("\t\t- If the 'mode' is set to 'bat', the default filename is 'vk_layer_settings.bat'\n");
+            printf("\t\t- If the 'mode' is set to 'hpp', the default filename is 'vk_layer_settings.hpp'\n");
+            printf("\n");
+            printf("\t`[--dry-run]`\n");
+            printf("\t\tRun without affecting the system and Vulkan Configurator files.\n");
             break;
         }
         case HELP_DOC: {
@@ -881,14 +922,22 @@ void CommandLine::usage() const {
             printf("\tvkconfig doc --html <layer_name> [<output_dir>]\n");
             printf("\t\tCreate the html documentation file for the given layer.\n");
             printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
+            printf(
+                "\t  (DEPRECATED: Run `vkconfig settings --mode html --layer <layer_name> [--output-dir <output_dir>]` "
+                "instead.)\n");
             printf("\n");
             printf("\tvkconfig doc --markdown <layer_name> [<output_dir>]\n");
             printf("\t\tCreate the markdown documentation file for the given layer.\n");
             printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
+            printf(
+                "\t  (DEPRECATED: Run `vkconfig settings --mode markdown --layer <layer_name> [--output-dir <output_dir>]` "
+                "instead.)\n");
             printf("\n");
             printf("\tvkconfig doc --settings <layer_name> [<output_dir>]\n");
             printf("\t\tCreate the vk_layers_settings.txt file for the given layer.\n");
             printf("\t\tThe file is written to <output_dir>, or current directory if not specified.\n");
+            printf(
+                "\t  (DEPRECATED: Run `vkconfig settings --mode txt --layer <layer_name> [--output-dir <output_dir>]` instead.)\n");
             break;
         }
         case HELP_RESET: {
@@ -915,4 +964,23 @@ void CommandLine::version() const {
     const std::string& version = Version::VKCONFIG.str();
 
     printf("%s version %s\n", VKCONFIG_NAME, version.c_str());
+}
+
+Path CommandLine::GetInputPath() const { return this->_input_path; }
+
+Path CommandLine::GetOutputPath() const {
+    Path output_path = this->_output_path;
+    if (output_path.Empty()) {
+        if (this->selected_layer_name.empty() || this->selected_layer_name == "default") {
+            output_path = ::GetDefaultFilename(this->_generate_settings_mode);
+        } else {
+            output_path = this->selected_layer_name + GetDefaultFileExt(this->_generate_settings_mode);
+        }
+    }
+
+    if (this->_output_dir.Empty()) {
+        return output_path;
+    } else {
+        return this->_output_dir.AbsolutePath() + "/" + output_path.Filename().c_str();
+    }
 }

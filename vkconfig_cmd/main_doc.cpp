@@ -37,9 +37,9 @@ int run_doc_html(Configurator& configurator, const CommandLine& command_line) {
         return -1;
     }
 
-    const std::string path = format("%s/%s.html", command_line.output_path.AbsolutePath().c_str(), layer->key.c_str());
+    const std::string path = format("%s/%s.html", command_line.GetOutputPath().AbsoluteDir().c_str(), layer->key.c_str());
 
-    return ExportHtmlDoc(*layer, path);
+    return ExportHtmlDoc(configurator, layer, path);
 }
 
 int run_doc_markdown(Configurator& configurator, const CommandLine& command_line) {
@@ -51,9 +51,9 @@ int run_doc_markdown(Configurator& configurator, const CommandLine& command_line
         return -1;
     }
 
-    const std::string path = format("%s/%s.md", command_line.output_path.AbsolutePath().c_str(), layer->key.c_str());
+    const std::string path = format("%s/%s.md", command_line.GetOutputPath().AbsoluteDir().c_str(), layer->key.c_str());
 
-    return ExportMarkdownDoc(*layer, path);
+    return ExportMarkdownDoc(configurator, layer, path);
 }
 
 int run_doc_settings(Configurator& configurator, const CommandLine& command_line) {
@@ -74,7 +74,9 @@ int run_doc_settings(Configurator& configurator, const CommandLine& command_line
         }
     }
 
-    return ExportSettingsDoc(configurator, command_line.output_path.AbsolutePath() + "/vk_layer_settings.txt");
+    const std::string path = format("%s/vk_layer_settings.txt", command_line.GetOutputPath().AbsoluteDir().c_str());
+
+    return ExportSettingsDoc(configurator, layer, path);
 }
 
 int run_doc(const CommandLine& command_line) {

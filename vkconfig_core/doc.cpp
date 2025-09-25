@@ -608,13 +608,15 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
     }
 }
 
-bool ExportHtmlDoc(const Layer& layer, const std::string& path) {
+bool ExportHtmlDoc(Configurator& configurator, const Layer* requested_layer, const Path& path) {
     std::string text;
+
+    const Configuration* configuration = configurator.GetActiveConfiguration();
 
     text += "<!DOCTYPE html>\n";
     text += "<html>\n";
-    text += format("<head><title></title></head>\n", layer.key.c_str());
-    text += "<body>\n";
+    text += format("<head><title></title></head>\n", configuration->key.c_str());
+    text += "<body id=\"top\">\n";
     text += "<style>\n";
     text += "\ta {color: #A41E22;}\n";
     text += "\th1 {color: #A41E22;}\n";
@@ -625,203 +627,247 @@ bool ExportHtmlDoc(const Layer& layer, const std::string& path) {
     text += "\t.desc {width:50%;}\n";
     text += "</style>\n";
 
-    text += "<h1 id=\"top\">";
-    if (layer.url.Empty()) {
-        text += format("%s\n", layer.key.c_str());
-    } else {
-        text += format("<a href=\"%s\">%s</a>\n", layer.url.AbsolutePath(false).c_str(), layer.key.c_str());
-    }
+    for (std::size_t parameter_index = 0, parameter_count = configuration->parameters.size(); parameter_index < parameter_count;
+         ++parameter_index) {
+        const Parameter& parameter = configuration->parameters[parameter_index];
+        if (requested_layer == nullptr && parameter.control == LAYER_CONTROL_OFF) {
+            continue;
+        }
 
-    if (layer.status != STATUS_STABLE) {
-        text += format(" (%s)", GetToken(layer.status));
-    }
-    text += "</h1>\n";
-
-    if (!layer.description.empty()) {
-        text += "<h3>" + layer.description + "</h3>\n";
-    }
-
-    if (!layer.introduction.empty()) {
-        text += format("<p>%s</p>\n", layer.introduction.c_str());
-    }
-
-    text += "<h2>Layer Properties</h2>\n";
-    text += "<ul>\n";
-    text += format("\t<li>API Version: %s</li>\n", layer.api_version.str().c_str());
-    text += format("\t<li>Implementation Version: %s</li>\n", layer.implementation_version.c_str());
-    text += format("\t<li>Layer Manifest: <span class=\"code\">%s</span><ul>\n",
-                   QFileInfo(layer.manifest_path.RelativePath().c_str()).fileName().toStdString().c_str());
-    text += format("\t\t<li>File Format: %s</li>\n", layer.file_format_version.str().c_str());
-    text += format("\t\t<li>Layer Binary Path: <span class=\"code\">%s</span></li>\n",
-                   ::ConvertStandardSeparators(layer.binary_path.RelativePath()).c_str());
-    text += "\t</ul></li>\n";
-    if (layer.platforms != 0) {
-        text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHtml(layer.platforms).c_str());
-    }
-    if (layer.status != STATUS_STABLE) {
-        text += format("\t<li>Status: %s</li>\n", GetToken(layer.status));
-    }
-    if (!layer.settings.empty()) {
-        text +=
-            format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n", ::CountSettings(layer.settings, true));
-    }
-    if (!layer.presets.empty()) {
-        text += format("\t<li><a href=\"#presets\">Number of Layer Presets: %d</a></li>\n", layer.presets.size());
-    }
-    text += "</ul>\n";
-
-    if (!layer.settings.empty()) {
-        text += "<h2><a id=\"settings\">Layer Settings Overview</a></h2>\n";
-        text += "<table><thead><tr>";
-        text +=
-            format("<th>Label</th><th><a href=\"%s\">Variables Key</a></th><th>Type</th><th>Default Value</th><th>Platforms</th>",
-                   GetLayerSettingsDocURL(layer).c_str());
-        text += "</tr></thead><tbody>\n";
-        WriteSettingsOverviewHtml(text, layer, layer.settings, 0);
-        text += "</tbody></table>\n";
-
-        text += "<h2>Layer Settings Details</h2>\n";
-        WriteSettingsDetailsHtml(text, layer, layer.settings);
-    }
-
-    if (!layer.presets.empty()) {
-        text += "<h2><a id=\"presets\">Layer Presets</a></h2>\n";
-        for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
-            const LayerPreset& preset = layer.presets[i];
-
-            text += format("<h3>%s</h3>\n", preset.label.c_str());
-            text += format("<p>%s</p>", preset.description.c_str());
-
-            text += "<h4>Preset Setting Values:</h4>\n";
-            text += "<ul>\n";
-
-            for (std::size_t j = 0, o = preset.settings.size(); j < o; ++j) {
-                const SettingData* data = preset.settings[j];
-                const SettingMeta* meta = FindSetting(layer.settings, data->key.c_str());
-
-                text += format("\t<li><a href=\"#%s-detailed\">%s</a>: <span class=\"code\">%s</span></li>\n", meta->key.c_str(),
-                               meta->label.c_str(), data->Export(EXPORT_MODE_DOC).c_str());
+        if (requested_layer != nullptr) {
+            if (requested_layer->key != parameter.key) {
+                continue;
             }
+        }
 
-            text += "</ul>\n";
+        const Layer* layer =
+            requested_layer == nullptr ? configurator.layers.Find(parameter.key.c_str(), Version::LATEST) : requested_layer;
+        if (layer == nullptr) {
+            continue;
+        }
+
+        text += "<h1>";
+        if (layer->url.Empty()) {
+            text += format("%s\n", layer->key.c_str());
+        } else {
+            text += format("<a href=\"%s\">%s</a>\n", layer->url.AbsolutePath(false).c_str(), layer->key.c_str());
+        }
+
+        if (layer->status != STATUS_STABLE) {
+            text += format(" (%s)", GetToken(layer->status));
+        }
+        text += "</h1>\n";
+
+        if (!layer->description.empty()) {
+            text += "<h3>" + layer->description + "</h3>\n";
+        }
+
+        if (!layer->introduction.empty()) {
+            text += format("<p>%s</p>\n", layer->introduction.c_str());
+        }
+
+        text += "<h2>Layer Properties</h2>\n";
+        text += "<ul>\n";
+        text += format("\t<li>API Version: %s</li>\n", layer->api_version.str().c_str());
+        text += format("\t<li>Implementation Version: %s</li>\n", layer->implementation_version.c_str());
+        text += format("\t<li>Layer Manifest: <span class=\"code\">%s</span><ul>\n",
+                       QFileInfo(layer->manifest_path.RelativePath().c_str()).fileName().toStdString().c_str());
+        text += format("\t\t<li>File Format: %s</li>\n", layer->file_format_version.str().c_str());
+        text += format("\t\t<li>Layer Binary Path: <span class=\"code\">%s</span></li>\n",
+                       ::ConvertStandardSeparators(layer->binary_path.RelativePath()).c_str());
+        text += "\t</ul></li>\n";
+        if (layer->platforms != 0) {
+            text += format("\t<li>Platforms: %s</li>\n", BuildPlatformsHtml(layer->platforms).c_str());
+        }
+        if (layer->status != STATUS_STABLE) {
+            text += format("\t<li>Status: %s</li>\n", GetToken(layer->status));
+        }
+        if (!layer->settings.empty()) {
+            text += format("\t<li><a href=\"#settings\">Number of Layer Settings: %d</a></li>\n",
+                           ::CountSettings(layer->settings, true));
+        }
+        if (!layer->presets.empty()) {
+            text += format("\t<li><a href=\"#presets\">Number of Layer Presets: %d</a></li>\n", layer->presets.size());
+        }
+        text += "</ul>\n";
+
+        if (!layer->settings.empty()) {
+            text += "<h2><a id=\"settings\">Layer Settings Overview</a></h2>\n";
+            text += "<table><thead><tr>";
+            text += format(
+                "<th>Label</th><th><a href=\"%s\">Variables Key</a></th><th>Type</th><th>Default Value</th><th>Platforms</th>",
+                GetLayerSettingsDocURL(*layer).c_str());
+            text += "</tr></thead><tbody>\n";
+            WriteSettingsOverviewHtml(text, *layer, layer->settings, 0);
+            text += "</tbody></table>\n";
+
+            text += "<h2>Layer Settings Details</h2>\n";
+            WriteSettingsDetailsHtml(text, *layer, layer->settings);
+        }
+
+        if (!layer->presets.empty()) {
+            text += "<h2><a id=\"presets\">Layer Presets</a></h2>\n";
+            for (std::size_t i = 0, n = layer->presets.size(); i < n; ++i) {
+                const LayerPreset& preset = layer->presets[i];
+
+                text += format("<h3>%s</h3>\n", preset.label.c_str());
+                text += format("<p>%s</p>", preset.description.c_str());
+
+                text += "<h4>Preset Setting Values:</h4>\n";
+                text += "<ul>\n";
+
+                for (std::size_t j = 0, o = preset.settings.size(); j < o; ++j) {
+                    const SettingData* data = preset.settings[j];
+                    const SettingMeta* meta = FindSetting(layer->settings, data->key.c_str());
+
+                    text += format("\t<li><a href=\"#%s-detailed\">%s</a>: <span class=\"code\">%s</span></li>\n",
+                                   meta->key.c_str(), meta->label.c_str(), data->Export(EXPORT_MODE_DOC).c_str());
+                }
+
+                text += "</ul>\n";
+            }
         }
     }
 
     text += "</body>\n";
     text += "</html>\n";
 
-    QFile file(path.c_str());
+    QFile file(path.AbsolutePath().c_str());
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         file.write(text.c_str());
         file.close();
-        printf("vkconfig: HTML file written to %s\n", path.c_str());
+        printf("vkconfig: HTML file written to %s\n", path.AbsolutePath().c_str());
         return true;
     } else {
-        printf("vkconfig: could not write %s\n", path.c_str());
+        printf("vkconfig: Could not write %s\n", path.AbsolutePath().c_str());
         return false;
     }
 }
 
-bool ExportMarkdownDoc(const Layer& layer, const std::string& path) {
+bool ExportMarkdownDoc(Configurator& configurator, const Layer* requested_layer, const Path& path) {
     std::string text;
 
-    text += format("# %s\n", layer.key.c_str());
-    text += "\n";
+    const Configuration* configuration = configurator.GetActiveConfiguration();
 
-    if (!layer.description.empty()) {
-        text += "## " + layer.description + "\n";
-        text += "\n";
-    }
+    for (std::size_t parameter_index = 0, parameter_count = configuration->parameters.size(); parameter_index < parameter_count;
+         ++parameter_index) {
+        const Parameter& parameter = configuration->parameters[parameter_index];
+        if (requested_layer == nullptr && parameter.control == LAYER_CONTROL_OFF) {
+            continue;
+        }
 
-    if (!layer.introduction.empty()) {
-        text += layer.introduction + "\n";
-        text += "\n";
-    }
-
-    text += "## Layer Properties\n";
-    text += "\n";
-    text += "- API Version: " + layer.api_version.str() + "\n";
-    text += "- Implementation Version: " + layer.implementation_version + "\n";
-    text += "- Layer Manifest: `" + QFileInfo(layer.manifest_path.RelativePath().c_str()).fileName().toStdString() + "`\n";
-    text += "  - File Format: " + layer.file_format_version.str() + "\n";
-    text += "  - Layer Binary: `";
-    text += (::ConvertStandardSeparators(layer.binary_path.RelativePath()).rfind("./", 0) == 0
-                 ? ::ConvertStandardSeparators(layer.binary_path.RelativePath()).substr(2)
-                 : ::ConvertStandardSeparators(layer.binary_path.RelativePath())) +
-            "`\n";
-    text += "- Variables:\n";
-    text += format("  - `vk_layer_settings.txt` namespace: `%s`\n", ToLowerCase(TrimPrefix(layer.key)).c_str());
-    text += format("  - Environment Variable prefix: `VK_%s_`\n", ToUpperCase(TrimPrefix(layer.key)).c_str());
-    text +=
-        format("  - Android system property prefix: `adb setprop debug.vulkan.%s.`\n", ToLowerCase(TrimPrefix(layer.key)).c_str());
-
-    if (layer.platforms != 0) {
-        text += "- Platforms: " + BuildPlatformsMarkdown(layer.platforms) + "\n";
-    }
-    if (layer.status != STATUS_STABLE) {
-        text += format(" - Status: %s\n", GetToken(layer.status));
-    }
-    if (!layer.settings.empty()) {
-        text += format("- Number of Layer Settings: %d\n", ::CountSettings(layer.settings, true));
-    }
-    if (!layer.presets.empty()) {
-        text += format("- Number of Layer Presets: %d\n", layer.presets.size());
-    }
-    text += "\n";
-
-    if (!layer.settings.empty()) {
-        text += "## Layer Settings Overview\n";
-        text += "\n";
-        text += "|Label|Variables Key|Type|Default Value|Platforms|\n";
-        text += "|---|---|---|---|---|\n";
-        WriteSettingsOverviewMarkdown(text, layer, layer.settings, 0);
-        text += "\n";
-
-        text += "## Layer Settings Details\n";
-        text += "\n";
-        WriteSettingsDetailsMarkdown(text, layer, layer.settings);
-    }
-
-    if (!layer.presets.empty()) {
-        text += "## Layer Presets\n";
-        text += "\n";
-        for (std::size_t i = 0, n = layer.presets.size(); i < n; ++i) {
-            const LayerPreset& preset = layer.presets[i];
-
-            text += "### " + preset.label + "\n";
-            text += "\n";
-            text += preset.description + "\n";
-            text += "\n";
-            text += "#### Preset Setting Values:\n";
-            for (std::size_t j = 0, o = preset.settings.size(); j < o; ++j) {
-                const SettingData* data = preset.settings[j];
-                const SettingMeta* meta = FindSetting(layer.settings, data->key.c_str());
-
-                text += "- " + meta->label + ": " + data->Export(EXPORT_MODE_DOC).c_str() + "\n";
+        if (requested_layer != nullptr) {
+            if (requested_layer->key != parameter.key) {
+                continue;
             }
+        }
+
+        const Layer* layer =
+            requested_layer == nullptr ? configurator.layers.Find(parameter.key.c_str(), Version::LATEST) : requested_layer;
+        if (layer == nullptr) {
+            continue;
+        }
+
+        text += format("# %s\n", layer->key.c_str());
+        text += "\n";
+
+        if (!layer->description.empty()) {
+            text += "## " + layer->description + "\n";
             text += "\n";
+        }
+
+        if (!layer->introduction.empty()) {
+            text += layer->introduction + "\n";
+            text += "\n";
+        }
+
+        text += "## Layer Properties\n";
+        text += "\n";
+        text += "- API Version: " + layer->api_version.str() + "\n";
+        text += "- Implementation Version: " + layer->implementation_version + "\n";
+        text += "- Layer Manifest: `" + QFileInfo(layer->manifest_path.RelativePath().c_str()).fileName().toStdString() + "`\n";
+        text += "  - File Format: " + layer->file_format_version.str() + "\n";
+        text += "  - Layer Binary: `";
+        text += (::ConvertStandardSeparators(layer->binary_path.RelativePath()).rfind("./", 0) == 0
+                     ? ::ConvertStandardSeparators(layer->binary_path.RelativePath()).substr(2)
+                     : ::ConvertStandardSeparators(layer->binary_path.RelativePath())) +
+                "`\n";
+        text += "- Variables:\n";
+        text += format("  - `vk_layer_settings.txt` namespace: `%s`\n", ToLowerCase(TrimPrefix(layer->key)).c_str());
+        text += format("  - Environment Variable prefix: `VK_%s_`\n", ToUpperCase(TrimPrefix(layer->key)).c_str());
+        text += format("  - Android system property prefix: `adb setprop debug.vulkan.%s.`\n",
+                       ToLowerCase(TrimPrefix(layer->key)).c_str());
+
+        if (layer->platforms != 0) {
+            text += "- Platforms: " + BuildPlatformsMarkdown(layer->platforms) + "\n";
+        }
+        if (layer->status != STATUS_STABLE) {
+            text += format(" - Status: %s\n", GetToken(layer->status));
+        }
+        if (!layer->settings.empty()) {
+            text += format("- Number of Layer Settings: %d\n", ::CountSettings(layer->settings, true));
+        }
+        if (!layer->presets.empty()) {
+            text += format("- Number of Layer Presets: %d\n", layer->presets.size());
+        }
+        text += "\n";
+
+        if (!layer->settings.empty()) {
+            text += "## Layer Settings Overview\n";
+            text += "\n";
+            text += "|Label|Variables Key|Type|Default Value|Platforms|\n";
+            text += "|---|---|---|---|---|\n";
+            WriteSettingsOverviewMarkdown(text, *layer, layer->settings, 0);
+            text += "\n";
+
+            text += "## Layer Settings Details\n";
+            text += "\n";
+            WriteSettingsDetailsMarkdown(text, *layer, layer->settings);
+        }
+
+        if (!layer->presets.empty()) {
+            text += "## Layer Presets\n";
+            text += "\n";
+            for (std::size_t i = 0, n = layer->presets.size(); i < n; ++i) {
+                const LayerPreset& preset = layer->presets[i];
+
+                text += "### " + preset.label + "\n";
+                text += "\n";
+                text += preset.description + "\n";
+                text += "\n";
+                text += "#### Preset Setting Values:\n";
+                for (std::size_t j = 0, o = preset.settings.size(); j < o; ++j) {
+                    const SettingData* data = preset.settings[j];
+                    const SettingMeta* meta = FindSetting(layer->settings, data->key.c_str());
+
+                    text += "- " + meta->label + ": " + data->Export(EXPORT_MODE_DOC).c_str() + "\n";
+                }
+                text += "\n";
+            }
         }
     }
 
-    QFile file(path.c_str());
+    QFile file(path.AbsolutePath().c_str());
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         file.write(text.c_str());
         file.close();
-        printf("vkconfig: markdown file written to %s\n", path.c_str());
+        printf("vkconfig: Markdown file written to %s\n", path.AbsolutePath().c_str());
         return true;
     } else {
-        printf("vkconfig: could not write %s\n", path.c_str());
+        printf("vkconfig: Could not write %s\n", path.AbsolutePath().c_str());
         return false;
     }
 }
 
-bool ExportSettingsDoc(Configurator& configurator, const std::string& path) {
+bool ExportSettingsDoc(Configurator& configurator, const Layer* layer, const Path& path) {
+    (void)layer;
+
     const bool result = configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, path);
 
     if (result)
-        printf("vkconfig: settings written to %s\n", path.c_str());
+        printf("vkconfig: Settings written to %s\n", path.AbsolutePath().c_str());
     else {
-        printf("vkconfig: could not write %s\n", path.c_str());
+        printf("vkconfig: Could not write %s\n", path.AbsolutePath().c_str());
     }
 
     return result;
