@@ -41,7 +41,9 @@ enum VendorID {
 };
 
 struct VulkanPhysicalDeviceInfo {
+    std::string fullName;
     std::string deviceName;
+    std::string driverName;
     uint8_t deviceUUID[VK_UUID_SIZE];
     std::string driverUUID;
     std::string deviceLUID;

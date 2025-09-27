@@ -61,7 +61,7 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
 
     if (configurator.driver_override_list.empty()) {
         for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
-            configurator.driver_override_list.push_back(configurator.vulkan_system_info.physicalDevices[i].deviceName.c_str());
+            configurator.driver_override_list.push_back(configurator.vulkan_system_info.physicalDevices[i].fullName.c_str());
         }
     }
 
@@ -81,8 +81,7 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
                     this->ui->driver_forced_name->blockSignals(true);
                     this->ui->driver_forced_name->clear();
                     for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
-                        this->ui->driver_forced_name->addItem(
-                            configurator.vulkan_system_info.physicalDevices[i].deviceName.c_str());
+                        this->ui->driver_forced_name->addItem(configurator.vulkan_system_info.physicalDevices[i].fullName.c_str());
                     }
                     this->ui->driver_forced_name->setCurrentIndex(configurator.GetActiveDeviceIndex());
                     this->ui->driver_forced_name->blockSignals(false);

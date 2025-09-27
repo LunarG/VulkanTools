@@ -152,7 +152,7 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
                 args += filename.c_str();
             }
             if (selected_mode == DIAGNOSTIC_VULKAN_PROFILE) {
-                filename = format("%s.json", configurator.vulkan_system_info.physicalDevices[mode_index].deviceName.c_str());
+                filename = format("%s.json", configurator.vulkan_system_info.physicalDevices[mode_index].fullName.c_str());
 
                 args += format("--json=%d", mode_index).c_str();
                 args += "-o";
@@ -362,7 +362,7 @@ void TabDiagnostics::on_mode_changed(int index) {
         this->ui->diagnostic_mode_options->clear();
         if (profile_mode) {
             for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
-                this->ui->diagnostic_mode_options->addItem(configurator.vulkan_system_info.physicalDevices[i].deviceName.c_str());
+                this->ui->diagnostic_mode_options->addItem(configurator.vulkan_system_info.physicalDevices[i].fullName.c_str());
             }
         } else {
             const std::vector<Executable> &executables = configurator.executables.GetExecutables();
@@ -437,7 +437,7 @@ void TabDiagnostics::on_export_folder() {
                 case DIAGNOSTIC_VULKAN_PROFILE: {
                     export_path =
                         export_dir.RelativePath() +
-                        format("/%s.json", configurator.vulkan_system_info.physicalDevices[options_index].deviceName.c_str());
+                        format("/%s.json", configurator.vulkan_system_info.physicalDevices[options_index].fullName.c_str());
                 } break;
                 case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION:
                 case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS: {
@@ -488,7 +488,7 @@ void TabDiagnostics::on_export_file() {
             std::size_t index = this->ui->diagnostic_mode_options->currentIndex();
 
             export_path = export_path.RelativePath() +
-                          format("/%s.json", configurator.vulkan_system_info.physicalDevices[index].deviceName.c_str());
+                          format("/%s.json", configurator.vulkan_system_info.physicalDevices[index].fullName.c_str());
         } break;
         case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION:
         case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS: {
