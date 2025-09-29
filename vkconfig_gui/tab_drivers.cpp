@@ -81,10 +81,29 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
                     this->ui->driver_forced_name->blockSignals(true);
                     this->ui->driver_forced_name->clear();
                     for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
+                        const int current_index = this->ui->driver_forced_name->count();
                         this->ui->driver_forced_name->addItem(
                             configurator.vulkan_system_info.physicalDevices[i].deviceName.c_str());
+
+                        std::string version;
+                        const VulkanPhysicalDeviceInfo &info = configurator.vulkan_system_info.physicalDevices[i];
+
+                        if (info.vendorID == 0x10DE) {
+                            version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
+                                             FormatNvidia(info.driverVersion).c_str(), info.apiVersion.str().c_str());
+                        } else if ((info.vendorID == 0x8086) && (VKC_PLATFORM & PLATFORM_WINDOWS_BIT)) {
+                            version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
+                                             FormatIntelWindows(info.driverVersion).c_str(), info.apiVersion.str().c_str());
+                        } else {
+                            version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
+                                             Version(info.driverVersion).str().c_str(), info.apiVersion.str().c_str());
+                        }
+
+                        this->ui->driver_forced_name->setItemData(current_index, version.c_str(), Qt::ToolTipRole);
                     }
                     this->ui->driver_forced_name->setCurrentIndex(configurator.GetActiveDeviceIndex());
+                    this->ui->driver_forced_name->setToolTip(
+                        this->ui->driver_forced_name->itemData(configurator.GetActiveDeviceIndex(), Qt::ToolTipRole).toString());
                     this->ui->driver_forced_name->blockSignals(false);
 
                     this->ui->driver_name_label->setVisible(true);
@@ -97,17 +116,45 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
                     this->ui->drivers_device_list->blockSignals(true);
                     this->ui->drivers_device_list->clear();
                     for (std::size_t i = 0, n = configurator.driver_override_list.size(); i < n; ++i) {
-                        this->ui->drivers_device_list->addItem(configurator.driver_override_list[i].c_str());
+                        const int current_index = this->ui->driver_forced_name->count();
+                        QListWidgetItem *item = new QListWidgetItem(configurator.driver_override_list[i].c_str());
+                        item->setIcon(::Get(configurator.current_theme_mode, ICON_DRAG));
+
+                        for (std::size_t j = 0, o = configurator.vulkan_system_info.physicalDevices.size(); j < o; ++j) {
+                            const VulkanPhysicalDeviceInfo &info = configurator.vulkan_system_info.physicalDevices[j];
+
+                            if (info.deviceName != configurator.driver_override_list[i]) {
+                                continue;
+                            }
+
+                            std::string version;
+                            if (info.vendorID == 0x10DE) {
+                                version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
+                                                 FormatNvidia(info.driverVersion).c_str(), info.apiVersion.str().c_str());
+                            } else if ((info.vendorID == 0x8086) && (VKC_PLATFORM & PLATFORM_WINDOWS_BIT)) {
+                                version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
+                                                 FormatIntelWindows(info.driverVersion).c_str(), info.apiVersion.str().c_str());
+                            } else {
+                                version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
+                                                 Version(info.driverVersion).str().c_str(), info.apiVersion.str().c_str());
+                            }
+
+                            item->setToolTip(version.c_str());
+                        }
+
+                        this->ui->drivers_device_list->addItem(item);
                     }
 
-                    for (int i = 0, n = this->ui->drivers_device_list->count(); i < n; ++i) {
-                        this->ui->drivers_device_list->item(i)->setIcon(::Get(configurator.current_theme_mode, ICON_DRAG));
-                        ;
-                        // QSize size = this->ui->drivers_device_list->item(i)->sizeHint();
-                        // size.setHeight(32);
-                        // this->ui->drivers_device_list->item(i)->setSizeHint(size);
-                    }
-
+                    /*
+                                        for (int i = 0, n = this->ui->drivers_device_list->count(); i < n; ++i) {
+                                            this->ui->drivers_device_list->item(i)->setIcon(::Get(configurator.current_theme_mode,
+                       ICON_DRAG));
+                                            ;
+                                            // QSize size = this->ui->drivers_device_list->item(i)->sizeHint();
+                                            // size.setHeight(32);
+                                            // this->ui->drivers_device_list->item(i)->setSizeHint(size);
+                                        }
+                    */
                     this->ui->drivers_device_list->blockSignals(false);
 
                     // this->ui->drivers_device_list->setMaximumHeight(this->ui->drivers_device_list->count() * 32);
