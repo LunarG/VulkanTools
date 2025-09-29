@@ -16,6 +16,7 @@
 ### Improvements:
 - Clean up command line `help`
 - Improve command line consistency
+- Move Vulkan Loader Log to diagnostics tab as a global setting
 
 ### Fixes:
 - Fix invalid downloaded SDK filename
