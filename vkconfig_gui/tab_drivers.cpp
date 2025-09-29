@@ -145,19 +145,7 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
                         this->ui->drivers_device_list->addItem(item);
                     }
 
-                    /*
-                                        for (int i = 0, n = this->ui->drivers_device_list->count(); i < n; ++i) {
-                                            this->ui->drivers_device_list->item(i)->setIcon(::Get(configurator.current_theme_mode,
-                       ICON_DRAG));
-                                            ;
-                                            // QSize size = this->ui->drivers_device_list->item(i)->sizeHint();
-                                            // size.setHeight(32);
-                                            // this->ui->drivers_device_list->item(i)->setSizeHint(size);
-                                        }
-                    */
                     this->ui->drivers_device_list->blockSignals(false);
-
-                    // this->ui->drivers_device_list->setMaximumHeight(this->ui->drivers_device_list->count() * 32);
 
                     this->ui->driver_name_label->setVisible(false);
                     this->ui->driver_forced_name->setVisible(false);
