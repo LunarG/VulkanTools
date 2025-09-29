@@ -215,6 +215,7 @@ void TabDrivers::on_driver_override_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
 
     configurator.driver_override_enabled = checked;
+    configurator.driver_override_name = this->ui->driver_forced_name->currentText().toStdString();
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 }
 
