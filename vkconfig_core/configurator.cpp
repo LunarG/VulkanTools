@@ -138,11 +138,23 @@ static QJsonObject CreateDeviceConfigurations(const VulkanPhysicalDeviceInfo& in
     QJsonObject json_device;
     json_device.insert("deviceName", info.deviceName.c_str());
 
-    QJsonArray json_uuid;
-    for (std::size_t i = 0, n = std::size(info.deviceUUID); i < n; ++i) {
-        json_uuid.append(info.deviceUUID[i]);
+    if (!info.driverName.empty()) {
+        json_device.insert("driverName", info.driverName.c_str());
     }
-    json_device.insert("deviceUUID", json_uuid);
+
+    QJsonArray json_device_uuid;
+    for (std::size_t i = 0, n = std::size(info.deviceUUID); i < n; ++i) {
+        json_device_uuid.append(info.deviceUUID[i]);
+    }
+    json_device.insert("deviceUUID", json_device_uuid);
+
+    QJsonArray json_driver_uuid;
+    for (std::size_t i = 0, n = std::size(info.driverUUID); i < n; ++i) {
+        json_driver_uuid.append(info.driverUUID[i]);
+    }
+    json_device.insert("driverUUID", json_driver_uuid);
+
+    json_device.insert("driverVersion", static_cast<int>(info.driverVersion));
 
     return json_device;
 }
@@ -1593,6 +1605,7 @@ std::string Configurator::Log() const {
         const VulkanPhysicalDeviceInfo& info = this->vulkan_system_info.physicalDevices[i];
         log += format(" - %s with Vulkan %s (%s)\n", info.deviceName.c_str(), info.apiVersion.str().c_str(),
                       GetLabel(info.deviceType));
+
         if (info.vendorID == 0x10DE) {
             log += format("   * Driver: %s %s\n", GetLabel(info.vendorID).c_str(), FormatNvidia(info.driverVersion).c_str());
         } else if ((info.vendorID == 0x8086) && (VKC_PLATFORM & PLATFORM_WINDOWS_BIT)) {
@@ -1601,8 +1614,8 @@ std::string Configurator::Log() const {
             log += format("   * Driver: %s %s\n", GetLabel(info.vendorID).c_str(), Version(info.driverVersion).str().c_str());
         }
         log += format("   * deviceUUID: %s\n", ::GetUUIDString(info.deviceUUID).c_str());
-        log += format("   * driverUUID: %s\n", info.driverUUID.c_str());
-        log += format("   * deviceLUID: %s\n", info.deviceLUID.c_str());
+        log += format("   * driverUUID: %s\n", ::GetUUIDString(info.driverUUID).c_str());
+        log += format("   * deviceLUID: %s\n", ::GetLUIDString(info.deviceLUID).c_str());
     }
     log += "\n";
 

@@ -40,7 +40,7 @@ std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
     return result;
 }
 
-static std::string GetLUIDString(const uint8_t deviceLUID[VK_LUID_SIZE]) {
+std::string GetLUIDString(const uint8_t deviceLUID[VK_LUID_SIZE]) {
     std::string result;
 
     for (std::size_t i = 0, n = VK_LUID_SIZE; i < n; ++i) {
@@ -243,14 +243,14 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
         vk.GetPhysicalDeviceProperties2(devices[i], &properties2);
 
         device_info.deviceName = properties2.properties.deviceName;
-        device_info.apiVersion = Version(properties2.properties.apiVersion);
         device_info.driverVersion = properties2.properties.driverVersion;
+        device_info.apiVersion = Version(properties2.properties.apiVersion);
         device_info.vendorID = static_cast<VendorID>(properties2.properties.vendorID);
         device_info.deviceID = properties2.properties.deviceID;
         device_info.deviceType = properties2.properties.deviceType;
         memcpy(device_info.deviceUUID, properties_deviceid.deviceUUID, sizeof(device_info.deviceUUID));
-        device_info.driverUUID = GetUUIDString(properties_deviceid.driverUUID);
-        device_info.deviceLUID = GetLUIDString(properties_deviceid.deviceLUID);
+        memcpy(device_info.driverUUID, properties_deviceid.driverUUID, sizeof(device_info.driverUUID));
+        memcpy(device_info.deviceLUID, properties_deviceid.deviceLUID, sizeof(device_info.deviceLUID));
     }
 
     vk.DestroyInstance(instance, NULL);
