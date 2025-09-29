@@ -1,5 +1,5 @@
 ## Vulkan Configurator 3.4.0 - October 2025
-[Vulkan SDK main](https://github.com/LunarG/VulkanTools/tree/main)
+[Vulkan SDK 1.4.328.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.328)
 
 ### Features:
 - Add Vulkan drivers tab
