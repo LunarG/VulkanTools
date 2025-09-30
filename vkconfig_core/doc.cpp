@@ -858,17 +858,3 @@ bool ExportMarkdownDoc(Configurator& configurator, const Layer* requested_layer,
         return false;
     }
 }
-
-bool ExportSettingsDoc(Configurator& configurator, const Layer* layer, const Path& path) {
-    (void)layer;
-
-    const bool result = configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, path);
-
-    if (result)
-        printf("vkconfig: Settings written to %s\n", path.AbsolutePath().c_str());
-    else {
-        printf("vkconfig: Could not write %s\n", path.AbsolutePath().c_str());
-    }
-
-    return result;
-}

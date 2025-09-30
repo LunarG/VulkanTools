@@ -4,7 +4,7 @@
         "name": "Frame Capture",
         "version": 1,
         "platforms": [
-            "WINDOWS_X86",
+            "WINDOWS",
             "LINUX",
             "MACOS"
         ],

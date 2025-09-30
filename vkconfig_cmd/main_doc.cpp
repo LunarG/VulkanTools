@@ -76,7 +76,7 @@ int run_doc_settings(Configurator& configurator, const CommandLine& command_line
 
     const std::string path = format("%s/vk_layer_settings.txt", command_line.GetOutputPath().AbsoluteDir().c_str());
 
-    return ExportSettingsDoc(configurator, layer, path);
+    return configurator.Generate(GENERATE_SETTINGS_TXT, path);
 }
 
 int run_doc(const CommandLine& command_line) {
