@@ -34,6 +34,7 @@
 #include "type_executable_mode.h"
 #include "type_configurator_mode.h"
 #include "type_diagnostic_mode.h"
+#include "type_generate_settings.h"
 #include "type_driver_mode.h"
 #include "type_theme_mode.h"
 #include "serialization.h"
@@ -80,6 +81,7 @@ class Configurator {
    public:
     bool Load();
     bool Save() const;
+    void Log(LogType type, const std::string& message) const;
     std::string Log() const;
     std::string LogLayers(const std::string& configuration_key) const;
     std::string LogLoaderMessage() const;
@@ -107,10 +109,7 @@ class Configurator {
 
     int GetActiveDeviceIndex() const;
 
-    bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
-    bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
-    bool Export(ExportEnvMode mode, const Path& export_path) const;
-    bool WriteExtensionCode(const Path& export_path) const;
+    bool Generate(GenerateSettingsMode mode, const Path& output_path);
 
     void Set(HideMessageType type);
     bool Get(HideMessageType type) const;
@@ -202,6 +201,11 @@ class Configurator {
     bool show_external_layers_settings = true;
     ExecutableScope executable_scope = EXECUTABLE_ANY;
     std::string selected_global_configuration = "Validation";
+
+    bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
+    bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
+    bool Export(ExportEnvMode mode, const Path& export_path) const;
+    bool WriteExtensionCode(const Path& export_path) const;
 };
 
 struct ConfiguratorGuard {

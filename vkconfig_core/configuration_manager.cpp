@@ -118,14 +118,6 @@ void ConfigurationManager::LoadDefaultConfigurations(const LayerManager &layers)
             continue;
         }
 
-        if (VKC_PLATFORM == PLATFORM_WINDOWS_ARM) {
-            if (configuration.key == "Frame Capture") {
-                continue;
-            } else if (configuration.key == "Crash Diagnostic") {
-                continue;
-            }
-        }
-
         OrderParameter(configuration.parameters, layers);
 
         Configuration *found_configuration = this->FindConfiguration(configuration.key);

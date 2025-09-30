@@ -1,7 +1,5 @@
 :: Loader Settings:
-:: For now, the Vulkan Loader doesn't fully support the same behavior with environment variables than what's supported with Vulkan Configurator...
-:: The Vulkan Loader doesn't support fully ordering layers with environment variables.
-set VK_LOADER_LAYERS_ENABLE=
+set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_reference_1_2_1
 
 :: Layers Settings:
 

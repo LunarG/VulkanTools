@@ -65,7 +65,6 @@
         <file alias="Disable All Vulkan Layers.json">../configurations/3.0.0/Disable All Vulkan Layers.json</file>
         <file alias="Frame Capture.json">../configurations/3.0.0/Frame Capture.json</file>
         <file alias="Portability.json">../configurations/3.0.0/Portability.json</file>
-        <file alias="Synchronization.json">../configurations/3.0.0/Synchronization.json</file>
         <file alias="Validation.json">../configurations/3.0.0/Validation.json</file>
     </qresource>
 

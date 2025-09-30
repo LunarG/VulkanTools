@@ -64,6 +64,7 @@ SOURCES += \
     ../vkconfig_core/type_diagnostic_mode.cpp \
     ../vkconfig_core/type_driver_mode.cpp \
     ../vkconfig_core/type_executable_mode.cpp \
+    ../vkconfig_core/type_generate_settings.cpp \
     ../vkconfig_core/type_hide_message.cpp \
     ../vkconfig_core/type_layer_builtin.cpp \
     ../vkconfig_core/type_layer_control.cpp \
@@ -156,6 +157,7 @@ HEADERS += \
     ../vkconfig_core/type_diagnostic_mode.h \
     ../vkconfig_core/type_driver_mode.h \
     ../vkconfig_core/type_executable_mode.h \
+    ../vkconfig_core/type_generate_settings.h \
     ../vkconfig_core/type_hide_message.h \
     ../vkconfig_core/type_layer_builtin.h \
     ../vkconfig_core/type_layer_control.h \

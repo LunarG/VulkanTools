@@ -23,9 +23,4 @@
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/command_line.h"
 
-int generate_settings_html(Configurator& configurator, const CommandLine& command_line);
-int generate_settings_markdown(Configurator& configurator, const CommandLine& command_line);
-int generate_settings_txt(Configurator& configurator, const CommandLine& command_line);
-int generate_settings_bash(Configurator& configurator, const CommandLine& command_line);
-int generate_settings_cmd(Configurator& configurator, const CommandLine& command_line);
-int generate_settings_hpp(Configurator& configurator, const CommandLine& command_line);
+int generate_settings(Configurator& configurator, const CommandLine& command_line);
