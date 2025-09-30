@@ -22,8 +22,9 @@
 
 #include "tab.h"
 #include "settings_tree.h"
-
 #include "item_list.h"
+
+#include "../vkconfig_core/type_generate_settings.h"
 
 #include <QPushButton>
 #include <QAbstractItemView>
@@ -82,10 +83,8 @@ class TabConfigurations : public Tab {
     void OnContextMenuResetOneClicked(ListItem *item);
     void OnContextMenuResetAllClicked(ListItem *item);
     void OnContextMenuExportConfigsClicked(ListItem *item);
-    void OnContextMenuExportEnvVariablesBashClicked(ListItem *item);
-    void OnContextMenuExportEnvVariablesCMDClicked(ListItem *item);
-    void OnContextMenuExportExtensionCodeClicked(ListItem *item);
-    void OnContextMenuExportSettingsClicked(ListItem *item);
 
     void UpdatePerExecutableConfigurations();
+
+    void GenerateClicked(GenerateSettingsMode mode);
 };

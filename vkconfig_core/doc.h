@@ -24,5 +24,3 @@
 bool ExportHtmlDoc(Configurator& configurator, const Layer* layer, const Path& path);
 
 bool ExportMarkdownDoc(Configurator& configurator, const Layer* layer, const Path& path);
-
-bool ExportSettingsDoc(Configurator& configurator, const Layer* layer, const Path& path);

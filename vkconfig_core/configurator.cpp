@@ -28,6 +28,7 @@
 #include "registry.h"
 #endif
 #include "vulkan_util.h"
+#include "doc.h"
 
 #include <QDir>
 #include <QTextStream>
@@ -253,8 +254,6 @@ QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSett
 static QJsonObject CreateJsonDriverObject(const std::map<Path, bool>& driver_paths) {
     QJsonObject json_settings;
 
-    // json_settings.insert("additional_drivers_use_exclusively", false);
-
     QJsonArray json_drivers_paths;
 
     for (auto it = driver_paths.begin(); it != driver_paths.end(); ++it) {
@@ -379,6 +378,42 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
     loader_settings_array.push_back(result);
 }
 
+bool Configurator::Generate(GenerateSettingsMode mode, const Path& output_path) {
+    bool result = false;
+
+    switch (mode) {
+        default: {
+            assert(0);
+        } break;
+        case GENERATE_SETTINGS_HTML: {
+            result = ::ExportHtmlDoc(*this, nullptr, output_path);
+        } break;
+        case GENERATE_SETTINGS_MARKDOWN: {
+            result = ::ExportMarkdownDoc(*this, nullptr, output_path);
+        } break;
+        case GENERATE_SETTINGS_TXT: {
+            result = this->WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, output_path);
+        } break;
+        case GENERATE_SETTINGS_BASH: {
+            result = this->Export(EXPORT_ENV_BASH, output_path);
+        } break;
+        case GENERATE_SETTINGS_CMD: {
+            result = this->Export(EXPORT_ENV_CMD, output_path);
+        } break;
+        case GENERATE_SETTINGS_HPP: {
+            result = this->WriteExtensionCode(output_path);
+        } break;
+    }
+
+    if (result)
+        this->Log(LOG_INFO, format("File written to '%s'\n", output_path.AbsolutePath().c_str()));
+    else {
+        this->Log(LOG_ERROR, format("Could not write %s\n", output_path.AbsolutePath().c_str()));
+    }
+
+    return result;
+}
+
 // Create and write vk_loader_settings.json file
 bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path) {
     assert(!loader_settings_path.Empty());
@@ -496,12 +531,15 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
 
             Configuration* configuration = this->configurations.FindConfiguration(layers_settings.configuration_name);
             if (configuration == nullptr) {
-                if (layers_settings.executable_path.Empty()) {
-                    fprintf(stderr, "vkconfig: [ERROR] Fail to apply unknown '%s' global configuration\n",
-                            layers_settings.configuration_name.c_str());
+                if (layers_settings.configuration_name.empty()) {
+                    this->Log(LOG_WARN, "No global configuration selected");
+                } else if (layers_settings.executable_path.Empty()) {
+                    this->Log(LOG_ERROR, format("Fail to apply unknown '%s' global configuration",
+                                                layers_settings.configuration_name.c_str()));
                 } else {
-                    fprintf(stderr, "vkconfig: [ERROR] Fail to apply unknown '%s' configuration to '%s'\n",
-                            layers_settings.configuration_name.c_str(), layers_settings.executable_path.AbsolutePath().c_str());
+                    this->Log(LOG_ERROR, format("Fail to apply unknown '%s' configuration to '%s'\n",
+                                                layers_settings.configuration_name.c_str(),
+                                                layers_settings.executable_path.AbsolutePath().c_str()));
                 }
 
                 result_settings_file = false;
@@ -517,7 +555,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
             QFile file(layers_settings.settings_path.AbsolutePath().c_str());
             result_settings_file = result_settings_file && file.open(QIODevice::WriteOnly | QIODevice::Text);
             if (!result_settings_file) {
-                fprintf(stderr, "vkconfig: [ERROR] Cannot open file:\t%s\n", layers_settings.settings_path.AbsolutePath().c_str());
+                this->Log(LOG_ERROR, format("Cannot open file:\n\t%s", layers_settings.settings_path.AbsolutePath().c_str()));
                 continue;
             }
             QTextStream stream(&file);
@@ -526,8 +564,8 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                 QFile original_file(configuration->override_settings_path.AbsolutePath().c_str());
                 bool result_original_file = original_file.open(QIODevice::ReadOnly);
                 if (!result_original_file) {
-                    fprintf(stderr, "vkconfig: [ERROR] Cannot open override settings file:\t%s\n",
-                            configuration->override_settings_path.AbsolutePath().c_str());
+                    this->Log(LOG_ERROR, format("Cannot open override settings file:\n\t%s",
+                                                configuration->override_settings_path.AbsolutePath().c_str()));
                     continue;
                 }
 
@@ -560,17 +598,15 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                     if (layer == nullptr) {
                         if (parameter.control == LAYER_CONTROL_ON) {
                             has_missing_layers = true;
-                            fprintf(
-                                stderr,
-                                "vkconfig: [ERROR] `%s` layer is set to `%s` in `%s` loader configuration but missing and being "
-                                "ignored\n",
-                                parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
+                            this->Log(
+                                LOG_ERROR,
+                                format("`%s` layer is set to `%s` in `%s` loader configuration but missing and being ignored\n",
+                                       parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str()));
                         } else {
-                            fprintf(
-                                stderr,
-                                "vkconfig: [WARNING] `%s` layer is set to `%s` in `%s` loader configuration but missing and being "
-                                "ignored\n",
-                                parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
+                            this->Log(
+                                LOG_WARN,
+                                format("`%s` layer is set to `%s` in `%s` loader configuration but missing and being ignored\n",
+                                       parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str()));
                         }
                         continue;
                     }
@@ -736,16 +772,13 @@ bool Configurator::Export(ExportEnvMode mode, const Path& export_path) const {
     }
 
     {
-        stream << COMMENT;
-        stream << "For now, the Vulkan Loader doesn't fully support the same behavior with environment variables than what's "
-                  "supported with Vulkan Configurator...\n";
-        stream << COMMENT;
-        stream << "The Vulkan Loader doesn't support fully ordering layers with environment variables.\n";
-        stream << EXPORT << "VK_LOADER_LAYERS_ENABLE=";
-
+        stream << EXPORT << "VK_INSTANCE_LAYERS=";
         std::vector<std::string> layer_list;
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             const Parameter& parameter = configuration->parameters[i];
+            if (parameter.builtin == LAYER_BUILTIN_UNORDERED) {
+                continue;
+            }
             if (parameter.control != LAYER_CONTROL_ON) {
                 continue;
             }
@@ -781,15 +814,12 @@ bool Configurator::Export(ExportEnvMode mode, const Path& export_path) const {
         const Layer* layer = this->layers.Find(parameter.key.c_str(), parameter.api_version);
         if (layer == nullptr) {
             if (parameter.control == LAYER_CONTROL_ON) {
-                fprintf(stderr,
-                        "vkconfig: [ERROR] `%s` layer is set to `%s` in `%s` layers configuration but missing and being "
-                        "ignored\n",
-                        parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
+                this->Log(LOG_ERROR,
+                          format("`%s` layer is set to `%s` in `%s` layers configuration but missing and being ignored\n",
+                                 parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str()));
             } else {
-                fprintf(stderr,
-                        "vkconfig: [WARNING] `%s` layer is set to `%s` in `%s` layers configuration but missing and being "
-                        "ignored\n",
-                        parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str());
+                this->Log(LOG_WARN, format("`%s` layer is set to `%s` in `%s` layers configuration but missing and being ignored\n",
+                                           parameter.key.c_str(), ::GetLabel(parameter.control), configuration->key.c_str()));
             }
             continue;
         }
@@ -1425,6 +1455,14 @@ bool Configurator::HasActiveParameter() const { return this->GetActiveParameter(
 Executable* Configurator::GetActiveExecutable() { return this->executables.GetActiveExecutable(); }
 
 const Executable* Configurator::GetActiveExecutable() const { return this->executables.GetActiveExecutable(); }
+
+void Configurator::Log(LogType type, const std::string& message) const {
+    if (this->mode != CONFIGURATOR_MODE_CMD) {
+        return;
+    }
+
+    fprintf(stderr, "vkconfig: [%s] %s\n", ToUpperCase(GetToken(type)).c_str(), message.c_str());
+}
 
 std::string Configurator::LogLayers(const std::string& configuration_key) const {
     const Configuration* configuration = this->configurations.FindConfiguration(configuration_key);

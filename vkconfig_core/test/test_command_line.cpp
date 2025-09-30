@@ -609,7 +609,8 @@ TEST(test_command_line, usage_mode_settings_invalid_args) {
 }
 
 TEST(test_command_line, usage_mode_settings_hpp_default) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings", (char*)"--mode", (char*)"hpp"};
+    static char* argv[] = {(char*)"vkconfig", (char*)"settings",  // settings
+                           (char*)"--generate", (char*)"hpp"};    // generate
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -631,8 +632,9 @@ TEST(test_command_line, usage_mode_settings_hpp_default) {
 }
 
 TEST(test_command_line, usage_mode_settings_hpp_default_explicit) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings",        (char*)"--mode",
-                           (char*)"hpp",      (char*)"--configuration", (char*)"default"};
+    static char* argv[] = {(char*)"vkconfig",        (char*)"settings",  // settings
+                           (char*)"--generate",      (char*)"hpp",       // generate
+                           (char*)"--configuration", (char*)"default"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -654,8 +656,9 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit) {
 }
 
 TEST(test_command_line, usage_mode_settings_hpp_default_implicit_and_output) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings", (char*)"--mode",
-                           (char*)"hpp",      (char*)"--output", (char*)"my_settings.hpp"};
+    static char* argv[] = {(char*)"vkconfig",   (char*)"settings",  // settings
+                           (char*)"--generate", (char*)"hpp",       // generate
+                           (char*)"--output",   (char*)"my_settings.hpp"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -677,8 +680,10 @@ TEST(test_command_line, usage_mode_settings_hpp_default_implicit_and_output) {
 }
 
 TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output) {
-    static char* argv[] = {(char*)"vkconfig",        (char*)"settings", (char*)"--mode",   (char*)"hpp",
-                           (char*)"--configuration", (char*)"default",  (char*)"--output", (char*)"my_settings.hpp"};
+    static char* argv[] = {(char*)"vkconfig",        (char*)"settings",  // settings
+                           (char*)"--generate",      (char*)"hpp",       // generate
+                           (char*)"--configuration", (char*)"default",   // configuration
+                           (char*)"--output",        (char*)"my_settings.hpp"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -700,8 +705,10 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output) {
 }
 
 TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dir) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings",     (char*)"--mode", (char*)"hpp",      (char*)"--configuration",
-                           (char*)"default",  (char*)"--output-dir", (char*)"./tmp",  (char*)"--output", (char*)"my_settings.hpp"};
+    static char* argv[] = {(char*)"vkconfig",        (char*)"settings",  // settings
+                           (char*)"--generate",      (char*)"hpp",       // generate
+                           (char*)"--configuration", (char*)"default",   // configuration
+                           (char*)"--output-dir",    (char*)"./tmp",    (char*)"--output", (char*)"my_settings.hpp"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -723,9 +730,10 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dir)
 }
 
 TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dir_and_path) {
-    static char* argv[] = {
-        (char*)"vkconfig", (char*)"settings",     (char*)"--mode", (char*)"hpp",      (char*)"--configuration",
-        (char*)"default",  (char*)"--output-dir", (char*)"./tmp",  (char*)"--output", (char*)"./gni/my_settings.hpp"};
+    static char* argv[] = {(char*)"vkconfig",        (char*)"settings",  // settings
+                           (char*)"--generate",      (char*)"hpp",       // generate
+                           (char*)"--configuration", (char*)"default",   // configuration
+                           (char*)"--output-dir",    (char*)"./tmp",    (char*)"--output", (char*)"./gni/my_settings.hpp"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -747,9 +755,11 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dir_
 }
 
 TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dryrun) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings",        (char*)"--mode",
-                           (char*)"hpp",      (char*)"--configuration", (char*)"default",
-                           (char*)"--output", (char*)"my_settings.hpp", (char*)"--dry-run"};
+    static char* argv[] = {(char*)"vkconfig",        (char*)"settings",  // settings
+                           (char*)"--generate",      (char*)"hpp",       // generate
+                           (char*)"--configuration", (char*)"default",   // configuration
+                           (char*)"--output",        (char*)"my_settings.hpp",
+                           (char*)"--dry-run"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -771,7 +781,8 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dryr
 }
 
 TEST(test_command_line, usage_mode_settings_html_default) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings", (char*)"--mode", (char*)"html"};
+    static char* argv[] = {(char*)"vkconfig", (char*)"settings",  // settings
+                           (char*)"--generate", (char*)"html"};   // generate
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -793,8 +804,9 @@ TEST(test_command_line, usage_mode_settings_html_default) {
 }
 
 TEST(test_command_line, usage_mode_settings_html_default_explicit) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings", (char*)"--mode",
-                           (char*)"html",     (char*)"--layer",  (char*)"my_layer_name"};
+    static char* argv[] = {(char*)"vkconfig",   (char*)"settings",  // settings
+                           (char*)"--generate", (char*)"html",      // generate
+                           (char*)"--layer",    (char*)"my_layer_name"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -816,8 +828,9 @@ TEST(test_command_line, usage_mode_settings_html_default_explicit) {
 }
 
 TEST(test_command_line, usage_mode_settings_html_default_implicit_and_output) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings", (char*)"--mode",
-                           (char*)"html",     (char*)"--output", (char*)"my_settings.html"};
+    static char* argv[] = {(char*)"vkconfig",   (char*)"settings",  // settings
+                           (char*)"--generate", (char*)"html",      // generate
+                           (char*)"--output",   (char*)"my_settings.html"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -839,8 +852,10 @@ TEST(test_command_line, usage_mode_settings_html_default_implicit_and_output) {
 }
 
 TEST(test_command_line, usage_mode_settings_html_default_explicit_and_output) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings",      (char*)"--mode",   (char*)"html",
-                           (char*)"--layer",  (char*)"my_layer_name", (char*)"--output", (char*)"my_settings.html"};
+    static char* argv[] = {(char*)"vkconfig",   (char*)"settings",       // settings
+                           (char*)"--generate", (char*)"html",           // generate
+                           (char*)"--layer",    (char*)"my_layer_name",  // layer
+                           (char*)"--output",   (char*)"my_settings.html"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -862,9 +877,11 @@ TEST(test_command_line, usage_mode_settings_html_default_explicit_and_output) {
 }
 
 TEST(test_command_line, usage_mode_settings_html_default_explicit_and_output_dryrun) {
-    static char* argv[] = {(char*)"vkconfig", (char*)"settings",         (char*)"--mode",
-                           (char*)"html",     (char*)"--layer",          (char*)"my_layer_name",
-                           (char*)"--output", (char*)"my_settings.html", (char*)"--dry-run"};
+    static char* argv[] = {(char*)"vkconfig",   (char*)"settings",       // settings
+                           (char*)"--generate", (char*)"html",           // generate
+                           (char*)"--layer",    (char*)"my_layer_name",  // layer
+                           (char*)"--output",   (char*)"my_settings.html",
+                           (char*)"--dry-run"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);

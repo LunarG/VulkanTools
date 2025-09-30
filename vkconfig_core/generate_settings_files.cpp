@@ -20,8 +20,6 @@
 
 #include "generate_settings_files.h"
 
-#include "../vkconfig_core/doc.h"
-
 class ConfigurationSelection {
    public:
     ConfigurationSelection(Configurator& configurator, const CommandLine& command_line) : configurator(configurator) {
@@ -44,6 +42,14 @@ class ConfigurationSelection {
                         } else {
                             configuration.parameters[i].control = LAYER_CONTROL_OFF;
                         }
+                    }
+                }
+            } else {
+                for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+                    if (configuration.parameters[i].type == LAYER_TYPE_EXPLICIT) {
+                        configuration.parameters[i].control = LAYER_CONTROL_ON;
+                    } else {
+                        configuration.parameters[i].control = LAYER_CONTROL_OFF;
                     }
                 }
             }
@@ -76,61 +82,11 @@ class ConfigurationSelection {
     bool configuration_found = true;
 };
 
-int generate_settings_html(Configurator& configurator, const CommandLine& command_line) {
+int generate_settings(Configurator& configurator, const CommandLine& command_line) {
     ConfigurationSelection selection(configurator, command_line);
 
     if (selection.Found()) {
-        return ::ExportHtmlDoc(configurator, nullptr, command_line.GetOutputPath()) ? 0 : -1;
-    } else {
-        return -1;
-    }
-}
-
-int generate_settings_markdown(Configurator& configurator, const CommandLine& command_line) {
-    ConfigurationSelection selection(configurator, command_line);
-
-    if (selection.Found()) {
-        return ::ExportMarkdownDoc(configurator, nullptr, command_line.GetOutputPath()) ? 0 : -1;
-    } else {
-        return -1;
-    }
-}
-
-int generate_settings_txt(Configurator& configurator, const CommandLine& command_line) {
-    ConfigurationSelection selection(configurator, command_line);
-
-    if (selection.Found()) {
-        return configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, command_line.GetOutputPath()) ? 0 : -1;
-    } else {
-        return -1;
-    }
-}
-
-int generate_settings_bash(Configurator& configurator, const CommandLine& command_line) {
-    ConfigurationSelection selection(configurator, command_line);
-
-    if (selection.Found()) {
-        return configurator.Export(EXPORT_ENV_BASH, command_line.GetOutputPath()) ? 0 : -1;
-    } else {
-        return -1;
-    }
-}
-
-int generate_settings_cmd(Configurator& configurator, const CommandLine& command_line) {
-    ConfigurationSelection selection(configurator, command_line);
-
-    if (selection.Found()) {
-        return configurator.Export(EXPORT_ENV_CMD, command_line.GetOutputPath()) ? 0 : -1;
-    } else {
-        return -1;
-    }
-}
-
-int generate_settings_hpp(Configurator& configurator, const CommandLine& command_line) {
-    ConfigurationSelection selection(configurator, command_line);
-
-    if (selection.Found()) {
-        return configurator.WriteExtensionCode(command_line.GetOutputPath()) ? 0 : -1;
+        return configurator.Generate(command_line.generate_settings_mode, command_line.GetOutputPath()) ? 0 : -1;
     } else {
         return -1;
     }

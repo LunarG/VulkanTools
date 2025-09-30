@@ -493,20 +493,37 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
-            QAction *action_export_settings = new QAction("Generate vk_layer_settings.txt layers Settings file...", nullptr);
+            if (!name.empty()) {
+                name = format(" '%s'", name.c_str());
+            }
+
+            QAction *action_export_html = new QAction(
+                format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_HTML)).c_str(), nullptr);
+            action_export_html->setEnabled(item != nullptr);
+            menu.addAction(action_export_html);
+
+            QAction *action_export_markdown = new QAction(
+                format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_MARKDOWN)).c_str(), nullptr);
+            action_export_markdown->setEnabled(item != nullptr);
+            menu.addAction(action_export_markdown);
+
+            QAction *action_export_settings = new QAction(
+                format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_TXT)).c_str(), nullptr);
             action_export_settings->setEnabled(item != nullptr);
             menu.addAction(action_export_settings);
 
-            QAction *action_export_env_variables_bash_script = new QAction("Generate Env Variables Bash script...", nullptr);
+            QAction *action_export_env_variables_bash_script = new QAction(
+                format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_BASH)).c_str(), nullptr);
             action_export_env_variables_bash_script->setEnabled(item != nullptr);
             menu.addAction(action_export_env_variables_bash_script);
 
-            QAction *action_export_env_variables_cmd_script =
-                new QAction("Generate Env Variables Command Prompt script...", nullptr);
+            QAction *action_export_env_variables_cmd_script = new QAction(
+                format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_CMD)).c_str(), nullptr);
             action_export_env_variables_cmd_script->setEnabled(item != nullptr);
             menu.addAction(action_export_env_variables_cmd_script);
 
-            QAction *action_export_extension_code = new QAction("Generate VK_EXT_layer_settings C++ code...", nullptr);
+            QAction *action_export_extension_code = new QAction(
+                format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_HPP)).c_str(), nullptr);
             action_export_extension_code->setEnabled(item != nullptr);
             menu.addAction(action_export_extension_code);
 
@@ -530,13 +547,17 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             } else if (action == action_export_config) {
                 this->OnContextMenuExportConfigsClicked(item);
             } else if (action == action_export_env_variables_bash_script) {
-                this->OnContextMenuExportEnvVariablesBashClicked(item);
+                this->GenerateClicked(GENERATE_SETTINGS_BASH);
             } else if (action == action_export_env_variables_cmd_script) {
-                this->OnContextMenuExportEnvVariablesCMDClicked(item);
+                this->GenerateClicked(GENERATE_SETTINGS_CMD);
             } else if (action == action_export_extension_code) {
-                this->OnContextMenuExportExtensionCodeClicked(item);
+                this->GenerateClicked(GENERATE_SETTINGS_HPP);
             } else if (action == action_export_settings) {
-                this->OnContextMenuExportSettingsClicked(item);
+                this->GenerateClicked(GENERATE_SETTINGS_TXT);
+            } else if (action == action_export_markdown) {
+                this->GenerateClicked(GENERATE_SETTINGS_MARKDOWN);
+            } else if (action == action_export_html) {
+                this->GenerateClicked(GENERATE_SETTINGS_HTML);
             } else if (action == action_external_settings) {
                 this->on_configuration_settings_file_search_pressed();
             }
@@ -569,7 +590,44 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 QAction *visit_layer_website_action = new QAction("Visit the Layer Website...", nullptr);
                 visit_layer_website_action->setEnabled(layer != nullptr ? !layer->url.Empty() : false);
                 menu.addAction(visit_layer_website_action);
+                /*
+                                menu.addSeparator();
 
+                                std::string name;
+                                if (layer != nullptr) {
+                                    name = format(" '%s'", layer->key.c_str());
+                                }
+
+                                QAction *action_export_html = new QAction(
+                                    format("Generate%s layer settings %s ...", name.c_str(),
+                   GetLabel(GENERATE_SETTINGS_HTML)).c_str(), nullptr); action_export_html->setEnabled(layer != nullptr);
+                                menu.addAction(action_export_html);
+
+                                QAction *action_export_markdown = new QAction(
+                                    format("Generate%s layer settings %s...", name.c_str(),
+                   GetLabel(GENERATE_SETTINGS_MARKDOWN)).c_str(), nullptr); action_export_markdown->setEnabled(layer != nullptr);
+                                menu.addAction(action_export_markdown);
+
+                                QAction *action_export_settings = new QAction(
+                                    format("Generate%s layer settings %s...", name.c_str(),
+                   GetLabel(GENERATE_SETTINGS_TXT)).c_str(), nullptr); action_export_settings->setEnabled(layer != nullptr);
+                                menu.addAction(action_export_settings);
+
+                                QAction *action_export_env_variables_bash_script = new QAction(
+                                    format("Generate%s layer settings %s...", name.c_str(),
+                   GetLabel(GENERATE_SETTINGS_BASH)).c_str(), nullptr); action_export_env_variables_bash_script->setEnabled(layer !=
+                   nullptr); menu.addAction(action_export_env_variables_bash_script);
+
+                                QAction *action_export_env_variables_cmd_script = new QAction(
+                                    format("Generate%s layer settings %s...", name.c_str(),
+                   GetLabel(GENERATE_SETTINGS_CMD)).c_str(), nullptr); action_export_env_variables_cmd_script->setEnabled(layer !=
+                   nullptr); menu.addAction(action_export_env_variables_cmd_script);
+
+                                QAction *action_export_extension_code = new QAction(
+                                    format("Generate%s layer settings %s...", name.c_str(),
+                   GetLabel(GENERATE_SETTINGS_HPP)).c_str(), nullptr); action_export_extension_code->setEnabled(layer != nullptr);
+                                menu.addAction(action_export_extension_code);
+                */
                 QPoint point(right_click->globalX(), right_click->globalY());
                 QAction *action = menu.exec(point);
 
@@ -606,6 +664,20 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     ExportMarkdownDoc(configurator, layer, path);
                     QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
                 }
+                /*
+                else if (action == action_export_html) {
+                    this->GenerateClicked(GENERATE_SETTINGS_HTML);
+                } else if (action == action_export_markdown) {
+                    this->GenerateClicked(GENERATE_SETTINGS_MARKDOWN);
+                } else if (action == action_export_settings) {
+                    this->GenerateClicked(GENERATE_SETTINGS_TXT);
+                } else if (action == action_export_env_variables_bash_script) {
+                    this->GenerateClicked(GENERATE_SETTINGS_BASH);
+                } else if (action == action_export_env_variables_cmd_script) {
+                    this->GenerateClicked(GENERATE_SETTINGS_CMD);
+                } else if (action == action_export_extension_code) {
+                    this->GenerateClicked(GENERATE_SETTINGS_HPP);
+                }*/
             }
         }
     } else if (target == this->ui->configurations_settings) {
@@ -974,101 +1046,41 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
     }
 }
 
-void TabConfigurations::OnContextMenuExportEnvVariablesBashClicked(ListItem *item) {
-    assert(item);
+void TabConfigurations::GenerateClicked(GenerateSettingsMode mode) {
     Configurator &configurator = Configurator::Get();
 
-    const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".sh";
-    const QString &selected_path = QFileDialog::getSaveFileName(&this->window, "Export Environment Variables bash script",
-                                                                path_export.AbsolutePath().c_str(), "Shell Script(*.sh)");
-
-    const bool result = configurator.Export(EXPORT_ENV_BASH, selected_path.toStdString());
-
-    if (!result) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Exporting of a file failed...");
-        msg.setText(format("Couldn't be create '%s' file.", selected_path.toStdString().c_str()).c_str());
-        msg.exec();
-    } else {
-        Path path(selected_path.toStdString());
-        QDesktopServices::openUrl(QUrl::fromLocalFile(path.AbsoluteDir().c_str()));
-        configurator.configurations.last_path_export_config = selected_path.toStdString();
+    const Configuration *configuration = configurator.GetActiveConfiguration();
+    if (configuration == nullptr) {
+        return;
     }
-}
 
-void TabConfigurations::OnContextMenuExportEnvVariablesCMDClicked(ListItem *item) {
-    assert(item);
-    Configurator &configurator = Configurator::Get();
-
-    const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".bat";
-    const QString &selected_path = QFileDialog::getSaveFileName(&this->window, "Export Environment Variables command prompt script",
-                                                                path_export.AbsolutePath().c_str(), "Command Prompt Script(*.bat)");
-
-    const bool result = configurator.Export(EXPORT_ENV_CMD, selected_path.toStdString());
-
-    if (!result) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Exporting of a file failed...");
-        msg.setText(format("Couldn't be create '%s' file.", selected_path.toStdString().c_str()).c_str());
-        msg.exec();
-    } else {
-        Path path(selected_path.toStdString());
-        QDesktopServices::openUrl(QUrl::fromLocalFile(path.AbsoluteDir().c_str()));
-        configurator.configurations.last_path_export_config = selected_path.toStdString();
-    }
-}
-
-void TabConfigurations::OnContextMenuExportExtensionCodeClicked(ListItem *item) {
-    assert(item);
-    Configurator &configurator = Configurator::Get();
-
-    const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".hpp";
-    const QString &selected_path =
-        QFileDialog::getSaveFileName(&this->window, "Export VK_EXT_layer_settings layer settings C++ code",
-                                     path_export.AbsolutePath().c_str(), "VK_EXT_layer_settings C++ code (*.h,*.hpp)");
-
-    const bool result = configurator.WriteExtensionCode(selected_path.toStdString());
-
-    if (!result) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Exporting of a file failed...");
-        msg.setText(format("Couldn't be create '%s' file.", selected_path.toStdString().c_str()).c_str());
-        msg.exec();
-    } else {
-        Path path(selected_path.toStdString());
-        QDesktopServices::openUrl(QUrl::fromLocalFile(path.AbsoluteDir().c_str()));
-        configurator.configurations.last_path_export_config = selected_path.toStdString();
-    }
-}
-
-void TabConfigurations::OnContextMenuExportSettingsClicked(ListItem *item) {
-    assert(item);
-
-    Configurator &configurator = Configurator::Get();
-
-    const Path path_export = configurator.configurations.last_path_export_settings;
-    const std::string &selected_path = QFileDialog::getSaveFileName(&this->window, "Export Layers Settings File",
-                                                                    path_export.AbsolutePath().c_str(), "Layers settings(*.txt)")
-                                           .toStdString();
+    const Path path_export =
+        configurator.configurations.last_path_export_settings.AbsolutePath() + "/" + configuration->key + ::GetDefaultFileExt(mode);
+    const std::string caption = format("Generate '%s' configuration %s", configuration->key.c_str(), ::GetLabel(mode));
+    const std::string filter = format("%s (*%s)", ::GetLabel(mode), ::GetDefaultFileExt(mode));
+    const std::string &selected_path =
+        QFileDialog::getSaveFileName(&this->window, caption.c_str(), path_export.AbsolutePath().c_str(), filter.c_str())
+            .toStdString();
 
     if (selected_path.empty()) {
         return;
     }
 
-    configurator.configurations.last_path_export_settings = selected_path;
-    const bool result = configurator.WriteLayersSettings(OVERRIDE_AREA_LAYERS_SETTINGS_BIT, selected_path.c_str());
+    const bool result = configurator.Generate(mode, selected_path.c_str());
 
     if (!result) {
+        const std::string title =
+            format("Generation of the '%s' configuration %s failed...", configuration->key.c_str(), ::GetLabel(mode));
+
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Exporting of a layers settings file failed...");
-        msg.setText(format("Couldn't be create '%s' layers settings file.", selected_path.c_str()).c_str());
+        msg.setWindowTitle(title.c_str());
+        msg.setText(format("Couldn't create '%s' file.", selected_path.c_str()).c_str());
         msg.exec();
     } else {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path.c_str()));
+        const Path saved_path(selected_path);
+        configurator.configurations.last_path_export_settings = saved_path.AbsoluteDir();
+        QDesktopServices::openUrl(QUrl::fromLocalFile(saved_path.AbsoluteDir().c_str()));
     }
 }
 

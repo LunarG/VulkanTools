@@ -92,7 +92,7 @@ TEST(test_built_in_load, sdk_layers_with_configuration) {
     TestBuilin test;
     EXPECT_TRUE(test.layer_manager.available_layers.size() >= 8);
 
-    const std::string configurations[] = {"API dump", "Frame Capture", "Portability", "Synchronization", "Validation"};
+    const std::string configurations[] = {"API dump", "Frame Capture", "Portability", "Validation"};
 
     for (std::size_t i = 0, n = std::size(configurations); i < n; ++i) {
         Configuration load_config = test.Load(configurations[i].c_str());

@@ -62,14 +62,14 @@ TEST(test_settings, config_generate_html) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",  // Generate settings files
-                           (char*)"--mode",       (char*)"html",      // Type of settings file
+                           (char*)"--generate",   (char*)"html",      // Type of settings file
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_html(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/vk_layer_settings.html");
@@ -81,7 +81,7 @@ TEST(test_settings, layer_generate_html) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",                         // Generate settings files
-                           (char*)"--mode",       (char*)"html",                             // Type of settings file
+                           (char*)"--generate",   (char*)"html",                             // Type of settings file
                            (char*)"--layer",      (char*)"VK_LAYER_LUNARG_reference_1_2_1",  // Only for a specific layer
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
@@ -89,7 +89,7 @@ TEST(test_settings, layer_generate_html) {
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_html(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/VK_LAYER_LUNARG_reference_1_2_1.html");
@@ -101,14 +101,14 @@ TEST(test_settings, config_generate_markdown) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",  // Generate settings files
-                           (char*)"--mode",       (char*)"markdown",  // Type of settings file
+                           (char*)"--generate",   (char*)"markdown",  // Type of settings file
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_markdown(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/vk_layer_settings.md");
@@ -120,7 +120,7 @@ TEST(test_settings, layer_generate_markdown) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",                         // Generate settings files
-                           (char*)"--mode",       (char*)"markdown",                         // Type of settings file
+                           (char*)"--generate",   (char*)"markdown",                         // Type of settings file
                            (char*)"--layer",      (char*)"VK_LAYER_LUNARG_reference_1_2_1",  // Only for a specific layer
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
@@ -128,7 +128,7 @@ TEST(test_settings, layer_generate_markdown) {
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_markdown(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/VK_LAYER_LUNARG_reference_1_2_1.md");
@@ -140,14 +140,14 @@ TEST(test_settings, config_generate_txt) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",  // Generate settings files
-                           (char*)"--mode",       (char*)"txt",       // Type of settings file
+                           (char*)"--generate",   (char*)"txt",       // Type of settings file
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_txt(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/vk_layer_settings.txt");
@@ -159,7 +159,7 @@ TEST(test_settings, layer_generate_txt) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",                         // Generate settings files
-                           (char*)"--mode",       (char*)"txt",                              // Type of settings file
+                           (char*)"--generate",   (char*)"txt",                              // Type of settings file
                            (char*)"--layer",      (char*)"VK_LAYER_LUNARG_reference_1_2_1",  // Only for a specific layer
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
@@ -167,7 +167,7 @@ TEST(test_settings, layer_generate_txt) {
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_txt(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/vk_layer_settings.txt");
@@ -179,14 +179,14 @@ TEST(test_settings, config_generate_bash) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",  // Generate settings files
-                           (char*)"--mode",       (char*)"bash",      // Type of settings file
+                           (char*)"--generate",   (char*)"bash",      // Type of settings file
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_bash(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/vk_layer_settings.sh");
@@ -198,7 +198,7 @@ TEST(test_settings, layer_generate_bash) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",                         // Generate settings files
-                           (char*)"--mode",       (char*)"bash",                             // Type of settings file
+                           (char*)"--generate",   (char*)"bash",                             // Type of settings file
                            (char*)"--layer",      (char*)"VK_LAYER_LUNARG_reference_1_2_1",  // Only for a specific layer
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
@@ -206,7 +206,7 @@ TEST(test_settings, layer_generate_bash) {
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_cmd(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/VK_LAYER_LUNARG_reference_1_2_1.sh");
@@ -218,14 +218,14 @@ TEST(test_settings, config_generate_cmd) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",  // Generate settings files
-                           (char*)"--mode",       (char*)"bat",       // Type of settings file
+                           (char*)"--generate",   (char*)"bat",       // Type of settings file
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_cmd(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/vk_layer_settings.bat");
@@ -237,7 +237,7 @@ TEST(test_settings, layer_generate_cmd) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",                         // Generate a settings file
-                           (char*)"--mode",       (char*)"bat",                              // Type of settings file
+                           (char*)"--generate",   (char*)"bat",                              // Type of settings file
                            (char*)"--layer",      (char*)"VK_LAYER_LUNARG_reference_1_2_1",  // Only for a specific layer
                            (char*)"--output-dir", (char*)path.c_str()};
     int argc = static_cast<int>(std::size(argv));
@@ -245,7 +245,7 @@ TEST(test_settings, layer_generate_cmd) {
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_cmd(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/VK_LAYER_LUNARG_reference_1_2_1.bat");
@@ -257,14 +257,14 @@ TEST(test_settings, config_generate_hpp) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",  // Generate a settings file
-                           (char*)"--mode",       (char*)"hpp",       // Type of settings file
+                           (char*)"--generate",   (char*)"hpp",       // Type of settings file
                            (char*)"--output-dir", (char*)path.c_str(), (char*)"--output", (char*)"vulkan_layer_settings.code"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_hpp(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/vulkan_layer_settings.code");
@@ -276,7 +276,7 @@ TEST(test_settings, layer_generate_hpp) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",                         // Generate a settings file
-                           (char*)"--mode",       (char*)"hpp",                              // Type of settings file
+                           (char*)"--generate",   (char*)"hpp",                              // Type of settings file
                            (char*)"--layer",      (char*)"VK_LAYER_LUNARG_reference_1_2_1",  // Only for a specific layer
                            (char*)"--output-dir", (char*)path.c_str(),
                            (char*)"--output",     (char*)"VK_LAYER_LUNARG_reference_1_2_1.code"};
@@ -285,7 +285,7 @@ TEST(test_settings, layer_generate_hpp) {
     CommandLine command_line(argc, argv);
     Configurator& configurator = GetTestConfigurator();
 
-    int result = ::generate_settings_hpp(configurator, command_line);
+    int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
     std::string data_generated = ::Read(path + "/VK_LAYER_LUNARG_reference_1_2_1.code");
