@@ -146,3 +146,17 @@ std::vector<T> GetVector(const T& value) {
 std::size_t ExtractDuplicateNumber(const std::string& name);
 
 std::string ExtractDuplicateBaseName(const std::string& name);
+
+template <typename ForwardIterator>
+ForwardIterator remove_duplicates(ForwardIterator first, ForwardIterator last) {
+    auto new_last = first;
+
+    for (auto current = first; current != last; ++current) {
+        if (std::find(first, new_last, *current) == new_last) {
+            if (new_last != current) *new_last = *current;
+            ++new_last;
+        }
+    }
+
+    return new_last;
+}

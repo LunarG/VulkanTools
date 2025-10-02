@@ -20,6 +20,7 @@
 
 #include "widget_tab_layers_path.h"
 #include "widget_tab_driver_path.h"
+#include "item_list_device.h"
 #include "tab_drivers.h"
 #include "mainwindow.h"
 #include "style.h"
@@ -59,12 +60,6 @@ TabDrivers::~TabDrivers() {}
 void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
     Configurator &configurator = Configurator::Get();
 
-    if (configurator.driver_override_list.empty()) {
-        for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
-            configurator.driver_override_list.push_back(configurator.vulkan_system_info.physicalDevices[i].deviceName.c_str());
-        }
-    }
-
     switch (ui_update_mode) {
         case UPDATE_REFRESH_UI:
         case UPDATE_REBUILD_UI: {
@@ -80,30 +75,24 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
                 case DRIVER_MODE_SINGLE: {
                     this->ui->driver_forced_name->blockSignals(true);
                     this->ui->driver_forced_name->clear();
-                    for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
-                        const int current_index = this->ui->driver_forced_name->count();
-                        this->ui->driver_forced_name->addItem(
-                            configurator.vulkan_system_info.physicalDevices[i].deviceName.c_str());
 
-                        std::string version;
+                    for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
                         const VulkanPhysicalDeviceInfo &info = configurator.vulkan_system_info.physicalDevices[i];
 
-                        if (info.vendorID == 0x10DE) {
-                            version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
-                                             FormatNvidia(info.driverVersion).c_str(), info.apiVersion.str().c_str());
-                        } else if ((info.vendorID == 0x8086) && (VKC_PLATFORM & PLATFORM_WINDOWS_BIT)) {
-                            version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
-                                             FormatIntelWindows(info.driverVersion).c_str(), info.apiVersion.str().c_str());
-                        } else {
-                            version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
-                                             Version(info.driverVersion).str().c_str(), info.apiVersion.str().c_str());
-                        }
+                        const int current_index = this->ui->driver_forced_name->count();
+                        this->ui->driver_forced_name->addItem(
+                            (info.deviceName + format(" (%s)", info.GetVersion().c_str())).c_str());
+
+                        const std::string &version =
+                            format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
+                                   info.GetVersion().c_str(), info.apiVersion.str().c_str());
 
                         this->ui->driver_forced_name->setItemData(current_index, version.c_str(), Qt::ToolTipRole);
                     }
-                    this->ui->driver_forced_name->setCurrentIndex(configurator.GetActiveDeviceIndex());
+                    this->ui->driver_forced_name->setCurrentIndex(configurator.GetActivePhysicalDeviceIndex());
                     this->ui->driver_forced_name->setToolTip(
-                        this->ui->driver_forced_name->itemData(configurator.GetActiveDeviceIndex(), Qt::ToolTipRole).toString());
+                        this->ui->driver_forced_name->itemData(configurator.GetActivePhysicalDeviceIndex(), Qt::ToolTipRole)
+                            .toString());
                     this->ui->driver_forced_name->blockSignals(false);
 
                     this->ui->driver_name_label->setVisible(true);
@@ -117,31 +106,15 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
                     this->ui->drivers_device_list->clear();
                     for (std::size_t i = 0, n = configurator.driver_override_list.size(); i < n; ++i) {
                         const int current_index = this->ui->driver_forced_name->count();
-                        QListWidgetItem *item = new QListWidgetItem(configurator.driver_override_list[i].c_str());
+
+                        const VulkanPhysicalDeviceInfo *info = configurator.GetPhysicalDevice(configurator.driver_override_list[i]);
+                        const std::string &version =
+                            format("%s driver: %s - Vulkan API version: %s", GetLabel(info->vendorID).c_str(),
+                                   info->GetVersion().c_str(), info->apiVersion.str().c_str());
+
+                        QListWidgetItem *item = new ListItemDevice(configurator.driver_override_list[i], info->GetVersion());
                         item->setIcon(::Get(configurator.current_theme_mode, ICON_DRAG));
-
-                        for (std::size_t j = 0, o = configurator.vulkan_system_info.physicalDevices.size(); j < o; ++j) {
-                            const VulkanPhysicalDeviceInfo &info = configurator.vulkan_system_info.physicalDevices[j];
-
-                            if (info.deviceName != configurator.driver_override_list[i]) {
-                                continue;
-                            }
-
-                            std::string version;
-                            if (info.vendorID == 0x10DE) {
-                                version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
-                                                 FormatNvidia(info.driverVersion).c_str(), info.apiVersion.str().c_str());
-                            } else if ((info.vendorID == 0x8086) && (VKC_PLATFORM & PLATFORM_WINDOWS_BIT)) {
-                                version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
-                                                 FormatIntelWindows(info.driverVersion).c_str(), info.apiVersion.str().c_str());
-                            } else {
-                                version = format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
-                                                 Version(info.driverVersion).str().c_str(), info.apiVersion.str().c_str());
-                            }
-
-                            item->setToolTip(version.c_str());
-                        }
-
+                        item->setToolTip(version.c_str());
                         this->ui->drivers_device_list->addItem(item);
                     }
 
@@ -200,7 +173,9 @@ bool TabDrivers::EventFilter(QObject *target, QEvent *event) {
 
         configurator.driver_override_list.clear();
         for (int i = 0, n = ui->drivers_device_list->count(); i < n; ++i) {
-            configurator.driver_override_list.push_back(ui->drivers_device_list->item(i)->text().toStdString());
+            const ListItemDevice *item = static_cast<ListItemDevice *>(ui->drivers_device_list->item(i));
+
+            configurator.driver_override_list.push_back(item->info);
         }
 
         configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
@@ -215,7 +190,8 @@ void TabDrivers::on_driver_override_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
 
     configurator.driver_override_enabled = checked;
-    configurator.driver_override_name = this->ui->driver_forced_name->currentText().toStdString();
+    configurator.driver_override_info =
+        ::GetDeviceInfo(configurator.vulkan_system_info.physicalDevices[this->ui->driver_forced_name->currentIndex()]);
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 }
 
@@ -229,7 +205,7 @@ void TabDrivers::on_driver_mode_changed(int index) {
 
 void TabDrivers::on_driver_name_changed(int index) {
     Configurator &configurator = Configurator::Get();
-    configurator.driver_override_name = this->ui->driver_forced_name->itemText(index).toStdString();
+    configurator.driver_override_info = ::GetDeviceInfo(configurator.vulkan_system_info.physicalDevices[index]);
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
@@ -239,13 +215,14 @@ void TabDrivers::on_driver_paths_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
 
     configurator.driver_paths_enabled = checked;
-    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    configurator.UpdateVulkanSystemInfo();
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void TabDrivers::on_paths_changed() {
     Configurator &configurator = Configurator::Get();
 
-    configurator.driver_override_list.clear();
     configurator.UpdateVulkanSystemInfo();
 
     this->UpdateUI(UPDATE_REBUILD_UI);
@@ -254,7 +231,6 @@ void TabDrivers::on_paths_changed() {
 void TabDrivers::on_paths_toggled() {
     Configurator &configurator = Configurator::Get();
 
-    configurator.driver_override_list.clear();
     configurator.UpdateVulkanSystemInfo();
 
     this->UpdateUI(UPDATE_REBUILD_UI);
@@ -270,7 +246,6 @@ void TabDrivers::on_driver_append_pressed() {
 
     configurator.driver_paths.insert(std::pair(selected_path, true));
     configurator.last_driver_path = selected_path;
-    configurator.driver_override_list.clear();
 
     configurator.UpdateVulkanSystemInfo();
 
@@ -290,7 +265,6 @@ void TabDrivers::on_driver_browse_pressed() {
 
     configurator.driver_paths.insert(std::pair(selected_path, true));
     configurator.last_driver_path = selected_path;
-    configurator.driver_override_list.clear();
 
     configurator.UpdateVulkanSystemInfo();
 

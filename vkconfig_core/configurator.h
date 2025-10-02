@@ -67,11 +67,7 @@ class Configurator {
     struct LoaderSettings {
         std::string executable_path;
         std::vector<LoaderLayerSettings> layers;
-        LogFlags stderr_log_flags = LOG_ERROR;
         bool override_layers = true;
-        bool override_loader = true;
-        bool override_driver = false;
-        std::string override_driver_name;
     };
 
     static Configurator& Get();
@@ -107,7 +103,11 @@ class Configurator {
     Executable* GetActiveExecutable();
     const Executable* GetActiveExecutable() const;
 
-    int GetActiveDeviceIndex() const;
+    int GetPhysicalDeviceIndex(const DeviceInfo& device_info) const;
+    const VulkanPhysicalDeviceInfo* GetPhysicalDevice(const DeviceInfo& device_info) const;
+    int GetActivePhysicalDeviceIndex() const;
+    const VulkanPhysicalDeviceInfo* GetActivePhysicalDevice() const;
+    bool Found(const DeviceInfo& device_info) const;
 
     bool Generate(GenerateSettingsMode mode, const Path& output_path);
 
@@ -149,7 +149,7 @@ class Configurator {
     QJsonObject CreateJsonGlobalObject() const;
 
     void BuildLoaderSettings(const std::string& configuration_key, const std::string& executable_path,
-                             std::vector<LoaderSettings>& loader_settings_array, bool full_loader_log) const;
+                             std::vector<LoaderSettings>& loader_settings_array) const;
 
     ConfiguratorMode init_mode = CONFIGURATOR_MODE_NONE;
 
@@ -177,8 +177,8 @@ class Configurator {
 
     bool driver_override_enabled = false;
     DriverMode driver_override_mode = DRIVER_MODE_SINGLE;
-    std::string driver_override_name = DEFAULT_PHYSICAL_DEVICE;
-    std::vector<std::string> driver_override_list;
+    DeviceInfo driver_override_info;
+    std::vector<DeviceInfo> driver_override_list;
     std::map<Path, bool> driver_paths;
     bool driver_paths_enabled = false;
 
