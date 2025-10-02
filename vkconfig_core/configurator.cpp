@@ -228,7 +228,7 @@ QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSett
     if (this->driver_override_enabled) {
         switch (this->driver_override_mode) {
             case DRIVER_MODE_SINGLE: {
-                const VulkanPhysicalDeviceInfo* info = ::Find(this->vulkan_system_info, this->driver_override_name);
+                const VulkanPhysicalDeviceInfo* info = this->GetActivePhysicalDevice();
                 if (info != nullptr) {
                     QJsonArray json_devices;
                     json_devices.append(::CreateDeviceConfigurations(*info));
@@ -238,7 +238,7 @@ QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSett
             case DRIVER_MODE_SORTED: {
                 QJsonArray json_devices;
                 for (std::size_t i = 0, n = this->driver_override_list.size(); i < n; ++i) {
-                    const VulkanPhysicalDeviceInfo* info = ::Find(this->vulkan_system_info, this->driver_override_list[i]);
+                    const VulkanPhysicalDeviceInfo* info = this->GetPhysicalDevice(this->driver_override_list[i]);
                     if (info != nullptr) {
                         json_devices.append(::CreateDeviceConfigurations(*info));
                     }
@@ -300,7 +300,7 @@ QJsonObject Configurator::CreateJsonGlobalObject() const {
     if (this->driver_override_enabled) {
         switch (this->driver_override_mode) {
             case DRIVER_MODE_SINGLE: {
-                const VulkanPhysicalDeviceInfo* info = ::Find(this->vulkan_system_info, this->driver_override_name);
+                const VulkanPhysicalDeviceInfo* info = this->GetActivePhysicalDevice();
                 if (info != nullptr) {
                     QJsonArray json_devices;
                     json_devices.append(::CreateDeviceConfigurations(*info));
@@ -310,7 +310,7 @@ QJsonObject Configurator::CreateJsonGlobalObject() const {
             case DRIVER_MODE_SORTED: {
                 QJsonArray json_devices;
                 for (std::size_t i = 0, n = this->driver_override_list.size(); i < n; ++i) {
-                    const VulkanPhysicalDeviceInfo* info = ::Find(this->vulkan_system_info, this->driver_override_list[i]);
+                    const VulkanPhysicalDeviceInfo* info = this->GetPhysicalDevice(this->driver_override_list[i]);
                     if (info != nullptr) {
                         json_devices.append(::CreateDeviceConfigurations(*info));
                     }
@@ -324,7 +324,7 @@ QJsonObject Configurator::CreateJsonGlobalObject() const {
 }
 
 void Configurator::BuildLoaderSettings(const std::string& configuration_key, const std::string& executable_path,
-                                       std::vector<LoaderSettings>& loader_settings_array, bool full_loader_log) const {
+                                       std::vector<LoaderSettings>& loader_settings_array) const {
     if (configuration_key.empty()) {
         return;
     }
@@ -336,10 +336,6 @@ void Configurator::BuildLoaderSettings(const std::string& configuration_key, con
 
     LoaderSettings result;
     result.executable_path = executable_path;
-    result.override_loader = this->loader_log_enabled;
-    result.stderr_log_flags = full_loader_log ? ~0 : this->loader_log_messages_flags;
-    result.override_driver = this->driver_override_enabled;
-    result.override_driver_name = this->driver_override_name;
 
     for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
         LoaderLayerSettings loader_layer_settings;
@@ -425,7 +421,7 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
 
         switch (this->executable_scope) {
             case EXECUTABLE_ANY:
-                this->BuildLoaderSettings(configuration, "", loader_settings_array, this->force_full_loader_log);
+                this->BuildLoaderSettings(configuration, "", loader_settings_array);
                 break;
             case EXECUTABLE_ALL:
             case EXECUTABLE_PER: {
@@ -439,8 +435,7 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
                         configuration = executables[i].configuration;
                     }
 
-                    this->BuildLoaderSettings(configuration, executables[i].path.AbsolutePath(), loader_settings_array,
-                                              this->force_full_loader_log);
+                    this->BuildLoaderSettings(configuration, executables[i].path.AbsolutePath(), loader_settings_array);
                 }
                 break;
             }
@@ -452,7 +447,9 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
         QJsonObject root;
         root.insert("file_format_version", "1.0.0");
         if (override_area == OVERRIDE_DRIVER) {
-            root.insert("settings", CreateJsonDriverObject(this->driver_paths));
+            if (this->driver_paths_enabled) {
+                root.insert("settings", CreateJsonDriverObject(this->driver_paths));
+            }
         } else {
             QJsonArray json_settings_array;
 
@@ -1386,22 +1383,62 @@ void Configurator::SetActiveConfigurationName(const std::string& configuration_n
     }
 }
 
-int Configurator::GetActiveDeviceIndex() const {
-    const Configuration* active_configuration = this->GetActiveConfiguration();
-    if (active_configuration == nullptr) {
+int Configurator::GetPhysicalDeviceIndex(const DeviceInfo& device_info) const {
+    if (device_info.deviceName.empty()) {
         return -1;
     }
 
     const auto& devices = this->vulkan_system_info.physicalDevices;
+    int count_multiple_version = 0;
     for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
-        if (devices[i].deviceName != this->driver_override_name) {
+        if (devices[i].deviceName == device_info.deviceName) {
+            ++count_multiple_version;
+        }
+    }
+
+    // We has multiple version, we deal with user removing a driver version of updating drivers
+    const bool has_multiple_version = count_multiple_version > 1;
+
+    for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
+        if (devices[i].deviceName != device_info.deviceName) {
             continue;
+        }
+
+        if (has_multiple_version) {
+            if (GetDeviceInfo(devices[i]) != device_info) {
+                continue;
+            }
         }
 
         return static_cast<int>(i);
     }
 
-    return this->driver_override_name == DEFAULT_PHYSICAL_DEVICE ? 0 : -1;
+    return -1;
+}
+
+bool Configurator::Found(const DeviceInfo& device_info) const {
+    for (std::size_t i = 0, n = this->driver_override_list.size(); i < n; ++i) {
+        if (this->driver_override_list[i] == device_info) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int Configurator::GetActivePhysicalDeviceIndex() const { return this->GetPhysicalDeviceIndex(this->driver_override_info); }
+
+const VulkanPhysicalDeviceInfo* Configurator::GetPhysicalDevice(const DeviceInfo& device_info) const {
+    int index = this->GetPhysicalDeviceIndex(device_info);
+    if (index >= 0 && index < this->vulkan_system_info.physicalDevices.size()) {
+        return &this->vulkan_system_info.physicalDevices[index];
+    } else {
+        return nullptr;
+    }
+}
+
+const VulkanPhysicalDeviceInfo* Configurator::GetActivePhysicalDevice() const {
+    return this->GetPhysicalDevice(this->driver_override_info);
 }
 
 void Configurator::UpdateVulkanSystemInfo() {
@@ -1413,6 +1450,36 @@ void Configurator::UpdateVulkanSystemInfo() {
     this->Override(OVERRIDE_DRIVER);  // Allow loading additional drivers
 
     this->vulkan_system_info = ::BuildVulkanSystemInfo();
+
+    // Add new driver
+    for (std::size_t i = 0, n = this->vulkan_system_info.physicalDevices.size(); i < n; ++i) {
+        const DeviceInfo& device_info = ::GetDeviceInfo(this->vulkan_system_info.physicalDevices[i]);
+        if (!this->Found(device_info)) {
+            this->driver_override_list.push_back(device_info);
+        }
+    }
+
+    // Remove missing driver
+    std::vector<DeviceInfo> new_driver_override_list;
+    for (std::size_t i = 0, n = this->driver_override_list.size(); i < n; ++i) {
+        const VulkanPhysicalDeviceInfo* info = this->GetPhysicalDevice(this->driver_override_list[i]);
+        if (info == nullptr) {
+            continue;
+        }
+
+        new_driver_override_list.push_back(::GetDeviceInfo(*info));
+    }
+    std::swap(this->driver_override_list, new_driver_override_list);
+
+    // Remove duplicated value (may happen when removing a driver version)
+    this->driver_override_list.erase(remove_duplicates(this->driver_override_list.begin(), this->driver_override_list.end()),
+                                     this->driver_override_list.end());
+
+    if (this->GetPhysicalDeviceIndex(this->driver_override_info) == -1) {
+        if (!this->vulkan_system_info.physicalDevices.empty()) {
+            this->driver_override_info = GetDeviceInfo(this->vulkan_system_info.physicalDevices[0]);
+        }
+    }
 
     this->Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 }
@@ -1835,22 +1902,33 @@ bool Configurator::Load() {
                 this->driver_override_mode =
                     ::GetDriverMode(json_object.value("driver_override_mode").toString().toStdString().c_str());
             }
-            if (json_object.value("driver_override_name") != QJsonValue::Undefined) {
-                this->driver_override_name = json_object.value("driver_override_name").toString().toStdString();
+
+            if (json_object.value("driver_override_info") != QJsonValue::Undefined) {
+                const QJsonObject& json_object_info = json_object.value("driver_override_info").toObject();
+
+                this->driver_override_info.deviceName = json_object_info.value("deviceName").toString().toStdString();
+                const QJsonArray& json_device_uuid = json_object_info.value("deviceUUID").toArray();
+                for (std::size_t i = 0, n = std::size(this->driver_override_info.deviceUUID); i < n; ++i) {
+                    this->driver_override_info.deviceUUID[i] = json_device_uuid[i].toInt();
+                }
+                this->driver_override_info.driverVersion =
+                    static_cast<std::uint32_t>(json_object_info.value("driverVersion").toInt());
             }
 
             this->driver_override_list.clear();
             const QJsonArray& json_driver_override_list_array = json_object.value("driver_override_list").toArray();
             if (json_object.value("driver_override_list") != QJsonValue::Undefined) {
                 for (int i = 0, n = json_driver_override_list_array.size(); i < n; ++i) {
-                    const std::string& driver_name = json_driver_override_list_array[i].toString().toStdString();
-                    this->driver_override_list.push_back(driver_name);
-                }
-            }
+                    const QJsonObject& json_object = json_driver_override_list_array[i].toObject();
+                    const QJsonArray& json_device_uuid = json_object.value("deviceUUID").toArray();
 
-            if (this->driver_override_list.empty()) {
-                for (std::size_t i = 0, n = this->vulkan_system_info.physicalDevices.size(); i < n; ++i) {
-                    this->driver_override_list.push_back(this->vulkan_system_info.physicalDevices[i].deviceName.c_str());
+                    DeviceInfo info;
+                    info.deviceName = json_object.value("deviceName").toString().toStdString();
+                    for (std::size_t i = 0, n = std::size(this->driver_override_info.deviceUUID); i < n; ++i) {
+                        info.deviceUUID[i] = json_device_uuid[i].toInt();
+                    }
+                    info.driverVersion = static_cast<std::uint32_t>(json_object.value("driverVersion").toInt());
+                    this->driver_override_list.push_back(info);
                 }
             }
 
@@ -1951,6 +2029,12 @@ bool Configurator::Load() {
         }
     }
 
+    if (this->driver_override_list.empty()) {
+        for (std::size_t i = 0, n = this->vulkan_system_info.physicalDevices.size(); i < n; ++i) {
+            this->driver_override_list.push_back(GetDeviceInfo(this->vulkan_system_info.physicalDevices[i]));
+        }
+    }
+
     if (this->latest_sdk_version < this->current_sdk_version) {
         this->latest_sdk_version = this->current_sdk_version;
     }
@@ -1996,11 +2080,34 @@ bool Configurator::Save() const {
         QJsonObject json_object;
         json_object.insert("driver_override_enabled", this->driver_override_enabled);
         json_object.insert("driver_override_mode", ::GetToken(this->driver_override_mode));
-        json_object.insert("driver_override_name", this->driver_override_name.c_str());
+
+        if (!this->driver_override_info.deviceName.empty()) {
+            QJsonObject json_object_info;
+            json_object_info.insert("deviceName", this->driver_override_info.deviceName.c_str());
+            QJsonArray json_device_uuid;
+            for (std::size_t i = 0, n = std::size(this->driver_override_info.deviceUUID); i < n; ++i) {
+                json_device_uuid.append(this->driver_override_info.deviceUUID[i]);
+            }
+            json_object_info.insert("deviceUUID", json_device_uuid);
+            json_object_info.insert("driverVersion", static_cast<std::int32_t>(this->driver_override_info.driverVersion));
+            json_object.insert("driver_override_info", json_object_info);
+        }
 
         QJsonArray json_driver_override_list_array;
         for (auto it = this->driver_override_list.begin(); it != this->driver_override_list.end(); ++it) {
-            json_driver_override_list_array.append(it->c_str());
+            if (it->deviceName.empty()) {
+                continue;
+            }
+
+            QJsonObject json_object_info;
+            json_object_info.insert("deviceName", it->deviceName.c_str());
+            QJsonArray json_device_uuid;
+            for (std::size_t i = 0, n = std::size(this->driver_override_info.deviceUUID); i < n; ++i) {
+                json_device_uuid.append(it->deviceUUID[i]);
+            }
+            json_object_info.insert("deviceUUID", json_device_uuid);
+            json_object_info.insert("driverVersion", static_cast<std::int32_t>(it->driverVersion));
+            json_driver_override_list_array.append(json_object_info);
         }
         json_object.insert("driver_override_list", json_driver_override_list_array);
 

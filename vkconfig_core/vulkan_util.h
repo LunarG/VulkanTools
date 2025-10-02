@@ -40,6 +40,15 @@ enum VendorID {
     VENDOR_ID_QUALCOMM = 0x17CB,
 };
 
+struct DeviceInfo {
+    std::string deviceName;
+    uint8_t deviceUUID[VK_UUID_SIZE];
+    uint32_t driverVersion = 0;
+};
+
+bool operator==(const DeviceInfo &a, const DeviceInfo &b);
+bool operator!=(const DeviceInfo &a, const DeviceInfo &b);
+
 struct VulkanPhysicalDeviceInfo {
     std::string deviceName;
     std::string driverName;
@@ -51,7 +60,11 @@ struct VulkanPhysicalDeviceInfo {
     VendorID vendorID;
     uint32_t deviceID;
     VkPhysicalDeviceType deviceType;
+
+    std::string GetVersion() const;
 };
+
+DeviceInfo GetDeviceInfo(const VulkanPhysicalDeviceInfo &info);
 
 struct VulkanSystemInfo {
     Version loaderVersion = Version::NONE;
