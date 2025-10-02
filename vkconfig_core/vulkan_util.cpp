@@ -153,6 +153,44 @@ static VkResult CreateInstance(const VulkanFunctions &vk, bool enumerate_portabi
     return vk.CreateInstance(&inst_info, nullptr, &instance);
 }
 
+std::string VulkanPhysicalDeviceInfo::GetVersion() const {
+    if (this->vendorID == 0x10DE) {
+        return FormatNvidia(this->driverVersion);
+    } else if ((this->vendorID == 0x8086) && (VKC_PLATFORM & PLATFORM_WINDOWS_BIT)) {
+        return FormatIntelWindows(this->driverVersion);
+    } else {
+        return Version(this->driverVersion).str();
+    }
+}
+
+DeviceInfo GetDeviceInfo(const VulkanPhysicalDeviceInfo &info) {
+    DeviceInfo device_info;
+    device_info.deviceName = info.deviceName;
+    std::copy(std::begin(info.deviceUUID), std::end(info.deviceUUID), std::begin(device_info.deviceUUID));
+    device_info.driverVersion = info.driverVersion;
+    return device_info;
+}
+
+bool operator==(const DeviceInfo &a, const DeviceInfo &b) {
+    if (a.deviceName != b.deviceName) {
+        return false;
+    }
+
+    for (int i = 0, n = VK_UUID_SIZE; i < n; ++i) {
+        if (a.deviceUUID[i] != b.deviceUUID[i]) {
+            return false;
+        }
+    }
+
+    if (a.driverVersion != b.driverVersion) {
+        return false;
+    }
+
+    return true;
+}
+
+bool operator!=(const DeviceInfo &a, const DeviceInfo &b) { return !(a == b); }
+
 VulkanSystemInfo BuildVulkanSystemInfo() {
     VulkanSystemInfo vulkan_system_info;
 
@@ -243,6 +281,13 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
         vk.GetPhysicalDeviceProperties2(devices[i], &properties2);
 
         device_info.deviceName = properties2.properties.deviceName;
+
+        /* For multiple driver version testing only
+                if (device_info.deviceName.find("llvmpipe") != std::string::npos) {
+                    device_info.deviceName = "llvmpipe";
+                }
+        */
+
         device_info.driverVersion = properties2.properties.driverVersion;
         device_info.apiVersion = Version(properties2.properties.apiVersion);
         device_info.vendorID = static_cast<VendorID>(properties2.properties.vendorID);

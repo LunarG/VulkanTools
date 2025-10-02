@@ -104,6 +104,7 @@ SOURCES += \
     widget_setting_list.cpp \
     item_tree.cpp \
     item_list.cpp \
+    item_list_device.cpp \
     main.cpp \
     mainwindow.cpp \
     tab.cpp \
@@ -197,6 +198,7 @@ HEADERS += \
     widget_setting_list.h \
     item_tree.h \
     item_list.h \
+    item_list_device.h \
     mainwindow.h \
     tab.h \
     tab_about.h \
