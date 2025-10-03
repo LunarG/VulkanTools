@@ -271,10 +271,10 @@ void TabApplications::on_launch_executable_list_activated(int index) {
             this->ui->launch_executable_remove->setToolTip("Delete the current executable path");
         } else {
             this->ui->launch_executable_search->setToolTip(
-                "The current executable path can't be updated because the executable is necessary is Vulkan Configurator "
+                "The current executable path can't be updated because the executable is necessary for Vulkan Configurator "
                 "execution");
             this->ui->launch_executable_remove->setToolTip(
-                "The current executable path can't be deleted because the executable is necessary is Vulkan Configurator "
+                "The current executable path can't be deleted because the executable is necessary for Vulkan Configurator "
                 "execution");
         }
     }
