@@ -1578,7 +1578,10 @@ void screenshotWriterThreadFunc() {
                     std::ofstream pauseFile(settings.pauseFileName.c_str());
                     pauseFileRecorded = true;
                 }
-                screenshotQueuedCV.wait(lock);
+                // Make sure we don't wait on the CPU thread if we are shutting down, will deadlock.
+                if (!shutdownScreenshotThread) {
+                    screenshotQueuedCV.wait(lock);
+                }
             }
             if (shutdownScreenshotThread && screenshotsData.empty()) break;
             if (screenshotsData.empty()) continue;
