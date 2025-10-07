@@ -407,6 +407,7 @@ void startScreenshotThread() {
 }
 
 static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
+    std::lock_guard<std::mutex> lg(globalLock);
     vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
                              &globalLayerSettingSet);
 
@@ -1293,6 +1294,12 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
     VkuInstanceDispatchTable *pTable = instance_dispatch_table(instance);
     pTable->DestroyInstance(instance, pAllocator);
 
+    {
+        std::lock_guard<std::mutex> lg(globalLock);
+        vkuDestroyLayerSettingSet(globalLayerSettingSet, pAllocator);
+        globalLayerSettingSet = VK_NULL_HANDLE;
+    }
+
     shutdown_screenshot();
 
     // TODO - screenshot doesn't support multiple instances at the same time
@@ -1550,7 +1557,12 @@ void screenshotWriterThreadFunc() {
         std::remove(settings.pauseFileName.c_str());
     }
     while (true) {
-        updatePauseCapture(globalLayerSettingSet);
+        {
+            std::lock_guard<std::mutex> lock(globalLock);
+            if (globalLayerSettingSet != VK_NULL_HANDLE) {
+                updatePauseCapture(globalLayerSettingSet);
+            }
+        }
         bool paused = std::atomic_load(&pauseCapture);
         if (!paused && pauseFileRecorded) {
             std::remove(settings.pauseFileName.c_str());  // delete file
