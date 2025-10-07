@@ -421,6 +421,10 @@ void stopScreenshotThread() { shutdownScreenshotThread = true; }
 
 void waitScreenshotThreadIsOver() {
     if (!screenshotThreadStarted) return;
+    {
+        std::unique_lock<std::mutex> lock(globalLock);
+        screenshotQueuedCV.notify_all();
+    }
     if (screenshotWriterThread.joinable()) {
         screenshotWriterThread.join();
     }
