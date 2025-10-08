@@ -408,11 +408,17 @@ void startScreenshotThread() {
 
 static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator) {
     std::lock_guard<std::mutex> lg(globalLock);
+    VkuLayerSettingSet layerSettingSet;
     vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", vkuFindLayerSettingsCreateInfo(pCreateInfo), pAllocator, nullptr,
-                             &globalLayerSettingSet);
+                             &layerSettingSet);
 
-    settings.init(globalLayerSettingSet);
+    settings.init(layerSettingSet);
 
+    // Init global layer setting set with pFirstCreateInfo as nullptr. 
+    // We are checking for settings changes at runtime and pFirstCreateInfo is const.
+    // And LayerSettingSet with pFirstCreateInfo can be used only in the scope of CreateInstance.
+    vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", /* pFirstCreateInfo=*/ nullptr, 
+                             pAllocator, nullptr, &globalLayerSettingSet);
     updatePauseCapture(globalLayerSettingSet);
 
     startScreenshotThread();
@@ -1291,8 +1297,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 }
 
 VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
-    VkuInstanceDispatchTable *pTable = instance_dispatch_table(instance);
-    pTable->DestroyInstance(instance, pAllocator);
+    shutdown_screenshot();  
 
     {
         std::lock_guard<std::mutex> lg(globalLock);
@@ -1300,7 +1305,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocati
         globalLayerSettingSet = VK_NULL_HANDLE;
     }
 
-    shutdown_screenshot();
+    VkuInstanceDispatchTable *pTable = instance_dispatch_table(instance);
+    pTable->DestroyInstance(instance, pAllocator);
 
     // TODO - screenshot doesn't support multiple instances at the same time
 }
@@ -1579,11 +1585,9 @@ void screenshotWriterThreadFunc() {
                     pauseFileRecorded = true;
                 }
                 // Make sure we don't wait on the CPU thread if we are shutting down, will deadlock.
-                if (!shutdownScreenshotThread) {
-                    screenshotQueuedCV.wait(lock);
-                }
+                if (shutdownScreenshotThread) break;
+                screenshotQueuedCV.wait(lock);
             }
-            if (shutdownScreenshotThread && screenshotsData.empty()) break;
             if (screenshotsData.empty()) continue;
             dataToSave = screenshotsData.front();
         }
