@@ -414,11 +414,11 @@ static void init_screenshot(const VkInstanceCreateInfo *pCreateInfo, const VkAll
 
     settings.init(layerSettingSet);
 
-    // Init global layer setting set with pFirstCreateInfo as nullptr. 
+    // Init global layer setting set with pFirstCreateInfo as nullptr.
     // We are checking for settings changes at runtime and pFirstCreateInfo is const.
     // And LayerSettingSet with pFirstCreateInfo can be used only in the scope of CreateInstance.
-    vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", /* pFirstCreateInfo=*/ nullptr, 
-                             pAllocator, nullptr, &globalLayerSettingSet);
+    vkuCreateLayerSettingSet("VK_LAYER_LUNARG_screenshot", /* pFirstCreateInfo=*/nullptr, pAllocator, nullptr,
+                             &globalLayerSettingSet);
     updatePauseCapture(globalLayerSettingSet);
 
     startScreenshotThread();
@@ -442,6 +442,12 @@ static void shutdown_screenshot() {
     stopScreenshotThread();
     waitScreenshotThreadIsOver();
 }
+
+struct ScreenshotThreadCleanup {
+    ~ScreenshotThreadCleanup() { shutdown_screenshot(); }
+};
+// Make sure shutdown_screenshot is called even if DestroyInstance is not called.
+ScreenshotThreadCleanup screenshot_thread_cleanup;
 
 VkQueue getQueueForScreenshot(VkDevice device) {
     // Find a queue that we can use for taking a screenshot
@@ -1273,6 +1279,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
     _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
 #endif
 
+    printf("CreateInstance called\n");
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
     assert(chain_info->u.pLayerInfo);
@@ -1297,7 +1304,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreat
 }
 
 VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator) {
-    shutdown_screenshot();  
+    printf("DestroyInstance called\n");
+    shutdown_screenshot();
 
     {
         std::lock_guard<std::mutex> lg(globalLock);
