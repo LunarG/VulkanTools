@@ -20,7 +20,23 @@
 
 #pragma once
 
-#include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/command_line.h"
+#include <string>
 
-int generate_settings(Configurator& configurator, const CommandLine& command_line);
+#include "path.h"
+#include "type_generate_settings.h"
+
+// #include "../vkconfig_core/configurator.h"
+// #include "../vkconfig_core/command_line.h"
+
+// int generate_settings(Configurator& configurator, const CommandLine& command_line);
+
+class LayerManager;
+class Configuration;
+
+struct GenerateSettings {
+    GenerateSettings(GenerateSettingsMode type) : type(type) {}
+
+    virtual std::string operator()(const LayerManager& layers, const Configuration* configuration) const = 0;
+
+    const GenerateSettingsMode type = GENERATE_SETTINGS_NONE;
+};
