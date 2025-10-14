@@ -33,6 +33,10 @@
 #include <mutex>
 #include <fstream>
 
+#if defined(_WIN32) && !defined(NDEBUG)
+#include <crtdbg.h>
+#endif
+
 using namespace std;
 
 #include <vulkan/layer/vk_layer_settings.hpp>
@@ -1009,6 +1013,18 @@ static bool writePPM(const char *filename, VkImage image1) {
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator,
                                               VkInstance *pInstance) {
+#if defined(_WIN32) && defined(_CRTDBG_MODE_FILE)
+#if !defined(NDEBUG)
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+#endif
+    // Avoid "Abort, Retry, Ignore" dialog boxes
+    _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+#endif
+
     VkLayerInstanceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
     assert(chain_info->u.pLayerInfo);

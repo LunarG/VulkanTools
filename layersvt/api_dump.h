@@ -64,6 +64,10 @@
 #include <unordered_set>
 #include <utility>
 
+#if defined(_WIN32) && !defined(NDEBUG)
+#include <crtdbg.h>
+#endif
+
 #ifdef ANDROID
 #include <memory>
 #include <string_view>
@@ -1399,8 +1403,10 @@ std::enable_if_t<!std::is_pointer_v<T>> dump_type_hex(const T &object, const Api
 }
 
 template <ApiDumpFormat Format>
-void dump_uint64_t_as_pointer(const uint64_t object, const ApiDumpSettings &settings, const char *type_string, const char *name, int indents) {
-    dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents, reinterpret_cast<const void*>(static_cast<uintptr_t>(object)));
+void dump_uint64_t_as_pointer(const uint64_t object, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                              int indents) {
+    dump_start<Format>(settings, OutputConstruct::pointer, type_string, name, indents,
+                       reinterpret_cast<const void *>(static_cast<uintptr_t>(object)));
     dump_end<Format>(settings, OutputConstruct::pointer, indents);
 }
 
