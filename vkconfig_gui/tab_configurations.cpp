@@ -26,7 +26,6 @@
 #include "item_tree.h"
 
 #include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/doc.h"
 #include "../vkconfig_core/type_hide_message.h"
 
 #include <QSettings>

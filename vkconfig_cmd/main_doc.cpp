@@ -23,7 +23,6 @@
 
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/layer_manager.h"
-#include "../vkconfig_core/doc.h"
 #include "../vkconfig_core/configuration_manager.h"
 
 #include <cassert>
