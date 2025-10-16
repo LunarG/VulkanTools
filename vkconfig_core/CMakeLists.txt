@@ -48,8 +48,6 @@ endif()
 
 if(Qt6_FOUND)
     target_link_libraries(vkconfig-core Vulkan::Headers valijson Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
-elseif(Qt5_FOUND)
-    target_link_libraries(vkconfig-core Vulkan::Headers valijson Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
 endif()
 
 if(BUILD_TESTS)

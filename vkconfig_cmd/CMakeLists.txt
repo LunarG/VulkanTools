@@ -44,8 +44,6 @@ if(NOT APPLE)
 
 if(Qt6_FOUND)
     target_link_libraries(vkconfig-cmd Vulkan::Headers vkconfig-core Qt6::Core Qt6::Network)
-elseif(Qt5_FOUND)
-    target_link_libraries(vkconfig-cmd Vulkan::Headers vkconfig-core Qt5::Core Qt5::Network)
 endif()
 
     target_compile_definitions(vkconfig-cmd PRIVATE QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT)
@@ -57,8 +55,6 @@ endif()
     if(WIN32)
 if(Qt6_FOUND)
         get_target_property(QMAKE_EXE Qt6::qmake IMPORTED_LOCATION)
-elseif(Qt5_FOUND)
-        get_target_property(QMAKE_EXE Qt5::qmake IMPORTED_LOCATION)
 endif()
 
         get_filename_component(QT_BIN_DIR "${QMAKE_EXE}" DIRECTORY)

@@ -20,7 +20,7 @@
 
 #include "../configurator.h"
 #include "../command_line.h"
-#include "../generate_settings_files.h"
+#include "../generate_layers_settings.h"
 #include "./generated/vulkan_layer_settings.code"
 
 #if VKC_ENV == VKC_ENV_UNIX
