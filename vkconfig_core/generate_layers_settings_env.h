@@ -18,16 +18,20 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "main_settings.h"
+#pragma once
 
-#include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/generate_layers_settings.h"
+#include "generate_layers_settings.h"
 
-int run_generate_settings(const CommandLine& command_line) {
-    assert(command_line.command == COMMAND_SETTINGS);
-    assert(command_line.error == ERROR_NONE);
+struct GenerateSettingsEnv : public GenerateSettings {
+    GenerateSettingsEnv(GenerateSettingsMode type) : GenerateSettings(type) {}
 
-    ConfiguratorGuard configurator_guard(command_line.dry_run ? CONFIGURATOR_MODE_DRY : CONFIGURATOR_MODE_CMD);
+    virtual std::string operator()(const LayerManager& layers, const Configuration* configuration) const;
+};
 
-    return generate_settings(configurator_guard.Get(), command_line);
-}
+struct GenerateSettingsCMD : public GenerateSettingsEnv {
+    GenerateSettingsCMD() : GenerateSettingsEnv(GENERATE_SETTINGS_CMD) {}
+};
+
+struct GenerateSettingsBash : public GenerateSettingsEnv {
+    GenerateSettingsBash() : GenerateSettingsEnv(GENERATE_SETTINGS_BASH) {}
+};

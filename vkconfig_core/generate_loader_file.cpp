@@ -18,16 +18,4 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "main_settings.h"
-
-#include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/generate_layers_settings.h"
-
-int run_generate_settings(const CommandLine& command_line) {
-    assert(command_line.command == COMMAND_SETTINGS);
-    assert(command_line.error == ERROR_NONE);
-
-    ConfiguratorGuard configurator_guard(command_line.dry_run ? CONFIGURATOR_MODE_DRY : CONFIGURATOR_MODE_CMD);
-
-    return generate_settings(configurator_guard.Get(), command_line);
-}
+#include "generate_loader_file.h"

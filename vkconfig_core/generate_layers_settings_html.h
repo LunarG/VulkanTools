@@ -16,11 +16,14 @@
  *
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
- * - David Pinedo <david@lunarg.com>
  */
 
-#include "configurator.h"
+#pragma once
 
-bool ExportHtmlDoc(Configurator& configurator, const Layer* layer, const Path& path);
+#include "generate_layers_settings.h"
 
-bool ExportMarkdownDoc(Configurator& configurator, const Layer* layer, const Path& path);
+struct GenerateSettingsHTML : public GenerateSettings {
+    GenerateSettingsHTML() : GenerateSettings(GENERATE_SETTINGS_HTML) {}
+
+    virtual std::string operator()(const LayerManager& layers, const Configuration* configuration) const;
+};

@@ -46,8 +46,6 @@ enum EnabledUI {
     ENABLE_UI_SETTINGS,
 };
 
-enum ExportEnvMode { EXPORT_ENV_BASH = 0, EXPORT_ENV_CMD };
-
 class Configurator {
    public:
     struct LayersSettings {
@@ -109,7 +107,7 @@ class Configurator {
     const VulkanPhysicalDeviceInfo* GetActivePhysicalDevice() const;
     bool Found(const DeviceInfo& device_info) const;
 
-    bool Generate(GenerateSettingsMode mode, const Path& output_path);
+    // bool Generate(GenerateSettingsMode mode, const Path& output_path);
 
     void Set(HideMessageType type);
     bool Get(HideMessageType type) const;

@@ -18,7 +18,10 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "generate_settings_files.h"
+#include "generate_layers_settings.h"
+
+#include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/command_line.h"
 
 class ConfigurationSelection {
    public:
