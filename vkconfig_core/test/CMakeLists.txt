@@ -33,8 +33,6 @@ function(vkConfigTest NAME)
     set_target_properties(${TEST_NAME} PROPERTIES FOLDER "vkconfig/tests")
     if(Qt6_FOUND)
       target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
-    elseif(Qt5_FOUND)
-      target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
     endif()
 
     target_compile_definitions(${TEST_NAME} PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
