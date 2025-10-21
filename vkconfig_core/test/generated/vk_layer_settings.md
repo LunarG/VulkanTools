@@ -12,7 +12,7 @@
 - Variables:
   - `vk_layer_settings.txt` namespace: `lunarg_reference_1_2_1`
   - Environment Variable prefix: `VK_LUNARG_REFERENCE_1_2_1_`
-  - Android system property prefix: `adb setprop debug.vulkan.lunarg_reference_1_2_1.`
+  - Android system property prefix: `adb shell setprop debug.vulkan.lunarg_reference_1_2_1.`
 - Platforms: `WINDOWS_X86`, `WINDOWS_ARM`, `LINUX`, `MACOS`
 - Number of Layer Settings: 12
 - Number of Layer Presets: 11
