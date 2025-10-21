@@ -108,7 +108,7 @@ void Message::Apply(SettingDataSet& data_set, QMessageBox::StandardButtons butto
 
             SettingData* setting_data = ::FindSetting<SettingData>(data_set, action.setting->key.c_str());
             const ActionOperatorType op = setting_data->type == SETTING_FLAGS ? action.op : ACTION_OPERATOR_SET;
-            switch (action.op) {
+            switch (op) {
                 default:
                 case ACTION_OPERATOR_SET:
                     if (*action.setting != *setting_data) {

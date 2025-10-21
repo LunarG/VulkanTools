@@ -190,19 +190,6 @@ static CommandLayersArg GetCommandLayersId(const char* token) {
     return COMMAND_LAYERS_NONE;
 }
 
-static const CommandLayersDesc& GetCommandLayers(CommandLayersArg layers_arg) {
-    assert(layers_arg != COMMAND_LAYERS_NONE);
-
-    for (std::size_t i = 0, n = std::size(command_layers_desc); i < n; ++i) {
-        if (command_layers_desc[i].arguments == layers_arg) {
-            return command_layers_desc[i];
-        }
-    }
-
-    assert(0);
-    return command_layers_desc[0];
-}
-
 static CommandLoaderArg GetCommandLoaderId(const char* token) {
     assert(token != nullptr);
 
@@ -213,19 +200,6 @@ static CommandLoaderArg GetCommandLoaderId(const char* token) {
     }
 
     return COMMAND_LOADER_NONE;
-}
-
-static const CommandLoaderDesc& GetCommandLoader(CommandLoaderArg loader_arg) {
-    assert(loader_arg != COMMAND_LOADER_NONE);
-
-    for (std::size_t i = 0, n = std::size(command_loader_desc); i < n; ++i) {
-        if (command_loader_desc[i].arguments == loader_arg) {
-            return command_loader_desc[i];
-        }
-    }
-
-    assert(0);
-    return command_loader_desc[0];
 }
 
 static CommandDocArg GetCommandDocId(const char* token) {
@@ -252,19 +226,6 @@ static CommandSettingsArg GetCommandSettingsArgsId(const char* token) {
     return COMMAND_SETTINGS_NONE;
 }
 
-static const CommandSettingsDesc& GetCommandSettings(CommandSettingsArg export_arg) {
-    assert(export_arg != COMMAND_SETTINGS_NONE);
-
-    for (std::size_t i = 0, n = std::size(command_settings_desc); i < n; ++i) {
-        if (command_settings_desc[i].arguments == export_arg) {
-            return command_settings_desc[i];
-        }
-    }
-
-    assert(0);
-    return command_settings_desc[0];
-}
-
 CommandLine::CommandLine(int argc, char* argv[])
     : command(_command),
       command_reset_arg(_command_reset_arg),
@@ -275,9 +236,9 @@ CommandLine::CommandLine(int argc, char* argv[])
       selected_layer_name(_selected_layer_name),
       selected_configuration_name(_selected_configuration_name),
       dry_run(_dry_run),
+      help(_help),
       error(_error),
-      error_args(_error_args),
-      help(_help) {
+      error_args(_error_args) {
     assert(argc >= 1);
 
     if (argc <= 1) {

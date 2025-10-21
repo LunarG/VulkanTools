@@ -105,8 +105,6 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
                     this->ui->drivers_device_list->blockSignals(true);
                     this->ui->drivers_device_list->clear();
                     for (std::size_t i = 0, n = configurator.driver_override_list.size(); i < n; ++i) {
-                        const int current_index = this->ui->driver_forced_name->count();
-
                         const VulkanPhysicalDeviceInfo *info = configurator.GetPhysicalDevice(configurator.driver_override_list[i]);
                         const std::string &version =
                             format("%s driver: %s - Vulkan API version: %s", GetLabel(info->vendorID).c_str(),
