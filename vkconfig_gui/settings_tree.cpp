@@ -32,14 +32,12 @@
 #include "widget_setting_string.h"
 #include "widget_setting_flags.h"
 #include "widget_setting_filesystem.h"
-#include "widget_setting_list_element.h"
 #include "widget_setting_list.h"
 
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/type_platform.h"
-#include "../vkconfig_core/type_hide_message.h"
 
 #include <QLineEdit>
 #include <QPushButton>
@@ -531,8 +529,6 @@ void SettingsTreeManager::RefreshPresetLabel() {
 }
 
 void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
-    Configurator &configurator = Configurator::Get();
-
     this->ui->configurations_settings->blockSignals(true);
 
     QTreeWidgetItem *root_item = this->ui->configurations_settings->invisibleRootItem();

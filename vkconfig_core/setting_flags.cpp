@@ -139,7 +139,6 @@ std::string SettingDataEnum::Export(ExportMode export_mode) const {
                 }
 
                 const std::string& value_name = ::GetSettingValueName(this->meta->layer_key, this->key, value.key);
-                const std::string& value_key = ::ToUpperCase(value.key);
 
                 result +=
                     format("static %s %s = \"%s\";\n", ::GetCodeTypeString(this->type), value_name.c_str(), value.key.c_str());
@@ -314,7 +313,6 @@ std::string SettingDataFlags::Export(ExportMode export_mode) const {
                 }
 
                 const std::string& value_name = ::GetSettingValueName(this->meta->layer_key, this->key, value.key);
-                const std::string& value_key = ::ToUpperCase(value.key);
 
                 result +=
                     format("static %s %s = \"%s\";\n", ::GetCodeTypeString(this->type), value_name.c_str(), value.key.c_str());

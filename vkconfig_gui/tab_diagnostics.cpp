@@ -593,8 +593,6 @@ void TabDiagnostics::on_search_regex_toggled(bool checked) {
 }
 
 void TabDiagnostics::on_context_menu(const QPoint &pos) {
-    Configurator &configurator = Configurator::Get();
-
     QMenu *menu = this->ui->diagnostic_status_text->createStandardContextMenu();
     menu->addSeparator();
 

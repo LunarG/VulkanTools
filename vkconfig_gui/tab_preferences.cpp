@@ -428,8 +428,6 @@ void TabPreferences::on_show_override_settings_toggled(bool checked) {
 void TabPreferences::on_open_page_pressed() { QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/sdk/home")); }
 
 void TabPreferences::on_download_pressed() {
-    Configurator &configurator = Configurator::Get();
-
     this->ui->preferences_download->setEnabled(false);
     this->ui->preferences_progress->setVisible(true);
     this->ui->preferences_vk_download_label->setVisible(false);

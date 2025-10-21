@@ -788,8 +788,6 @@ void TabApplications::on_search_regex_toggled(bool checked) {
 }
 
 void TabApplications::on_context_menu(const QPoint &pos) {
-    Configurator &configurator = Configurator::Get();
-
     QMenu *menu = this->ui->launch_log_text->createStandardContextMenu();
     menu->addSeparator();
 

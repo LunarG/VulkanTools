@@ -160,17 +160,6 @@ static QJsonObject CreateDeviceConfigurations(const VulkanPhysicalDeviceInfo& in
     return json_device;
 }
 
-static const VulkanPhysicalDeviceInfo* Find(const VulkanSystemInfo& vulkan_system_info, const std::string& driver_name) {
-    for (std::size_t i = 0, n = vulkan_system_info.physicalDevices.size(); i < n; ++i) {
-        const VulkanPhysicalDeviceInfo* info = &vulkan_system_info.physicalDevices[i];
-        if (info->deviceName == driver_name) {
-            return info;
-        }
-    }
-
-    return nullptr;
-}
-
 QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings) const {
     QJsonObject json_settings;
 
@@ -1430,7 +1419,7 @@ int Configurator::GetActivePhysicalDeviceIndex() const { return this->GetPhysica
 
 const VulkanPhysicalDeviceInfo* Configurator::GetPhysicalDevice(const DeviceInfo& device_info) const {
     int index = this->GetPhysicalDeviceIndex(device_info);
-    if (index >= 0 && index < this->vulkan_system_info.physicalDevices.size()) {
+    if (index >= 0 && index < static_cast<int>(this->vulkan_system_info.physicalDevices.size())) {
         return &this->vulkan_system_info.physicalDevices[index];
     } else {
         return nullptr;

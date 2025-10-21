@@ -148,6 +148,8 @@ bool SettingMetaList::Load(const QJsonObject& json_setting) {
 }
 
 std::string SettingMetaList::Export(ExportMode export_mode) const {
+    (void)export_mode;
+
     std::string result;
 
     for (std::size_t i = 0, n = this->default_value.size(); i < n; ++i) {

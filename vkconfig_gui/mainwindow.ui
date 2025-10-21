@@ -3595,7 +3595,7 @@
              <property name="title">
               <string>Vulkan Configurator Appearence</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_12">
+             <layout class="QVBoxLayout" name="verticalLayout_13">
               <property name="spacing">
                <number>0</number>
               </property>
@@ -4074,7 +4074,7 @@
                  </layout>
                 </item>
                 <item row="2" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_16">
+                 <layout class="QHBoxLayout" name="horizontalLayout_30">
                   <property name="spacing">
                    <number>0</number>
                   </property>
@@ -4223,7 +4223,7 @@
        <attribute name="toolTip">
         <string>About Vulkan Configurator</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_13">
+       <layout class="QVBoxLayout" name="verticalLayout_30">
         <property name="spacing">
          <number>0</number>
         </property>
