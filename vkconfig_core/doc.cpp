@@ -345,12 +345,12 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
                     std::vector<std::string> list;
 
                     for (std::size_t i = 0, n = commands.size(); i < n; ++i) {
-                        list.push_back(format("adb setprop %s %s", commands[i].c_str(), value.c_str()));
+                        list.push_back(format("adb shell setprop %s %s", commands[i].c_str(), value.c_str()));
                     }
 
                     if (!layer.prefix.empty()) {
                         list.push_back(
-                            format("adb setprop debug.%s %s", (layer.prefix + "." + setting->key).c_str(), value.c_str()));
+                            format("adb shell setprop debug.%s %s", (layer.prefix + "." + setting->key).c_str(), value.c_str()));
                     }
 
                     text += format("\t<tr><td>Android system properties:</td><td><span class=\"code\">%s</span></td></tr>\n",
@@ -580,14 +580,14 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
                     text += "| Android system properties: | <pre>";
 
                     for (std::size_t i = 0, n = commands.size(); i < n; ++i) {
-                        text += format("adb setprop %s %s", commands[i].c_str(), setting->Export(EXPORT_MODE_DOC).c_str());
+                        text += format("adb shell setprop %s %s", commands[i].c_str(), setting->Export(EXPORT_MODE_DOC).c_str());
                         if (i < n - 1) {
                             text += "<br>";
                         }
                     }
 
                     if (!layer.prefix.empty()) {
-                        text += format("<br>adb setprop debug.%s %s", (layer.prefix + "." + setting->key).c_str(),
+                        text += format("<br>adb shell setprop debug.%s %s", (layer.prefix + "." + setting->key).c_str(),
                                        setting->Export(EXPORT_MODE_DOC).c_str());
                     }
 
@@ -795,7 +795,7 @@ bool ExportMarkdownDoc(Configurator& configurator, const Layer* requested_layer,
         text += "- Variables:\n";
         text += format("  - `vk_layer_settings.txt` namespace: `%s`\n", ToLowerCase(TrimPrefix(layer->key)).c_str());
         text += format("  - Environment Variable prefix: `VK_%s_`\n", ToUpperCase(TrimPrefix(layer->key)).c_str());
-        text += format("  - Android system property prefix: `adb setprop debug.vulkan.%s.`\n",
+        text += format("  - Android system property prefix: `adb shell setprop debug.vulkan.%s.`\n",
                        ToLowerCase(TrimPrefix(layer->key)).c_str());
 
         if (layer->platforms != 0) {
