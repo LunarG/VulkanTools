@@ -30,7 +30,7 @@
 class ListItemDevice : public QListWidgetItem {
    public:
     ListItemDevice(const DeviceInfo &info, const std::string &version)
-        : QListWidgetItem(format("%s (%s)", info.deviceName.c_str(), version.c_str()).c_str()), info(info) {}
+        : QListWidgetItem(format("%s (%s)", info.GetLabel().c_str(), version.c_str()).c_str()), info(info) {}
 
     DeviceInfo info;
 
