@@ -1,3 +1,10 @@
+## Vulkan Configurator 3.4.1 - December 2025
+[Vulkan SDK 1.4.3XX.0](https://github.com/LunarG/VulkanTools/tree/main)
+
+### Deprecation:
+- Remove Qt5 build
+- Require Qt 6.9
+
 ## Vulkan Configurator 3.4.0 - October 2025
 [Vulkan SDK 1.4.328.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.328)
 
@@ -33,7 +40,7 @@
 ### Features:
 - Add support for layer-defined messages
 - Add support for external `vk_layer_settings.txt` files
-- Add environment variables export of loader configurations
+- Add environment variables export of layers configurations
 
 ### Improvements:
 - Improve layer settings documentation
