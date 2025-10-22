@@ -43,7 +43,10 @@ enum VendorID {
 struct DeviceInfo {
     std::string deviceName;
     uint8_t deviceUUID[VK_UUID_SIZE];
+    std::string driverName;
     uint32_t driverVersion = 0;
+
+    std::string GetLabel() const;
 };
 
 bool operator==(const DeviceInfo &a, const DeviceInfo &b);
@@ -61,6 +64,7 @@ struct VulkanPhysicalDeviceInfo {
     uint32_t deviceID;
     VkPhysicalDeviceType deviceType;
 
+    std::string GetLabel() const;
     std::string GetVersion() const;
 };
 

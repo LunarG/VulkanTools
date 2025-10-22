@@ -153,6 +153,30 @@ static VkResult CreateInstance(const VulkanFunctions &vk, bool enumerate_portabi
     return vk.CreateInstance(&inst_info, nullptr, &instance);
 }
 
+std::string DeviceInfo::GetLabel() const {
+    if (this->driverName.empty()) {
+        return this->deviceName;
+    }
+
+    if (this->deviceName.find(this->driverName) != std::string::npos) {
+        return this->deviceName;
+    }
+
+    return this->driverName + " " + this->deviceName;
+}
+
+std::string VulkanPhysicalDeviceInfo::GetLabel() const {
+    if (this->driverName.empty()) {
+        return this->deviceName;
+    }
+
+    if (this->deviceName.find(this->driverName) != std::string::npos) {
+        return this->deviceName;
+    }
+
+    return this->driverName + " " + this->deviceName;
+}
+
 std::string VulkanPhysicalDeviceInfo::GetVersion() const {
     if (this->vendorID == 0x10DE) {
         return FormatNvidia(this->driverVersion);
@@ -167,6 +191,7 @@ DeviceInfo GetDeviceInfo(const VulkanPhysicalDeviceInfo &info) {
     DeviceInfo device_info;
     device_info.deviceName = info.deviceName;
     std::copy(std::begin(info.deviceUUID), std::end(info.deviceUUID), std::begin(device_info.deviceUUID));
+    device_info.driverName = info.driverName;
     device_info.driverVersion = info.driverVersion;
     return device_info;
 }
@@ -275,12 +300,14 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
     for (std::size_t i = 0, n = devices.size(); i < n; ++i) {
         VulkanPhysicalDeviceInfo &device_info = vulkan_system_info.physicalDevices[i];
 
-        VkPhysicalDeviceIDPropertiesKHR properties_deviceid{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHR, nullptr};
+        VkPhysicalDeviceDriverPropertiesKHR properties_driver{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES_KHR, nullptr};
+        VkPhysicalDeviceIDPropertiesKHR properties_deviceid{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHR, &properties_driver};
         VkPhysicalDeviceProperties2 properties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, &properties_deviceid};
 
         vk.GetPhysicalDeviceProperties2(devices[i], &properties2);
 
         device_info.deviceName = properties2.properties.deviceName;
+        device_info.driverName = properties_driver.driverName;
 
         /* For multiple driver version testing only
                 if (device_info.deviceName.find("llvmpipe") != std::string::npos) {

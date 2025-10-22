@@ -81,7 +81,7 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
 
                         const int current_index = this->ui->driver_forced_name->count();
                         this->ui->driver_forced_name->addItem(
-                            (info.deviceName + format(" (%s)", info.GetVersion().c_str())).c_str());
+                            (info.GetLabel() + format(" (%s)", info.GetVersion().c_str())).c_str());
 
                         const std::string &version =
                             format("%s driver: %s - Vulkan API version: %s", GetLabel(info.vendorID).c_str(),
