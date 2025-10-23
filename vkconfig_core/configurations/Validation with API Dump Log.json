@@ -1,0 +1,487 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "API dump",
+        "version": 1,
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "selected_layer_name": "VK_LAYER_LUNARG_api_dump",
+        "override_layers": true,
+        "override_loader": false,
+        "loader_message_types": [
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "perf",
+            "layer",
+            "driver"
+        ],
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_api_dump",
+                "rank": 0,
+                "control": "on",
+                "version": "latest",
+                "settings": [
+                    {
+                        "expanded": true,
+                        "key": "output_range",
+                        "type": "STRING",
+                        "value": "0-0"
+                    },
+                    {
+                        "expanded": true,
+                        "key": "output_format",
+                        "type": "ENUM",
+                        "value": "text"
+                    },
+                    {
+                        "expanded": true,
+                        "key": "pre_dump",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "file",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "log_filename",
+                        "type": "SAVE_FILE",
+                        "value": "stdout"
+                    },
+                    {
+                        "expanded": true,
+                        "key": "flush",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "name_size",
+                        "type": "INT",
+                        "value": 32
+                    },
+                    {
+                        "expanded": true,
+                        "key": "show_types",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "type_size",
+                        "type": "INT",
+                        "value": 0
+                    },
+                    {
+                        "expanded": true,
+                        "key": "timestamp",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "show_shader",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "detailed",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "no_addr",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "use_spaces",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "indent_size",
+                        "type": "INT",
+                        "value": 4
+                    },
+                    {
+                        "expanded": true,
+                        "key": "show_thread_and_frame",
+                        "type": "BOOL",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "name": "VK_LAYER_KHRONOS_validation",
+                "rank": 1,
+                "control": "on",
+                "version": "latest",
+                "settings": [
+                    {
+                        "expanded": true,
+                        "key": "fine_grained_locking",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "validate_core",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "check_image_layout",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "check_command_buffer",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "check_object_in_use",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "check_query",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "check_shaders",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "check_shaders_caching",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "debug_disable_spirv_val",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "unique_handles",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "object_lifetime",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "stateless_param",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "thread_safety",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "validate_sync",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "syncval_submit_time_validation",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "syncval_shader_accesses_heuristic",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "syncval_message_extra_properties",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "printf_only_preset",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "printf_enable",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "printf_to_stdout",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "printf_verbose",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "printf_buffer_size",
+                        "type": "INT",
+                        "value": 1024
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_enable",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_safe_mode",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_force_on_robustness",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_shader_instrumentation",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_select_instrumented_shaders",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_shaders_to_instrument",
+                        "type": "LIST",
+                        "value": [
+                        ]
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_descriptor_checks",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_post_process_descriptor_indexing",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_buffer_address_oob",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_validate_ray_query",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_vertex_attribute_fetch_oob",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_buffers_validation",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_indirect_draws_buffers",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_indirect_dispatches_buffers",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_indirect_trace_rays_buffers",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_buffer_copies",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_index_buffers",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_debug_disable_all",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_debug_validate_instrumented_shaders",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_debug_dump_instrumented_shaders",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_debug_max_instrumentations_count",
+                        "type": "INT",
+                        "value": 0
+                    },
+                    {
+                        "expanded": true,
+                        "key": "gpuav_debug_print_instrumentation_info",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "validate_best_practices",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "validate_best_practices_arm",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "validate_best_practices_amd",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "validate_best_practices_img",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "validate_best_practices_nvidia",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "debug_action",
+                        "type": "FLAGS",
+                        "value": [
+                            "VK_DBG_LAYER_ACTION_LOG_MSG"
+                        ]
+                    },
+                    {
+                        "expanded": true,
+                        "key": "log_filename",
+                        "type": "SAVE_FILE",
+                        "value": "stdout"
+                    },
+                    {
+                        "expanded": true,
+                        "key": "report_flags",
+                        "type": "FLAGS",
+                        "value": [
+                            "error",
+                            "warn"
+                        ]
+                    },
+                    {
+                        "expanded": true,
+                        "key": "enable_message_limit",
+                        "type": "BOOL",
+                        "value": true
+                    },
+                    {
+                        "expanded": true,
+                        "key": "duplicate_message_limit",
+                        "type": "INT",
+                        "value": 10
+                    },
+                    {
+                        "expanded": true,
+                        "key": "message_id_filter",
+                        "type": "LIST",
+                        "value": [
+                        ]
+                    },
+                    {
+                        "expanded": true,
+                        "key": "message_format_json",
+                        "type": "BOOL",
+                        "value": false
+                    },
+                    {
+                        "expanded": true,
+                        "key": "message_format_display_application_name",
+                        "type": "BOOL",
+                        "value": false
+                    }
+                ]
+            }
+        ]
+    }
+}

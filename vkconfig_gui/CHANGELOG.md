@@ -3,6 +3,7 @@
 
 ### Improvements:
 - Add `settings --layers` command lines option to list multiple layer names when generating files
+- Add Validation and API Dump default configuration for interleaved log in stdout
 
 ### Fixes:
 - Fix Vulkan portability initialization on macOS
