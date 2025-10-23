@@ -1,11 +1,12 @@
 <RCC>
     <qresource prefix="/configurations">
-        <file alias="API dump.json">../vkconfig_core/configurations/3.0.0/API dump.json</file>
-        <file alias="Crash Diagnostic.json">../vkconfig_core/configurations/3.0.0/Crash Diagnostic.json</file>
-        <file alias="Disable All Vulkan Layers.json">../vkconfig_core/configurations/3.0.0/Disable All Vulkan Layers.json</file>
-        <file alias="Frame Capture.json">../vkconfig_core/configurations/3.0.0/Frame Capture.json</file>
-        <file alias="Portability.json">../vkconfig_core/configurations/3.0.0/Portability.json</file>
-        <file alias="Validation.json">../vkconfig_core/configurations/3.0.0/Validation.json</file>
+        <file alias="API dump.json">../vkconfig_core/configurations/API dump.json</file>
+        <file alias="Crash Diagnostic.json">../vkconfig_core/configurations/Crash Diagnostic.json</file>
+        <file alias="Disable All Vulkan Layers.json">../vkconfig_core/configurations/Disable All Vulkan Layers.json</file>
+        <file alias="Frame Capture.json">../vkconfig_core/configurations/Frame Capture.json</file>
+        <file alias="Portability.json">../vkconfig_core/configurations/Portability.json</file>
+        <file alias="Validation.json">../vkconfig_core/configurations/Validation.json</file>
+        <file alias="Validation with API Dump Log.json">../vkconfig_core/configurations/Validation with API Dump Log.json</file>
     </qresource>
 
     <qresource prefix="/vkconfig">

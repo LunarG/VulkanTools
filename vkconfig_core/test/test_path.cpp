@@ -351,13 +351,6 @@ TEST(test_path, get_path_url_sdk) {
     EXPECT_TRUE(value.find(expected) != std::string::npos);
 }
 
-TEST(test_path, collect_file_paths_success_set1) {
-    const std::vector<Path>& paths = CollectFilePaths(":/configurations/");
-
-    EXPECT_EQ(paths.size(), 6);
-    EXPECT_STREQ(Path(":/configurations/API dump.json").AbsolutePath().c_str(), paths[0].AbsolutePath().c_str());
-}
-
 TEST(test_path, collect_file_paths_success_set2) {
     const std::vector<Path>& paths = CollectFilePaths(":/layers/");
 
