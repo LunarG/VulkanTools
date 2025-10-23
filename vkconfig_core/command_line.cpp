@@ -173,7 +173,8 @@ struct CommandSettingsDesc {
 static const CommandSettingsDesc command_settings_desc[] = {
     {COMMAND_SETTINGS_GENERATE, "--generate"},     {COMMAND_SETTINGS_GENERATE, "-g"},    // COMMAND_SETTINGS_GENERATE
     {COMMAND_SETTINGS_CONFIG, "--configuration"},  {COMMAND_SETTINGS_CONFIG, "-c"},      // COMMAND_SETTINGS_CONFIG
-    {COMMAND_SETTINGS_LAYER, "--layer"},           {COMMAND_SETTINGS_LAYER, "-l"},       // COMMAND_SETTINGS_LAYER
+    {COMMAND_SETTINGS_LAYERS, "--layers"},         {COMMAND_SETTINGS_LAYERS, "-l"},      // COMMAND_SETTINGS_LAYERS
+    {COMMAND_SETTINGS_LAYER, "--layer"},                                                 // COMMAND_SETTINGS_LAYER
     {COMMAND_SETTINGS_OUTPUT, "--output"},         {COMMAND_SETTINGS_OUTPUT, "-o"},      // COMMAND_SETTINGS_OUTPUT
     {COMMAND_SETTINGS_OUTPUT_DIR, "--output-dir"}, {COMMAND_SETTINGS_OUTPUT_DIR, "-d"},  // COMMAND_SETTINGS_OUTPUT_DIR
     {COMMAND_SETTINGS_DRY_RUN, "--dry-run"}};
@@ -233,7 +234,7 @@ CommandLine::CommandLine(int argc, char* argv[])
       command_loader_arg(_command_loader_arg),
       command_doc_arg(_command_doc_arg),
       generate_settings_mode(_generate_settings_mode),
-      selected_layer_name(_selected_layer_name),
+      selected_layers_name(_selected_layers_name),
       selected_configuration_name(_selected_configuration_name),
       dry_run(_dry_run),
       help(_help),
@@ -412,7 +413,7 @@ CommandLine::CommandLine(int argc, char* argv[])
                 break;
             }
 
-            this->_selected_layer_name = argv[arg_offset + 2];
+            this->_selected_layers_name = ::Split(argv[arg_offset + 2], ",");
             if (argc == 5) {
                 // Output dir arg was specified
                 this->_output_path = argv[arg_offset + 3];
@@ -470,15 +471,16 @@ CommandLine::CommandLine(int argc, char* argv[])
                             }
                         }
                     } break;
-                    case COMMAND_SETTINGS_LAYER: {
+                    case COMMAND_SETTINGS_LAYER:
+                    case COMMAND_SETTINGS_LAYERS: {
                         if (argc <= arg_offset + 1) {
                             arg_offset += 1;
                         } else {
-                            const std::string layer_name = argv[arg_offset + 1];
-                            if (layer_name[0] == '-') {  // Not a value but another argumment
+                            const std::string layer_names = argv[arg_offset + 1];
+                            if (layer_names[0] == '-') {  // Not a value but another argumment
                                 this->_error = ERROR_INVALID_COMMAND_ARGUMENT;
                             } else {
-                                this->_selected_layer_name = layer_name;
+                                this->_selected_layers_name = Split(layer_names, ",");
                                 arg_offset += 2;
                             }
                         }
@@ -630,7 +632,7 @@ void CommandLine::usage() const {
         }
         case HELP_DEFAULT: {
             printf("Usage\n");
-            printf("\tvkconfig [help] | [version] | [gui] | [reset <args>] | [doc <args>] |\n");
+            printf("\tvkconfig [help] | [version] | [gui] | [reset <args>] |\n");
             printf("\t         [loader <args>] | [layers <args>] | [settings <args>]\n");
             printf("\n");
             printf("Command:\n");
@@ -638,10 +640,9 @@ void CommandLine::usage() const {
             printf("\tversion       = Display %s version.\n", VKCONFIG_NAME);
             printf("\tgui           = Launch the graphical interface.\n");
             printf("\treset         = Reset layers configurations.\n");
-            printf("\tdoc           = Create documentation files for layer.\n");
             printf("\tloader        = Configure system the Vulkan Loader configuration.\n");
             printf("\tlayers        = List the Vulkan layers found on the system.\n");
-            printf("\tsettings      = Create layer setting files for Vulkan developers.\n");
+            printf("\tsettings      = Create layer settings and documentation files for Vulkan developers.\n");
             printf("\n");
             printf("  (Run 'vkconfig help <command>' for detailed usage of %s commands.)\n", VKCONFIG_NAME);
             break;
@@ -751,7 +752,7 @@ void CommandLine::usage() const {
             printf("\tvkconfig settings\n");
             printf("\t                  [(--generate | -g) (html | markdown | txt | bash | bat | hpp)]\n");
             printf("\t                  [(--configuration | -c) [<configuration_index> | <configuration_name> | default]]\n");
-            printf("\t                  [(--layer | -l) [<layer_name> | default]]\n");
+            printf("\t                  [(--layers | -l) [<layer_names> | default]]\n");
             printf("\t                  [(--output-dir | -d) <output_dir>]\n");
             printf("\t                  [(--output | -o) <output_file>]\n");
             printf("\t                  [--dry-run]\n");
@@ -787,9 +788,9 @@ void CommandLine::usage() const {
                 "'default', the default layer settings will be used.\n");
             printf("\t  (Run 'vkconfig loader --list' to enumerate the available configurations.)\n");
             printf("\n");
-            printf("\t`[--layer <layer_name>]`\n");
+            printf("\t`[--layers <layer_names>]`\n");
             printf(
-                "\t\tSpecify the layer name, if the argument is not set or set to 'default', all the found layers will be used.\n");
+                "\t\tSpecify the layer names, if the argument is not set or set to 'default', all the found layers will be used. Multiple layer names can be listed using a comma (',') separator. \n");
             printf("\t  (Run 'vkconfig layers --list' to enumerate the available layers.)\n");
             printf("\n");
             printf("\t`[--output-dir | -d] <output_dir>`\n");
@@ -879,11 +880,11 @@ Path CommandLine::GetInputPath() const { return this->_input_path; }
 Path CommandLine::GetOutputPath() const {
     Path output_path = this->_output_path;
     if (output_path.Empty()) {
-        if (this->selected_layer_name.empty() || this->selected_layer_name == "default") {
-            output_path = ::GetDefaultFilename(this->_generate_settings_mode);
+        if (this->selected_layers_name.size() == 1) {
+            output_path = this->selected_layers_name[0] + GetDefaultFileExt(this->_generate_settings_mode);
         } else {
-            output_path = this->selected_layer_name + GetDefaultFileExt(this->_generate_settings_mode);
-        }
+            output_path = ::GetDefaultFilename(this->_generate_settings_mode);
+        } 
     }
 
     if (this->_output_dir.Empty()) {

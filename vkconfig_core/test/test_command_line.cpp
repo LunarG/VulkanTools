@@ -46,7 +46,7 @@ TEST(test_command_line, execute_mode) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -68,7 +68,7 @@ TEST(test_command_line, usage_mode_invalid) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -90,7 +90,7 @@ TEST(test_command_line, usage_mode_help) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -112,7 +112,7 @@ TEST(test_command_line, usage_mode_version) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -134,7 +134,7 @@ TEST(test_command_line, usage_mode_reset_default) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -156,7 +156,7 @@ TEST(test_command_line, usage_mode_reset_invalid) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -178,7 +178,7 @@ TEST(test_command_line, usage_mode_reset_soft) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -200,7 +200,7 @@ TEST(test_command_line, usage_mode_reset_hard) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -222,7 +222,7 @@ TEST(test_command_line, usage_mode_layers_missing_argv) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -244,7 +244,7 @@ TEST(test_command_line, usage_mode_layers_invalid_argv) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -266,7 +266,7 @@ TEST(test_command_line, usage_mode_layers_list) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -288,7 +288,7 @@ TEST(test_command_line, usage_mode_layers_surrender) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -310,7 +310,7 @@ TEST(test_command_line, usage_mode_layers_surrender_invalid) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -332,7 +332,7 @@ TEST(test_command_line, usage_mode_layers_override) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_STREQ(":/test/reference_configuration.json",
                  ConvertStandardSeparators(command_line.GetInputPath().RelativePath()).c_str());
@@ -355,7 +355,7 @@ TEST(test_command_line, usage_mode_layers_override_invalid) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -377,7 +377,7 @@ TEST(test_command_line, usage_mode_layers_override_invalid_args) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("bla", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -399,7 +399,7 @@ TEST(test_command_line, usage_mode_loader_missing_argv) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -421,7 +421,7 @@ TEST(test_command_line, usage_mode_loader_invalid_argv) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -443,7 +443,7 @@ TEST(test_command_line, usage_mode_loader_list) {
     EXPECT_EQ(COMMAND_LOADER_LIST, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -465,7 +465,7 @@ TEST(test_command_line, usage_mode_loader_surrender) {
     EXPECT_EQ(COMMAND_LOADER_SURRENDER, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -487,7 +487,7 @@ TEST(test_command_line, usage_mode_loader_surrender_invalid) {
     EXPECT_EQ(COMMAND_LOADER_SURRENDER, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -509,7 +509,7 @@ TEST(test_command_line, usage_mode_loader_override) {
     EXPECT_EQ(COMMAND_LOADER_OVERRIDE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_STREQ(ConvertStandardSeparators(command_line.GetInputPath().RelativePath()).c_str(),
                  ":/test/reference_configuration.json");
@@ -532,7 +532,7 @@ TEST(test_command_line, usage_mode_loader_override_invalid) {
     EXPECT_EQ(COMMAND_LOADER_OVERRIDE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -554,7 +554,7 @@ TEST(test_command_line, usage_mode_loader_override_invalid_args) {
     EXPECT_EQ(COMMAND_LOADER_OVERRIDE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("bla", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -576,7 +576,7 @@ TEST(test_command_line, usage_mode_settings_missing_argv) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -598,7 +598,7 @@ TEST(test_command_line, usage_mode_settings_invalid_args) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -621,7 +621,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vulkan_layer_settings.hpp", command_line.GetOutputPath().RelativePath().c_str());
@@ -645,7 +645,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vulkan_layer_settings.hpp", command_line.GetOutputPath().RelativePath().c_str());
@@ -669,7 +669,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_implicit_and_output) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("my_settings.hpp", command_line.GetOutputPath().RelativePath().c_str());
@@ -694,7 +694,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("my_settings.hpp", command_line.GetOutputPath().RelativePath().c_str());
@@ -719,7 +719,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dir)
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("./tmp/my_settings.hpp", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -744,7 +744,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dir_
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("./tmp/my_settings.hpp", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
@@ -770,7 +770,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dryr
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("my_settings.hpp", command_line.GetOutputPath().RelativePath().c_str());
@@ -793,7 +793,7 @@ TEST(test_command_line, usage_mode_settings_html_default) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HTML, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("vk_layer_settings.html", command_line.GetOutputPath().RelativePath().c_str());
@@ -806,7 +806,7 @@ TEST(test_command_line, usage_mode_settings_html_default) {
 TEST(test_command_line, usage_mode_settings_html_default_explicit) {
     static char* argv[] = {(char*)"vkconfig",   (char*)"settings",  // settings
                            (char*)"--generate", (char*)"html",      // generate
-                           (char*)"--layer",    (char*)"my_layer_name"};
+                           (char*)"--layers",   (char*)"my_layer_name"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -817,10 +817,35 @@ TEST(test_command_line, usage_mode_settings_html_default_explicit) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HTML, command_line.generate_settings_mode);
-    EXPECT_STREQ("my_layer_name", command_line.selected_layer_name.c_str());
+    EXPECT_STREQ("my_layer_name", command_line.selected_layers_name[0].c_str());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("my_layer_name.html", command_line.GetOutputPath().RelativePath().c_str());
+    EXPECT_EQ(false, command_line.dry_run);
+    EXPECT_EQ(ERROR_NONE, command_line.error);
+    EXPECT_TRUE(command_line.error_args.empty());
+    EXPECT_EQ(HELP_DEFAULT, command_line.help);
+}
+
+TEST(test_command_line, usage_mode_settings_html_default_explicit_multiple_layers) {
+    static char* argv[] = {(char*)"vkconfig",   (char*)"settings",  // settings
+                           (char*)"--generate", (char*)"html",      // generate
+                           (char*)"--layers",   (char*)"layer0,layer1"};
+    int argc = static_cast<int>(std::size(argv));
+
+    CommandLine command_line(argc, argv);
+
+    EXPECT_EQ(COMMAND_SETTINGS, command_line.command);
+    EXPECT_EQ(COMMAND_RESET_SOFT, command_line.command_reset_arg);
+    EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
+    EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
+    EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
+    EXPECT_EQ(GENERATE_SETTINGS_HTML, command_line.generate_settings_mode);
+    EXPECT_STREQ("layer0", command_line.selected_layers_name[0].c_str());
+    EXPECT_STREQ("layer1", command_line.selected_layers_name[1].c_str());
+    EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
+    EXPECT_TRUE(command_line.GetInputPath().Empty());
+    EXPECT_STREQ("vk_layer_settings.html", command_line.GetOutputPath().RelativePath().c_str());
     EXPECT_EQ(false, command_line.dry_run);
     EXPECT_EQ(ERROR_NONE, command_line.error);
     EXPECT_TRUE(command_line.error_args.empty());
@@ -841,7 +866,7 @@ TEST(test_command_line, usage_mode_settings_html_default_implicit_and_output) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HTML, command_line.generate_settings_mode);
-    EXPECT_STREQ("default", command_line.selected_layer_name.c_str());
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("my_settings.html", command_line.GetOutputPath().RelativePath().c_str());
@@ -854,7 +879,7 @@ TEST(test_command_line, usage_mode_settings_html_default_implicit_and_output) {
 TEST(test_command_line, usage_mode_settings_html_default_explicit_and_output) {
     static char* argv[] = {(char*)"vkconfig",   (char*)"settings",       // settings
                            (char*)"--generate", (char*)"html",           // generate
-                           (char*)"--layer",    (char*)"my_layer_name",  // layer
+                           (char*)"--layers",   (char*)"my_layer_name",  // layers
                            (char*)"--output",   (char*)"my_settings.html"};
     int argc = static_cast<int>(std::size(argv));
 
@@ -866,7 +891,7 @@ TEST(test_command_line, usage_mode_settings_html_default_explicit_and_output) {
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HTML, command_line.generate_settings_mode);
-    EXPECT_STREQ("my_layer_name", command_line.selected_layer_name.c_str());
+    EXPECT_STREQ("my_layer_name", command_line.selected_layers_name[0].c_str());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("my_settings.html", command_line.GetOutputPath().RelativePath().c_str());
@@ -879,7 +904,7 @@ TEST(test_command_line, usage_mode_settings_html_default_explicit_and_output) {
 TEST(test_command_line, usage_mode_settings_html_default_explicit_and_output_dryrun) {
     static char* argv[] = {(char*)"vkconfig",   (char*)"settings",       // settings
                            (char*)"--generate", (char*)"html",           // generate
-                           (char*)"--layer",    (char*)"my_layer_name",  // layer
+                           (char*)"--layers",   (char*)"my_layer_name",  // layers
                            (char*)"--output",   (char*)"my_settings.html",
                            (char*)"--dry-run"};
     int argc = static_cast<int>(std::size(argv));
@@ -892,7 +917,7 @@ TEST(test_command_line, usage_mode_settings_html_default_explicit_and_output_dry
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
     EXPECT_EQ(GENERATE_SETTINGS_HTML, command_line.generate_settings_mode);
-    EXPECT_STREQ("my_layer_name", command_line.selected_layer_name.c_str());
+    EXPECT_STREQ("my_layer_name", command_line.selected_layers_name[0].c_str());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
     EXPECT_STREQ("my_settings.html", command_line.GetOutputPath().RelativePath().c_str());

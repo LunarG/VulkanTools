@@ -29,18 +29,22 @@ class ConfigurationSelection {
 
         if (command_line.selected_configuration_name == "default") {
             Configuration& configuration = configurator.configurations.CreateConfiguration(configurator.layers, "_default");
-            if (!command_line.selected_layer_name.empty() && command_line.selected_layer_name != "default") {
-                const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
+            if (!command_line.selected_layers_name.empty()) {
+                for (std::size_t j = 0, m = command_line.selected_layers_name.size(); j < m; ++j) {
+                    const std::string& layer_name = command_line.selected_layers_name[j];
 
-                if (layer == nullptr) {
-                    fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
-                    fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
-                } else {
-                    for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
-                        if (command_line.selected_layer_name == configuration.parameters[i].key) {
-                            configuration.parameters[i].control = LAYER_CONTROL_ON;
-                        } else {
-                            configuration.parameters[i].control = LAYER_CONTROL_OFF;
+                    const Layer* layer = configurator.layers.Find(layer_name.c_str(), Version::LATEST);
+
+                    if (layer == nullptr) {
+                        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", layer_name.c_str());
+                        fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
+                    } else {
+                        for (std::size_t i = 0, n = configuration.parameters.size(); i < n; ++i) {
+                            if (layer_name == configuration.parameters[i].key) {
+                                configuration.parameters[i].control = LAYER_CONTROL_ON;
+                            } else {
+                                configuration.parameters[i].control = LAYER_CONTROL_OFF;
+                            }
                         }
                     }
                 }
