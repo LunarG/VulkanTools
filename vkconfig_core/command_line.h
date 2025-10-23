@@ -67,6 +67,7 @@ enum CommandSettingsArg {
     COMMAND_SETTINGS_GENERATE,
     COMMAND_SETTINGS_CONFIG,
     COMMAND_SETTINGS_LAYER,
+    COMMAND_SETTINGS_LAYERS,
     COMMAND_SETTINGS_OUTPUT,
     COMMAND_SETTINGS_OUTPUT_DIR,
     COMMAND_SETTINGS_DRY_RUN,
@@ -115,7 +116,7 @@ class CommandLine {
     const CommandLoaderArg& command_loader_arg;
     const CommandDocArg& command_doc_arg;
     const GenerateSettingsMode& generate_settings_mode;
-    const std::string& selected_layer_name;
+    const std::vector<std::string>& selected_layers_name;
     const std::string& selected_configuration_name;
     const bool& dry_run;
     const HelpType& help;
@@ -133,7 +134,7 @@ class CommandLine {
     CommandLoaderArg _command_loader_arg = COMMAND_LOADER_NONE;
     CommandDocArg _command_doc_arg = COMMAND_DOC_NONE;
     GenerateSettingsMode _generate_settings_mode = GENERATE_SETTINGS_TXT;
-    std::string _selected_layer_name = "default";
+    std::vector<std::string> _selected_layers_name;
     std::string _selected_configuration_name = "default";
     Path _input_path;
     Path _output_path;

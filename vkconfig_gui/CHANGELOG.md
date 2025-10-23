@@ -1,6 +1,9 @@
 ## Vulkan Configurator 3.4.1 - December 2025
 [Vulkan SDK 1.4.3XX.0](https://github.com/LunarG/VulkanTools/tree/main)
 
+### Improvements:
+- Add `settings --layers` command lines option to list multiple layer names when generating files
+
 ### Deprecation:
 - Remove Qt5 build
 - Require Qt 6.9

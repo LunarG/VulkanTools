@@ -29,10 +29,10 @@
 #include <cassert>
 
 int run_doc_html(Configurator& configurator, const CommandLine& command_line) {
-    const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
+    const Layer* layer = configurator.layers.Find(command_line.selected_layers_name[0].c_str(), Version::LATEST);
 
     if (layer == nullptr) {
-        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
+        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layers_name[0].c_str());
         fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
         return -1;
     }
@@ -43,10 +43,10 @@ int run_doc_html(Configurator& configurator, const CommandLine& command_line) {
 }
 
 int run_doc_markdown(Configurator& configurator, const CommandLine& command_line) {
-    const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
+    const Layer* layer = configurator.layers.Find(command_line.selected_layers_name[0].c_str(), Version::LATEST);
 
     if (layer == nullptr) {
-        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
+        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layers_name[0].c_str());
         fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
         return -1;
     }
@@ -57,10 +57,10 @@ int run_doc_markdown(Configurator& configurator, const CommandLine& command_line
 }
 
 int run_doc_settings(Configurator& configurator, const CommandLine& command_line) {
-    const Layer* layer = configurator.layers.Find(command_line.selected_layer_name.c_str(), Version::LATEST);
+    const Layer* layer = configurator.layers.Find(command_line.selected_layers_name[0].c_str(), Version::LATEST);
 
     if (layer == nullptr) {
-        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layer_name.c_str());
+        fprintf(stderr, "vkconfig: Could not load layer \"%s\"\n", command_line.selected_layers_name[0].c_str());
         fprintf(stderr, "\n  (Run \"vkconfig layers --list\" to get list of available layers)\n");
         return -1;
     }
