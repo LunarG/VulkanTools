@@ -4,6 +4,9 @@
 ### Improvements:
 - Add `settings --layers` command lines option to list multiple layer names when generating files
 
+### Fixes:
+- Fix Vulkan portability initialization on macOS
+
 ### Deprecation:
 - Remove Qt5 build
 - Require Qt 6.9

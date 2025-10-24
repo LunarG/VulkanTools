@@ -100,7 +100,7 @@ bool VulkanFunctions::Validate() const {
            this->CreateInstance != nullptr && this->DestroyInstance != nullptr && this->GetPhysicalDeviceProperties2 != nullptr;
 }
 
-static VkResult CreateInstance(const VulkanFunctions &vk, bool enumerate_portability, VkInstance &instance) {
+static VkResult CreateInstance(const VulkanFunctions &vk, VkInstance &instance) {
     uint32_t property_count = 0;
     VkResult err = vk.EnumerateInstanceExtensionProperties(nullptr, &property_count, nullptr);
     assert(err == VK_SUCCESS);
@@ -112,17 +112,16 @@ static VkResult CreateInstance(const VulkanFunctions &vk, bool enumerate_portabi
     // Handle Portability Enumeration requirements
     std::vector<const char *> instance_extensions;
 
+    bool enumerate_portability = false;
     for (std::size_t i = 0, n = instance_properties.size(); i < n; ++i) {
         if (instance_properties[i].extensionName == std::string(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME)) {
             instance_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
         }
-#if VK_KHR_portability_enumeration
-        if (enumerate_portability) {
-            if (instance_properties[i].extensionName == std::string(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
-                instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-            }
+
+        if (instance_properties[i].extensionName == std::string(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)) {
+            instance_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+            enumerate_portability = true;
         }
-#endif
     }
 
     // Check Vulkan Devices
@@ -138,11 +137,11 @@ static VkResult CreateInstance(const VulkanFunctions &vk, bool enumerate_portabi
 
     VkInstanceCreateInfo inst_info = {};
     inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-#if VK_KHR_portability_enumeration
+
     if (enumerate_portability) {
         inst_info.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
     }
-#endif
+
     inst_info.pNext = nullptr;
     inst_info.pApplicationInfo = &app;
     inst_info.enabledLayerCount = 0;
@@ -511,12 +510,9 @@ std::string GenerateLoaderLog() {
     if (vk.Validate()) {
         VkInstance instance = VK_NULL_HANDLE;
 
-        VkResult err = ::CreateInstance(vk, false, instance);
+        VkResult err = ::CreateInstance(vk, instance);
         if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
-            err = ::CreateInstance(vk, true, instance);
-            if (err == VK_ERROR_INCOMPATIBLE_DRIVER) {
-                return "VK_ERROR_INCOMPATIBLE_DRIVER\n";
-            }
+            return "VK_ERROR_INCOMPATIBLE_DRIVER\n";
         }
         vk.DestroyInstance(instance, nullptr);
     }
