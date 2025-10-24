@@ -169,7 +169,7 @@ class Configurator {
     TabType active_tab = TAB_CONFIGURATIONS;
     bool advanced = true;
     Path last_path_status = Path(Path::HOME).AbsolutePath() + "/diagnostics";
-    Path last_driver_path = Path(Path::HOME).AbsolutePath();
+    Path last_driver_path = Path(Path::HOME).AbsolutePath() + "/*.json";
     Path last_path_launch_log = Path(Path::HOME).AbsolutePath() + "/application_log.txt";
     Version online_sdk_version = Version::NONE;
     Version latest_sdk_version = Version::NONE;

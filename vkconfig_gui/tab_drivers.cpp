@@ -18,7 +18,6 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#include "widget_tab_layers_path.h"
 #include "widget_tab_driver_path.h"
 #include "item_list_device.h"
 #include "tab_drivers.h"
@@ -26,13 +25,8 @@
 #include "style.h"
 
 #include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/type_hide_message.h"
 
 #include <QFileDialog>
-#include <QMessageBox>
-
-#include <chrono>
-#include <thread>
 
 TabDrivers::TabDrivers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DRIVERS, window, ui) {
     this->ui->drivers_device_list->installEventFilter(&window);
@@ -242,6 +236,18 @@ void TabDrivers::on_driver_append_pressed() {
         return;
     }
 
+    if (!selected_path.Exists()) {
+        QMessageBox alert;
+        alert.setWindowTitle("Vulkan Driver Manifest file not found");
+        alert.setText("The path");
+        alert.setInformativeText(selected_path.AbsolutePath().c_str());
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setDefaultButton(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+        return;
+    }
+
     configurator.driver_paths.insert(std::pair(selected_path, true));
     configurator.last_driver_path = selected_path;
 
@@ -261,10 +267,7 @@ void TabDrivers::on_driver_browse_pressed() {
         return;
     }
 
-    configurator.driver_paths.insert(std::pair(selected_path, true));
-    configurator.last_driver_path = selected_path;
+    this->ui->driver_path_lineedit->setText(selected_path.AbsolutePath().c_str());
 
-    configurator.UpdateVulkanSystemInfo();
-
-    this->UpdateUI(UPDATE_REBUILD_UI);
+    this->on_driver_append_pressed();
 }
