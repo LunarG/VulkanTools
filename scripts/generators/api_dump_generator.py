@@ -857,6 +857,10 @@ class ApiDumpGenerator(BaseGenerator):
         if var.length is None:
             return False
 
+        # Special case for SPIR-V (which is a void* in VkShaderCreateInfoEXT)
+        if var.name == 'pCode':
+            return True
+
         # No way to iterate over a void type
         if var.fullType in ['void*', 'const void*']:
             return False
@@ -898,9 +902,7 @@ class ApiDumpGenerator(BaseGenerator):
             elif call_type in self.vulkan_defined_types:
                 element_type = f'dump_{call_type}<Format>'
 
-            # TODO - Add the various other places SPIR-V can be found
-            # https://github.com/KhronosGroup/Vulkan-Guide/blob/main/chapters/ways_to_provide_spirv.adoc
-            if parent.name == 'VkShaderModuleCreateInfo' and var.name == 'pCode':
+            if parent.name in ['VkShaderModuleCreateInfo', 'VkShaderCreateInfoEXT'] and var.name == 'pCode':
                 array_len = f'{object_access}{var.length}'
                 self.write(f'''
                     if(settings.showShader()) {{

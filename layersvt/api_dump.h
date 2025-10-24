@@ -1575,7 +1575,7 @@ void dump_spirv(const T *array, size_t len, const ApiDumpSettings &settings, con
             if (i != 0) {
                 stream << ", ";
             }
-            const uint32_t dword = array[i];
+            const uint32_t dword = static_cast<const uint32_t *>(array)[i];
             stream << "\"0x" << std::hex << std::setfill('0') << std::setw(8) << dword << "\"";
         }
         settings.stream() << stream.str();
@@ -1585,7 +1585,7 @@ void dump_spirv(const T *array, size_t len, const ApiDumpSettings &settings, con
             if (i != 0) {
                 stream << ", ";
             }
-            const uint32_t dword = array[i];
+            const uint32_t dword = static_cast<const uint32_t *>(array)[i];
             stream << "0x" << std::hex << std::setfill('0') << std::setw(8) << dword;
         }
         stream << " ]\n";
