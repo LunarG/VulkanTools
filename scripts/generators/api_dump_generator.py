@@ -898,12 +898,18 @@ class ApiDumpGenerator(BaseGenerator):
             elif call_type in self.vulkan_defined_types:
                 element_type = f'dump_{call_type}<Format>'
 
-            array_len = get_array_length(var, parent)
+            # TODO - Add the various other places SPIR-V can be found
+            # https://github.com/KhronosGroup/Vulkan-Guide/blob/main/chapters/ways_to_provide_spirv.adoc
             if parent.name == 'VkShaderModuleCreateInfo' and var.name == 'pCode':
                 array_len = f'{object_access}{var.length}'
-                self.write('if(settings.showShader()) {')
+                self.write(f'''
+                    if(settings.showShader()) {{
+                        dump_spirv<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", {indent});
+                    }} else {{
+                        dump_special<Format>("SHADER DATA", settings, "{var.fullType}", "{var.name}", {indent});
+                    }}''')
 
-            if len(var.fixedSizeArray) > 2:
+            elif len(var.fixedSizeArray) > 2:
                 raise RuntimeError("Unhandled fixed array dimentionality")
             elif len(var.fixedSizeArray) == 2:
                 self.write(f'dump_double_array<Format>({value}, {var.fixedSizeArray[0]},  {var.fixedSizeArray[1]}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
@@ -913,15 +919,11 @@ class ApiDumpGenerator(BaseGenerator):
                 self.write(f'dump_single_array<Format>({value}, {fixed_array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
 
             else:
+                array_len = get_array_length(var, parent)
                 if var.fullType.count('*') > 1 and var.type not in ['void', 'char'] and (call_type in self.vulkan_defined_types):
                     self.write(f'dump_double_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
                 else:
                     self.write(f'dump_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
-
-            if parent.name == 'VkShaderModuleCreateInfo' and var.name == 'pCode':
-                self.write('} else {')
-                self.write(f'dump_special<Format>("SHADER DATA", settings, "{var.fullType}", "{var.name}", {indent});')
-                self.write('}')
         else:
             if var.pointer and var.type not in self.only_use_as_pointer_types and var.type not in self.vk.funcPointers.keys() and var.type not in ['void', 'char'] and not (var.name == 'pNext' and var.fullType in ['void*', 'const void*']):
                 pointer_type = f'dump_type<Format, {custom_type}>'

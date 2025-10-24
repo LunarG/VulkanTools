@@ -271,7 +271,7 @@
                 {
                     "key": "show_shader",
                     "label": "Show Shader",
-                    "description": "Dump the shader binary code in pCode",
+                    "description": "Dump the shader binary code in pCode as an hex array which can be viewed in https://www.khronos.org/spir/visualizer/",
                     "type": "BOOL",
                     "default": false
                 },
