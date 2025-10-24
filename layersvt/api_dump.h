@@ -1556,6 +1556,45 @@ void dump_double_pointer_array(const T *const *array, size_t len, const ApiDumpS
     dump_array_end<Format>(array, len, settings, indents);
 }
 
+// Designed to be viewed in something like https://www.khronos.org/spir/visualizer/
+// There is also now support in SPIRV-Tools (https://github.com/KhronosGroup/SPIRV-Tools/pull/5870) to consume the array
+template <ApiDumpFormat Format, typename T>
+void dump_spirv(const T *array, size_t len, const ApiDumpSettings &settings, const char *type_string, const char *name,
+                int indents) {
+    if (array == NULL || len == 0) {
+        dump_nullptr<Format>(settings, type_string, name, indents);
+        return;
+    }
+    dump_array_start<Format>(array, len, settings, type_string, name, indents);
+
+    std::stringstream stream;
+    // For JSON we will just dump it as a valid JSON array of string like
+    // [ "0x07230203", "0x00010300", "0x0008000b", ...
+    if constexpr (Format == ApiDumpFormat::Json) {
+        for (size_t i = 0; i < len; ++i) {
+            if (i != 0) {
+                stream << ", ";
+            }
+            const uint32_t dword = array[i];
+            stream << "\"0x" << std::hex << std::setfill('0') << std::setw(8) << dword << "\"";
+        }
+        settings.stream() << stream.str();
+    } else {
+        stream << settings.indentation(indents) << "[ ";
+        for (size_t i = 0; i < len; ++i) {
+            if (i != 0) {
+                stream << ", ";
+            }
+            const uint32_t dword = array[i];
+            stream << "0x" << std::hex << std::setfill('0') << std::setw(8) << dword;
+        }
+        stream << " ]\n";
+        dump_value<Format>(settings, stream.str());
+    }
+
+    dump_array_end<Format>(array, len, settings, indents);
+}
+
 template <ApiDumpFormat Format>
 void dump_before_pre_dump_formatting(const ApiDumpSettings &settings) {
     if constexpr (Format == ApiDumpFormat::Text) {

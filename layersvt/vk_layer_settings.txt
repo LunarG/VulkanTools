@@ -72,7 +72,7 @@ lunarg_api_dump.show_timestamp = false
 # Show Shader
 # =====================
 # <LayerIdentifier>.show_shader
-# Dump the shader binary code in pCode
+# Dump the shader binary code in pCode as an hex array which can be viewed in https://www.khronos.org/spir/visualizer/
 lunarg_api_dump.show_shader = false
 
 # Show Parameter Details
