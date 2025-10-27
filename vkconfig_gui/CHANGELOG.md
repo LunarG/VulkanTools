@@ -4,6 +4,9 @@
 ### Improvements:
 - Add `settings --layers` command lines option to list multiple layer names when generating files
 
+### Improvements:
+- Improved UI to set an external vk_layer_settings.txt file
+
 ### Fixes:
 - Fix Vulkan portability initialization on macOS
 

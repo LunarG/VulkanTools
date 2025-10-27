@@ -222,9 +222,13 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
 
     if (configuration == nullptr) {
         this->ui->configuration_settings_file_enable->setChecked(false);
+        this->ui->configuration_settings_file_search->setEnabled(false);
+        this->ui->configuration_settings_file_path->setEnabled(false);
         this->ui->configuration_settings_file_path->clear();
     } else {
         this->ui->configuration_settings_file_enable->setChecked(configuration->override_settings);
+        this->ui->configuration_settings_file_search->setEnabled(configuration->override_settings);
+        this->ui->configuration_settings_file_path->setEnabled(configuration->override_settings);
         this->ui->configuration_settings_file_path->setText(configuration->override_settings_path.RelativePath().c_str());
     }
 }
@@ -1374,18 +1378,17 @@ void TabConfigurations::on_configuration_settings_file_search_pressed() {
                                        ? Path(Path::HOME).AbsolutePath()
                                        : configuration->override_settings_path.AbsolutePath();
 
-    const std::string selected_path = QFileDialog::getOpenFileName(&this->window, "Locate Layers Settings File", input_path.c_str(),
-                                                                   "vk_layer_settings.txt(*.txt)")
+    const std::string selected_path = QFileDialog::getOpenFileName(&this->window, "Locate a Layers Settings File",
+                                                                   input_path.c_str(), "vk_layer_settings.txt(*.txt)")
                                           .toStdString();
 
-    if (selected_path.empty()) {
-        return;
-    }
-
     configuration->override_settings = true;
-    configuration->override_settings_path = selected_path;
 
-    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    if (!selected_path.empty()) {
+        configuration->override_settings_path = selected_path;
+
+        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    }
 
     this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
     this->UpdateUI_Settings(UPDATE_REFRESH_UI);
