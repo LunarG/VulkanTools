@@ -34,6 +34,7 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->diagnostic_mode_options, SIGNAL(currentIndexChanged(int)), this, SLOT(on_mode_options_changed(int)));
     this->connect(this->ui->diagnostic_export_folder, SIGNAL(clicked()), this, SLOT(on_export_folder()));
     this->connect(this->ui->diagnostic_export_file, SIGNAL(clicked()), this, SLOT(on_export_file()));
+    this->connect(this->ui->diagnostic_refresh, SIGNAL(clicked()), this, SLOT(on_refresh_log()));
     this->connect(this->ui->diagnostic_search_edit, SIGNAL(textEdited(QString)), this, SLOT(on_search_textEdited(QString)));
     this->connect(this->ui->diagnostic_search_edit, SIGNAL(returnPressed()), this, SLOT(on_search_next_pressed()));
     this->connect(this->ui->diagnostic_search_clear, SIGNAL(clicked()), this, SLOT(on_search_clear_pressed()));
@@ -344,10 +345,36 @@ void TabDiagnostics::on_diagnostic_loader_layers_toggled(bool checked) { this->O
 
 void TabDiagnostics::on_diagnostic_loader_drivers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
-void TabDiagnostics::on_mode_changed(int index) {
-    this->mode = static_cast<DiagnosticMode>(index);
-
+void TabDiagnostics::on_refresh_log() {
     Configurator &configurator = Configurator::Get();
+
+    if (!(configurator.Get(HIDE_MESSAGE_WARN_NO_LOADER_LOG_ENABLED))) {
+        if (this->mode == DIAGNOSTIC_VULKAN_LOADER_LOG &&
+            (!configurator.loader_log_enabled || configurator.loader_log_messages_flags == 0)) {
+            QMessageBox alert;
+            alert.setWindowTitle("Vulkan Loader Log is disabled");
+            alert.setText("Do you want enable Vulkan Loader log?");
+            alert.setInformativeText("If you are not, the Vulkan Loader log will be essentially empty...");
+            alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            alert.setDefaultButton(QMessageBox::Yes);
+            alert.setCheckBox(new QCheckBox("Do not show again."));
+            alert.setIcon(QMessageBox::Warning);
+            int result = alert.exec();
+            if (alert.checkBox()->isChecked()) {
+                configurator.Set(HIDE_MESSAGE_WARN_NO_LOADER_LOG_ENABLED);
+            }
+
+            if (result == QMessageBox::Yes) {
+                if (configurator.loader_log_messages_flags == 0) {
+                    configurator.loader_log_messages_flags =
+                        GetBit(LOG_ERROR) | GetBit(LOG_WARN) | GetBit(LOG_INFO) | GetBit(LOG_LAYER) | GetBit(LOG_DRIVER);
+                }
+
+                this->on_diagnostic_loader_messages_toggled(true);
+            }
+        }
+    }
+
     const bool per_executable =
         (this->mode == DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION || this->mode == DIAGNOSTIC_VULKAN_LAYERS_SETTINGS) &&
         configurator.GetExecutableScope() == EXECUTABLE_PER;
@@ -378,6 +405,12 @@ void TabDiagnostics::on_mode_changed(int index) {
     }
 
     this->UpdateStatus();
+}
+
+void TabDiagnostics::on_mode_changed(int index) {
+    this->mode = static_cast<DiagnosticMode>(index);
+
+    this->on_refresh_log();
 }
 
 void TabDiagnostics::on_mode_options_changed(int index) { this->status = this->BuildStatus(this->mode, index); }

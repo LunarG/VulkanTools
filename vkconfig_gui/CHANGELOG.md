@@ -4,6 +4,7 @@
 ### Improvements:
 - Add `settings --layers` command lines option to list multiple layer names when generating files
 - Add Validation and API Dump default configuration for interleaved log in stdout
+- Add diagnostic log refresh button
 
 ### Improvements:
 - Improved UI to set an external vk_layer_settings.txt file

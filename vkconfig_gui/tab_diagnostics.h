@@ -45,6 +45,7 @@ class TabDiagnostics : public Tab {
     void on_mode_options_changed(int index);
     void on_export_folder();
     void on_export_file();
+    void on_refresh_log();
 
     void on_focus_search();
     void on_search_textEdited(const QString& text);
