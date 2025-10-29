@@ -186,6 +186,7 @@ void TabPreferences::on_theme_mode_changed(int index) {
     // Diagnostics
     this->ui->diagnostic_export_folder->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_EXPORT));
     this->ui->diagnostic_export_file->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
+    this->ui->diagnostic_refresh->setIcon(::Get(new_theme_mode, ::ICON_RELOAD));
     this->ui->diagnostic_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
     this->ui->diagnostic_search_next->setIcon(::Get(new_theme_mode, ::ICON_NEXT));
     this->ui->diagnostic_search_prev->setIcon(::Get(new_theme_mode, ::ICON_PREV));

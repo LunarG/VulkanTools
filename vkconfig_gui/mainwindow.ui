@@ -91,7 +91,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -2669,6 +2669,9 @@
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>Export all diagnostic logs</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -2767,6 +2770,32 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="diagnostic_refresh">
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="diagnostic_export_file">
                <property name="minimumSize">
                 <size>
@@ -2788,7 +2817,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>Export Diagnostic File</string>
+                <string>Export the selected diagnostic log</string>
                </property>
                <property name="text">
                 <string/>
