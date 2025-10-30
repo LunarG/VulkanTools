@@ -224,13 +224,15 @@ Configuration &ConfigurationManager::DuplicateConfiguration(const LayerManager &
     Configuration duplicated_configuration = *source_configuration;
     duplicated_configuration.key = MakeConfigurationName(available_configurations, configuration_name);
 
-    const Path &path = MakeConfigurationPath(duplicated_configuration.key);
+    const Path &path = MakeConfigurationPath("_duplicated");
     duplicated_configuration.Save(path);
 
     // Reload from file to workaround the lack of SettingSet copy support
     Configuration reloaded_configuration;
     const bool result = reloaded_configuration.Load(path, layers);
     assert(result);
+
+    this->RemoveConfigurationFile("_duplicated");
 
     this->available_configurations.push_back(reloaded_configuration);
     this->SortConfigurations();  // invalidated all pointers to configuration object
