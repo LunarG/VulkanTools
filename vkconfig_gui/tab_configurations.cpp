@@ -336,11 +336,11 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
 
     assert(this->advanced_mode != nullptr);
     if (configurator.advanced) {
-        this->advanced_mode->setIcon(::Get(configurator.current_theme_mode, ::ICON_BASIC));
-        this->advanced_mode->setToolTip("Click to switch to basic Layers Configuration mode");
+        this->advanced_mode->setIcon(::Get(configurator.current_theme_mode, ::ICON_SHOW));
+        this->advanced_mode->setToolTip("View only Enabled Vulkan layers");
     } else {
         this->advanced_mode->setIcon(::Get(configurator.current_theme_mode, ::ICON_ADVANCED));
-        this->advanced_mode->setToolTip("Click to switch to advanced Layers Configuration mode");
+        this->advanced_mode->setToolTip("Configure all Available Vulkan Layers");
     }
 
     this->ui->configurations_executable_scope->setToolTip(::GetTooltip(scope));
