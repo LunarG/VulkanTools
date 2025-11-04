@@ -8,6 +8,7 @@
 
 ### Improvements:
 - Improved UI to set an external vk_layer_settings.txt file
+- Improved "View Enabled Layers" and "Configure All Layers" UI
 
 ### Fixes:
 - Fix Vulkan portability initialization on macOS
