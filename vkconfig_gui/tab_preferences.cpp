@@ -43,9 +43,7 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->preferences_vk_download_browse, SIGNAL(clicked()), this, SLOT(on_vk_download_browse_pressed()));
     this->connect(this->ui->preferences_vk_download_open, SIGNAL(clicked()), this, SLOT(on_vk_download_open_pressed()));
     this->connect(this->ui->preferences_reset, SIGNAL(clicked()), this, SLOT(on_reset_hard_pressed()));
-    this->connect(this->ui->preferences_show_debug_settings, SIGNAL(toggled(bool)), this, SLOT(on_layer_dev_mode_toggled(bool)));
-    this->connect(this->ui->preferences_show_override_settings, SIGNAL(toggled(bool)), this,
-                  SLOT(on_show_override_settings_toggled(bool)));
+    this->connect(this->ui->preferences_show_debug_settings, SIGNAL(toggled(bool)), this, SLOT(on_layer_debug_mode_toggled(bool)));
     this->connect(this->ui->preferences_open_page, SIGNAL(clicked()), this, SLOT(on_open_page_pressed()));
     this->connect(this->ui->preferences_notify_releases, SIGNAL(toggled(bool)), this, SLOT(on_notify_releases_toggled(bool)));
     this->connect(this->ui->preferences_download, SIGNAL(clicked()), this, SLOT(on_download_pressed()));
@@ -122,10 +120,6 @@ void TabPreferences::UpdateUI(UpdateUIMode mode) {
     this->ui->preferences_show_debug_settings->setChecked(configurator.GetUseLayerDebugMode());
     this->ui->preferences_show_debug_settings->blockSignals(false);
 
-    this->ui->preferences_show_override_settings->blockSignals(true);
-    this->ui->preferences_show_override_settings->setChecked(configurator.GetShowExternalLayersSettings());
-    this->ui->preferences_show_override_settings->blockSignals(false);
-
     this->ui->preferences_vk_download_text->blockSignals(true);
     this->ui->preferences_vk_download_text->setText(::Path(Path::DOWNLOAD).RelativePath().c_str());
     this->ui->preferences_vk_download_text->setToolTip(::Path(Path::DOWNLOAD).AbsolutePath().c_str());
@@ -149,14 +143,6 @@ void TabPreferences::on_theme_mode_changed(int index) {
     // Configurations
     this->ui->configurations_executable_append->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
     this->ui->configurations_executable_remove->setIcon(::Get(new_theme_mode, ::ICON_FILE_REMOVE));
-    this->ui->configuration_settings_file_search->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
-    const bool override_setting_is_visible = configurator.IsExternalLayersSettingsUsed(true);
-    this->ui->configuration_settings_file_remove->setIcon(
-        ::Get(new_theme_mode, override_setting_is_visible ? ::ICON_FILE_REMOVE : ::ICON_HIDE));
-    this->ui->configuration_settings_file_remove->setToolTip(
-        override_setting_is_visible
-            ? "Disable external layers settings file, use Vulkan Configurator generated layers settings file"
-            : "Hide 'Use Layers Settings file' bar by default");
 
     // Drivers
     this->ui->driver_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
@@ -416,14 +402,9 @@ void TabPreferences::on_notify_releases_toggled(bool checked) {
     configurator.SetUseNotifyReleases(checked);
 }
 
-void TabPreferences::on_layer_dev_mode_toggled(bool checked) {
+void TabPreferences::on_layer_debug_mode_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.SetUseLayerDebugMode(checked);
-}
-
-void TabPreferences::on_show_override_settings_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
-    configurator.SetShowExternalLayersSettings(checked);
 }
 
 void TabPreferences::on_open_page_pressed() { QDesktopServices::openUrl(QUrl("https://vulkan.lunarg.com/sdk/home")); }

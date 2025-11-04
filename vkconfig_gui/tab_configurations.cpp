@@ -100,15 +100,6 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->connect(this->ui->configurations_list, SIGNAL(currentRowChanged(int)), this,
                   SLOT(on_configurations_list_currentRowChanged(int)));
 
-    this->connect(this->ui->configuration_settings_file_enable, SIGNAL(toggled(bool)), this,
-                  SLOT(on_configuration_settings_file_enable_toggled(bool)));
-    this->connect(this->ui->configuration_settings_file_search, SIGNAL(clicked()), this,
-                  SLOT(on_configuration_settings_file_search_pressed()));
-    this->connect(this->ui->configuration_settings_file_remove, SIGNAL(clicked()), this,
-                  SLOT(on_configuration_settings_file_remove_pressed()));
-    this->connect(this->ui->configuration_settings_file_path, SIGNAL(textEdited(QString)), this,
-                  SLOT(on_configuration_settings_file_path_textEdited(QString)));
-
     this->connect(this->ui->configurations_layers_list, SIGNAL(currentRowChanged(int)), this,
                   SLOT(on_configurations_layers_list_currentRowChanged(int)));
 
@@ -173,17 +164,19 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
         std::vector<std::string> missing_layers;
         const bool has_missing_layer = configuration.HasMissingLayer(configurator.layers, missing_layers);
 
-        // Hide built-in configuration when the layer is missing. The Vulkan user may have not installed the necessary layer
-        // if (configuration.IsBuiltIn() && has_missing_layer) {
-        //    continue;
-        //}
+        std::string configuration_tooltip = configuration.key;
+        if (configuration.override_settings) {
+            configuration_tooltip += " (";
+            configuration_tooltip += configuration.override_settings_path.AbsolutePath();
+            configuration_tooltip += ")";
+        }
 
         ListItem *item = new ListItem(configuration.key.c_str());
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         item->setText(configuration.key.c_str());
         if (configurator.GetActiveConfiguration() == &configuration) {
             item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_ON));
-            item->setToolTip(format("Using the '%s' configuration with Vulkan executables", configuration.key.c_str()).c_str());
+            item->setToolTip(configuration_tooltip.c_str());
             current_row = static_cast<int>(i);
         } else if (has_missing_layer) {
             item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_INVALID));
@@ -202,35 +195,6 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
     }
 
     this->ui->configurations_list->blockSignals(false);
-
-    const Configuration *configuration = configurator.GetActiveConfiguration();
-
-    this->ui->configuration_settings_file_remove->setIcon(
-        ::Get(configurator.current_theme_mode, configurator.IsExternalLayersSettingsUsed(true) ? ::ICON_FILE_REMOVE : ::ICON_HIDE));
-
-    const bool override_setting_is_visible = configurator.IsExternalLayersSettingsUsed();
-
-    this->ui->configuration_settings_file_enable->setVisible(override_setting_is_visible);
-    this->ui->configuration_settings_file_path->setVisible(override_setting_is_visible);
-    this->ui->configuration_settings_file_search->setVisible(override_setting_is_visible);
-    this->ui->configuration_settings_file_remove->setVisible(override_setting_is_visible);
-
-    this->ui->configuration_settings_file_enable->setEnabled(configuration != nullptr);
-    this->ui->configuration_settings_file_path->setEnabled(configuration != nullptr);
-    this->ui->configuration_settings_file_search->setEnabled(configuration != nullptr);
-    this->ui->configuration_settings_file_remove->setEnabled(configuration != nullptr);
-
-    if (configuration == nullptr) {
-        this->ui->configuration_settings_file_enable->setChecked(false);
-        this->ui->configuration_settings_file_search->setEnabled(false);
-        this->ui->configuration_settings_file_path->setEnabled(false);
-        this->ui->configuration_settings_file_path->clear();
-    } else {
-        this->ui->configuration_settings_file_enable->setChecked(configuration->override_settings);
-        this->ui->configuration_settings_file_search->setEnabled(configuration->override_settings);
-        this->ui->configuration_settings_file_path->setEnabled(configuration->override_settings);
-        this->ui->configuration_settings_file_path->setText(configuration->override_settings_path.RelativePath().c_str());
-    }
 }
 
 void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
@@ -326,7 +290,7 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
     const Parameter *parameter = configurator.GetActiveParameter();
     if (parameter != nullptr) {
         if (configurator.GetActiveConfiguration()->override_settings) {
-            this->ui->configurations_group_box_settings->setToolTip("Use External Layerd Settings file is enabled");
+            this->ui->configurations_group_box_settings->setToolTip("Disabled: Use External Layerd Settings file is enabled");
         } else {
             const std::string state = parameter->override_settings ? "Uncheck to disable" : "Check to enable";
             const std::string tooltip = format("%s '%s' layer settings", state.c_str(), parameter->key.c_str());
@@ -479,9 +443,32 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
-            QAction *action_external_settings = new QAction("Use External vk_layer_settings.txt file...", nullptr);
-            action_external_settings->setEnabled(item != nullptr);
-            menu.addAction(action_external_settings);
+            QAction *action_use_external_settings = new QAction("Use External vk_layer_settings.txt file...", nullptr);
+            action_use_external_settings->setCheckable(true);
+            Configuration *configuration = configurator.GetActiveConfiguration();
+            if (configuration != nullptr) {
+                action_use_external_settings->setChecked(configuration->override_settings);
+                if (configuration->override_settings) {
+                    action_use_external_settings->setToolTip(
+                        "Select another external layer settings file to control layer settings instead of Vulkan Configurator UI.");
+                } else {
+                    action_use_external_settings->setToolTip(
+                        "Disable the layer settings control from Vulkan Configurator UI to use an external file.");
+                }
+            }
+            action_use_external_settings->setEnabled(item != nullptr);
+            menu.addAction(action_use_external_settings);
+
+            QAction *action_disable_external_settings = new QAction("Disable External vk_layer_settings.txt file", nullptr);
+            if (configuration != nullptr) {
+                action_disable_external_settings->setEnabled(configuration->override_settings);
+                if (configuration->override_settings) {
+                    action_disable_external_settings->setToolTip("Restore the layer settings control from Vulkan Configurator UI.");
+                }
+            } else {
+                action_disable_external_settings->setEnabled(false);
+            }
+            menu.addAction(action_disable_external_settings);
 
             menu.addSeparator();
 
@@ -562,8 +549,10 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 this->GenerateClicked(GENERATE_SETTINGS_MARKDOWN);
             } else if (action == action_export_html) {
                 this->GenerateClicked(GENERATE_SETTINGS_HTML);
-            } else if (action == action_external_settings) {
+            } else if (action == action_use_external_settings) {
                 this->on_configuration_settings_file_search_pressed();
+            } else if (action == action_disable_external_settings) {
+                this->on_configuration_settings_file_disable_pressed();
             }
         }
     } else if (target == this->ui->configurations_layers_list) {
@@ -1330,47 +1319,31 @@ void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow)
     }
 }
 
-void TabConfigurations::on_configuration_settings_file_enable_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
-    Configuration *configuration = configurator.GetActiveConfiguration();
-
-    if (checked && configuration->override_settings_path.Empty()) {
-        if (!configurator.Get(HIDE_MESSAGE_WARN_OVERRIDE_LAYERS_SETTINGS)) {
-            QMessageBox alert;
-            alert.setWindowTitle("Enabling 'Use Layers Settings File'...");
-            alert.setIcon(QMessageBox::Warning);
-            alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-            alert.setDefaultButton(QMessageBox::Ok);
-            alert.setText(
-                "Enabling 'Use Layers Settings file' allows using an externally loaded 'Layers Settings file'. This disables "
-                "configuring the layer settings using the UI.");
-            alert.setInformativeText("Do you want to continue?");
-            alert.setCheckBox(new QCheckBox("Do not show again."));
-
-            int result = alert.exec();
-            if (alert.checkBox()->isChecked()) {
-                configurator.Set(HIDE_MESSAGE_WARN_OVERRIDE_LAYERS_SETTINGS);
-            }
-
-            if (result == QMessageBox::Cancel) {
-                this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
-                return;
-            }
-        }
-
-        this->on_configuration_settings_file_search_pressed();
-    } else {
-        configuration->override_settings = checked;
-
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-
-        this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
-        this->UpdateUI_Settings(UPDATE_REFRESH_UI);
-    }
-}
-
 void TabConfigurations::on_configuration_settings_file_search_pressed() {
     Configurator &configurator = Configurator::Get();
+
+    if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_EXTERNAL_LAYERS_SETTINGS)) {
+        QMessageBox message;
+        message.setWindowTitle("Using an external layer settings file to control the Vulkan layers");
+        message.setText(
+            "When selecting the layers configuration, the Vulkan layers settings will be controled by the selected file instead of "
+            "Vulkan Configurator UI");
+        message.setInformativeText("Do you want to continue?");
+        message.setIcon(QMessageBox::Information);
+        message.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        message.setDefaultButton(QMessageBox::Yes);
+        message.setCheckBox(new QCheckBox("Do not show again."));
+
+        int ret_val = message.exec();
+        if (message.checkBox()->isChecked()) {
+            configurator.Set(HIDE_MESSAGE_NOTIFICATION_EXTERNAL_LAYERS_SETTINGS);
+        }
+
+        if (ret_val == QMessageBox::No) {
+            return;
+        }
+    }
+
     Configuration *configuration = configurator.GetActiveConfiguration();
     assert(configuration != nullptr);
 
@@ -1382,70 +1355,27 @@ void TabConfigurations::on_configuration_settings_file_search_pressed() {
                                                                    input_path.c_str(), "vk_layer_settings.txt(*.txt)")
                                           .toStdString();
 
-    configuration->override_settings = true;
-
     if (!selected_path.empty()) {
+        configuration->override_settings = true;
         configuration->override_settings_path = selected_path;
-
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
     }
+
+    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
     this->UpdateUI_Settings(UPDATE_REFRESH_UI);
 }
 
-void TabConfigurations::on_configuration_settings_file_remove_pressed() {
-    Configurator &configurator = Configurator::Get();
-
-    if (configurator.IsExternalLayersSettingsUsed(true)) {
-        Configuration *configuration = configurator.GetActiveConfiguration();
-        if (configuration != nullptr) {
-            configurator.GetActiveConfiguration()->override_settings = false;
-            configurator.GetActiveConfiguration()->override_settings_path.Clear();
-
-            this->ui->configuration_settings_file_remove->setToolTip("Hide 'Use Layers Settings file' bar by default");
-        }
-
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    } else {
-        if (!(configurator.Get(HIDE_MESSAGE_WARN_OVERRIDE_LAYERS_SETTINGS_HIDE))) {
-            QMessageBox alert;
-            alert.setWindowTitle("Hiding 'Use Layers Settings file' bar...");
-            alert.setIcon(QMessageBox::Warning);
-            alert.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-            alert.setDefaultButton(QMessageBox::Ok);
-            alert.setText(
-                "Hiding 'Use Layers Settings file' bar when unused by the 'Loader Configuration'. This bar can be made visibled by "
-                "default in the 'Preference' tab.");
-            alert.setInformativeText("Do you want to continue?");
-            alert.setCheckBox(new QCheckBox("Do not show again."));
-
-            int result = alert.exec();
-            if (alert.checkBox()->isChecked()) {
-                configurator.Set(HIDE_MESSAGE_WARN_OVERRIDE_LAYERS_SETTINGS_HIDE);
-            }
-
-            if (result == QMessageBox::Cancel) {
-                return;
-            }
-        }
-
-        this->ui->configuration_settings_file_remove->setToolTip(
-            "Disable external layers settings file, use Vulkan Configurator generated layers settings file");
-        configurator.SetShowExternalLayersSettings(false);
-    }
-
-    this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
-    this->UpdateUI_Settings(UPDATE_REFRESH_UI);
-}
-
-void TabConfigurations::on_configuration_settings_file_path_textEdited(const QString &text) {
+void TabConfigurations::on_configuration_settings_file_disable_pressed() {
     Configurator &configurator = Configurator::Get();
     Configuration *configuration = configurator.GetActiveConfiguration();
-    if (configuration != nullptr) {
-        configurator.GetActiveConfiguration()->override_settings_path = text.toStdString();
-        configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
-    }
+    assert(configuration != nullptr);
+
+    configuration->override_settings = false;
+
+    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    this->UpdateUI_Configurations(UPDATE_REFRESH_UI);
+    this->UpdateUI_Settings(UPDATE_REFRESH_UI);
 }
 
 void TabConfigurations::on_configurations_layers_list_currentRowChanged(int currentRow) {

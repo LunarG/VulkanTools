@@ -91,7 +91,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -417,110 +417,6 @@
                         <bool>false</bool>
                        </property>
                       </widget>
-                     </item>
-                     <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_14">
-                       <property name="spacing">
-                        <number>0</number>
-                       </property>
-                       <property name="topMargin">
-                        <number>0</number>
-                       </property>
-                       <item>
-                        <widget class="QCheckBox" name="configuration_settings_file_enable">
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <bold>false</bold>
-                           <kerning>true</kerning>
-                          </font>
-                         </property>
-                         <property name="toolTip">
-                          <string>Use an external layer settings file instead of the Vulkan Configurator generated layer settings</string>
-                         </property>
-                         <property name="text">
-                          <string>Use External Layers Settings File:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="configuration_settings_file_path">
-                         <property name="maximumSize">
-                          <size>
-                           <width>16777215</width>
-                           <height>24</height>
-                          </size>
-                         </property>
-                         <property name="font">
-                          <font>
-                           <family>Arial</family>
-                           <pointsize>10</pointsize>
-                           <bold>false</bold>
-                          </font>
-                         </property>
-                         <property name="toolTip">
-                          <string>Path to the external layer settings file</string>
-                         </property>
-                         <property name="placeholderText">
-                          <string>Enter a path to vk_layer_settings.txt file</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="configuration_settings_file_search">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>24</width>
-                           <height>24</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>24</width>
-                           <height>24</height>
-                          </size>
-                         </property>
-                         <property name="toolTip">
-                          <string>Set the external layer settings file</string>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="configuration_settings_file_remove">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>24</width>
-                           <height>24</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>24</width>
-                           <height>24</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
                      </item>
                     </layout>
                    </widget>
@@ -3572,29 +3468,6 @@
               <property name="bottomMargin">
                <number>5</number>
               </property>
-              <item>
-               <widget class="QCheckBox" name="preferences_show_override_settings">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>24</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>Arial</family>
-                  <pointsize>10</pointsize>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>Otherwise, the field will be hidden when unused</string>
-                </property>
-                <property name="text">
-                 <string>Show 'Use Layers Settings file' field by default</string>
-                </property>
-               </widget>
-              </item>
               <item>
                <widget class="QCheckBox" name="preferences_show_debug_settings">
                 <property name="maximumSize">

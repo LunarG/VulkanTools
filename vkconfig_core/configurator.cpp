@@ -2213,25 +2213,6 @@ bool Configurator::GetUseNotifyReleases() const { return this->use_notify_releas
 
 void Configurator::SetUseNotifyReleases(bool enabled) { this->use_notify_releases = enabled; }
 
-bool Configurator::GetShowExternalLayersSettings() const { return this->show_external_layers_settings; }
-
-void Configurator::SetShowExternalLayersSettings(bool enabled) { this->show_external_layers_settings = enabled; }
-
-bool Configurator::IsExternalLayersSettingsUsed(bool icon_mode) const {
-    const Configuration* configuration = this->GetActiveConfiguration();
-    if (configuration == nullptr) {
-        return this->GetShowExternalLayersSettings();
-    }
-
-    const bool in_use = configuration->override_settings || !configuration->override_settings_path.Empty();
-
-    if (icon_mode) {
-        return in_use;
-    } else {
-        return in_use || this->GetShowExternalLayersSettings();
-    }
-}
-
 bool Configurator::ShouldNotify() const {
     return this->latest_sdk_version < this->online_sdk_version && this->online_sdk_version != Version::NONE;
 }
