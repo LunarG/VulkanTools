@@ -62,10 +62,8 @@ class TabConfigurations : public Tab {
     void on_configurations_list_itemChanged(QListWidgetItem *item);
     void on_configurations_list_currentRowChanged(int currentRow);
 
-    void on_configuration_settings_file_enable_toggled(bool checked);
     void on_configuration_settings_file_search_pressed();
-    void on_configuration_settings_file_remove_pressed();
-    void on_configuration_settings_file_path_textEdited(const QString &text);
+    void on_configuration_settings_file_disable_pressed();
 
     void on_configurations_layers_list_currentRowChanged(int currentRow);
 

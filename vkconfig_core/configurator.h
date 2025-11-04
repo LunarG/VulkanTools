@@ -126,10 +126,6 @@ class Configurator {
     bool GetUseNotifyReleases() const;
     void SetUseNotifyReleases(bool enabled);
 
-    bool GetShowExternalLayersSettings() const;
-    void SetShowExternalLayersSettings(bool enabled);
-    bool IsExternalLayersSettingsUsed(bool icon_mode = false) const;
-
     bool ShouldNotify() const;
 
     bool HasActiveSettings() const;
