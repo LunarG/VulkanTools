@@ -148,10 +148,15 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
     (void)mode;
 
     Configurator &configurator = Configurator::Get();
+    const Executable *executable = configurator.GetActiveExecutable();
 
     this->ui->configurations_executable_scope->blockSignals(true);
     this->ui->configurations_executable_scope->setCurrentIndex(configurator.GetExecutableScope());
     this->ui->configurations_executable_scope->blockSignals(false);
+
+    this->ui->configurations_executable_list->blockSignals(true);
+    this->ui->configurations_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
+    this->ui->configurations_executable_list->blockSignals(false);
 
     this->ui->configurations_list->blockSignals(true);
     this->ui->configurations_list->clear();
@@ -1131,15 +1136,15 @@ void TabConfigurations::on_configurations_executable_list_currentIndexChanged(in
     Configurator &configurator = Configurator::Get();
     configurator.executables.SetActiveExecutable(index);
 
-    ExecutableScope scope = configurator.GetExecutableScope();
-    assert(::EnabledExecutables(scope));
+    /*
+        ExecutableScope scope = configurator.GetExecutableScope();
+        assert(::EnabledExecutables(scope));
 
-    const Executable *executable = configurator.GetActiveExecutable();
-    const std::string path = executable->path.RelativePath();
+        const Executable *executable = configurator.GetActiveExecutable();
+        const std::string path = executable->path.RelativePath();
 
-    this->ui->configurations_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
-    this->ui->configurations_group_box_list->setChecked(executable->enabled);
-
+        this->ui->configurations_group_box_list->setChecked(executable->enabled);
+    */
     this->UpdateUI(UPDATE_REFRESH_UI);
     this->window.UpdateUI_Status();
 }

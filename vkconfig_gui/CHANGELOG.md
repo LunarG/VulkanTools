@@ -12,6 +12,7 @@
 
 ### Fixes:
 - Fix Vulkan portability initialization on macOS
+- Fix layer settings tree resize #2552
 
 ### Deprecation:
 - Remove Qt5 build
