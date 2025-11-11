@@ -474,7 +474,6 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
         std::vector<LayersSettings> layers_settings_array;
 
         switch (this->executable_scope) {
-            case EXECUTABLE_ALL:
             case EXECUTABLE_ANY: {
                 LayersSettings settings;
                 settings.configuration_name = this->selected_global_configuration;
@@ -482,6 +481,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                 layers_settings_array.push_back(settings);
                 break;
             }
+            case EXECUTABLE_ALL:
             case EXECUTABLE_PER: {
                 const std::vector<Executable>& executables = this->executables.GetExecutables();
 
@@ -492,7 +492,7 @@ bool Configurator::WriteLayersSettings(OverrideArea override_area, const Path& l
                         continue;
                     }
 
-                    if (this->executable_scope == EXECUTABLE_PER) {
+                    if (::EnabledExecutables(this->executable_scope)) {
                         configuration_name = executables[i].configuration;
                     }
 
@@ -1311,16 +1311,17 @@ bool Configurator::Surrender(OverrideArea override_area) {
     bool result_layers_settings = true;
     if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
         bool global_removed = layers_settings_path.Remove();
-        if (this->executable_scope == EXECUTABLE_ALL || this->executable_scope == EXECUTABLE_ANY) {
+        if (this->executable_scope == EXECUTABLE_ANY) {
             result_layers_settings = global_removed;
         }
 
-        const std::vector<Executable>& executables = this->executables.GetExecutables();
-        for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
-            Path path(executables[i].GetActiveOptions()->working_folder.RelativePath() + "/vk_layer_settings.txt");
-            if (path.Exists()) {
-                bool local_removed = path.Remove();
-                if (::EnabledExecutables(this->executable_scope)) {
+        if (::EnabledExecutables(this->executable_scope)) {
+            const std::vector<Executable>& executables = this->executables.GetExecutables();
+            for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
+                Path path(executables[i].GetActiveOptions()->working_folder.RelativePath() + "/vk_layer_settings.txt");
+                if (path.Exists()) {
+                    bool local_removed = path.Remove();
+
                     result_layers_settings = result_layers_settings && local_removed;
                 }
             }
