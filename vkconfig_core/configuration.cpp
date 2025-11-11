@@ -563,20 +563,6 @@ void Configuration::Reorder(const std::vector<std::string>& layer_names) {
     this->parameters = ordered_parameters;
 }
 
-bool Configuration::HasMultipleActiveParameter() const {
-    std::size_t count = 0;
-
-    for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
-        const LayerControl control = this->parameters[i].control;
-
-        if (control == LAYER_CONTROL_ON || control == LAYER_CONTROL_OFF) {
-            ++count;
-        }
-    }
-
-    return count > 1;
-}
-
 bool Configuration::IsDefault() const {
     const std::vector<Path>& builtin_configuration_files = CollectFilePaths(":/configurations/");
     for (std::size_t i = 0, n = builtin_configuration_files.size(); i < n; ++i) {

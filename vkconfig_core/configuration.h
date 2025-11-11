@@ -56,8 +56,6 @@ class Configuration {
     void GatherParameters(const LayerManager& layers);
     void Reorder(const std::vector<std::string>& layer_names);
 
-    bool HasMultipleActiveParameter() const;
-
     std::string key = "New Configuration";  // User readable display of the configuration name (may contain spaces)
     int version = 1;
     int platform_flags = PLATFORM_DESKTOP_BIT;

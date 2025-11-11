@@ -7,18 +7,18 @@
 - Add diagnostic log refresh button
 
 ### Improvements:
-- Improved UI to set an external vk_layer_settings.txt file
+- Improved UI to set an external `vk_layer_settings.txt` file
 - Improved "View Enabled Layers" and "Configure All Layers" UI
 
 ### Fixes:
 - Fix Vulkan portability initialization on macOS
 - Fix layer settings tree resize #2552
-- Fix all executables mode vk_layer_settings.txt write #2558
-- Fix vk_layer_settings.txt not generated when changing working directory #2559
+- Fix all executables mode `vk_layer_settings.txt` write #2558
+- Fix `vk_layer_settings.txt` not generated when changing working directory #2559
 
 ### Deprecation:
 - Remove Qt5 build
-- Require Qt 6.9
+- Require Qt 6.9 to build
 
 ## Vulkan Configurator 3.4.0 - October 2025
 [Vulkan SDK 1.4.328.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.328)
