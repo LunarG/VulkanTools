@@ -13,6 +13,8 @@
 ### Fixes:
 - Fix Vulkan portability initialization on macOS
 - Fix layer settings tree resize #2552
+- Fix all executables mode vk_layer_settings.txt write #2558
+- Fix vk_layer_settings.txt not generated when changing working directory #2559
 
 ### Deprecation:
 - Remove Qt5 build

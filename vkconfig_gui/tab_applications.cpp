@@ -197,6 +197,8 @@ void TabApplications::on_launch_executable_search_pressed() {
     configurator.executables.RenameActiveExecutable(selected_path.toStdString());
     configurator.executables.GetActiveExecutable()->path = selected_path.toStdString();
 
+    configurator.Override(OVERRIDE_AREA_ALL);
+
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
@@ -213,6 +215,8 @@ void TabApplications::on_launch_executable_append_pressed() {
     }
 
     configurator.executables.AppendExecutable(selected_path);
+
+    configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
@@ -295,6 +299,9 @@ void TabApplications::on_launch_executable_list_textEdited(const QString &text) 
     }
 
     configurator.executables.SetActiveExecutable(index);
+
+    configurator.Override(OVERRIDE_AREA_ALL);
+
     this->ui->launch_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
 
     this->UpdateUI(UPDATE_REBUILD_UI);
@@ -384,6 +391,8 @@ void TabApplications::on_launch_options_dir_textEdited(const QString &text) {
     ExecutableOptions *options = executable->GetActiveOptions();
 
     options->working_folder = text.toStdString();
+
+    configurator.Override(OVERRIDE_AREA_ALL);
 }
 
 void TabApplications::on_launch_options_dir_pressed() {
@@ -399,6 +408,8 @@ void TabApplications::on_launch_options_dir_pressed() {
         options->working_folder = selected_path.toStdString();
         this->ui->launch_options_dir_edit->setText(options->working_folder.RelativePath().c_str());
     }
+
+    configurator.Override(OVERRIDE_AREA_ALL);
 }
 
 void TabApplications::on_launch_options_args_textEdited(const QString &text) {
