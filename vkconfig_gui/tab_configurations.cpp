@@ -228,20 +228,17 @@ void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
 void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
     (void)mode;
 
-    ui->configurations_layers_list->blockSignals(true);
-    ui->configurations_layers_list->clear();
+    this->ui->configurations_layers_list->blockSignals(true);
+    this->ui->configurations_layers_list->clear();
 
     Configurator &configurator = Configurator::Get();
     this->ui->configurations_group_box_layers->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LAYERS));
+    this->ui->execute_closer_application_label->setVisible(configurator.advanced);
+    this->ui->execute_closer_driver_label->setVisible(configurator.advanced);
+    this->ui->configurations_layers_list->setDragEnabled(configurator.advanced);
 
     Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
-        const bool has_multiple_parameter = configuration->HasMultipleActiveParameter() || configurator.advanced;
-
-        ui->execute_closer_application_label->setVisible(has_multiple_parameter);
-        ui->execute_closer_driver_label->setVisible(has_multiple_parameter);
-        ui->configurations_layers_list->setDragEnabled(has_multiple_parameter);
-
         bool selected_layer = configuration->selected_layer_name.empty();
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
@@ -255,16 +252,16 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
             QListWidgetItem *item = new ListItem(parameter.key.c_str());
             item->setFlags(item->flags() | Qt::ItemIsSelectable);
             item->setSizeHint(QSize(0, ITEM_HEIGHT));
-            if (has_multiple_parameter) {
+            if (configurator.advanced) {
                 item->setIcon(::Get(configurator.current_theme_mode, ICON_DRAG));
             }
-            ui->configurations_layers_list->addItem(item);
+            this->ui->configurations_layers_list->addItem(item);
 
             ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(this, parameter);
 
-            ui->configurations_layers_list->setItemWidget(item, layer_widget);
+            this->ui->configurations_layers_list->setItemWidget(item, layer_widget);
             if (configuration->selected_layer_name == parameter.key) {
-                ui->configurations_layers_list->setCurrentItem(item);
+                this->ui->configurations_layers_list->setCurrentItem(item);
                 selected_layer = true;
             }
         }
@@ -274,10 +271,10 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
         }
         // resizeEvent(nullptr);
 
-        ui->configurations_layers_list->update();
+        this->ui->configurations_layers_list->update();
     }
 
-    ui->configurations_layers_list->blockSignals(false);
+    this->ui->configurations_layers_list->blockSignals(false);
 }
 
 void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
