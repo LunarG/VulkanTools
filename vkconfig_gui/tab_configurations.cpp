@@ -1136,15 +1136,6 @@ void TabConfigurations::on_configurations_executable_list_currentIndexChanged(in
     Configurator &configurator = Configurator::Get();
     configurator.executables.SetActiveExecutable(index);
 
-    /*
-        ExecutableScope scope = configurator.GetExecutableScope();
-        assert(::EnabledExecutables(scope));
-
-        const Executable *executable = configurator.GetActiveExecutable();
-        const std::string path = executable->path.RelativePath();
-
-        this->ui->configurations_group_box_list->setChecked(executable->enabled);
-    */
     this->UpdateUI(UPDATE_REFRESH_UI);
     this->window.UpdateUI_Status();
 }
