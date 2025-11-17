@@ -14,103 +14,108 @@
 <h1><a href="https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html">VK_LAYER_LUNARG_reference_1_2_1</a>
 </h1>
 <h3>reference layer</h3>
+<p>The main, comprehensive Khronos validation layer.
+
+Vulkan is an Explicit API, enabling direct control over how GPUs actually work. By design, minimal error checking is done inside a Vulkan driver. Applications have full control and responsibility for correct operation. Any errors in how Vulkan is used can result in a crash. 
+
+The Khronos Validation Layer can be enabled to assist development by enabling developers to verify their applications correctly use the Vulkan API.</p>
 <h2>Layer Properties</h2>
 <ul>
-	<li>API Version: 1.2.170</li>
+	<li>API Version: 1.4.333</li>
 	<li>Implementation Version: Build 76</li>
 	<li>Layer Manifest: <span class="code">VK_LAYER_LUNARG_reference_1_2_1.json</span><ul>
 		<li>File Format: 1.2.1</li>
 		<li>Layer Binary Path: <span class="code">./VkLayer_reference.dll</span></li>
 	</ul></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 	<li><a href="#settings">Number of Layer Settings: 12</a></li>
 	<li><a href="#presets">Number of Layer Presets: 11</a></li>
 </ul>
 <h2><a id="settings">Layer Settings Overview</a></h2>
-<table><thead><tr><th>Label</th><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Variables Key</a></th><th>Type</th><th>Default Value</th><th>Platforms</th></tr></thead><tbody>
+<table><thead><tr><th>Label</th><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Variables Key</a></th><th>Type</th><th>Default Value</th><th>Platforms</th></tr></thead><tbody>
 <tr>
 	<td><a id="toogle" href="#toogle-detailed">toogle</a></td>
 	<td><span class="code">toogle</span></td>
 	<td><span class="code">BOOL</span></td>
 	<td><span class="code">true</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="enum_required_only" href="#enum_required_only-detailed">enum</a></td>
 	<td><span class="code">enum_required_only</span></td>
 	<td><span class="code">ENUM</span></td>
 	<td><span class="code">value1</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="flags_required_only" href="#flags_required_only-detailed">flags</a></td>
 	<td><span class="code">flags_required_only</span></td>
 	<td><span class="code">FLAGS</span></td>
 	<td><span class="code">flag0,flag1</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="string_required_only" href="#string_required_only-detailed">String</a></td>
 	<td><span class="code">string_required_only</span></td>
 	<td><span class="code">STRING</span></td>
 	<td><span class="code">A string</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="bool_required_only" href="#bool_required_only-detailed">bool</a></td>
 	<td><span class="code">bool_required_only</span></td>
 	<td><span class="code">BOOL</span></td>
 	<td><span class="code">true</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="load_file_required_only" href="#load_file_required_only-detailed">Load file</a></td>
 	<td><span class="code">load_file_required_only</span></td>
 	<td><span class="code">LOAD_FILE</span></td>
 	<td><span class="code">./test.txt</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="save_file_required_only" href="#save_file_required_only-detailed">Save file</a></td>
 	<td><span class="code">save_file_required_only</span></td>
 	<td><span class="code">SAVE_FILE</span></td>
 	<td><span class="code">./test.json</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="save_folder_required_only" href="#save_folder_required_only-detailed">Save folder</a></td>
 	<td><span class="code">save_folder_required_only</span></td>
 	<td><span class="code">SAVE_FOLDER</span></td>
 	<td><span class="code">./test</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="int_required_only" href="#int_required_only-detailed">Integer</a></td>
 	<td><span class="code">int_required_only</span></td>
 	<td><span class="code">INT</span></td>
 	<td><span class="code">76</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="float_required_only" href="#float_required_only-detailed">Float</a></td>
 	<td><span class="code">float_required_only</span></td>
 	<td><span class="code">FLOAT</span></td>
 	<td><span class="code">76.500000</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="frames_required_only" href="#frames_required_only-detailed">Frames</a></td>
 	<td><span class="code">frames_required_only</span></td>
 	<td><span class="code">FRAMES</span></td>
 	<td><span class="code">76-82,75</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td><a id="list_required_only" href="#list_required_only-detailed">List</a></td>
 	<td><span class="code">list_required_only</span></td>
 	<td><span class="code">LIST</span></td>
 	<td><span class="code">L,R,stringB,stringD</span></td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 </tbody></table>
 <h2>Layer Settings Details</h2>
@@ -120,16 +125,17 @@
 	<li>Key: <span class="code">toogle</span></li>
 	<li>Type: <span class="code">BOOL</span></li>
 	<li>Default Value: <span class="code">true</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">VkBool32 data[] = { VK_TRUE };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "toogle", VK_LAYER_SETTING_TYPE_BOOL32_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.toogle = true</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_TOOGLE=true<br>export VK_REFERENCE_1_2_1_TOOGLE=true<br>export VK_TOOGLE=true<br>export VK_REF_TOGGLE=true</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.toogle true<BR/>adb shell setprop debug.vulkan.reference_1_2_1.toogle true<BR/>adb shell setprop debug.vulkan.toogle true</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="enum_required_only-detailed" href="#enum_required_only">enum</a></h3>
@@ -138,7 +144,7 @@ export VK_LUNARG_REFERENCE_1_2_1_TOOGLE=true<br>export VK_REFERENCE_1_2_1_TOOGLE
 	<li>Key: <span class="code">enum_required_only</span></li>
 	<li>Type: <span class="code">ENUM</span></li>
 	<li>Default Value: <span class="code">value1</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
 <thead><tr><th>Enum Value</th><th>Label</th><th class="desc">Description</th><th>Platforms </th></tr></thead>
@@ -147,30 +153,31 @@ export VK_LUNARG_REFERENCE_1_2_1_TOOGLE=true<br>export VK_REFERENCE_1_2_1_TOOGLE
 	<td>value0</td>
 	<td>Value0</td>
 	<td class="desc">My value0</td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td>value1</td>
 	<td>Value1</td>
 	<td class="desc">My value1</td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td>value2</td>
 	<td>Value2</td>
 	<td class="desc">My value2</td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 </tbody></table>
 <p></p>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">const char* data[] = { "value1" };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "enum_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.enum_required_only = value1</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_ENUM_REQUIRED_ONLY=value1<br>export VK_REFERENCE_1_2_1_ENUM_REQUIRED_ONLY=value1<br>export VK_ENUM_REQUIRED_ONLY=value1</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.enum_required_only value1<BR/>adb shell setprop debug.vulkan.reference_1_2_1.enum_required_only value1<BR/>adb shell setprop debug.vulkan.enum_required_only value1</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="flags_required_only-detailed" href="#flags_required_only">flags</a></h3>
@@ -179,7 +186,7 @@ export VK_LUNARG_REFERENCE_1_2_1_ENUM_REQUIRED_ONLY=value1<br>export VK_REFERENC
 	<li>Key: <span class="code">flags_required_only</span></li>
 	<li>Type: <span class="code">FLAGS</span></li>
 	<li>Default Value: <span class="code">flag0,flag1</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
 <thead><tr><th>Flags</th><th>Label</th><th class="desc">Description</th><th>Platforms </th></tr></thead>
@@ -188,30 +195,31 @@ export VK_LUNARG_REFERENCE_1_2_1_ENUM_REQUIRED_ONLY=value1<br>export VK_REFERENC
 	<td>flag0</td>
 	<td>Flag0</td>
 	<td class="desc">My flag0</td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td>flag1</td>
 	<td>Flag1</td>
 	<td class="desc">My flag1</td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 <tr>
 	<td>flag2</td>
 	<td>Flag2</td>
 	<td class="desc">My flag2</td>
-	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></td>
+	<td><span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></td>
 </tr>
 </tbody></table>
 <p></p>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">const char* data[] = { "flag0,flag1" };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "flags_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.flags_required_only = flag0,flag1</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_FLAGS_REQUIRED_ONLY=flag0,flag1<br>export VK_REFERENCE_1_2_1_FLAGS_REQUIRED_ONLY=flag0,flag1<br>export VK_FLAGS_REQUIRED_ONLY=flag0,flag1</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.flags_required_only flag0,flag1<BR/>adb shell setprop debug.vulkan.reference_1_2_1.flags_required_only flag0,flag1<BR/>adb shell setprop debug.vulkan.flags_required_only flag0,flag1</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="string_required_only-detailed" href="#string_required_only">String</a></h3>
@@ -220,16 +228,17 @@ export VK_LUNARG_REFERENCE_1_2_1_FLAGS_REQUIRED_ONLY=flag0,flag1<br>export VK_RE
 	<li>Key: <span class="code">string_required_only</span></li>
 	<li>Type: <span class="code">STRING</span></li>
 	<li>Default Value: <span class="code">A string</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">const char* data[] = { "A string" };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "string_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.string_required_only = A string</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_STRING_REQUIRED_ONLY=A string<br>export VK_REFERENCE_1_2_1_STRING_REQUIRED_ONLY=A string<br>export VK_STRING_REQUIRED_ONLY=A string</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.string_required_only A string<BR/>adb shell setprop debug.vulkan.reference_1_2_1.string_required_only A string<BR/>adb shell setprop debug.vulkan.string_required_only A string</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="bool_required_only-detailed" href="#bool_required_only">bool</a></h3>
@@ -238,16 +247,17 @@ export VK_LUNARG_REFERENCE_1_2_1_STRING_REQUIRED_ONLY=A string<br>export VK_REFE
 	<li>Key: <span class="code">bool_required_only</span></li>
 	<li>Type: <span class="code">BOOL</span></li>
 	<li>Default Value: <span class="code">true</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">VkBool32 data[] = { VK_TRUE };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "bool_required_only", VK_LAYER_SETTING_TYPE_BOOL32_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.bool_required_only = true</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_BOOL_REQUIRED_ONLY=true<br>export VK_REFERENCE_1_2_1_BOOL_REQUIRED_ONLY=true<br>export VK_BOOL_REQUIRED_ONLY=true</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.bool_required_only true<BR/>adb shell setprop debug.vulkan.reference_1_2_1.bool_required_only true<BR/>adb shell setprop debug.vulkan.bool_required_only true</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="load_file_required_only-detailed" href="#load_file_required_only">Load file</a></h3>
@@ -256,16 +266,17 @@ export VK_LUNARG_REFERENCE_1_2_1_BOOL_REQUIRED_ONLY=true<br>export VK_REFERENCE_
 	<li>Key: <span class="code">load_file_required_only</span></li>
 	<li>Type: <span class="code">LOAD_FILE</span></li>
 	<li>Default Value: <span class="code">./test.txt</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">const char* data[] = { "./test.txt" };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "load_file_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.load_file_required_only = ./test.txt</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_LOAD_FILE_REQUIRED_ONLY=./test.txt<br>export VK_REFERENCE_1_2_1_LOAD_FILE_REQUIRED_ONLY=./test.txt<br>export VK_LOAD_FILE_REQUIRED_ONLY=./test.txt</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.load_file_required_only ./test.txt<BR/>adb shell setprop debug.vulkan.reference_1_2_1.load_file_required_only ./test.txt<BR/>adb shell setprop debug.vulkan.load_file_required_only ./test.txt</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="save_file_required_only-detailed" href="#save_file_required_only">Save file</a></h3>
@@ -274,16 +285,17 @@ export VK_LUNARG_REFERENCE_1_2_1_LOAD_FILE_REQUIRED_ONLY=./test.txt<br>export VK
 	<li>Key: <span class="code">save_file_required_only</span></li>
 	<li>Type: <span class="code">SAVE_FILE</span></li>
 	<li>Default Value: <span class="code">./test.json</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">const char* data[] = { "./test.json" };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "save_file_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.save_file_required_only = ./test.json</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_SAVE_FILE_REQUIRED_ONLY=./test.json<br>export VK_REFERENCE_1_2_1_SAVE_FILE_REQUIRED_ONLY=./test.json<br>export VK_SAVE_FILE_REQUIRED_ONLY=./test.json</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.save_file_required_only ./test.json<BR/>adb shell setprop debug.vulkan.reference_1_2_1.save_file_required_only ./test.json<BR/>adb shell setprop debug.vulkan.save_file_required_only ./test.json</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="save_folder_required_only-detailed" href="#save_folder_required_only">Save folder</a></h3>
@@ -292,16 +304,17 @@ export VK_LUNARG_REFERENCE_1_2_1_SAVE_FILE_REQUIRED_ONLY=./test.json<br>export V
 	<li>Key: <span class="code">save_folder_required_only</span></li>
 	<li>Type: <span class="code">SAVE_FOLDER</span></li>
 	<li>Default Value: <span class="code">./test</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">const char* data[] = { "./test" };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "save_folder_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.save_folder_required_only = ./test</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_SAVE_FOLDER_REQUIRED_ONLY=./test<br>export VK_REFERENCE_1_2_1_SAVE_FOLDER_REQUIRED_ONLY=./test<br>export VK_SAVE_FOLDER_REQUIRED_ONLY=./test</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.save_folder_required_only ./test<BR/>adb shell setprop debug.vulkan.reference_1_2_1.save_folder_required_only ./test<BR/>adb shell setprop debug.vulkan.save_folder_required_only ./test</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="int_required_only-detailed" href="#int_required_only">Integer</a></h3>
@@ -310,16 +323,17 @@ export VK_LUNARG_REFERENCE_1_2_1_SAVE_FOLDER_REQUIRED_ONLY=./test<br>export VK_R
 	<li>Key: <span class="code">int_required_only</span></li>
 	<li>Type: <span class="code">INT</span></li>
 	<li>Default Value: <span class="code">76</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">int32_t data[] = { 76 };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "int_required_only", VK_LAYER_SETTING_TYPE_INT32_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.int_required_only = 76</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_INT_REQUIRED_ONLY=76<br>export VK_REFERENCE_1_2_1_INT_REQUIRED_ONLY=76<br>export VK_INT_REQUIRED_ONLY=76</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.int_required_only 76<BR/>adb shell setprop debug.vulkan.reference_1_2_1.int_required_only 76<BR/>adb shell setprop debug.vulkan.int_required_only 76</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="float_required_only-detailed" href="#float_required_only">Float</a></h3>
@@ -328,16 +342,17 @@ export VK_LUNARG_REFERENCE_1_2_1_INT_REQUIRED_ONLY=76<br>export VK_REFERENCE_1_2
 	<li>Key: <span class="code">float_required_only</span></li>
 	<li>Type: <span class="code">FLOAT</span></li>
 	<li>Default Value: <span class="code">76.500000</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">float data[] = { 76.500000 };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "float_required_only", VK_LAYER_SETTING_TYPE_FLOAT32_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.float_required_only = 76.500000</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_FLOAT_REQUIRED_ONLY=76.500000<br>export VK_REFERENCE_1_2_1_FLOAT_REQUIRED_ONLY=76.500000<br>export VK_FLOAT_REQUIRED_ONLY=76.500000</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.float_required_only 76.500000<BR/>adb shell setprop debug.vulkan.reference_1_2_1.float_required_only 76.500000<BR/>adb shell setprop debug.vulkan.float_required_only 76.500000</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="frames_required_only-detailed" href="#frames_required_only">Frames</a></h3>
@@ -346,16 +361,17 @@ export VK_LUNARG_REFERENCE_1_2_1_FLOAT_REQUIRED_ONLY=76.500000<br>export VK_REFE
 	<li>Key: <span class="code">frames_required_only</span></li>
 	<li>Type: <span class="code">FRAMES</span></li>
 	<li>Default Value: <span class="code">76-82,75</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">uint32_t data[] = { 76-82,75 };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "frames_required_only", VK_LAYER_SETTING_TYPE_UINT32_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.frames_required_only = 76-82,75</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_FRAMES_REQUIRED_ONLY=76-82,75<br>export VK_REFERENCE_1_2_1_FRAMES_REQUIRED_ONLY=76-82,75<br>export VK_FRAMES_REQUIRED_ONLY=76-82,75</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.frames_required_only 76-82,75<BR/>adb shell setprop debug.vulkan.reference_1_2_1.frames_required_only 76-82,75<BR/>adb shell setprop debug.vulkan.frames_required_only 76-82,75</span></td></tr>
 </tbody></table>
 <hr>
 <h3><a id="list_required_only-detailed" href="#list_required_only">List</a></h3>
@@ -364,16 +380,17 @@ export VK_LUNARG_REFERENCE_1_2_1_FRAMES_REQUIRED_ONLY=76-82,75<br>export VK_REFE
 	<li>Key: <span class="code">list_required_only</span></li>
 	<li>Type: <span class="code">LIST</span></li>
 	<li>Default Value: <span class="code">L,R,stringB,stringD</span></li>
-	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">MACOS</ span></li>
+	<li>Platforms: <span class="code">WINDOWS_X86</ span>, <span class="code">WINDOWS_ARM</ span>, <span class="code">LINUX</ span>, <span class="code">ANDROID</ span></li>
 </ul>
 <table>
-<thead><tr><th><a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
+<thead><tr><th><a href="https://vulkan.lunarg.com/doc/sdk/1.4.333.0/windows/layer_configuration.html">Methods:</a></th><th></th></tr></thead>
 <tbody>
 	<tr><td><span class="code">VK_EXT_layer_settings</span>:</td><td><span class="code">const char* data[] = { "L,R,stringB,stringD" };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "list_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };
 </span></td></tr>
 	<tr><td><span class="code">vk_layer_settings.txt</span>:</td><td><span class="code">lunarg_reference_1_2_1.list_required_only = L,R,stringB,stringD</span></td></tr>
 	<tr><td> Environment variables : </ td><td><span class ="code">
 export VK_LUNARG_REFERENCE_1_2_1_LIST_REQUIRED_ONLY=L,R,stringB,stringD<br>export VK_REFERENCE_1_2_1_LIST_REQUIRED_ONLY=L,R,stringB,stringD<br>export VK_LIST_REQUIRED_ONLY=L,R,stringB,stringD</span></td></tr>
+	<tr><td>Android system properties:</td><td><span class="code">adb shell setprop debug.vulkan.lunarg_reference_1_2_1.list_required_only L,R,stringB,stringD<BR/>adb shell setprop debug.vulkan.reference_1_2_1.list_required_only L,R,stringB,stringD<BR/>adb shell setprop debug.vulkan.list_required_only L,R,stringB,stringD</span></td></tr>
 </tbody></table>
 <hr>
 <h2><a id="presets">Layer Presets</a></h2>
