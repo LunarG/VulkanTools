@@ -16,11 +16,10 @@
  *
  * Authors:
  * - Christophe Riccio <christophe@lunarg.com>
- * - David Pinedo <david@lunarg.com>
  */
+
+#pragma once
 
 #include "configurator.h"
 
-bool ExportHtmlDoc(Configurator& configurator, const Layer* layer, const Path& path);
-
-bool ExportMarkdownDoc(Configurator& configurator, const Layer* layer, const Path& path);
+bool GenerateSettingsCode(Configurator& configurator, const Path& export_path);

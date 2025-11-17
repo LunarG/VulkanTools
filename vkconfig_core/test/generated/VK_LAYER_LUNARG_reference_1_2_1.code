@@ -44,139 +44,195 @@ static const char* VL_REFERENCE_1_2_1_FLAGS_REQUIRED_ONLY_FLAG2 = "flag2";
 static const char* VL_REFERENCE_1_2_1_FLAGS_WITH_OPTIONAL_FLAG0 = "flag0";
 static const char* VL_REFERENCE_1_2_1_FLAGS_WITH_OPTIONAL_FLAG1 = "flag1";
 
-//reference layer (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-// `VK_LAYER_LUNARG_reference_1_2_1` settings for version 1.2.170
+//reference layer
+// ==========================================
+// VK_LAYER_LUNARG_reference_1_2_1 - 1.4.333 (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+/*
+The main, comprehensive Khronos validation layer.
+
+Vulkan is an Explicit API, enabling direct control over how GPUs actually work. By design, minimal error checking is done inside a Vulkan driver. Applications have full control and responsibility for correct operation. Any errors in how Vulkan is used can result in a crash. 
+
+The Khronos Validation Layer can be enabled to assist development by enabling developers to verify their applications correctly use the Vulkan API.
+*/
 // For more information about the layer: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html
 struct Reference121SettingData {
-	static const uint32_t VERSION = VK_MAKE_API_VERSION(1, 2, 170, 0);
+	static const uint32_t VERSION = VK_MAKE_API_VERSION(1, 4, 333, 0);
 
-	// toogle (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#toogle
+	// toogle
+	// ------------------------------------------
+	// toogle (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// true or false
 	VkBool32 toogle = VK_TRUE;
 
-	// enum (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#enum_required_only
+	// enum
+	// ------------------------------------------
+	// enum_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// enum case
 	std::string enum_required_only = VL_REFERENCE_1_2_1_ENUM_REQUIRED_ONLY_VALUE1;
 
-	// enum (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#enum_with_optional
+	// enum
+	// ------------------------------------------
+	// enum_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// enum case
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#enum
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	std::string enum_with_optional = VL_REFERENCE_1_2_1_ENUM_WITH_OPTIONAL_VALUE1;
 
-	// flags (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags_required_only
+	// flags
+	// ------------------------------------------
+	// flags_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// flags case
 	std::vector<std::string> flags_required_only = {VL_REFERENCE_1_2_1_FLAGS_REQUIRED_ONLY_FLAG0, VL_REFERENCE_1_2_1_FLAGS_REQUIRED_ONLY_FLAG1};
 
-	// flags (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags_with_optional
+	// flags
+	// ------------------------------------------
+	// flags_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// flags case
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	std::vector<std::string> flags_with_optional = {VL_REFERENCE_1_2_1_FLAGS_WITH_OPTIONAL_FLAG0, VL_REFERENCE_1_2_1_FLAGS_WITH_OPTIONAL_FLAG1};
 
-	// String (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#string_required_only
+	// String
+	// ------------------------------------------
+	// string_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// string
 	std::string string_required_only = "A string";
 
-	// String (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#string_with_optional
+	// String
+	// ------------------------------------------
+	// string_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// string
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#string
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	std::string string_with_optional = "A string";
 
-	// bool (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool_required_only
+	// bool
+	// ------------------------------------------
+	// bool_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// true or false
 	VkBool32 bool_required_only = VK_TRUE;
 
-	// bool (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool_with_optional
+	// bool
+	// ------------------------------------------
+	// bool_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// true or false
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#bool
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	VkBool32 bool_with_optional = VK_TRUE;
 
-	// Load file (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file_required_only
+	// Load file
+	// ------------------------------------------
+	// load_file_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Load file path
 	std::string load_file_required_only = "./test.txt";
 
-	// Load file (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file_with_optional
+	// Load file
+	// ------------------------------------------
+	// load_file_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Load file path
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#load_file
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	std::string load_file_with_optional = "./test.json";
 
-	// Save file (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file_required_only
+	// Save file
+	// ------------------------------------------
+	// save_file_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Save file path
 	std::string save_file_required_only = "./test.json";
 
-	// Save file (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file_with_optional
+	// Save file
+	// ------------------------------------------
+	// save_file_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Save file path
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_file
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	std::string save_file_with_optional = "./test.json";
 
-	// Save folder (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_folder_required_only
+	// Save folder
+	// ------------------------------------------
+	// save_folder_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Save folder path
 	std::string save_folder_required_only = "./test";
 
-	// Save folder (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_folder_with_optional
+	// Save folder
+	// ------------------------------------------
+	// save_folder_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Save folder path
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#save_folder
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	std::string save_folder_with_optional = "./test";
 
-	// Integer (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int_required_only
+	// Integer
+	// ------------------------------------------
+	// int_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Integer Description
 	int32_t int_required_only = 76;
 
-	// Integer (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int_with_optional
+	// Integer
+	// ------------------------------------------
+	// int_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Integer Description
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#int
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	int32_t int_with_optional = 76;
 
-	// Float (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#float_required_only
+	// Float
+	// ------------------------------------------
+	// float_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Float Description
 	float float_required_only = 76.500000;
 
-	// Float (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#float_with_optional
+	// Float
+	// ------------------------------------------
+	// float_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Float Description
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#float
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	float float_with_optional = 76.500;
 
-	// Frames (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames_required_only
+	// Frames
+	// ------------------------------------------
+	// frames_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Frames Description
 	std::string frames_required_only = "76-82,75";
 
-	// Frames (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames_with_optional
+	// Frames
+	// ------------------------------------------
+	// frames_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// Frames Description
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#frames
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	std::string frames_with_optional = "76-82,75";
 
-	// List (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list_required_only
+	// List
+	// ------------------------------------------
+	// list_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// List description
 	std::vector<std::string> list_required_only = {"76", "82", "stringB", "stringC", "stringD"};
 
-	// List (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list_with_optional
+	// List
+	// ------------------------------------------
+	// list_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// List description
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
 	std::vector<std::string> list_with_optional = {"76", "82", "stringB", "stringC", "stringD"};
 
-	// List (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, MACOS)
-	// Layer setting documentation: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list_empty
+	// List
+	// ------------------------------------------
+	// list_empty (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
+	// List description
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
 	std::vector<std::string> list_empty = {};
 
