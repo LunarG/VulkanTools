@@ -23,7 +23,8 @@
 
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/layer_manager.h"
-#include "../vkconfig_core/doc.h"
+#include "../vkconfig_core/generate_layers_settings_md.h"
+#include "../vkconfig_core/generate_layers_settings_html.h"
 #include "../vkconfig_core/configuration_manager.h"
 
 #include <cassert>
@@ -39,7 +40,7 @@ int run_doc_html(Configurator& configurator, const CommandLine& command_line) {
 
     const std::string path = format("%s/%s.html", command_line.GetOutputPath().AbsoluteDir().c_str(), layer->key.c_str());
 
-    return ExportHtmlDoc(configurator, layer, path);
+    return ::GenerateSettingsHTML(configurator, layer, path);
 }
 
 int run_doc_markdown(Configurator& configurator, const CommandLine& command_line) {
@@ -53,7 +54,7 @@ int run_doc_markdown(Configurator& configurator, const CommandLine& command_line
 
     const std::string path = format("%s/%s.md", command_line.GetOutputPath().AbsoluteDir().c_str(), layer->key.c_str());
 
-    return ExportMarkdownDoc(configurator, layer, path);
+    return ::GenerateSettingsMarkdown(configurator, layer, path);
 }
 
 int run_doc_settings(Configurator& configurator, const CommandLine& command_line) {

@@ -24,7 +24,6 @@
 #include "version.h"
 #include "vulkan_util.h"
 #include "configuration_manager.h"
-#include "configuration_manager.h"
 #include "layer_manager.h"
 #include "executable_manager.h"
 #include "type_platform.h"
@@ -48,14 +47,14 @@ enum EnabledUI {
 
 enum ExportEnvMode { EXPORT_ENV_BASH = 0, EXPORT_ENV_CMD };
 
+struct LayersSettings {
+    std::string configuration_name;
+    Path executable_path;
+    Path settings_path;
+};
+
 class Configurator {
    public:
-    struct LayersSettings {
-        std::string configuration_name;
-        Path executable_path;
-        Path settings_path;
-    };
-
     struct LoaderLayerSettings {
         std::string key;
         std::string path;
@@ -87,6 +86,8 @@ class Configurator {
     bool HasOverride() const;
 
     void Reset(bool hard);
+
+    std::string GetSelectedGlobalConfiguration() const { return this->selected_global_configuration; }
 
     void SetActiveConfigurationName(const std::string& configuration_name);
 
@@ -199,9 +200,6 @@ class Configurator {
     std::string selected_global_configuration = "Validation";
 
     bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
-    bool WriteLayersSettings(OverrideArea override_area, const Path& layers_settings_path);
-    bool Export(ExportEnvMode mode, const Path& export_path) const;
-    bool WriteExtensionCode(const Path& export_path) const;
 };
 
 struct ConfiguratorGuard {

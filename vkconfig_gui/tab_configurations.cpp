@@ -26,7 +26,8 @@
 #include "item_tree.h"
 
 #include "../vkconfig_core/configurator.h"
-#include "../vkconfig_core/doc.h"
+#include "../vkconfig_core/generate_layers_settings_md.h"
+#include "../vkconfig_core/generate_layers_settings_html.h"
 #include "../vkconfig_core/type_hide_message.h"
 
 #include <QSettings>
@@ -651,12 +652,12 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     QDesktopServices::openUrl(QUrl(layer->url.AbsolutePath(false).c_str()));
                 } else if (action == export_html_action) {
                     const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
-                    ExportHtmlDoc(configurator, layer, path);
+                    ::GenerateSettingsHTML(configurator, layer, path);
                     std::string url = "file:///" + path;
                     QDesktopServices::openUrl(QUrl(url.c_str()));
                 } else if (action == export_markdown_action) {
                     const std::string path = format("%s/%s.md", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
-                    ExportMarkdownDoc(configurator, layer, path);
+                    ::GenerateSettingsMarkdown(configurator, layer, path);
                     QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
                 }
                 /*
@@ -770,7 +771,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     alert.exec();
                 } else if (action == export_html_action) {
                     const std::string path = format("%s/%s.html", AbsolutePath(Path::APPDATA).c_str(), layer->key.c_str());
-                    ExportHtmlDoc(configurator, layer, path);
+                    ::GenerateSettingsHTML(configurator, layer, path);
 
                     std::string url = ConvertStandardSeparators(format("file:///%s#%s-detailed", path.c_str(), item->key.c_str()));
                     QDesktopServices::openUrl(QUrl(url.c_str()));

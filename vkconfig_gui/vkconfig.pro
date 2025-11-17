@@ -35,9 +35,13 @@ SOURCES += \
     ../vkconfig_core/configurator.cpp \
     ../vkconfig_core/configurator_signal.cpp \
     ../vkconfig_core/date.cpp \
-    ../vkconfig_core/doc.cpp \
     ../vkconfig_core/executable.cpp \
     ../vkconfig_core/executable_manager.cpp \
+    ../vkconfig_core/generate_layers_settings_env.cpp \
+    ../vkconfig_core/generate_layers_settings_file.cpp \
+    ../vkconfig_core/generate_layers_settings_hpp.cpp \
+    ../vkconfig_core/generate_layers_settings_html.cpp \
+    ../vkconfig_core/generate_layers_settings_md.cpp \
     ../vkconfig_core/generate_settings_files.cpp \
     ../vkconfig_core/header.cpp \
     ../vkconfig_core/json.cpp \
@@ -129,9 +133,13 @@ HEADERS += \
     ../vkconfig_core/configurator.h \
     ../vkconfig_core/configurator_signal.h \
     ../vkconfig_core/date.h \
-    ../vkconfig_core/doc.h \
     ../vkconfig_core/executable.h \
     ../vkconfig_core/executable_manager.h \
+    ../vkconfig_core/generate_layers_settings_env.h \
+    ../vkconfig_core/generate_layers_settings_file.h \
+    ../vkconfig_core/generate_layers_settings_hpp.h \
+    ../vkconfig_core/generate_layers_settings_html.h \
+    ../vkconfig_core/generate_layers_settings_md.h \
     ../vkconfig_core/generate_settings_files.h \
     ../vkconfig_core/header.h \
     ../vkconfig_core/json.h \
