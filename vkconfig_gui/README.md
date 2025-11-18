@@ -50,7 +50,7 @@ This tab allows adding Vulkan drivers but also either sorting or forcing Vulkan 
 
 This tab is an application launcher enabling to quickly test Vulkan system changes.
 
-<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/4-application.png" width=1200 /></p>
+<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/4-applications.png" width=1200 /></p>
 
 ### Vulkan Diagnostics tab
 
