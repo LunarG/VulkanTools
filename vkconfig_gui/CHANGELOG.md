@@ -1,12 +1,10 @@
 ## Vulkan Configurator 3.4.1 - December 2025
-[Vulkan SDK 1.4.3XX.0](https://github.com/LunarG/VulkanTools/tree/main)
+[Vulkan SDK 1.4.333.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.333)
 
 ### Improvements:
 - Add `settings --layers` command lines option to list multiple layer names when generating files
 - Add Validation and API Dump default configuration for interleaved log in stdout
 - Add diagnostic log refresh button
-
-### Improvements:
 - Improved UI to set an external `vk_layer_settings.txt` file
 - Improved "View Enabled Layers" and "Configure All Layers" UI
 
