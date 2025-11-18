@@ -6,11 +6,13 @@
 ### Vulkan Documentation:
 - <a href="https://docs.vulkan.org/spec/latest/index.html">Official Vulkan Documentation</a>
 - <a href="https://registry.khronos.org/vulkan/">Khronos Vulkan Registry</a>
+- <a href="https://docs.vulkan.org/guide/latest/index.html">Vulkan Guide</a>
 - <a href="https://vulkan.gpuinfo.org/">vulkan.gpuinfo.org</a>
 
 ---
 ### Vulkan SDK:
 - Vulkan SDK: <a href="https://vulkan.lunarg.com/doc/sdk/latest/windows/release_notes.html?ref=vkconfig">Release Notes</a>, <a href="https://vulkan.lunarg.com/sdk/home?ref=vkconfig">Download Page</a>
+- Configuring Vulkan Layers: <a href="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/blob/main/docs/Configuring-Vulkan-Layers-Whitepaper.pdf">Whitepaper</a>
 - Vulkan Configurator: <a href="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/README.md">Readme</a>, <a href="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CHANGELOG.md">Changelog</a>
 - Vulkan Loader: <a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html?ref=vkconfig">Layers Configuration</a>, <a href="https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderDebugging.md">Loader Debugging Guide</a>
 - Vulkan Validation Layer: <a href="https://vulkan.lunarg.com/doc/sdk/latest/windows/khronos_validation_layer.html?ref=vkconfig">Readme</a>, <a href="https://vulkan.lunarg.com/doc/sdk/latest/windows/validation_error_database.html?ref=vkconfig">Coverage</a>
