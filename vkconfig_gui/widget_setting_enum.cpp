@@ -53,6 +53,7 @@ WidgetSettingEnum::WidgetSettingEnum(QTreeWidget* tree, QTreeWidgetItem* item, c
 
     this->item->setText(0, GetLabel(this->meta).c_str());
     this->item->setFont(0, this->tree->font());
+    this->item->setToolTip(0, this->meta.description.c_str());
     this->item->setSizeHint(0, QSize(0, ITEM_HEIGHT));
     this->tree->setItemWidget(this->item, 0, this);
 
@@ -198,13 +199,13 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         assert(index >= 0 && index < static_cast<int>(profiles.size()));
 
         this->data().SetValue(profiles[index].c_str());
-        this->setToolTip(profiles[index].c_str());
+        this->field->setToolTip(profiles[index].c_str());
     } else if (meta.default_value == "${VP_PHYSICAL_DEVICES}") {
         const std::vector<VulkanPhysicalDeviceInfo>& physical_device_infos = Configurator::Get().vulkan_system_info.physicalDevices;
         assert(index >= 0 && index < static_cast<int>(physical_device_infos.size()));
 
         this->data().SetValue(physical_device_infos[index].deviceName.c_str());
-        this->setToolTip(physical_device_infos[index].deviceName.c_str());
+        this->field->setToolTip(physical_device_infos[index].deviceName.c_str());
     } else {
         assert(index >= 0 && index < static_cast<int>(this->meta.enum_values.size()));
 
@@ -215,7 +216,7 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         if (this->meta.enum_values[value_index].status != STATUS_STABLE) {
             tooltip = format("(%s) %s", GetToken(this->meta.enum_values[value_index].status), tooltip.c_str());
         }
-        this->setToolTip(tooltip.c_str());
+        this->field->setToolTip(tooltip.c_str());
     }
 
     emit refreshEnableOnly();
