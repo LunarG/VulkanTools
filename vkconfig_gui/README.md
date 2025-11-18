@@ -53,7 +53,7 @@ The tool is distributed differently, depending on the platform:
 
 *Vulkan Configurator* may be used with command line arguments to configure Vulkan Loader. Use `vkconfig --help` in the console for more information.
 
-<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/presentation.gif" width=400 /></p>
+<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/presentation.gif" width=1200 /></p>
 
 --------------
 ## Terminology
