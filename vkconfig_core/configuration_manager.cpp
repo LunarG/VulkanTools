@@ -43,6 +43,10 @@ bool ConfigurationManager::Load(const QJsonObject &json_root_object, Configurato
         if (json_configurations_object.value("last_path_import") != QJsonValue::Undefined) {
             this->last_path_import_config = json_configurations_object.value("last_path_import").toString().toStdString();
         }
+        if (json_configurations_object.value("last_path_export_settings") != QJsonValue::Undefined) {
+            this->last_path_export_settings =
+                json_configurations_object.value("last_path_export_settings").toString().toStdString();
+        }
 
         if (json_configurations_object.value("removed") != QJsonValue::Undefined) {
             const QJsonObject &json_removed_builtin_object = json_configurations_object.value("removed").toObject();
@@ -71,6 +75,7 @@ bool ConfigurationManager::Save(QJsonObject &json_root_object) const {
     QJsonObject json_configurations_object;
     json_configurations_object.insert("last_path_export", this->last_path_export_config.RelativePath().c_str());
     json_configurations_object.insert("last_path_import", this->last_path_import_config.RelativePath().c_str());
+    json_configurations_object.insert("last_path_export_settings", this->last_path_export_settings.RelativePath().c_str());
     json_configurations_object.insert("removed", json_removed_builtin_configurations_object);
 
     json_root_object.insert("configurations", json_configurations_object);

@@ -68,7 +68,7 @@ class ConfigurationManager : public Serialize {
     std::vector<Configuration> available_configurations;
     Path last_path_import_config = Path(Path::HOME);
     Path last_path_export_config = Path(Path::HOME);
-    Path last_path_export_settings = Path(Path::HOME).RelativePath() + "/vk_layer_settings.txt";
+    Path last_path_export_settings = Path(Path::HOME);
 
     // Public for unit tests...
     void LoadDefaultConfigurations(const LayerManager& layers);
