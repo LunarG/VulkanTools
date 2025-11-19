@@ -143,6 +143,7 @@ void TabPreferences::on_theme_mode_changed(int index) {
     // Configurations
     this->ui->configurations_executable_append->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
     this->ui->configurations_executable_remove->setIcon(::Get(new_theme_mode, ::ICON_FILE_REMOVE));
+    this->ui->configurations_settings_reset->setIcon(::Get(new_theme_mode, ::ICON_RELOAD));
 
     // Drivers
     this->ui->driver_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));

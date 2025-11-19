@@ -52,6 +52,7 @@ class SettingsTreeManager : public QObject {
     void OnRefreshEnableAndState();
     void OnRefreshEnableOnly();
     void OnPresetChanged(int combox_preset_index);
+    void OnSettingsResetted();
 
     void on_item_collapsed(QTreeWidgetItem *item);
     void on_item_expanded(QTreeWidgetItem *item);

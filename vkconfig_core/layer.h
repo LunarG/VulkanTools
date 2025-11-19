@@ -72,7 +72,7 @@ enum { LAYER_LOAD_COUNT = LAYER_LOAD_LAST - LAYER_LOAD_FIRST + 1 };
 
 class Layer {
    public:
-    enum { NO_PRESET = -1 };
+    enum { NO_PRESET = -1, DEFAULT_PRESET = 0 };
 
     Layer();
     Layer(const std::string& key);
