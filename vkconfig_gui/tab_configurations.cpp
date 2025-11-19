@@ -89,6 +89,8 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
                   SLOT(on_configurations_executable_append_pressed()));
     this->connect(this->ui->configurations_executable_remove, SIGNAL(clicked()), this,
                   SLOT(on_configurations_executable_remove_pressed()));
+    this->connect(this->ui->configurations_settings_reset, SIGNAL(clicked()), this,
+                  SLOT(on_configurations_settings_reset_pressed()));
 
     this->connect(this->ui->configurations_group_box_list, SIGNAL(toggled(bool)), this, SLOT(on_configurations_list_toggled(bool)));
     this->connect(this->ui->configurations_group_box_settings, SIGNAL(toggled(bool)), this,
