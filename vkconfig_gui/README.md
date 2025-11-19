@@ -22,6 +22,13 @@ It's a graphical user interface (GUI) that may be launched from the console usin
 * **[Contributing](https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CONTRIBUTING.md)**: Submit a fix or a feature to *Vulkan Configurator*.
 
 --------------
+## Platforms Support
+
+| OS      | Windows            | Linux               | macOS              |
+| --------| ------------------ | ------------------- | ------------------ |
+| Support | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark: |
+
+--------------
 ## Vulkan Configurator UI overview
 
 Vulkan Configurator is designed around multiple tabs, each dedicated to specific usages.
@@ -65,10 +72,3 @@ This tab allows generating multiple log, including Vulkan loader log, Vulkan loa
 ### Vulkan Preferences tab
 
 <p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/7-preferences.png" width=1200 /></p>
-
---------------
-## Platforms Support
-
-| OS      | Windows            | Linux               | macOS              | iOS     | Android |
-| --------| ------------------ | ------------------- | ------------------ | ------- | ------- |
-| Support | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark: | :x:     | :x:     |
