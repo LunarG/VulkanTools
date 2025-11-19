@@ -92,6 +92,7 @@ void SettingsTreeManager::CreateGUI() {
     this->ui->configurations_presets->setVisible(!layer->presets.empty());
     this->ui->configurations_presets->setEnabled(!configurator.GetActiveConfiguration()->override_settings);
     this->ui->configurations_settings->setEnabled(!configurator.GetActiveConfiguration()->override_settings);
+    this->ui->configurations_settings_reset->setVisible(!layer->presets.empty());
 
     const std::vector<Path> &layer_versions = configurator.layers.GatherManifests(parameter->key);
     this->ui->configurations_versions->setEnabled(true);
@@ -169,11 +170,14 @@ void SettingsTreeManager::CreateGUI() {
             }
 
             this->connect(this->ui->configurations_presets, SIGNAL(currentIndexChanged(int)), this, SLOT(OnPresetChanged(int)));
+            this->connect(this->ui->configurations_settings_reset, SIGNAL(clicked()), this, SLOT(OnSettingsResetted()));
             this->ui->configurations_presets->setVisible(true);
+            this->ui->configurations_settings_reset->setVisible(true);
 
             this->RefreshPresetLabel();
         } else {
             this->ui->configurations_presets->setVisible(false);
+            this->ui->configurations_settings_reset->setVisible(false);
         }
         this->ui->configurations_presets->blockSignals(false);
     }
@@ -475,6 +479,11 @@ void SettingsTreeManager::OnLayerVersionChanged(int index) {
     emit signalLayerVersionChanged();
 }
 
+void SettingsTreeManager::OnSettingsResetted() {
+    // Reset default settings
+    this->ui->configurations_presets->setCurrentIndex(1);
+}
+
 void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
     const int preset_index = combox_preset_index - 1;
 
@@ -483,6 +492,7 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
     assert(parameter != nullptr);
 
     if (preset_index == Layer::NO_PRESET) {
+        this->ui->configurations_settings_reset->setEnabled(true);
         return;
     }
 
@@ -498,6 +508,7 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
     const LayerPreset &preset = layer->presets[preset_index];
     parameter->ApplyPresetSettings(preset);
 
+    this->ui->configurations_settings_reset->setEnabled(preset_index != Layer::DEFAULT_PRESET);
     this->Refresh(REFRESH_ENABLE_AND_STATE);
 
     configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
@@ -525,6 +536,7 @@ void SettingsTreeManager::RefreshPresetLabel() {
     const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
 
     const int preset_index = layer->FindPresetIndex(parameter->settings) + 1;
+    this->ui->configurations_settings_reset->setEnabled(preset_index != Layer::DEFAULT_PRESET);
     this->ui->configurations_presets->setCurrentIndex(preset_index);
 }
 
