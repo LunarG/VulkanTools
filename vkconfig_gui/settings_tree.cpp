@@ -474,6 +474,7 @@ void SettingsTreeManager::OnLayerVersionChanged(int index) {
 
     this->CreateGUI();
 
+    configurator.UpdateConfigurations();
     configurator.Override(OVERRIDE_AREA_ALL);
 
     emit signalLayerVersionChanged();

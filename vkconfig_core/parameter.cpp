@@ -71,7 +71,12 @@ bool Parameter::GetExpanded(const std::string& setting_key, const std::string& f
 
     if (!flag.empty() && setting_data->type == SETTING_FLAGS) {
         const SettingDataFlags* data = static_cast<const SettingDataFlags*>(setting_data);
-        return data->expanded_flags.find(flag)->second;
+        auto it = data->expanded_flags.find(flag);
+        if (it != data->expanded_flags.end()) {
+            return data->expanded_flags.find(flag)->second;
+        } else {
+            return false;
+        }
     } else {
         return setting_data->expanded;
     }
