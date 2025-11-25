@@ -140,13 +140,19 @@ bool TabLayers::EventFilter(QObject *target, QEvent *event) {
 }
 
 void TabLayers::on_paths_changed() {
-    Configurator::Get().UpdateConfigurations();
+    Configurator &configurator = Configurator::Get();
+
+    configurator.UpdateConfigurations();
+    configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
 }
 
 void TabLayers::on_paths_toggled() {
-    Configurator::Get().UpdateConfigurations();
+    Configurator &configurator = Configurator::Get();
+
+    configurator.UpdateConfigurations();
+    configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI_LayersPaths(UPDATE_REFRESH_UI);
 }
@@ -173,12 +179,19 @@ void TabLayers::on_layers_reload_pressed() {
     this->ui->layers_browse_button->setVisible(false);
     this->ui->layers_progress->setVisible(true);
 
+    Path new_path = this->ui->layers_path_lineedit->text().toStdString();
+
     Configurator &configurator = Configurator::Get();
 
     std::vector<int> layers_count(LAYER_LOAD_COUNT, 0);
 
+    LayersPathInfo info;
+    info.path = new_path;
+    configurator.layers.AppendPath(info);
+    configurator.layers.UpdatePathEnabled(info, LAYERS_PATHS_GUI);
+
     const std::vector<Path> layers_paths =
-        this->new_path.empty() ? configurator.layers.CollectManifestPaths() : ::CollectFilePaths(this->new_path);
+        new_path.Empty() ? configurator.layers.CollectManifestPaths() : ::CollectFilePaths(new_path);
 
     this->ui->layers_progress->setMaximum(static_cast<int>(layers_paths.size()));
     this->ui->layers_progress->setValue(0);
@@ -198,6 +211,7 @@ void TabLayers::on_layers_reload_pressed() {
     }
 
     configurator.UpdateConfigurations();
+    configurator.Override(OVERRIDE_AREA_ALL);
 
     std::string last_layers_path = configurator.layers.last_layers_path.AbsolutePath();
 
@@ -211,8 +225,8 @@ void TabLayers::on_layers_reload_pressed() {
         message.setIcon(QMessageBox::Information);
         message.setWindowTitle("Loading Layers Completed.");
         message.setText(text.c_str());
-        if (!this->new_path.empty()) {
-            message.setInformativeText(format("From '%s' folder.", this->new_path.c_str()).c_str());
+        if (!new_path.Empty()) {
+            message.setInformativeText(format("From '%s' folder.", new_path.AbsolutePath().c_str()).c_str());
         }
         message.setCheckBox(new QCheckBox("Do not show again."));
         message.exec();
@@ -224,7 +238,6 @@ void TabLayers::on_layers_reload_pressed() {
     this->ui->layers_path_lineedit->setVisible(true);
     this->ui->layers_browse_button->setVisible(true);
     this->ui->layers_progress->setVisible(false);
-    this->new_path.clear();
 }
 
 void TabLayers::LoadLayersManifest(const QString &selected_path) {
@@ -234,14 +247,8 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
         configurator.layers.last_layers_path = selected_path.toStdString();
         this->ui->layers_path_lineedit->setText(configurator.layers.last_layers_path.AbsolutePath().c_str());
 
-        LayersPathInfo info;
-        info.path = selected_path.toStdString();
-        this->new_path = info.path.AbsolutePath();
-        configurator.layers.AppendPath(info);
-
         this->on_layers_reload_pressed();
 
-        configurator.layers.UpdatePathEnabled(info, LAYERS_PATHS_GUI);
         this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
     }
 }

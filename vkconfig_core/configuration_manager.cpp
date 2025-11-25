@@ -157,6 +157,8 @@ void ConfigurationManager::UpdateConfigurations(const LayerManager &layers) {
             if (latest_layer != nullptr) {
                 if (current_layer == nullptr) {
                     configuration.SwitchLayerLatest(layers, parameter.key);
+                } else if (parameter.api_version == Version::LATEST) {
+                    configuration.SwitchLayerLatest(layers, parameter.key);
                 } else if (current_layer->api_version != parameter.api_version) {
                     configuration.SwitchLayerLatest(layers, parameter.key);
                 }
