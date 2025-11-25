@@ -339,8 +339,8 @@ Description Save Folder
 Description Int
 
 #### Preset Setting Values:
-- Integer: 76
-- Integer: 76
+- Integer: 75
+- Integer: 77
 
 ### Preset Frames
 
