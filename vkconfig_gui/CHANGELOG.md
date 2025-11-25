@@ -17,6 +17,7 @@
 - Fix generated layer settings export directory not being saved
 - Fix `ENUM` settings type not displaying description in tooltips
 - Fix integer settings not updated when changing the value #2576
+- Fix system configuration files not being updated when loading a latest version layer #2575
 
 ### Deprecation:
 - Remove Qt5 build
