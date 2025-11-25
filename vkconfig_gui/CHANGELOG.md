@@ -1,5 +1,5 @@
 ## Vulkan Configurator 3.4.1 - December 2025
-[Vulkan SDK 1.4.333.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.333)
+[Vulkan SDK 1.4.334.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.333)
 
 ### Improvements:
 - Add `settings --layers` command lines option to list multiple layer names when generating files
@@ -16,6 +16,7 @@
 - Fix `vk_layer_settings.txt` not generated when changing working directory #2559
 - Fix generated layer settings export directory not being saved
 - Fix `ENUM` settings type not displaying description in tooltips
+- Fix integer settings not updated when changing the value #2576
 
 ### Deprecation:
 - Remove Qt5 build

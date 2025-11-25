@@ -102,7 +102,7 @@ bool SettingDataInt::Save(QJsonObject& json_setting) const {
 }
 
 std::string SettingDataInt::Export(ExportMode export_mode) const {
-    int actual_value = this->IsValid() ? this->meta->default_value : this->value;
+    int actual_value = this->IsValid() ? this->value : this->meta->default_value;
 
     switch (export_mode) {
         default:
@@ -115,9 +115,13 @@ std::string SettingDataInt::Export(ExportMode export_mode) const {
 bool SettingDataInt::IsValid() const { return this->value >= this->meta->min_value && this->value <= this->meta->max_value; }
 
 SettingInputError SettingDataInt::ProcessInput(const std::string& value) {
-    if (value.empty()) return SETTING_INPUT_ERROR_EMPTY;
+    if (value.empty()) {
+        return SETTING_INPUT_ERROR_EMPTY;
+    }
 
-    if (!IsNumber(value)) return SETTING_INPUT_ERROR_SYNTAX;
+    if (!IsNumber(value)) {
+        return SETTING_INPUT_ERROR_SYNTAX;
+    }
 
     int saved_data = this->value;
     this->value = std::atoi(value.c_str());
