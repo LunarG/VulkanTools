@@ -231,17 +231,21 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
     std::uint32_t instance_layer_count = 0;
     result = vk.EnumerateInstanceLayerProperties(&instance_layer_count, nullptr);
     assert(result == VK_SUCCESS);
-    vulkan_system_info.instanceLayerProperties.resize(instance_layer_count);
-    result = vk.EnumerateInstanceLayerProperties(&instance_layer_count, vulkan_system_info.instanceLayerProperties.data());
-    assert(result == VK_SUCCESS);
+    if (instance_layer_count > 0) {
+        vulkan_system_info.instanceLayerProperties.resize(instance_layer_count);
+        result = vk.EnumerateInstanceLayerProperties(&instance_layer_count, vulkan_system_info.instanceLayerProperties.data());
+        assert(result == VK_SUCCESS);
+    }
 
     uint32_t instance_extension_count = 0;
     result = vk.EnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr);
     assert(result == VK_SUCCESS);
-    vulkan_system_info.instanceExtensionPropertie.resize(instance_extension_count);
-    result = vk.EnumerateInstanceExtensionProperties(nullptr, &instance_extension_count,
-                                                     vulkan_system_info.instanceExtensionPropertie.data());
-    assert(result == VK_SUCCESS);
+    if (instance_extension_count > 0) {
+        vulkan_system_info.instanceExtensionPropertie.resize(instance_extension_count);
+        result = vk.EnumerateInstanceExtensionProperties(nullptr, &instance_extension_count,
+                                                         vulkan_system_info.instanceExtensionPropertie.data());
+        assert(result == VK_SUCCESS);
+    }
 
     // Handle Portability Enumeration requirements
     std::vector<const char *> instance_extensions;
@@ -300,7 +304,8 @@ VulkanSystemInfo BuildVulkanSystemInfo() {
         VulkanPhysicalDeviceInfo &device_info = vulkan_system_info.physicalDevices[i];
 
         VkPhysicalDeviceDriverPropertiesKHR properties_driver{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES_KHR, nullptr};
-        VkPhysicalDeviceIDPropertiesKHR properties_deviceid{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHR, &properties_driver};
+        VkPhysicalDeviceIDPropertiesKHR properties_deviceid{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHR,
+                                                            &properties_driver};
         VkPhysicalDeviceProperties2 properties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, &properties_deviceid};
 
         vk.GetPhysicalDeviceProperties2(devices[i], &properties2);
