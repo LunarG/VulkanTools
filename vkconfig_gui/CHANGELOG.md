@@ -18,6 +18,7 @@
 - Fix `ENUM` settings type not displaying description in tooltips
 - Fix integer settings not updated when changing the value #2576
 - Fix system configuration files not being updated when loading a latest version layer #2575
+- Fix file load and save layer setting type not opening at the selected path
 
 ### Deprecation:
 - Remove Qt5 build

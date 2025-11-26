@@ -147,13 +147,15 @@ void WidgetSettingFilesystem::browseButtonClicked() {
         this->data().SetValue(path);
     }
 
+    const Path dir = path.AbsoluteDir();
+
     switch (this->meta.type) {
         case SETTING_LOAD_FILE:
         case SETTING_SAVE_FILE:
-            if (!path.Exists()) {
+            if (!dir.Exists()) {
                 path = this->data().GetValue();
             }
-            if (!path.Exists()) {
+            if (!dir.Exists()) {
                 path.Clear();
             }
             break;
@@ -172,17 +174,18 @@ void WidgetSettingFilesystem::browseButtonClicked() {
     }
 
     const std::string replaced_path = path.AbsolutePath();
-    const std::string dir = path.AbsoluteDir();
 
     const char* filter = this->meta.filter.c_str();
     Path new_path;
 
     switch (this->meta.type) {
         case SETTING_LOAD_FILE:
-            new_path = Path(QFileDialog::getOpenFileName(this->button, "Select file", dir.c_str(), filter).toStdString());
+            new_path =
+                Path(QFileDialog::getOpenFileName(this->button, "Select file", dir.AbsolutePath().c_str(), filter).toStdString());
             break;
         case SETTING_SAVE_FILE:
-            new_path = Path(QFileDialog::getSaveFileName(this->button, "Select File", dir.c_str(), filter).toStdString());
+            new_path =
+                Path(QFileDialog::getSaveFileName(this->button, "Select File", dir.AbsolutePath().c_str(), filter).toStdString());
             break;
         case SETTING_LOAD_FOLDER:
         case SETTING_SAVE_FOLDER:
