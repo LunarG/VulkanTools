@@ -10277,6 +10277,90 @@ VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointData2NV(VkQueue queue, uint32_t* 
     }
 }
 template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkSetSwapchainPresentTimingQueueSizeEXT(VkDevice device, VkSwapchainKHR swapchain, uint32_t size) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkSetSwapchainPresentTimingQueueSizeEXT", "device, swapchain, size", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkSetSwapchainPresentTimingQueueSizeEXT<Format>(ApiDumpInstance::current(), device, swapchain, size);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->SetSwapchainPresentTimingQueueSizeEXT(device, swapchain, size);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkSetSwapchainPresentTimingQueueSizeEXT<Format>(ApiDumpInstance::current(), device, swapchain, size);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainTimingPropertiesEXT(VkDevice device, VkSwapchainKHR swapchain, VkSwapchainTimingPropertiesEXT* pSwapchainTimingProperties, uint64_t* pSwapchainTimingPropertiesCounter) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetSwapchainTimingPropertiesEXT", "device, swapchain, pSwapchainTimingProperties, pSwapchainTimingPropertiesCounter", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetSwapchainTimingPropertiesEXT<Format>(ApiDumpInstance::current(), device, swapchain, pSwapchainTimingProperties, pSwapchainTimingPropertiesCounter);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetSwapchainTimingPropertiesEXT(device, swapchain, pSwapchainTimingProperties, pSwapchainTimingPropertiesCounter);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetSwapchainTimingPropertiesEXT<Format>(ApiDumpInstance::current(), device, swapchain, pSwapchainTimingProperties, pSwapchainTimingPropertiesCounter);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainTimeDomainPropertiesEXT(VkDevice device, VkSwapchainKHR swapchain, VkSwapchainTimeDomainPropertiesEXT* pSwapchainTimeDomainProperties, uint64_t* pTimeDomainsCounter) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetSwapchainTimeDomainPropertiesEXT", "device, swapchain, pSwapchainTimeDomainProperties, pTimeDomainsCounter", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetSwapchainTimeDomainPropertiesEXT<Format>(ApiDumpInstance::current(), device, swapchain, pSwapchainTimeDomainProperties, pTimeDomainsCounter);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetSwapchainTimeDomainPropertiesEXT(device, swapchain, pSwapchainTimeDomainProperties, pTimeDomainsCounter);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetSwapchainTimeDomainPropertiesEXT<Format>(ApiDumpInstance::current(), device, swapchain, pSwapchainTimeDomainProperties, pTimeDomainsCounter);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPastPresentationTimingEXT(VkDevice device, const VkPastPresentationTimingInfoEXT* pPastPresentationTimingInfo, VkPastPresentationTimingPropertiesEXT* pPastPresentationTimingProperties) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetPastPresentationTimingEXT", "device, pPastPresentationTimingInfo, pPastPresentationTimingProperties", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetPastPresentationTimingEXT<Format>(ApiDumpInstance::current(), device, pPastPresentationTimingInfo, pPastPresentationTimingProperties);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetPastPresentationTimingEXT(device, pPastPresentationTimingInfo, pPastPresentationTimingProperties);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetPastPresentationTimingEXT<Format>(ApiDumpInstance::current(), device, pPastPresentationTimingInfo, pPastPresentationTimingProperties);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
 VKAPI_ATTR VkResult VKAPI_CALL vkInitializePerformanceApiINTEL(VkDevice device, const VkInitializePerformanceApiInfoINTEL* pInitializeInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16208,6 +16292,14 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetQueueCheckpointDataNV<Format>);
     if (strcmp(pName, "vkGetQueueCheckpointData2NV") == 0 && (!device || device_dispatch_table(device)->GetQueueCheckpointData2NV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetQueueCheckpointData2NV<Format>);
+    if (strcmp(pName, "vkSetSwapchainPresentTimingQueueSizeEXT") == 0 && (!device || device_dispatch_table(device)->SetSwapchainPresentTimingQueueSizeEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkSetSwapchainPresentTimingQueueSizeEXT<Format>);
+    if (strcmp(pName, "vkGetSwapchainTimingPropertiesEXT") == 0 && (!device || device_dispatch_table(device)->GetSwapchainTimingPropertiesEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetSwapchainTimingPropertiesEXT<Format>);
+    if (strcmp(pName, "vkGetSwapchainTimeDomainPropertiesEXT") == 0 && (!device || device_dispatch_table(device)->GetSwapchainTimeDomainPropertiesEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetSwapchainTimeDomainPropertiesEXT<Format>);
+    if (strcmp(pName, "vkGetPastPresentationTimingEXT") == 0 && (!device || device_dispatch_table(device)->GetPastPresentationTimingEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPastPresentationTimingEXT<Format>);
     if (strcmp(pName, "vkInitializePerformanceApiINTEL") == 0 && (!device || device_dispatch_table(device)->InitializePerformanceApiINTEL))
         return reinterpret_cast<PFN_vkVoidFunction>(vkInitializePerformanceApiINTEL<Format>);
     if (strcmp(pName, "vkUninitializePerformanceApiINTEL") == 0 && (!device || device_dispatch_table(device)->UninitializePerformanceApiINTEL))
