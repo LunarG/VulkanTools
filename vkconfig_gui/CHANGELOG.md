@@ -1,5 +1,5 @@
 ## Vulkan Configurator 3.4.1 - December 2025
-[Vulkan SDK 1.4.334.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.333)
+[Vulkan SDK 1.4.335.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.335)
 
 ### Improvements:
 - Add `settings --layers` command lines option to list multiple layer names when generating files
