@@ -180,6 +180,9 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->diagnostic_search_case->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_CASE));
     this->ui->diagnostic_search_whole->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_WHOLE));
     this->ui->diagnostic_search_regex->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_REGEX));
+    this->ui->diagnostic_dir_sdk->setIcon(::Get(new_theme_mode, ::ICON_TOOLS));
+    this->ui->diagnostic_dir_home->setIcon(::Get(new_theme_mode, ::ICON_HOME));
+    this->ui->diagnostic_dir_system->setIcon(::Get(new_theme_mode, ::ICON_ADVANCED));
 
     // Preferences
     this->ui->preferences_reset->setIcon(::Get(new_theme_mode, ::ICON_RESET));
