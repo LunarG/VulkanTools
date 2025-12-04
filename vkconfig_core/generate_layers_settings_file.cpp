@@ -292,6 +292,11 @@ bool GenerateSettingsTXT(Configurator& configurator, OverrideArea override_area,
                         if (!meta->detailed.empty()) {
                             stream << format("# %s\n", meta->detailed.c_str()).c_str();
                         }
+
+                        if (IsArray(meta->type)) {
+                            stream << "# This setting can list multiple values using the \",\" (comma) separator.\n";
+                        }
+
                         if (!meta->url.Empty()) {
                             stream << format("# For more information about the feature: %s\n",
                                              ConvertStandardSeparators(meta->url.AbsolutePath()).c_str())

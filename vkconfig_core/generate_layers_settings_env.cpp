@@ -244,6 +244,11 @@ bool GenerateSettingsEnv(Configurator& configurator, ExportEnvMode mode, const P
             if (!meta->detailed.empty()) {
                 stream << COMMENT << format("%s\n", meta->detailed.c_str()).c_str();
             }
+
+            if (IsArray(meta->type)) {
+                stream << COMMENT << "This setting can list multiple values using the \",\" (comma) separator.\n";
+            }
+
             if (!meta->url.Empty()) {
                 stream << COMMENT
                        << format("For more information about the feature: %s\n",
