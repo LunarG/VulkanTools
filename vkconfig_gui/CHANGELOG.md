@@ -8,6 +8,7 @@
 - Add layer settings reset to default values button
 - Improved UI to set an external `vk_layer_settings.txt` file
 - Improved "View Enabled Layers" and "Configure All Layers" UI
+- Add buttons to open Vulkan SDK directories in diagnostics tab #2585
 
 ### Fixes:
 - Fix Vulkan portability initialization on macOS

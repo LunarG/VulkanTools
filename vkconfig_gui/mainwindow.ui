@@ -91,7 +91,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -2996,182 +2996,327 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="diagnostic_group_box_loader_log">
-          <property name="enabled">
-           <bool>true</bool>
+         <layout class="QHBoxLayout" name="horizontalLayout_18">
+          <property name="topMargin">
+           <number>0</number>
           </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Arial</family>
-            <pointsize>10</pointsize>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="title">
-           <string>Enable Vulkan Loader Log to all Vulkan applications</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_17">
-           <property name="leftMargin">
-            <number>11</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QCheckBox" name="diagnostic_loader_errors">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-               <bold>false</bold>
-              </font>
+          <item>
+           <widget class="QGroupBox" name="diagnostic_group_box_loader_log">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>10</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="title">
+             <string>Enable Vulkan Loader Log to all Vulkan applications</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_17">
+             <property name="leftMargin">
+              <number>11</number>
              </property>
-             <property name="statusTip">
-              <string>Log Errors preventing the correct execution of the Vulkan Loader</string>
+             <property name="topMargin">
+              <number>0</number>
              </property>
-             <property name="text">
-              <string>Errors</string>
+             <property name="rightMargin">
+              <number>0</number>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="diagnostic_loader_warns">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-               <bold>false</bold>
-              </font>
+             <property name="bottomMargin">
+              <number>0</number>
              </property>
-             <property name="statusTip">
-              <string>Log Warnings which may result in unexpected behavior of the Vulkan Loader</string>
+             <item>
+              <widget class="QCheckBox" name="diagnostic_loader_errors">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="statusTip">
+                <string>Log Errors preventing the correct execution of the Vulkan Loader</string>
+               </property>
+               <property name="text">
+                <string>Errors</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="diagnostic_loader_warns">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="statusTip">
+                <string>Log Warnings which may result in unexpected behavior of the Vulkan Loader</string>
+               </property>
+               <property name="text">
+                <string>Warnings</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="diagnostic_loader_infos">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="statusTip">
+                <string>Log Information relative to the expected Vulkan Loader execution</string>
+               </property>
+               <property name="text">
+                <string>Information</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="diagnostic_loader_debug">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="statusTip">
+                <string>Log Verbose Information relative to the expected Vulkan Loader execution</string>
+               </property>
+               <property name="text">
+                <string>Debug  </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="diagnostic_loader_area">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Additional Areas: </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="diagnostic_loader_layers">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="statusTip">
+                <string>Enable a log area relative to the Vulkan Layers handling by the Vulkan Loader</string>
+               </property>
+               <property name="text">
+                <string>Layers</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="diagnostic_loader_drivers">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="statusTip">
+                <string>Enable a log area relative to the Vulkan Drivers handling by the Vulkan Loader</string>
+               </property>
+               <property name="text">
+                <string>Drivers</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>10</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="title">
+             <string>Vulkan SDK directories</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_19">
+             <property name="spacing">
+              <number>0</number>
              </property>
-             <property name="text">
-              <string>Warnings</string>
+             <property name="leftMargin">
+              <number>0</number>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="diagnostic_loader_infos">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-               <bold>false</bold>
-              </font>
+             <property name="topMargin">
+              <number>0</number>
              </property>
-             <property name="statusTip">
-              <string>Log Information relative to the expected Vulkan Loader execution</string>
+             <property name="rightMargin">
+              <number>0</number>
              </property>
-             <property name="text">
-              <string>Information</string>
+             <property name="bottomMargin">
+              <number>0</number>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="diagnostic_loader_debug">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="statusTip">
-              <string>Log Verbose Information relative to the expected Vulkan Loader execution</string>
-             </property>
-             <property name="text">
-              <string>Debug  </string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="diagnostic_loader_area">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Additional Areas: </string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="diagnostic_loader_layers">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="statusTip">
-              <string>Enable a log area relative to the Vulkan Layers handling by the Vulkan Loader</string>
-             </property>
-             <property name="text">
-              <string>Layers</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="diagnostic_loader_drivers">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="statusTip">
-              <string>Enable a log area relative to the Vulkan Drivers handling by the Vulkan Loader</string>
-             </property>
-             <property name="text">
-              <string>Drivers</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_7">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
+             <item>
+              <widget class="QLabel" name="label_13">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Open: </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="diagnostic_dir_sdk">
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Open Vulkan SDK installation directory</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="diagnostic_dir_home">
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Open Vulkan SDK home directory</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="diagnostic_dir_system">
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Open Vulkan SDK system directory</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

@@ -55,6 +55,9 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->diagnostic_loader_layers, SIGNAL(toggled(bool)), this, SLOT(on_diagnostic_loader_layers_toggled(bool)));
     this->connect(this->ui->diagnostic_loader_drivers, SIGNAL(toggled(bool)), this,
                   SLOT(on_diagnostic_loader_drivers_toggled(bool)));
+    this->connect(this->ui->diagnostic_dir_sdk, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_sdk_pressed()));
+    this->connect(this->ui->diagnostic_dir_home, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_home_pressed()));
+    this->connect(this->ui->diagnostic_dir_system, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_system_pressed()));
 
     QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->diagnostic_status_text);
     this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
@@ -344,6 +347,18 @@ void TabDiagnostics::on_diagnostic_loader_debug_toggled(bool checked) { this->On
 void TabDiagnostics::on_diagnostic_loader_layers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
 
 void TabDiagnostics::on_diagnostic_loader_drivers_toggled(bool checked) { this->OnCheckedLoaderMessageTypes(checked); }
+
+void TabDiagnostics::on_diagnostic_dir_sdk_pressed() {
+    QDesktopServices::openUrl(QUrl::fromLocalFile(AbsolutePath(Path::SDK).c_str()));
+}
+
+void TabDiagnostics::on_diagnostic_dir_home_pressed() {
+    QDesktopServices::openUrl(QUrl::fromLocalFile(AbsolutePath(Path::HOME).c_str()));
+}
+
+void TabDiagnostics::on_diagnostic_dir_system_pressed() {
+    QDesktopServices::openUrl(QUrl::fromLocalFile(AbsolutePath(Path::APPDATA).c_str()));
+}
 
 void TabDiagnostics::on_refresh_log() {
     Configurator &configurator = Configurator::Get();
