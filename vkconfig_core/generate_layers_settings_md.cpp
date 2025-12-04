@@ -118,6 +118,10 @@ static void WriteSettingsDetailsMarkdown(std::string& text, const Layer& layer, 
                 text += "\n\n";
             }
 
+            if (IsArray(setting->type)) {
+                text += "This setting can list multiple values using the \",\" (comma) separator.\n\n";
+            }
+
             if (!setting->url.Empty()) {
                 const std::string url = ConvertStandardSeparators(setting->url.AbsolutePath());
                 text += format("Learn more about the *[%s](%s)* setting.\n", setting->label.c_str(), url.c_str());

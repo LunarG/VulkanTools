@@ -52,12 +52,14 @@ lunarg_reference_1_2_1.enum_with_optional = value1
 # ------------------------------------------
 # flags_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 # flags case
+# This setting can list multiple values using the "," (comma) separator.
 lunarg_reference_1_2_1.flags_required_only = flag0,flag1
 
 # flags
 # ------------------------------------------
 # flags_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 # flags case
+# This setting can list multiple values using the "," (comma) separator.
 # For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags
 # This setting requires ALL of the following values:
 # - lunarg_reference_1_2_1.toogle = true
@@ -187,12 +189,14 @@ lunarg_reference_1_2_1.frames_with_optional = 76-82,75
 # ------------------------------------------
 # list_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 # List description
+# This setting can list multiple values using the "," (comma) separator.
 lunarg_reference_1_2_1.list_required_only = 76,82,stringB,stringD
 
 # List
 # ------------------------------------------
 # list_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 # List description
+# This setting can list multiple values using the "," (comma) separator.
 # For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
 # This setting requires ALL of the following values:
 # - lunarg_reference_1_2_1.toogle = true
@@ -202,6 +206,7 @@ lunarg_reference_1_2_1.list_with_optional = 76,82,stringB,stringD
 # ------------------------------------------
 # list_empty (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 # List description
+# This setting can list multiple values using the "," (comma) separator.
 # For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
 lunarg_reference_1_2_1.list_empty = 
 
