@@ -37,6 +37,8 @@ QIcon Get(ThemeMode mode, Icon icon) {
         "exit.png",               // ICON_EXIT
         "show.png",               // ICON_SHOW
         "hide.png",               // ICON_HIDE
+        "home.png",               // ICON_HOME
+        "tools.png",              // ICON_TOOLS
         "search_case.png",        // ICON_SEARCH_CASE
         "search_whole.png",       // ICON_SEARCH_WHOLE
         "search_regex.png",       // ICON_SEARCH_REGEX
