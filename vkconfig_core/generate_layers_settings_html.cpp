@@ -120,6 +120,10 @@ static void WriteSettingsDetailsHtml(std::string& text, const Layer& layer, cons
                 text += format("\t<p>%s</p>\n", trim_detailed.c_str());
             }
 
+            if (IsArray(setting->type)) {
+                text += "\t<p>This setting can list multiple values using the \",\" (comma) separator.</p>\n";
+            }
+
             if (!setting->url.Empty()) {
                 const std::string url = ConvertStandardSeparators(setting->url.AbsolutePath());
                 text +=

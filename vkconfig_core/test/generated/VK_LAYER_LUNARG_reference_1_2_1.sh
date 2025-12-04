@@ -53,12 +53,14 @@ export VK_LUNARG_REFERENCE_1_2_1_ENUM_WITH_OPTIONAL=value1
 #! ------------------------------------------
 #! flags_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 #!  flags case
+#! This setting can list multiple values using the "," (comma) separator.
 export VK_LUNARG_REFERENCE_1_2_1_FLAGS_REQUIRED_ONLY=flag0,flag1
 
 #! flags
 #! ------------------------------------------
 #! flags_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 #!  flags case
+#! This setting can list multiple values using the "," (comma) separator.
 #! For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags
 #! This setting requires ALL of the following values:
 #! - export VK_LUNARG_REFERENCE_1_2_1_TOOGLE=true
@@ -188,12 +190,14 @@ export VK_LUNARG_REFERENCE_1_2_1_FRAMES_WITH_OPTIONAL=76-82,75
 #! ------------------------------------------
 #! list_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 #!  List description
+#! This setting can list multiple values using the "," (comma) separator.
 export VK_LUNARG_REFERENCE_1_2_1_LIST_REQUIRED_ONLY=76,82,stringB,stringD
 
 #! List
 #! ------------------------------------------
 #! list_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 #!  List description
+#! This setting can list multiple values using the "," (comma) separator.
 #! For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
 #! This setting requires ALL of the following values:
 #! - export VK_LUNARG_REFERENCE_1_2_1_TOOGLE=true
@@ -203,6 +207,7 @@ export VK_LUNARG_REFERENCE_1_2_1_LIST_WITH_OPTIONAL=76,82,stringB,stringD
 #! ------------------------------------------
 #! list_empty (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 #!  List description
+#! This setting can list multiple values using the "," (comma) separator.
 #! For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
 export VK_LUNARG_REFERENCE_1_2_1_LIST_EMPTY=
 

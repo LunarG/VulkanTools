@@ -83,12 +83,14 @@ struct Reference121SettingData {
 	// ------------------------------------------
 	// flags_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 	// flags case
+	// This setting can list multiple values using the "," (comma) separator.
 	std::vector<std::string> flags_required_only = {VL_REFERENCE_1_2_1_FLAGS_REQUIRED_ONLY_FLAG0, VL_REFERENCE_1_2_1_FLAGS_REQUIRED_ONLY_FLAG1};
 
 	// flags
 	// ------------------------------------------
 	// flags_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 	// flags case
+	// This setting can list multiple values using the "," (comma) separator.
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#flags
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
@@ -218,12 +220,14 @@ struct Reference121SettingData {
 	// ------------------------------------------
 	// list_required_only (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 	// List description
+	// This setting can list multiple values using the "," (comma) separator.
 	std::vector<std::string> list_required_only = {"76", "82", "stringB", "stringC", "stringD"};
 
 	// List
 	// ------------------------------------------
 	// list_with_optional (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 	// List description
+	// This setting can list multiple values using the "," (comma) separator.
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
 	// This setting requires ALL of the following values:
 	// - VkBool32 toogle = VK_TRUE;
@@ -233,6 +237,7 @@ struct Reference121SettingData {
 	// ------------------------------------------
 	// list_empty (BETA) (WINDOWS_X86, WINDOWS_ARM, LINUX, ANDROID)
 	// List description
+	// This setting can list multiple values using the "," (comma) separator.
 	// For more information about the feature: https://vulkan.lunarg.com/doc/sdk/latest/windows/layer_dummy.html#list
 	std::vector<std::string> list_empty = {};
 

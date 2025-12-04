@@ -84,6 +84,8 @@ enum case.
 
 flags case.
 
+This setting can list multiple values using the "," (comma) separator.
+
 - Key: `flags_required_only`
 - Type: `FLAGS`
 - Default Value: `flag0,flag1`
@@ -233,6 +235,8 @@ Frames Description.
 ### List
 
 List description.
+
+This setting can list multiple values using the "," (comma) separator.
 
 - Key: `list_required_only`
 - Type: `LIST`

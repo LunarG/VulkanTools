@@ -192,6 +192,10 @@ bool GenerateSettingsCode(Configurator& configurator, const Path& export_path) {
                 stream << format("\t// %s\n", meta->detailed.c_str()).c_str();
             }
 
+            if (IsArray(meta->type)) {
+                stream << "\t// This setting can list multiple values using the \",\" (comma) separator.\n";
+            }
+
             if (!meta->url.Empty()) {
                 stream << format("\t// For more information about the feature: %s\n",
                                  ConvertStandardSeparators(meta->url.AbsolutePath()).c_str())
