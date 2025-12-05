@@ -4,6 +4,7 @@ CONFIG += c++17
 CONFIG += sdk_no_version_check
 
 INCLUDEPATH += ../external/Debug/64/Vulkan-Headers/include
+INCLUDEPATH += ./external/Debug/64/Vulkan-Headers/include
 INCLUDEPATH += ../external/Vulkan-Headers/include
 INCLUDEPATH += ../Vulkan-Headers/include
 
