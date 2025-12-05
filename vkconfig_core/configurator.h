@@ -177,7 +177,6 @@ class Configurator {
     DeviceInfo driver_override_info;
     std::vector<DeviceInfo> driver_override_list;
     std::map<Path, bool> driver_paths;
-    std::vector<Path> driver_paths_removed;
     bool driver_paths_enabled = false;
 
     bool loader_log_enabled = false;
@@ -201,7 +200,6 @@ class Configurator {
     std::string selected_global_configuration = "Validation";
 
     bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);
-    // void AddDefaultDriverPaths();
 };
 
 struct ConfiguratorGuard {
