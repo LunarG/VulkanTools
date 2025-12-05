@@ -164,28 +164,6 @@ static QJsonObject CreateDeviceConfigurations(const VulkanPhysicalDeviceInfo& in
     return json_device;
 }
 
-void InsertDefaultDriversPath(QJsonArray& json_drivers_paths, const std::map<Path, bool>& driver_paths) {
-    const Path TABLE[] = {"C:/Users/Piranha/VulkanSDK/Lavapipe/mesa3d-25.0.7-release-msvc/x64/lvp_icd.x86_64.json",
-                          "C:/Users/Piranha/VulkanSDK/Lavapipe/mesa3d-25.2.0-release-msvc/x64/lvp_icd.x86_64.json",
-                          "/usr/local/share/vulkan/icd.d/libkosmickrisp_icd.json"};
-
-    for (std::size_t i = 0, n = std::size(TABLE); i < n; ++i) {
-        const Path& path = TABLE[i];
-
-        if (!path.Exists()) {
-            continue;
-        }
-
-        if (driver_paths.find(path) != driver_paths.end()) {
-            continue;
-        }
-
-        QJsonObject json_drivers_path;
-        json_drivers_path.insert("path", path.AbsolutePath().c_str());
-        json_drivers_paths.append(json_drivers_path);
-    }
-}
-
 QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSettings& loader_settings) const {
     QJsonObject json_settings;
 
@@ -225,10 +203,10 @@ QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSett
         json_settings.insert("stderr_log", json_stderr_log);
     }
 
-    QJsonArray json_drivers_paths;
-
     if (this->driver_paths_enabled) {
-        for (auto it = this->driver_paths.begin(); it != this->driver_paths.end(); ++it) {
+        QJsonArray json_drivers_paths;
+
+        for (auto it = driver_paths.begin(); it != driver_paths.end(); ++it) {
             if (!it->second) {
                 continue;
             }
@@ -237,11 +215,8 @@ QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSett
             json_drivers_path.insert("path", it->first.AbsolutePath().c_str());
             json_drivers_paths.append(json_drivers_path);
         }
+        json_settings.insert("additional_drivers", json_drivers_paths);
     }
-
-    ::InsertDefaultDriversPath(json_drivers_paths, this->driver_paths);
-
-    json_settings.insert("additional_drivers", json_drivers_paths);
 
     if (this->driver_override_enabled) {
         switch (this->driver_override_mode) {
@@ -283,9 +258,6 @@ static QJsonObject CreateJsonDriverObject(const std::map<Path, bool>& driver_pat
         json_drivers_path.insert("path", it->first.AbsolutePath().c_str());
         json_drivers_paths.append(json_drivers_path);
     }
-
-    ::InsertDefaultDriversPath(json_drivers_paths, driver_paths);
-
     json_settings.insert("additional_drivers", json_drivers_paths);
 
     return json_settings;
@@ -303,9 +275,10 @@ QJsonObject Configurator::CreateJsonGlobalObject() const {
         json_settings.insert("stderr_log", json_stderr_log);
     }
 
-    QJsonArray json_drivers_paths;
     if (this->driver_paths_enabled) {
-        for (auto it = this->driver_paths.begin(); it != this->driver_paths.end(); ++it) {
+        QJsonArray json_drivers_paths;
+
+        for (auto it = driver_paths.begin(); it != driver_paths.end(); ++it) {
             if (!it->second) {
                 continue;
             }
@@ -314,10 +287,8 @@ QJsonObject Configurator::CreateJsonGlobalObject() const {
             json_drivers_path.insert("path", it->first.AbsolutePath().c_str());
             json_drivers_paths.append(json_drivers_path);
         }
+        json_settings.insert("additional_drivers", json_drivers_paths);
     }
-
-    ::InsertDefaultDriversPath(json_drivers_paths, this->driver_paths);
-    json_settings.insert("additional_drivers", json_drivers_paths);
 
     if (this->driver_override_enabled) {
         switch (this->driver_override_mode) {
@@ -469,9 +440,9 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
         QJsonObject root;
         root.insert("file_format_version", "1.0.0");
         if (override_area == OVERRIDE_DRIVER) {
-            // if (this->driver_paths_enabled) {
-            root.insert("settings", CreateJsonDriverObject(this->driver_paths));
-            //}
+            if (this->driver_paths_enabled) {
+                root.insert("settings", CreateJsonDriverObject(this->driver_paths));
+            }
         } else {
             QJsonArray json_settings_array;
 
@@ -1028,35 +999,7 @@ std::string Configurator::Log() const {
 
     return log;
 }
-/*
-void Configurator::AddDefaultDriverPaths() {
-    return; // No default driver path for the moment
 
-    if (VKC_PLATFORM != PLATFORM_MACOS) {
-        return;
-    }
-
-    const Path TABLE[] = {
-        "C:/Users/Piranha/VulkanSDK/Lavapipe/mesa3d-25.0.7-release-msvc/x64/lvp_icd.x86_64.json",
-        "C:/Users/Piranha/VulkanSDK/Lavapipe/mesa3d-25.2.0-release-msvc/x64/lvp_icd.x86_64.json",
-    };
-
-    for (std::size_t i = 0, n = std::size(TABLE); i < n; ++i) {
-        const Path& path = TABLE[i];
-
-        if (std::find(this->driver_paths_removed.begin(), this->driver_paths_removed.end(), path) !=
-            this->driver_paths_removed.end()) {
-            continue;
-        }
-
-        if (this->driver_paths.find(path) != this->driver_paths.end()) {
-            continue;
-        }
-
-        this->driver_paths.insert(std::make_pair(Path(path), true));
-    }
-}
-*/
 bool Configurator::Load() {
     const Path& vkconfig_init_path = ::Path(Path::INIT);
 
@@ -1193,13 +1136,6 @@ bool Configurator::Load() {
                     this->driver_paths.insert(std::make_pair(key, json_object_path.value("enabled").toBool()));
                 }
             }
-            if (json_object.value("driver_paths_removed") != QJsonValue::Undefined) {
-                const QJsonArray& json_object_paths = json_object.value("driver_paths_removed").toArray();
-                for (int i = 0, n = json_object_paths.size(); i < n; ++i) {
-                    const std::string& path = json_object_paths[i].toString().toStdString();
-                    this->driver_paths_removed.push_back(path);
-                }
-            }
             if (json_object.value("driver_paths_enabled") != QJsonValue::Undefined) {
                 this->driver_paths_enabled = json_object.value("driver_paths_enabled").toBool();
             }
@@ -1297,8 +1233,6 @@ bool Configurator::Load() {
 
     this->configurations.LoadAllConfigurations(this->layers, this->mode);
 
-    // this->AddDefaultDriverPaths();
-
     return has_init_file;
 }
 
@@ -1369,7 +1303,6 @@ bool Configurator::Save() const {
         }
         json_object.insert("driver_override_list", json_driver_override_list_array);
 
-        json_object.insert("driver_paths_enabled", this->driver_paths_enabled);
         json_object.insert("last_driver_path", this->last_driver_path.RelativePath().c_str());
         QJsonObject json_object_paths;
         for (auto it = this->driver_paths.begin(); it != this->driver_paths.end(); ++it) {
@@ -1377,13 +1310,9 @@ bool Configurator::Save() const {
             json_object_path.insert("enabled", it->second);
             json_object_paths.insert(it->first.RelativePath().c_str(), json_object_path);
         }
-        json_object.insert("driver_paths", json_object_paths);
 
-        QJsonArray json_object_paths_removed;
-        for (auto it = this->driver_paths_removed.begin(); it != this->driver_paths_removed.end(); ++it) {
-            json_object_paths_removed.append(it->RelativePath().c_str());
-        }
-        json_object.insert("driver_paths_removed", json_object_paths_removed);
+        json_object.insert("driver_paths_enabled", this->driver_paths_enabled);
+        json_object.insert("driver_paths", json_object_paths);
 
         json_interface_object.insert(::GetToken(TAB_DRIVERS), json_object);
     }
