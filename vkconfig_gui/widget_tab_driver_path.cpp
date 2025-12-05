@@ -76,10 +76,6 @@ void DriverPathWidget::on_buttom_remove_clicked(bool checked) {
     }
 
     configurator.driver_paths.erase(this->path);
-    if (std::find(configurator.driver_paths_removed.begin(), configurator.driver_paths_removed.end(), this->path) ==
-        configurator.driver_paths_removed.end()) {
-        configurator.driver_paths_removed.push_back(this->path);
-    }
 
     emit itemChanged();
 }

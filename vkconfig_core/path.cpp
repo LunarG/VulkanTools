@@ -480,7 +480,6 @@ Path::Path(Path::Builtin path) {
     switch (path) {
         default:
             assert(0);
-            break;
         case HOME:
             this->data = ::GetHomeDir();
             break;
