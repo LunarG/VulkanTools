@@ -14527,71 +14527,6 @@ VKAPI_ATTR void VKAPI_CALL vkUpdateIndirectExecutionSetShaderEXT(VkDevice device
         flush(ApiDumpInstance::current().settings());
     }
 }
-#if defined(VK_USE_PLATFORM_OHOS)
-template <ApiDumpFormat Format>
-VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainGrallocUsageOHOS(VkDevice device, VkFormat format, VkImageUsageFlags imageUsage, uint64_t* grallocUsage) {
-    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-
-    dump_function_head(ApiDumpInstance::current(), "vkGetSwapchainGrallocUsageOHOS", "device, format, imageUsage, grallocUsage", "VkResult");
-    if constexpr (Format == ApiDumpFormat::Text) {
-        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
-            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
-            dump_params_vkGetSwapchainGrallocUsageOHOS<Format>(ApiDumpInstance::current(), device, format, imageUsage, grallocUsage);
-        }
-    }
-    VkResult result = device_dispatch_table(device)->GetSwapchainGrallocUsageOHOS(device, format, imageUsage, grallocUsage);
-    if (ApiDumpInstance::current().shouldDumpOutput()) {
-        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
-        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
-        dump_params_vkGetSwapchainGrallocUsageOHOS<Format>(ApiDumpInstance::current(), device, format, imageUsage, grallocUsage);
-        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
-        flush(ApiDumpInstance::current().settings());
-    }
-    return result;
-}
-template <ApiDumpFormat Format>
-VKAPI_ATTR VkResult VKAPI_CALL vkAcquireImageOHOS(VkDevice device, VkImage image, int32_t nativeFenceFd, VkSemaphore semaphore, VkFence fence) {
-    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-
-    dump_function_head(ApiDumpInstance::current(), "vkAcquireImageOHOS", "device, image, nativeFenceFd, semaphore, fence", "VkResult");
-    if constexpr (Format == ApiDumpFormat::Text) {
-        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
-            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
-            dump_params_vkAcquireImageOHOS<Format>(ApiDumpInstance::current(), device, image, nativeFenceFd, semaphore, fence);
-        }
-    }
-    VkResult result = device_dispatch_table(device)->AcquireImageOHOS(device, image, nativeFenceFd, semaphore, fence);
-    if (ApiDumpInstance::current().shouldDumpOutput()) {
-        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
-        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
-        dump_params_vkAcquireImageOHOS<Format>(ApiDumpInstance::current(), device, image, nativeFenceFd, semaphore, fence);
-        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
-        flush(ApiDumpInstance::current().settings());
-    }
-    return result;
-}
-template <ApiDumpFormat Format>
-VKAPI_ATTR VkResult VKAPI_CALL vkQueueSignalReleaseImageOHOS(VkQueue queue, uint32_t waitSemaphoreCount, const VkSemaphore* pWaitSemaphores, VkImage image, int32_t* pNativeFenceFd) {
-    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-
-    dump_function_head(ApiDumpInstance::current(), "vkQueueSignalReleaseImageOHOS", "queue, waitSemaphoreCount, pWaitSemaphores, image, pNativeFenceFd", "VkResult");
-    if constexpr (Format == ApiDumpFormat::Text) {
-        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
-            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
-            dump_params_vkQueueSignalReleaseImageOHOS<Format>(ApiDumpInstance::current(), queue, waitSemaphoreCount, pWaitSemaphores, image, pNativeFenceFd);
-        }
-    }
-    VkResult result = device_dispatch_table(queue)->QueueSignalReleaseImageOHOS(queue, waitSemaphoreCount, pWaitSemaphores, image, pNativeFenceFd);
-    if (ApiDumpInstance::current().shouldDumpOutput()) {
-        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
-        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
-        dump_params_vkQueueSignalReleaseImageOHOS<Format>(ApiDumpInstance::current(), queue, waitSemaphoreCount, pWaitSemaphores, image, pNativeFenceFd);
-        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
-        flush(ApiDumpInstance::current().settings());
-    }
-    return result;
-}
-#endif  // VK_USE_PLATFORM_OHOS
 #if defined(VK_USE_PLATFORM_METAL_EXT)
 template <ApiDumpFormat Format>
 VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandleEXT(VkDevice device, const VkMemoryGetMetalHandleInfoEXT* pGetMetalHandleInfo, void** pHandle) {
@@ -14670,6 +14605,25 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginCustomResolveEXT(VkCommandBuffer commandBuf
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
         dump_params_vkCmdBeginCustomResolveEXT<Format>(ApiDumpInstance::current(), commandBuffer, pBeginCustomResolveInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(VkCommandBuffer commandBuffer, const VkComputeOccupancyPriorityParametersNV* pParameters) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdSetComputeOccupancyPriorityNV", "commandBuffer, pParameters", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdSetComputeOccupancyPriorityNV<Format>(ApiDumpInstance::current(), commandBuffer, pParameters);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdSetComputeOccupancyPriorityNV(commandBuffer, pParameters);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdSetComputeOccupancyPriorityNV<Format>(ApiDumpInstance::current(), commandBuffer, pParameters);
         dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
         flush(ApiDumpInstance::current().settings());
     }
@@ -16734,14 +16688,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkUpdateIndirectExecutionSetPipelineEXT<Format>);
     if (strcmp(pName, "vkUpdateIndirectExecutionSetShaderEXT") == 0 && (!device || device_dispatch_table(device)->UpdateIndirectExecutionSetShaderEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkUpdateIndirectExecutionSetShaderEXT<Format>);
-#if defined(VK_USE_PLATFORM_OHOS)
-    if (strcmp(pName, "vkGetSwapchainGrallocUsageOHOS") == 0 && (!device || device_dispatch_table(device)->GetSwapchainGrallocUsageOHOS))
-        return reinterpret_cast<PFN_vkVoidFunction>(vkGetSwapchainGrallocUsageOHOS<Format>);
-    if (strcmp(pName, "vkAcquireImageOHOS") == 0 && (!device || device_dispatch_table(device)->AcquireImageOHOS))
-        return reinterpret_cast<PFN_vkVoidFunction>(vkAcquireImageOHOS<Format>);
-    if (strcmp(pName, "vkQueueSignalReleaseImageOHOS") == 0 && (!device || device_dispatch_table(device)->QueueSignalReleaseImageOHOS))
-        return reinterpret_cast<PFN_vkVoidFunction>(vkQueueSignalReleaseImageOHOS<Format>);
-#endif  // VK_USE_PLATFORM_OHOS
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     if (strcmp(pName, "vkGetMemoryMetalHandleEXT") == 0 && (!device || device_dispatch_table(device)->GetMemoryMetalHandleEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryMetalHandleEXT<Format>);
@@ -16752,6 +16698,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndRendering2EXT<Format>);
     if (strcmp(pName, "vkCmdBeginCustomResolveEXT") == 0 && (!device || device_dispatch_table(device)->CmdBeginCustomResolveEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginCustomResolveEXT<Format>);
+    if (strcmp(pName, "vkCmdSetComputeOccupancyPriorityNV") == 0 && (!device || device_dispatch_table(device)->CmdSetComputeOccupancyPriorityNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetComputeOccupancyPriorityNV<Format>);
     if (strcmp(pName, "vkCreateAccelerationStructureKHR") == 0 && (!device || device_dispatch_table(device)->CreateAccelerationStructureKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateAccelerationStructureKHR<Format>);
     if (strcmp(pName, "vkDestroyAccelerationStructureKHR") == 0 && (!device || device_dispatch_table(device)->DestroyAccelerationStructureKHR))
