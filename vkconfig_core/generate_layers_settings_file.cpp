@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2025 Valve Corporation
- * Copyright (c) 2020-2025 LunarG, Inc.
+ * Copyright (c) 2020-2026 Valve Corporation
+ * Copyright (c) 2020-2026 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,8 +99,8 @@ bool GenerateSettingsTXT(Configurator& configurator, OverrideArea override_area,
             }
             QTextStream stream(&file);
 
-            stream << "# Copyright (c) 2020-2025 Valve Corporation\n";
-            stream << "# Copyright (c) 2020-2025 LunarG, Inc.\n";
+            stream << "# Copyright (c) 2020-2026 Valve Corporation\n";
+            stream << "# Copyright (c) 2020-2026 LunarG, Inc.\n";
             stream << "# \n";
             stream << "# Licensed under the Apache License, Version 2.0 (the \"License\");\n";
             stream << "# you may not use this file except in compliance with the License.\n";

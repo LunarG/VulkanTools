@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2025 Valve Corporation
- * Copyright (c) 2020-2025 LunarG, Inc.
+ * Copyright (c) 2020-2026 Valve Corporation
+ * Copyright (c) 2020-2026 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include <cassert>
 #include <cstring>
 
-const Version Version::VKCONFIG(3, 4, 1);
+const Version Version::VKCONFIG(3, 4, 2);
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
 const Version Version::NONE(0, 0, 0);
 const Version Version::LATEST(~0, ~0, ~0);

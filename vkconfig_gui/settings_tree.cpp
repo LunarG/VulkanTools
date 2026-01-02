@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2025 Valve Corporation
- * Copyright (c) 2020-2025 LunarG, Inc.
+ * Copyright (c) 2020-2026 Valve Corporation
+ * Copyright (c) 2020-2026 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -210,6 +210,8 @@ void SettingsTreeManager::CleanupGUI() {
         this->ui->configurations_group_box_settings->setCheckable(false);
         this->ui->configurations_presets->setVisible(false);
         this->ui->configurations_versions->setVisible(false);
+        this->ui->configurations_presets->setVisible(false);
+        this->ui->configurations_settings_reset->setVisible(false);
         return;
     }
 
@@ -218,6 +220,8 @@ void SettingsTreeManager::CleanupGUI() {
         this->ui->configurations_group_box_settings->setCheckable(false);
         this->ui->configurations_presets->setVisible(false);
         this->ui->configurations_versions->setVisible(false);
+        this->ui->configurations_presets->setVisible(false);
+        this->ui->configurations_settings_reset->setVisible(false);
         return;
     }
 }
@@ -472,10 +476,10 @@ void SettingsTreeManager::OnLayerVersionChanged(int index) {
     assert(layer != nullptr);
     this->ui->configurations_versions->setToolTip(layer->manifest_path.AbsolutePath().c_str());
 
-    this->CreateGUI();
-
     configurator.UpdateConfigurations();
     configurator.Override(OVERRIDE_AREA_ALL);
+
+    this->CreateGUI();
 
     emit signalLayerVersionChanged();
 }
@@ -509,10 +513,10 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
     const LayerPreset &preset = layer->presets[preset_index];
     parameter->ApplyPresetSettings(preset);
 
+    configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
+
     this->ui->configurations_settings_reset->setEnabled(preset_index != Layer::DEFAULT_PRESET);
     this->Refresh(REFRESH_ENABLE_AND_STATE);
-
-    configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
 }
 
 void SettingsTreeManager::OnRefreshEnableAndState() {

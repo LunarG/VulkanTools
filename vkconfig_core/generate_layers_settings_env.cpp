@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2025 Valve Corporation
- * Copyright (c) 2020-2025 LunarG, Inc.
+ * Copyright (c) 2020-2026 Valve Corporation
+ * Copyright (c) 2020-2026 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ bool GenerateSettingsEnv(Configurator& configurator, ExportEnvMode mode, const P
 
     QTextStream stream(&file);
 
-    stream << COMMENT << "Copyright (c) 2020-2025 Valve Corporation\n";
-    stream << COMMENT << "Copyright (c) 2020-2025 LunarG, Inc.\n";
+    stream << COMMENT << "Copyright (c) 2020-2026 Valve Corporation\n";
+    stream << COMMENT << "Copyright (c) 2020-2026 LunarG, Inc.\n";
     stream << COMMENT << "\n";
     stream << COMMENT << "Licensed under the Apache License, Version 2.0 (the \"License\");\n";
     stream << COMMENT << "you may not use this file except in compliance with the License.\n";

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2025 Valve Corporation
- * Copyright (c) 2020-2025 LunarG, Inc.
+ * Copyright (c) 2020-2026 Valve Corporation
+ * Copyright (c) 2020-2026 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -790,7 +790,8 @@ void CommandLine::usage() const {
             printf("\n");
             printf("\t`[--layers <layer_names>]`\n");
             printf(
-                "\t\tSpecify the layer names, if the argument is not set or set to 'default', all the found layers will be used. Multiple layer names can be listed using a comma (',') separator. \n");
+                "\t\tSpecify the layer names, if the argument is not set or set to 'default', all the found layers will be used. "
+                "Multiple layer names can be listed using a comma (',') separator. \n");
             printf("\t  (Run 'vkconfig layers --list' to enumerate the available layers.)\n");
             printf("\n");
             printf("\t`[--output-dir | -d] <output_dir>`\n");
@@ -884,7 +885,7 @@ Path CommandLine::GetOutputPath() const {
             output_path = this->selected_layers_name[0] + GetDefaultFileExt(this->_generate_settings_mode);
         } else {
             output_path = ::GetDefaultFilename(this->_generate_settings_mode);
-        } 
+        }
     }
 
     if (this->_output_dir.Empty()) {
