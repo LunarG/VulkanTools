@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2025 Valve Corporation
- * Copyright (c) 2020-2025 LunarG, Inc.
+ * Copyright (c) 2020-2026 Valve Corporation
+ * Copyright (c) 2020-2026 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ std::string FormatNvidia(uint32_t driverVersion) {
                   driverVersion & 0x003f);
 }
 
-std::string FormatIntelWindows(uint32_t driverVersion) { return format("%d.%d", (driverVersion >> 14), (driverVersion)&0x3fff); }
+std::string FormatIntelWindows(uint32_t driverVersion) { return format("%d.%d", (driverVersion >> 14), (driverVersion) & 0x3fff); }
 
 bool IsFrames(const std::string& s) {
     static const std::regex FRAME_REGEX("^([0-9]+([-][0-9]+){0,2})(,([0-9]+([-][0-9]+){0,2}))*$");

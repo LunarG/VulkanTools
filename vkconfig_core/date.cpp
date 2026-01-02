@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2025 Valve Corporation
- * Copyright (c) 2020-2025 LunarG, Inc.
+ * Copyright (c) 2020-2026 Valve Corporation
+ * Copyright (c) 2020-2026 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,30 +39,20 @@
 #define BUILD_MONTH_IS_NOV (__DATE__[0] == 'N')
 #define BUILD_MONTH_IS_DEC (__DATE__[0] == 'D')
 
-#define COMPUTE_BUILD_MONTH                                                           \
-    ((BUILD_MONTH_IS_JAN)                                                             \
-         ? 1                                                                          \
-         : (BUILD_MONTH_IS_FEB)                                                       \
-               ? 2                                                                    \
-               : (BUILD_MONTH_IS_MAR)                                                 \
-                     ? 3                                                              \
-                     : (BUILD_MONTH_IS_APR)                                           \
-                           ? 4                                                        \
-                           : (BUILD_MONTH_IS_MAY)                                     \
-                                 ? 5                                                  \
-                                 : (BUILD_MONTH_IS_JUN)                               \
-                                       ? 6                                            \
-                                       : (BUILD_MONTH_IS_JUL)                         \
-                                             ? 7                                      \
-                                             : (BUILD_MONTH_IS_AUG)                   \
-                                                   ? 8                                \
-                                                   : (BUILD_MONTH_IS_SEP)             \
-                                                         ? 9                          \
-                                                         : (BUILD_MONTH_IS_OCT)       \
-                                                               ? 10                   \
-                                                               : (BUILD_MONTH_IS_NOV) \
-                                                                     ? 11             \
-                                                                     : (BUILD_MONTH_IS_DEC) ? 12 : /* error default */ 99)
+#define COMPUTE_BUILD_MONTH      \
+    ((BUILD_MONTH_IS_JAN)   ? 1  \
+     : (BUILD_MONTH_IS_FEB) ? 2  \
+     : (BUILD_MONTH_IS_MAR) ? 3  \
+     : (BUILD_MONTH_IS_APR) ? 4  \
+     : (BUILD_MONTH_IS_MAY) ? 5  \
+     : (BUILD_MONTH_IS_JUN) ? 6  \
+     : (BUILD_MONTH_IS_JUL) ? 7  \
+     : (BUILD_MONTH_IS_AUG) ? 8  \
+     : (BUILD_MONTH_IS_SEP) ? 9  \
+     : (BUILD_MONTH_IS_OCT) ? 10 \
+     : (BUILD_MONTH_IS_NOV) ? 11 \
+     : (BUILD_MONTH_IS_DEC) ? 12 \
+                            : /* error default */ 99)
 
 #define BUILD_DATE_IS_BAD (__DATE__[0] == '?')
 

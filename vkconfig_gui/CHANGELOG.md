@@ -1,3 +1,9 @@
+## Vulkan Configurator 3.4.2 - Febuary 2025
+[Vulkan SDK 1.4.XXX.0](https://github.com/LunarG/VulkanTools/tree/main)
+
+### Fixes:
+- Fix applying layer preset crash
+
 ## Vulkan Configurator 3.4.1 - December 2025
 [Vulkan SDK 1.4.335.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.335)
 
