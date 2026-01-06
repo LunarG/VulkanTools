@@ -495,6 +495,8 @@ std::string GetLabel(VendorID vendorID) {
             return "Nvidia";
         case VENDOR_ID_QUALCOMM:
             return "Qualcomm";
+        case VENDOR_ID_HUAWEI:
+            return "Huawei";
     }
 }
 
