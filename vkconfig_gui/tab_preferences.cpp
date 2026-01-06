@@ -183,6 +183,7 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->diagnostic_dir_sdk->setIcon(::Get(new_theme_mode, ::ICON_TOOLS));
     this->ui->diagnostic_dir_home->setIcon(::Get(new_theme_mode, ::ICON_HOME));
     this->ui->diagnostic_dir_system->setIcon(::Get(new_theme_mode, ::ICON_ADVANCED));
+    this->ui->diagnostic_dir_info->setVisible(VKC_PLATFORM == PLATFORM_LINUX || VKC_ENV == VKC_ENV_WIN32);
 
     // Preferences
     this->ui->preferences_reset->setIcon(::Get(new_theme_mode, ::ICON_RESET));
