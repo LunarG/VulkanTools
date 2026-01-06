@@ -58,6 +58,7 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->diagnostic_dir_sdk, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_sdk_pressed()));
     this->connect(this->ui->diagnostic_dir_home, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_home_pressed()));
     this->connect(this->ui->diagnostic_dir_system, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_system_pressed()));
+    this->connect(this->ui->diagnostic_dir_info, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_info_pressed()));
 
     QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->diagnostic_status_text);
     this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
@@ -358,6 +359,25 @@ void TabDiagnostics::on_diagnostic_dir_home_pressed() {
 
 void TabDiagnostics::on_diagnostic_dir_system_pressed() {
     QDesktopServices::openUrl(QUrl::fromLocalFile(AbsolutePath(Path::APPDATA).c_str()));
+}
+
+void TabDiagnostics::on_diagnostic_dir_info_pressed() {
+    DefaultExecutable default_executable = {
+        GetExecutable(EXECUTABLE_VKCAPSVIEWER), "vulkanCapsViewer", true, {{"Open GUI", "${VULKAN_HOME}", ""}}};
+    const Executable executable(default_executable);
+    const ExecutableOptions *options = executable.GetActiveOptions();
+
+    std::unique_ptr<QProcess> caps_viewer_process;
+    caps_viewer_process.reset(new QProcess(this));
+    // this->connect(caps_viewer_process.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
+    // this->connect(caps_viewer_process.get(), SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
+    // this->connect(caps_viewer_process.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(processClosed(int,
+    // QProcess::ExitStatus)));
+
+    caps_viewer_process->setProgram(executable.path.AbsolutePath().c_str());
+    caps_viewer_process->setWorkingDirectory(options->working_folder.AbsolutePath().c_str());
+    caps_viewer_process->setEnvironment(QProcess::systemEnvironment());
+    caps_viewer_process->startDetached();
 }
 
 void TabDiagnostics::on_refresh_log() {

@@ -69,6 +69,7 @@ class TabDiagnostics : public Tab {
     void on_diagnostic_dir_sdk_pressed();
     void on_diagnostic_dir_home_pressed();
     void on_diagnostic_dir_system_pressed();
+    void on_diagnostic_dir_info_pressed();
 
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available

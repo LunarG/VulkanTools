@@ -482,8 +482,8 @@ void TabApplications::on_launch_clear_log_pressed() {
 
 void TabApplications::on_launch_button_pressed() {
     // Are we already monitoring a running app? If so, terminate it
-    if (_launch_application != nullptr) {
-        if (_launch_application->processId() > 0) {
+    if (this->_launch_application != nullptr) {
+        if (this->_launch_application->processId() > 0) {
             this->ResetLaunchApplication();
             return;
         }
