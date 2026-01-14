@@ -40,6 +40,8 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->preferences_keep_running, SIGNAL(toggled(bool)), this, SLOT(on_keep_running_toggled(bool)));
     this->connect(this->ui->preferences_vk_home_text, SIGNAL(returnPressed()), this, SLOT(on_vk_home_text_pressed()));
     this->connect(this->ui->preferences_vk_home_browse, SIGNAL(clicked()), this, SLOT(on_vk_home_browse_pressed()));
+    this->connect(this->ui->preferences_all_enabled_executables, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_all_enabled_executables_changed(int)));
     this->connect(this->ui->preferences_vk_download_browse, SIGNAL(clicked()), this, SLOT(on_vk_download_browse_pressed()));
     this->connect(this->ui->preferences_vk_download_open, SIGNAL(clicked()), this, SLOT(on_vk_download_open_pressed()));
     this->connect(this->ui->preferences_reset, SIGNAL(clicked()), this, SLOT(on_reset_hard_pressed()));
@@ -116,6 +118,11 @@ void TabPreferences::UpdateUI(UpdateUIMode mode) {
     this->ui->preferences_vk_home_text->setToolTip(::Path(Path::HOME).AbsolutePath().c_str());
     this->ui->preferences_vk_home_text->blockSignals(false);
 
+    this->ui->preferences_all_enabled_executables->blockSignals(true);
+    this->ui->preferences_all_enabled_executables->setCurrentIndex(
+        static_cast<int>(configurator.GetAllEnabledExecutableBehavior()));
+    this->ui->preferences_all_enabled_executables->blockSignals(false);
+
     this->ui->preferences_show_debug_settings->blockSignals(true);
     this->ui->preferences_show_debug_settings->setChecked(configurator.GetUseLayerDebugMode());
     this->ui->preferences_show_debug_settings->blockSignals(false);
@@ -133,6 +140,13 @@ bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
     (void)event;
 
     return false;
+}
+
+void TabPreferences::on_all_enabled_executables_changed(int index) {
+    Configurator &configurator = Configurator::Get();
+
+    const ExecutableAllEnabledBehavior behavior = static_cast<ExecutableAllEnabledBehavior>(index);
+    configurator.SetAllEnabledExecutableBehavior(behavior);
 }
 
 void TabPreferences::on_theme_mode_changed(int index) {

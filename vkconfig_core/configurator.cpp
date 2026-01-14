@@ -1219,6 +1219,11 @@ bool Configurator::Load() {
             if (json_object.value("VULKAN_HOME") != QJsonValue::Undefined) {
                 ::SetHomePath(json_object.value("VULKAN_HOME").toString().toStdString());
             }
+
+            if (json_object.value("all_enabled_executables_behavior") != QJsonValue::Undefined) {
+                this->executable_behavior = ::GetExecutableAllEnabledBehavior(
+                    json_object.value("all_enabled_executables_behavior").toString().toStdString().c_str());
+            }
             if (json_object.value("VULKAN_DOWNLOAD") != QJsonValue::Undefined) {
                 ::SetDownloadPath(json_object.value("VULKAN_DOWNLOAD").toString().toStdString());
             }
@@ -1359,6 +1364,8 @@ bool Configurator::Save() const {
         json_object.insert("show_external_layers_settings", this->show_external_layers_settings);
         json_object.insert("VULKAN_HOME", ::Path(Path::HOME).RelativePath().c_str());
         json_object.insert("VULKAN_DOWNLOAD", ::Path(Path::DOWNLOAD).RelativePath().c_str());
+        json_object.insert("all_enabled_executables_behavior", ::GetToken(this->executable_behavior));
+
         json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);
     }
 
@@ -1420,6 +1427,10 @@ void Configurator::SetExecutableScope(ExecutableScope scope) {
 bool Configurator::GetUseSystemTray() const { return this->use_system_tray; }
 
 void Configurator::SetUseSystemTray(bool enabled) { this->use_system_tray = enabled; }
+
+ExecutableAllEnabledBehavior Configurator::GetAllEnabledExecutableBehavior() const { return this->executable_behavior; }
+
+void Configurator::SetAllEnabledExecutableBehavior(ExecutableAllEnabledBehavior behavior) { this->executable_behavior = behavior; }
 
 bool Configurator::GetUseLayerDebugMode() const { return this->use_layer_debug_mode; }
 

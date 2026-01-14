@@ -40,6 +40,7 @@ class TabPreferences : public Tab {
     void on_keep_running_toggled(bool checked);
     void on_vk_home_text_pressed();
     void on_vk_home_browse_pressed();
+    void on_all_enabled_executables_changed(int index);
     void on_vk_download_browse_pressed();
     void on_vk_download_open_pressed();
     void on_reset_hard_pressed();
