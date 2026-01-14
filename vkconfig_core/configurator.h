@@ -31,6 +31,7 @@
 #include "type_hide_message.h"
 #include "type_tab.h"
 #include "type_executable_mode.h"
+#include "type_executable_all_enabled_behavior.h"
 #include "type_configurator_mode.h"
 #include "type_diagnostic_mode.h"
 #include "type_generate_settings.h"
@@ -121,6 +122,9 @@ class Configurator {
     bool GetUseSystemTray() const;
     void SetUseSystemTray(bool enabled);
 
+    ExecutableAllEnabledBehavior GetAllEnabledExecutableBehavior() const;
+    void SetAllEnabledExecutableBehavior(ExecutableAllEnabledBehavior behavior);
+
     bool GetUseLayerDebugMode() const;
     void SetUseLayerDebugMode(bool enabled);
 
@@ -197,6 +201,7 @@ class Configurator {
     bool use_notify_releases = true;
     bool show_external_layers_settings = true;
     ExecutableScope executable_scope = EXECUTABLE_ANY;
+    ExecutableAllEnabledBehavior executable_behavior = EXECUTABLE_ALL_ENABLED_GLOBAL;
     std::string selected_global_configuration = "Validation";
 
     bool WriteLoaderSettings(OverrideArea override_area, const Path& loader_settings_path);

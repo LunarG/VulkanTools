@@ -3,6 +3,7 @@
 
 ### Improvements:
 - Add button to open Vulkan Caps Viewer
+- Add preference setting to control the 'All Enabled Vulkan Executables behavior'
 
 ### Fixes:
 - Fix applying layer preset crash
