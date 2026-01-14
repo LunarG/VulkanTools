@@ -184,9 +184,14 @@ QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSett
         json_layers.append(json_layer);
     }
 
-    if (!loader_settings.executable_path.empty()) {
+    if (!loader_settings.executable_path.Exists()) {
+        this->Log(LOG_ERROR,
+                  format("Executable path not found: %s", loader_settings.executable_path.AbsolutePath().c_str()).c_str());
+    }
+
+    if (!loader_settings.executable_path.Empty()) {
         QJsonArray json_app_keys;
-        json_app_keys.append(loader_settings.executable_path.c_str());
+        json_app_keys.append(loader_settings.executable_path.AbsolutePath().c_str());
         json_settings.insert("app_keys", json_app_keys);
     }
 
@@ -825,7 +830,7 @@ std::string Configurator::Log() const {
     log += format(" - Vulkan Layers configuration scope: %s\n", ::GetLabel(this->GetExecutableScope()));
     log += format("   * Loader settings: %s\n", Path(Path::LOADER_SETTINGS).AbsolutePath().c_str());
 
-    if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
+    if (this->GetExecutableScope() == EXECUTABLE_ANY) {
         log += format("   * Layers settings: %s\n", Path(Path::LAYERS_SETTINGS).AbsolutePath().c_str());
     }
 
@@ -837,6 +842,7 @@ std::string Configurator::Log() const {
             log += " - No Active Vulkan Loader Configuration\n";
         }
     }
+    /*
     if (this->GetExecutableScope() == EXECUTABLE_ALL) {
         log += " - Listed Executables:\n";
         const std::vector<Executable>& executables = this->executables.GetExecutables();
@@ -845,15 +851,22 @@ std::string Configurator::Log() const {
                           executables[i].enabled ? "enabled" : "disabled");
         }
     }
+    */
 
-    if (this->GetExecutableScope() == EXECUTABLE_PER) {
+    if (this->GetExecutableScope() == EXECUTABLE_PER || this->GetExecutableScope() == EXECUTABLE_ALL) {
         log += " - Listed Executables:\n";
         const std::vector<Executable>& executables = this->executables.GetExecutables();
         for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
-            const Configuration* configuration = this->configurations.FindConfiguration(executables[i].configuration);
+            if (this->GetExecutableScope() == EXECUTABLE_PER) {
+                const Configuration* configuration = this->configurations.FindConfiguration(executables[i].configuration);
 
-            log += format("   * %s: '%s'\n", executables[i].path.AbsolutePath().c_str(),
-                          executables[i].enabled && configuration != nullptr ? executables[i].configuration.c_str() : "None");
+                log += format("   * %s: '%s'\n", executables[i].path.AbsolutePath().c_str(),
+                              executables[i].enabled && configuration != nullptr ? executables[i].configuration.c_str() : "None");
+            } else {
+                log += format("   * %s: %s\n", executables[i].path.AbsolutePath().c_str(),
+                              executables[i].enabled ? "enabled" : "disabled");
+            }
+
             if (!executables[i].enabled) {
                 continue;
             }
