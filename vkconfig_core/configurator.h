@@ -64,7 +64,7 @@ class Configurator {
     };
 
     struct LoaderSettings {
-        std::string executable_path;
+        Path executable_path;
         std::vector<LoaderLayerSettings> layers;
         bool override_layers = true;
     };
