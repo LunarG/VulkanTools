@@ -184,7 +184,8 @@ QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSett
         json_layers.append(json_layer);
     }
 
-    if (!loader_settings.executable_path.Exists()) {
+    // This new message is shown in SDK integration test
+    if (false && !loader_settings.executable_path.Exists()) {
         this->Log(LOG_ERROR,
                   format("Executable path not found: %s", loader_settings.executable_path.AbsolutePath().c_str()).c_str());
     }

@@ -701,9 +701,10 @@ void TabDiagnostics::processClosed(int exit_code, QProcess::ExitStatus status) {
     if (!this->log_path.Empty()) {
         QFile file(this->log_path.AbsolutePath().c_str());
         const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
-        assert(result);
-        this->status = file.readAll().toStdString();
-        file.close();
+        if (result) {
+            this->status = file.readAll().toStdString();
+            file.close();
+        }
     }
 
     this->ui->diagnostic_status_text->setText(this->status.c_str());
