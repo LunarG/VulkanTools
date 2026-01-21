@@ -1004,7 +1004,7 @@ bool prepareScreenshotData(ScreenshotQueueData &data, VkImage image1) {
     const VkCommandBufferBeginInfo commandBufferBeginInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
         NULL,
-        VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+        0,
     };
     err = pTableCommandBuffer->BeginCommandBuffer(data.commandBuffer, &commandBufferBeginInfo);
     assert(!err);
