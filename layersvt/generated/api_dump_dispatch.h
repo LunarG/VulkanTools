@@ -1652,6 +1652,26 @@ VKAPI_ATTR void VKAPI_CALL vkSubmitDebugUtilsMessageEXT(VkInstance instance, VkD
     }
 }
 template <ApiDumpFormat Format>
+VKAPI_ATTR VkDeviceSize VKAPI_CALL vkGetPhysicalDeviceDescriptorSizeEXT(VkPhysicalDevice physicalDevice, VkDescriptorType descriptorType) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceDescriptorSizeEXT", "physicalDevice, descriptorType", "VkDeviceSize");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetPhysicalDeviceDescriptorSizeEXT<Format>(ApiDumpInstance::current(), physicalDevice, descriptorType);
+        }
+    }
+    VkDeviceSize result = instance_dispatch_table(physicalDevice)->GetPhysicalDeviceDescriptorSizeEXT(physicalDevice, descriptorType);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkDeviceSize", result);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetPhysicalDeviceDescriptorSizeEXT<Format>(ApiDumpInstance::current(), physicalDevice, descriptorType);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMultisamplePropertiesEXT(VkPhysicalDevice physicalDevice, VkSampleCountFlagBits samples, VkMultisamplePropertiesEXT* pMultisampleProperties) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
     dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceMultisamplePropertiesEXT", "physicalDevice, samples, pMultisampleProperties", "void");
@@ -8922,6 +8942,27 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewAddressNVX(VkDevice device, VkImage
     return result;
 }
 template <ApiDumpFormat Format>
+VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceCombinedImageSamplerIndexNVX(VkDevice device, uint64_t imageViewIndex, uint64_t samplerIndex) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetDeviceCombinedImageSamplerIndexNVX", "device, imageViewIndex, samplerIndex", "uint64_t");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetDeviceCombinedImageSamplerIndexNVX<Format>(ApiDumpInstance::current(), device, imageViewIndex, samplerIndex);
+        }
+    }
+    uint64_t result = device_dispatch_table(device)->GetDeviceCombinedImageSamplerIndexNVX(device, imageViewIndex, samplerIndex);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "uint64_t", result);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetDeviceCombinedImageSamplerIndexNVX<Format>(ApiDumpInstance::current(), device, imageViewIndex, samplerIndex);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountAMD(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -9604,6 +9645,187 @@ VKAPI_ATTR void VKAPI_CALL vkCmdDispatchGraphIndirectCountAMDX(VkCommandBuffer c
     }
 }
 #endif  // VK_ENABLE_BETA_EXTENSIONS
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkWriteSamplerDescriptorsEXT(VkDevice device, uint32_t samplerCount, const VkSamplerCreateInfo* pSamplers, const VkHostAddressRangeEXT* pDescriptors) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkWriteSamplerDescriptorsEXT", "device, samplerCount, pSamplers, pDescriptors", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkWriteSamplerDescriptorsEXT<Format>(ApiDumpInstance::current(), device, samplerCount, pSamplers, pDescriptors);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->WriteSamplerDescriptorsEXT(device, samplerCount, pSamplers, pDescriptors);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkWriteSamplerDescriptorsEXT<Format>(ApiDumpInstance::current(), device, samplerCount, pSamplers, pDescriptors);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkWriteResourceDescriptorsEXT(VkDevice device, uint32_t resourceCount, const VkResourceDescriptorInfoEXT* pResources, const VkHostAddressRangeEXT* pDescriptors) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkWriteResourceDescriptorsEXT", "device, resourceCount, pResources, pDescriptors", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkWriteResourceDescriptorsEXT<Format>(ApiDumpInstance::current(), device, resourceCount, pResources, pDescriptors);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->WriteResourceDescriptorsEXT(device, resourceCount, pResources, pDescriptors);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkWriteResourceDescriptorsEXT<Format>(ApiDumpInstance::current(), device, resourceCount, pResources, pDescriptors);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdBindSamplerHeapEXT(VkCommandBuffer commandBuffer, const VkBindHeapInfoEXT* pBindInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBindSamplerHeapEXT", "commandBuffer, pBindInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBindSamplerHeapEXT<Format>(ApiDumpInstance::current(), commandBuffer, pBindInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdBindSamplerHeapEXT(commandBuffer, pBindInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBindSamplerHeapEXT<Format>(ApiDumpInstance::current(), commandBuffer, pBindInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdBindResourceHeapEXT(VkCommandBuffer commandBuffer, const VkBindHeapInfoEXT* pBindInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBindResourceHeapEXT", "commandBuffer, pBindInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBindResourceHeapEXT<Format>(ApiDumpInstance::current(), commandBuffer, pBindInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdBindResourceHeapEXT(commandBuffer, pBindInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBindResourceHeapEXT<Format>(ApiDumpInstance::current(), commandBuffer, pBindInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdPushDataEXT(VkCommandBuffer commandBuffer, const VkPushDataInfoEXT* pPushDataInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdPushDataEXT", "commandBuffer, pPushDataInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdPushDataEXT<Format>(ApiDumpInstance::current(), commandBuffer, pPushDataInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdPushDataEXT(commandBuffer, pPushDataInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdPushDataEXT<Format>(ApiDumpInstance::current(), commandBuffer, pPushDataInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetImageOpaqueCaptureDataEXT(VkDevice device, uint32_t imageCount, const VkImage* pImages, VkHostAddressRangeEXT* pDatas) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetImageOpaqueCaptureDataEXT", "device, imageCount, pImages, pDatas", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetImageOpaqueCaptureDataEXT<Format>(ApiDumpInstance::current(), device, imageCount, pImages, pDatas);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetImageOpaqueCaptureDataEXT(device, imageCount, pImages, pDatas);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetImageOpaqueCaptureDataEXT<Format>(ApiDumpInstance::current(), device, imageCount, pImages, pDatas);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkRegisterCustomBorderColorEXT(VkDevice device, const VkSamplerCustomBorderColorCreateInfoEXT* pBorderColor, VkBool32 requestIndex, uint32_t* pIndex) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkRegisterCustomBorderColorEXT", "device, pBorderColor, requestIndex, pIndex", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkRegisterCustomBorderColorEXT<Format>(ApiDumpInstance::current(), device, pBorderColor, requestIndex, pIndex);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->RegisterCustomBorderColorEXT(device, pBorderColor, requestIndex, pIndex);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkRegisterCustomBorderColorEXT<Format>(ApiDumpInstance::current(), device, pBorderColor, requestIndex, pIndex);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkUnregisterCustomBorderColorEXT(VkDevice device, uint32_t index) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkUnregisterCustomBorderColorEXT", "device, index", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkUnregisterCustomBorderColorEXT<Format>(ApiDumpInstance::current(), device, index);
+        }
+    }
+    device_dispatch_table(device)->UnregisterCustomBorderColorEXT(device, index);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkUnregisterCustomBorderColorEXT<Format>(ApiDumpInstance::current(), device, index);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDataARM(VkDevice device, uint32_t tensorCount, const VkTensorARM* pTensors, VkHostAddressRangeEXT* pDatas) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetTensorOpaqueCaptureDataARM", "device, tensorCount, pTensors, pDatas", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetTensorOpaqueCaptureDataARM<Format>(ApiDumpInstance::current(), device, tensorCount, pTensors, pDatas);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetTensorOpaqueCaptureDataARM(device, tensorCount, pTensors, pDatas);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetTensorOpaqueCaptureDataARM<Format>(ApiDumpInstance::current(), device, tensorCount, pTensors, pDatas);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
 template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkCmdSetSampleLocationsEXT(VkCommandBuffer commandBuffer, const VkSampleLocationsInfoEXT* pSampleLocationsInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
@@ -15340,6 +15562,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
         return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyDebugUtilsMessengerEXT<Format>);
     if (strcmp(pName, "vkSubmitDebugUtilsMessageEXT") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkSubmitDebugUtilsMessageEXT<Format>);
+    if (strcmp(pName, "vkGetPhysicalDeviceDescriptorSizeEXT") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceDescriptorSizeEXT<Format>);
     if (strcmp(pName, "vkGetPhysicalDeviceMultisamplePropertiesEXT") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceMultisamplePropertiesEXT<Format>);
     if (strcmp(pName, "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT") == 0)
@@ -16104,6 +16328,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetImageViewHandle64NVX<Format>);
     if (strcmp(pName, "vkGetImageViewAddressNVX") == 0 && (!device || device_dispatch_table(device)->GetImageViewAddressNVX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetImageViewAddressNVX<Format>);
+    if (strcmp(pName, "vkGetDeviceCombinedImageSamplerIndexNVX") == 0 && (!device || device_dispatch_table(device)->GetDeviceCombinedImageSamplerIndexNVX))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceCombinedImageSamplerIndexNVX<Format>);
     if (strcmp(pName, "vkCmdDrawIndirectCountAMD") == 0 && (!device || device_dispatch_table(device)->CmdDrawIndirectCountAMD))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndirectCountAMD<Format>);
     if (strcmp(pName, "vkCmdDrawIndexedIndirectCountAMD") == 0 && (!device || device_dispatch_table(device)->CmdDrawIndexedIndirectCountAMD))
@@ -16178,6 +16404,24 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
     if (strcmp(pName, "vkCmdDispatchGraphIndirectCountAMDX") == 0 && (!device || device_dispatch_table(device)->CmdDispatchGraphIndirectCountAMDX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatchGraphIndirectCountAMDX<Format>);
 #endif  // VK_ENABLE_BETA_EXTENSIONS
+    if (strcmp(pName, "vkWriteSamplerDescriptorsEXT") == 0 && (!device || device_dispatch_table(device)->WriteSamplerDescriptorsEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkWriteSamplerDescriptorsEXT<Format>);
+    if (strcmp(pName, "vkWriteResourceDescriptorsEXT") == 0 && (!device || device_dispatch_table(device)->WriteResourceDescriptorsEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkWriteResourceDescriptorsEXT<Format>);
+    if (strcmp(pName, "vkCmdBindSamplerHeapEXT") == 0 && (!device || device_dispatch_table(device)->CmdBindSamplerHeapEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindSamplerHeapEXT<Format>);
+    if (strcmp(pName, "vkCmdBindResourceHeapEXT") == 0 && (!device || device_dispatch_table(device)->CmdBindResourceHeapEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindResourceHeapEXT<Format>);
+    if (strcmp(pName, "vkCmdPushDataEXT") == 0 && (!device || device_dispatch_table(device)->CmdPushDataEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdPushDataEXT<Format>);
+    if (strcmp(pName, "vkGetImageOpaqueCaptureDataEXT") == 0 && (!device || device_dispatch_table(device)->GetImageOpaqueCaptureDataEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetImageOpaqueCaptureDataEXT<Format>);
+    if (strcmp(pName, "vkRegisterCustomBorderColorEXT") == 0 && (!device || device_dispatch_table(device)->RegisterCustomBorderColorEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkRegisterCustomBorderColorEXT<Format>);
+    if (strcmp(pName, "vkUnregisterCustomBorderColorEXT") == 0 && (!device || device_dispatch_table(device)->UnregisterCustomBorderColorEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkUnregisterCustomBorderColorEXT<Format>);
+    if (strcmp(pName, "vkGetTensorOpaqueCaptureDataARM") == 0 && (!device || device_dispatch_table(device)->GetTensorOpaqueCaptureDataARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetTensorOpaqueCaptureDataARM<Format>);
     if (strcmp(pName, "vkCmdSetSampleLocationsEXT") == 0 && (!device || device_dispatch_table(device)->CmdSetSampleLocationsEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetSampleLocationsEXT<Format>);
     if (strcmp(pName, "vkGetImageDrmFormatModifierPropertiesEXT") == 0 && (!device || device_dispatch_table(device)->GetImageDrmFormatModifierPropertiesEXT))

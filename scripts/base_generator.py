@@ -941,36 +941,21 @@ class BaseGenerator(OutputGenerator):
 
         elif category == 'funcpointer':
             requires = typeElem.get('requires')
-            paramTypes = []
-            for paramType in typeElem.findall('type'):
-                paramTypes.append(paramType)
-
-            # not much help from XML, must resort to string processing
-            text = ''
-            for node in typeElem.itertext():
-                comment = typeElem.find('comment')
-                if comment is not None and comment.text == node:
-                    continue
-                text += node
-
-            paramsTextList = text.split(')(')
-            paramsText = paramsTextList[1]
-
-            returnTypeSplit = text.split('(')
-            returnType = returnTypeSplit[0].removesuffix('typedef ')
+            protoElem = typeElem.find('proto')
+            returnType = textIfFind(protoElem, 'type')
 
             params = []
-            # Loop if more than one param, splitting on the comma. Otherwise just add the single param
-            if ',' in paramsText:
-                for param in paramsText.split(','):
-                    paramSplit = param.split(' ')
-                    params.append(FuncPointerParam(paramSplit[-1], paramTypes[0], ' '.join(paramSplit[0:-1]), param))
-                    paramTypes.remove(paramTypes[0]) # pop the front so that the next iter gets the right type
-            elif len(paramTypes) > 0:
-                paramSplit = paramsText.split(' ')
-                params.append(FuncPointerParam(paramSplit[-1], paramTypes[0], ' '.join(paramSplit[0:-1]), paramsText))
+            for param in typeElem.findall('param'):
+                paramName = param.find('name').text
+                paramType = textIfFind(param, 'type')
 
-            self.vk.funcPointers[typeName] = FuncPointer(typeName, protect, returnType, requires,  params, self.makeCParamDecl(typeElem, 0))
+                cdecl = self.makeCParamDecl(param, 0)
+                paramFullType = ' '.join(cdecl.split()[:-1])
+                
+                params.append(FuncPointerParam(paramName, paramType, paramFullType, cdecl))
+
+            self.vk.funcPointers[typeName] = FuncPointer(
+                typeName, protect, returnType, requires,  params, self.makeCParamDecl(typeElem, 0))
 
         else:
             # not all categories are used
