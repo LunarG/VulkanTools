@@ -1,5 +1,5 @@
 ## Vulkan Configurator 3.4.2 - Febuary 2025
-[Vulkan SDK 1.4.339.0](https://github.com/LunarG/VulkanTools/tree/main)
+[Vulkan SDK 1.4.341.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.341)
 
 ### Improvements:
 - Add button to open Vulkan Caps Viewer
