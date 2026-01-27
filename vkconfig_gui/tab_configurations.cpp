@@ -682,12 +682,12 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
         if (right_click) {
             TreeItem *item = static_cast<TreeItem *>(this->ui->configurations_settings->itemAt(right_click->pos()));
 
-            const Configuration *configuration = configurator.GetActiveConfiguration();
-            const Parameter *parameter = configuration->GetActiveParameter();
-
-            const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
-
             if (item != nullptr) {
+                const Configuration *configuration = configurator.GetActiveConfiguration();
+                const Parameter *parameter = configuration->GetActiveParameter();
+
+                const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
+
                 const SettingMeta *setting = ::FindSetting(layer->settings, item->key.c_str());
                 assert(setting != nullptr);
 
