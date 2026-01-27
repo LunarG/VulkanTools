@@ -9,6 +9,7 @@
 - Fix applying layer preset crash
 - Fix vendor IDs
 - Fix all enabled executables status log
+- Fix layer settings tree context menu crash when no configuration is selected
 
 ## Vulkan Configurator 3.4.1 - December 2025
 [Vulkan SDK 1.4.335.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.335)
