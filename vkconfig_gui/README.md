@@ -1,6 +1,6 @@
 ﻿<!-- markdownlint-disable MD041 -->
 <p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
-<p align="left">Copyright &copy; 2015-2025 LunarG, Inc.</p>
+<p align="left">Copyright &copy; 2015-2026 LunarG, Inc.</p>
 
 [![Creative Commons][3]][4]
 
