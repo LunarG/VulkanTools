@@ -208,11 +208,11 @@ TEST(test_configuration_manager, ExportImport) {
     configuration_manager.LoadDefaultConfigurations(layer_manager);
     std::size_t count_init = configuration_manager.available_configurations.size();
 
-    configuration_manager.ExportConfiguration(layer_manager, Path(Path::HOME).RelativePath() + "ValidationExported.json",
+    configuration_manager.ExportConfiguration(layer_manager, Path(Path::HOME).RelativePath() + "/ValidationExported.json",
                                               "Validation");
 
     std::string configuration_name;
-    configuration_manager.ImportConfiguration(layer_manager, Path(Path::HOME).RelativePath() + "ValidationExported.json",
+    configuration_manager.ImportConfiguration(layer_manager, Path(Path::HOME).RelativePath() + "/ValidationExported.json",
                                               configuration_name);
     EXPECT_EQ(count_init + 1, configuration_manager.available_configurations.size());
 

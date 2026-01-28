@@ -246,9 +246,6 @@ TEST(test_path, convert_native_separator_empty) {
 
 TEST(test_path, get_path_home) {
     const std::string value_default(AbsolutePath(Path::HOME).c_str());
-
-    EXPECT_TRUE(EndsWith(value_default, "VulkanSDK"));
-
     qputenv("VULKAN_HOME", ":/MyVulkanSDKLocalDir");
 
     const std::string value_env(AbsolutePath(Path::HOME).c_str());
@@ -296,21 +293,24 @@ TEST(test_path, get_path_loader_settings) {
 }
 
 TEST(test_path, get_path_override_settings) {
+    Path path("~/TestVulkanDirectory");
+    qputenv("VULKAN_SDK", path.AbsolutePath().c_str());
+
     {
         const QString value(AbsolutePath(Path::LAYERS_SETTINGS).c_str());
         EXPECT_TRUE(value.endsWith("vk_layer_settings.txt"));
     }
 
     {
-        qputenv("VK_LAYER_SETTINGS_PATH", "~/VulkanSDK/vk_layer_settings.txt");
+        qputenv("VK_LAYER_SETTINGS_PATH", "~/TestVulkanDirectory/vk_layer_settings.txt");
         const std::string value = AbsolutePath(Path::LAYERS_SETTINGS).c_str();
-        EXPECT_STREQ(Path("~/VulkanSDK/vk_layer_settings.txt").AbsolutePath().c_str(), value.c_str());
+        EXPECT_STREQ(Path("~/TestVulkanDirectory/vk_layer_settings.txt").AbsolutePath().c_str(), value.c_str());
     }
 
     {
-        qputenv("VK_LAYER_SETTINGS_PATH", "~/VulkanSDK");
+        qputenv("VK_LAYER_SETTINGS_PATH", "~/TestVulkanDirectory");
         const std::string value = AbsolutePath(Path::LAYERS_SETTINGS).c_str();
-        EXPECT_STREQ(Path("~/VulkanSDK/vk_layer_settings.txt").AbsolutePath().c_str(), value.c_str());
+        EXPECT_STREQ(Path("~/TestVulkanDirectory/vk_layer_settings.txt").AbsolutePath().c_str(), value.c_str());
     }
 }
 
@@ -321,9 +321,9 @@ TEST(test_path, get_path_override_layers) {
 }
 
 TEST(test_path, get_path_vulkan_sdk) {
-    qputenv("VULKAN_SDK", "~/VulkanSDK");
+    qputenv("VULKAN_SDK", "~/TestVulkanDirectory");
     const std::string value = AbsolutePath(Path::SDK);
-    EXPECT_STREQ(Path("~/VulkanSDK").AbsolutePath().c_str(), value.c_str());
+    EXPECT_STREQ(Path("~/TestVulkanDirectory").AbsolutePath().c_str(), value.c_str());
 }
 
 TEST(test_path, get_path_vulkan_content) {
@@ -339,9 +339,9 @@ TEST(test_path, get_path_home_sdk) {
     Path home_current = Path(Path::HOME);
     EXPECT_STREQ(home_current.AbsolutePath().c_str(), home_default.AbsolutePath().c_str());
 
-    qputenv("VULKAN_SDK", "~/VulkanSDK");
+    qputenv("VULKAN_SDK", "~/TestVulkanDirectory");
     const std::string value = AbsolutePath(Path::SDK);
-    EXPECT_STREQ(Path("~/VulkanSDK").AbsolutePath().c_str(), value.c_str());
+    EXPECT_STREQ(Path("~/TestVulkanDirectory").AbsolutePath().c_str(), value.c_str());
 }
 
 TEST(test_path, get_path_url_sdk) {

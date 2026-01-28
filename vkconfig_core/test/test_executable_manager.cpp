@@ -142,10 +142,10 @@ TEST(test_executable_manager, remove_executable) {
 TEST(test_executable_manager, remove_missing_applications) {
     ExecutableManager executable_manager;
 
-    const Path& path_missing = ::Path(Path::HOME).RelativePath() + "my_missing_executable";
-    const Path& path_exciting = ::Path(Path::HOME).RelativePath() + "my_exciting_executable";
+    const Path& path_missing = ::Path(Path::HOME).RelativePath() + "/my_missing_executable";
+    const Path& path_existing = ::Path(Path::HOME).RelativePath() + "/my_existing_executable";
 
-    QFile file(path_exciting.AbsolutePath().c_str());
+    QFile file(path_existing.AbsolutePath().c_str());
     const bool result = file.open(QIODevice::WriteOnly);
     ASSERT_TRUE(result);
 
@@ -155,7 +155,7 @@ TEST(test_executable_manager, remove_missing_applications) {
     executable.path = path_missing.AbsolutePath();
     executables.push_back(executable);
 
-    executable.path = path_exciting.AbsolutePath();
+    executable.path = path_existing.AbsolutePath();
     executables.push_back(executable);
 
     EXPECT_EQ(1, executable_manager.RemoveMissingExecutables(executables).size());

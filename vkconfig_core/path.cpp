@@ -300,7 +300,14 @@ static const std::string GetDefaultHomeDir() {
     }
 
     if (absolute_path.empty()) {  // Default path
-        absolute_path = QDir().homePath().toStdString() + "/VulkanSDK";
+        absolute_path = QDir().homePath().toStdString() + "/Vulkan";
+        /*
+                QFile file(absolute_path.c_str());
+                bool result = file.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+                if (!result) {
+                    absolute_path = QDir().homePath().toStdString() + "/Vulkan";
+                }
+        */
     }
 
     return absolute_path;
