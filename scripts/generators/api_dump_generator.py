@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2015-2025 Valve Corporation
-# Copyright (c) 2015-2025 LunarG, Inc.
+# Copyright (c) 2015-2026 Valve Corporation
+# Copyright (c) 2015-2026 LunarG, Inc.
 # Copyright (c) 2015-2016, 2019, 2021 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,10 +67,16 @@ PARAMETER_STATE = {
     'type': {
         'VkDescriptorGetInfoEXT':
             'ApiDumpInstance::current().setDescriptorType(object.type);',
+        'VkResourceDescriptorInfoEXT':
+            'ApiDumpInstance::current().setDescriptorType(object.type);',
         'VkIndirectExecutionSetInfoEXT':
             'ApiDumpInstance::current().setIndirectExecutionSetInfoType(object.type);',
         'VkIndirectCommandsLayoutTokenEXT':
             'ApiDumpInstance::current().setIndirectCommandsLayoutToken(object.type);',
+    },
+    'source': {
+        'VkDescriptorSetAndBindingMappingEXT':
+            'ApiDumpInstance::current().setDescriptorMappingSource(object.source);',
     },
     'sps_max_sub_layers_minus1':{
         'StdVideoH265SequenceParameterSet':
@@ -134,6 +140,25 @@ VALIDITY_CHECKS = {
         'pUniformBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER',
         'pStorageBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER',
         'accelerationStructure': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR',
+    },
+    'VkResourceDescriptorDataEXT':{
+        'pImage': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT',
+        'pTexelBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER',
+        'pAddressRange': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV',
+        'pTensorARM': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_TENSOR_ARM',
+    },
+    'VkDescriptorMappingSourceDataEXT':{
+        'constantOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT',
+        'pushIndex' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT',
+        'indirectIndex' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT',
+        'indirectIndexArray' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT',
+        'heapData' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT',
+        'pushDataOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT',
+        'pushAddressOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT',
+        'indirectAddress' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT',
+        'shaderRecordIndex' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT',
+        'shaderRecordDataOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT',
+        'shaderRecordAddressOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT',
     },
     'VkPipelineRenderingCreateInfo': {
         'colorAttachmentCount': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
@@ -318,8 +343,8 @@ class ApiDumpGenerator(BaseGenerator):
 
     def generate_copyright(self):
         self.write('''
-/* Copyright (c) 2015-2025 Valve Corporation
- * Copyright (c) 2015-2025 LunarG, Inc.
+/* Copyright (c) 2015-2026 Valve Corporation
+ * Copyright (c) 2015-2026 LunarG, Inc.
  * Copyright (c) 2015-2017, 2019, 2021 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
