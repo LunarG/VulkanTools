@@ -47,7 +47,7 @@ def RunGenerators(api: str, registry: str, video_registry: str, directory: str, 
     scripts = os.path.dirname(registry)
     scripts_directory_path = os.path.dirname(os.path.abspath(__file__))
     registry_headers_path = os.path.join(scripts_directory_path, scripts)
-    sys.path.append(registry_headers_path)
+    sys.path.insert(0, registry_headers_path)
     try:
         from reg import Registry
     except:
