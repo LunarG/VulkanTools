@@ -1,6 +1,6 @@
-/* Copyright (c) 2015-2023 The Khronos Group Inc.
- * Copyright (c) 2015-2023 Valve Corporation
- * Copyright (c) 2015-2023 LunarG, Inc.
+/* Copyright (c) 2015-2026 The Khronos Group Inc.
+ * Copyright (c) 2015-2026 Valve Corporation
+ * Copyright (c) 2015-2026 LunarG, Inc.
  * Copyright (C) 2015-2016 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -973,6 +973,9 @@ class ApiDumpInstance {
     VkIndirectExecutionSetInfoTypeEXT getIndirectExecutionSetInfoType() { return this->indirectExecutionSetInfoType; }
     void setIndirectCommandsLayoutToken(VkIndirectCommandsTokenTypeEXT type) { this->indirectCommandsLayoutToken = type; }
     VkIndirectCommandsTokenTypeEXT getIndirectCommandsLayoutToken() { return this->indirectCommandsLayoutToken; }
+    void setDescriptorMappingSource(VkDescriptorMappingSourceEXT source) { this->descriptorMappingSource = source; }
+    VkDescriptorMappingSourceEXT getDescriptorMappingSource() { return this->descriptorMappingSource; }
+
     void setSpsMaxSubLayersMinus1(uint8_t sps_max_sub_layers_minus1) {
         this->sps_max_sub_layers_minus1 = sps_max_sub_layers_minus1;
     }
@@ -1052,7 +1055,7 @@ class ApiDumpInstance {
     // Storage for VkPhysicalDeviceMemoryBudgetPropertiesEXT which needs the number of heaps from VkPhysicalDeviceMemoryProperties
     uint32_t memory_heap_count;
 
-    // Storage for the VkDescriptorDataEXT union to know what is the active element
+    // Storage for the VkDescriptorDataEXT/VkResourceDescriptorDataEXT union to know what is the active element
     VkDescriptorType descriptor_type;
 
     // True when creating a graphics pipeline library with VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT or
@@ -1064,6 +1067,9 @@ class ApiDumpInstance {
 
     // Storage for the VkIndirectCommandsTokenDataEXT union to know which is the active element
     VkIndirectCommandsTokenTypeEXT indirectCommandsLayoutToken;
+
+    // Storage for the VkDescriptorMappingSourceDataEXT union
+    VkDescriptorMappingSourceEXT descriptorMappingSource;
 
     // Storage for StdVideoH265HrdParameters's array length for pSubLayerHrdParametersNal and pSubLayerHrdParametersVcl
     uint8_t sps_max_sub_layers_minus1;
