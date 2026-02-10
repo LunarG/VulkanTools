@@ -146,6 +146,28 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, c
 
 extern "C" {
 
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance instance, const char* funcName) {
+    return instance_dispatch_table(instance)->GetPhysicalDeviceProcAddr(instance, funcName);
+}
+
+EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct) {
+    assert(pVersionStruct != NULL);
+    assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
+
+    // Fill in the function pointers if our version is at least capable of having the structure contain them.
+    if (pVersionStruct->loaderLayerInterfaceVersion >= 2) {
+        pVersionStruct->pfnGetInstanceProcAddr = vkGetInstanceProcAddr;
+        pVersionStruct->pfnGetDeviceProcAddr = vkGetDeviceProcAddr;
+        pVersionStruct->pfnGetPhysicalDeviceProcAddr = vk_layerGetPhysicalDeviceProcAddr;
+    }
+
+    if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION) {
+        pVersionStruct->loaderLayerInterfaceVersion = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+    }
+
+    return VK_SUCCESS;
+}
+
 EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char* pLayerName,
                                                                                       uint32_t* pPropertyCount,
                                                                                       VkExtensionProperties* pProperties) {
