@@ -516,7 +516,7 @@ class ApiDumpGenerator(BaseGenerator):
         self.write('VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char* pName)')
         self.write('{\n')
         for command in self.vk.commands.values():
-            if command.name in ['vkEnumerateDeviceExtensionProperties', 'vkEnumerateInstanceVersion'] or (command.device and 'VK_EXT_debug_utils' not in command.extensions):
+            if command.name in ['vkEnumerateInstanceVersion'] or (command.device and 'VK_EXT_debug_utils' not in command.extensions):
                 continue
             protect.add_guard(self, command.protect)
             self.write(f'if(strcmp(pName, "{command.name}") == 0)')
@@ -898,7 +898,7 @@ class ApiDumpGenerator(BaseGenerator):
         if var.fullType == 'const char*' or (len(var.fixedSizeArray) > 0 and var.type == 'char'):
             return False
 
-        # Function poitners are considered poitners, but we want to print them as values
+        # Function pointers are considered pointers, but we want to print them as values
         if var.type in self.vk.funcPointers.keys():
             return False
 
@@ -937,7 +937,7 @@ class ApiDumpGenerator(BaseGenerator):
                     }}''')
 
             elif len(var.fixedSizeArray) > 2:
-                raise RuntimeError("Unhandled fixed array dimentionality")
+                raise RuntimeError("Unhandled fixed array dimensionality")
             elif len(var.fixedSizeArray) == 2:
                 self.write(f'dump_double_array<Format>({value}, {var.fixedSizeArray[0]},  {var.fixedSizeArray[1]}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
 
