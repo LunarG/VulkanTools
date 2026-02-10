@@ -15372,6 +15372,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateDevice<Format>);
     if (strcmp(pName, "vkEnumerateInstanceExtensionProperties") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceExtensionProperties);
+    if (strcmp(pName, "vkEnumerateDeviceExtensionProperties") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateDeviceExtensionProperties);
     if (strcmp(pName, "vkEnumerateInstanceLayerProperties") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceLayerProperties);
     if (strcmp(pName, "vkEnumerateDeviceLayerProperties") == 0)
