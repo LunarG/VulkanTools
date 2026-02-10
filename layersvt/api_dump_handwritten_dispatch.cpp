@@ -27,9 +27,7 @@
 
 #include "generated/api_dump_dispatch.h"
 
-extern "C" {
-
-EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL layer_vkGetInstanceProcAddr(VkInstance instance, const char* pName) {
     PFN_vkVoidFunction instance_func = nullptr;
     switch (ApiDumpInstance::current().settings().format()) {
         case ApiDumpFormat::Text:
@@ -65,7 +63,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     return instance_dispatch_table(instance)->GetInstanceProcAddr(instance, pName);
 }
 
-EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL layer_vkGetDeviceProcAddr(VkDevice device, const char* pName) {
     PFN_vkVoidFunction device_func = nullptr;
     switch (ApiDumpInstance::current().settings().format()) {
         case ApiDumpFormat::Text:
@@ -84,5 +82,33 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
     if (device == VK_NULL_HANDLE) return nullptr;
     if (device_dispatch_table(device)->GetDeviceProcAddr == NULL) return nullptr;
     return device_dispatch_table(device)->GetDeviceProcAddr(device, pName);
+}
+
+extern "C" {
+
+EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* funcName) {
+    return layer_vkGetInstanceProcAddr(instance, funcName);
+}
+
+EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice dev, const char* funcName) {
+    return layer_vkGetDeviceProcAddr(dev, funcName);
+}
+
+EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct) {
+    assert(pVersionStruct != NULL);
+    assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
+
+    // Fill in the function pointers if our version is at least capable of having the structure contain them.
+    if (pVersionStruct->loaderLayerInterfaceVersion >= 2) {
+        pVersionStruct->pfnGetInstanceProcAddr = layer_vkGetInstanceProcAddr;
+        pVersionStruct->pfnGetDeviceProcAddr = layer_vkGetDeviceProcAddr;
+        pVersionStruct->pfnGetPhysicalDeviceProcAddr = vk_layerGetPhysicalDeviceProcAddr;
+    }
+
+    if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION) {
+        pVersionStruct->loaderLayerInterfaceVersion = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+    }
+
+    return VK_SUCCESS;
 }
 }

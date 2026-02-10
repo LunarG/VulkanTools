@@ -521,7 +521,10 @@ class ApiDumpGenerator(BaseGenerator):
             protect.add_guard(self, command.protect)
             self.write(f'if(strcmp(pName, "{command.name}") == 0)')
             if command.name in NON_TEMPLATEDTED_FUNCTIONS:
-                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
+                cmd = command.name
+                if cmd == 'vkGetInstanceProcAddr':
+                    cmd = 'layer_' + cmd
+                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({cmd});')
             else:
                 self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name}<Format>);')
         protect.add_guard(self, None)
@@ -535,7 +538,10 @@ class ApiDumpGenerator(BaseGenerator):
             protect.add_guard(self, command.protect)
             self.write(f'if(strcmp(pName, "{command.name}") == 0 && (!device || device_dispatch_table(device)->{command.name[2:]}))')
             if command.name in NON_TEMPLATEDTED_FUNCTIONS:
-                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
+                cmd = command.name
+                if cmd == 'vkGetDeviceProcAddr':
+                    cmd = 'layer_' + cmd
+                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({cmd});')
             else:
                 self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name}<Format>);')
         protect.add_guard(self, None)

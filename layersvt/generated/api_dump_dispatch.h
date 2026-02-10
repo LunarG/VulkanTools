@@ -16354,7 +16354,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
     if (strcmp(pName, "vkGetPhysicalDeviceMemoryProperties") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceMemoryProperties<Format>);
     if (strcmp(pName, "vkGetInstanceProcAddr") == 0)
-        return reinterpret_cast<PFN_vkVoidFunction>(vkGetInstanceProcAddr);
+        return reinterpret_cast<PFN_vkVoidFunction>(layer_vkGetInstanceProcAddr);
     if (strcmp(pName, "vkCreateDevice") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateDevice<Format>);
     if (strcmp(pName, "vkEnumerateInstanceExtensionProperties") == 0)
@@ -16636,7 +16636,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
 template <ApiDumpFormat Format>
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char* pName) {
     if (strcmp(pName, "vkGetDeviceProcAddr") == 0 && (!device || device_dispatch_table(device)->GetDeviceProcAddr))
-        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceProcAddr);
+        return reinterpret_cast<PFN_vkVoidFunction>(layer_vkGetDeviceProcAddr);
     if (strcmp(pName, "vkDestroyDevice") == 0 && (!device || device_dispatch_table(device)->DestroyDevice))
         return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyDevice<Format>);
     if (strcmp(pName, "vkGetDeviceQueue") == 0 && (!device || device_dispatch_table(device)->GetDeviceQueue))
