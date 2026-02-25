@@ -22,7 +22,7 @@
 #include <vector>
 #include <string>
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 struct LayerSettings;
 
@@ -311,34 +311,34 @@ struct LayerSettings {
 	// 	const VkLayerSettingEXT*    pSettings;
 	// } VkLayerSettingsCreateInfoEXT;
 
-	std::vector<VkLayerSettingEXT> info() {
+	std::vector<vk::LayerSettingEXT> info() {
 		this->reference_1_2_1.init();
 
-		std::vector<VkLayerSettingEXT> init{
-			{"VK_LAYER_LUNARG_reference_1_2_1", "toogle", VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &this->reference_1_2_1.toogle},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "enum_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.enum_required_only.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "enum_with_optional", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.enum_with_optional.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "flags_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT, static_cast<uint32_t>(this->reference_1_2_1.flags_required_only_info.size()), this->reference_1_2_1.flags_required_only_info.empty() ? nullptr : &this->reference_1_2_1.flags_required_only_info[0]},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "flags_with_optional", VK_LAYER_SETTING_TYPE_STRING_EXT, static_cast<uint32_t>(this->reference_1_2_1.flags_with_optional_info.size()), this->reference_1_2_1.flags_with_optional_info.empty() ? nullptr : &this->reference_1_2_1.flags_with_optional_info[0]},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "string_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.string_required_only.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "string_with_optional", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.string_with_optional.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "bool_required_only", VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &this->reference_1_2_1.bool_required_only},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "bool_with_optional", VK_LAYER_SETTING_TYPE_BOOL32_EXT, 1, &this->reference_1_2_1.bool_with_optional},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "load_file_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.load_file_required_only.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "load_file_with_optional", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.load_file_with_optional.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "save_file_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.save_file_required_only.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "save_file_with_optional", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.save_file_with_optional.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "save_folder_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.save_folder_required_only.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "save_folder_with_optional", VK_LAYER_SETTING_TYPE_STRING_EXT, 1, this->reference_1_2_1.save_folder_with_optional.c_str()},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "int_required_only", VK_LAYER_SETTING_TYPE_INT64_EXT, 1, &this->reference_1_2_1.int_required_only},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "int_with_optional", VK_LAYER_SETTING_TYPE_INT64_EXT, 1, &this->reference_1_2_1.int_with_optional},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "float_required_only", VK_LAYER_SETTING_TYPE_FLOAT32_EXT, 1, &this->reference_1_2_1.float_required_only},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "float_with_optional", VK_LAYER_SETTING_TYPE_FLOAT32_EXT, 1, &this->reference_1_2_1.float_with_optional},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "frames_required_only", VK_LAYER_SETTING_TYPE_UINT32_EXT, 1, &this->reference_1_2_1.frames_required_only},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "frames_with_optional", VK_LAYER_SETTING_TYPE_UINT32_EXT, 1, &this->reference_1_2_1.frames_with_optional},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "list_required_only", VK_LAYER_SETTING_TYPE_STRING_EXT, static_cast<uint32_t>(this->reference_1_2_1.list_required_only_info.size()), this->reference_1_2_1.list_required_only_info.empty() ? nullptr : &this->reference_1_2_1.list_required_only_info[0]},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "list_with_optional", VK_LAYER_SETTING_TYPE_STRING_EXT, static_cast<uint32_t>(this->reference_1_2_1.list_with_optional_info.size()), this->reference_1_2_1.list_with_optional_info.empty() ? nullptr : &this->reference_1_2_1.list_with_optional_info[0]},
-			{"VK_LAYER_LUNARG_reference_1_2_1", "list_empty", VK_LAYER_SETTING_TYPE_STRING_EXT, static_cast<uint32_t>(this->reference_1_2_1.list_empty_info.size()), this->reference_1_2_1.list_empty_info.empty() ? nullptr : &this->reference_1_2_1.list_empty_info[0]},
+		std::vector<vk::LayerSettingEXT> init{
+			{"VK_LAYER_LUNARG_reference_1_2_1", "toogle", vk::LayerSettingTypeEXT::eBool32, 1, &this->reference_1_2_1.toogle},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "enum_required_only", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.enum_required_only.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "enum_with_optional", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.enum_with_optional.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "flags_required_only", vk::LayerSettingTypeEXT::eString, static_cast<uint32_t>(this->reference_1_2_1.flags_required_only_info.size()), this->reference_1_2_1.flags_required_only_info.empty() ? nullptr : &this->reference_1_2_1.flags_required_only_info[0]},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "flags_with_optional", vk::LayerSettingTypeEXT::eString, static_cast<uint32_t>(this->reference_1_2_1.flags_with_optional_info.size()), this->reference_1_2_1.flags_with_optional_info.empty() ? nullptr : &this->reference_1_2_1.flags_with_optional_info[0]},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "string_required_only", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.string_required_only.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "string_with_optional", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.string_with_optional.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "bool_required_only", vk::LayerSettingTypeEXT::eBool32, 1, &this->reference_1_2_1.bool_required_only},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "bool_with_optional", vk::LayerSettingTypeEXT::eBool32, 1, &this->reference_1_2_1.bool_with_optional},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "load_file_required_only", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.load_file_required_only.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "load_file_with_optional", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.load_file_with_optional.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "save_file_required_only", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.save_file_required_only.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "save_file_with_optional", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.save_file_with_optional.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "save_folder_required_only", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.save_folder_required_only.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "save_folder_with_optional", vk::LayerSettingTypeEXT::eString, 1, this->reference_1_2_1.save_folder_with_optional.c_str()},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "int_required_only", vk::LayerSettingTypeEXT::eInt64, 1, &this->reference_1_2_1.int_required_only},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "int_with_optional", vk::LayerSettingTypeEXT::eInt64, 1, &this->reference_1_2_1.int_with_optional},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "float_required_only", vk::LayerSettingTypeEXT::eFloat32, 1, &this->reference_1_2_1.float_required_only},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "float_with_optional", vk::LayerSettingTypeEXT::eFloat32, 1, &this->reference_1_2_1.float_with_optional},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "frames_required_only", vk::LayerSettingTypeEXT::eUint32, 1, &this->reference_1_2_1.frames_required_only},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "frames_with_optional", vk::LayerSettingTypeEXT::eUint32, 1, &this->reference_1_2_1.frames_with_optional},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "list_required_only", vk::LayerSettingTypeEXT::eString, static_cast<uint32_t>(this->reference_1_2_1.list_required_only_info.size()), this->reference_1_2_1.list_required_only_info.empty() ? nullptr : &this->reference_1_2_1.list_required_only_info[0]},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "list_with_optional", vk::LayerSettingTypeEXT::eString, static_cast<uint32_t>(this->reference_1_2_1.list_with_optional_info.size()), this->reference_1_2_1.list_with_optional_info.empty() ? nullptr : &this->reference_1_2_1.list_with_optional_info[0]},
+			{"VK_LAYER_LUNARG_reference_1_2_1", "list_empty", vk::LayerSettingTypeEXT::eString, static_cast<uint32_t>(this->reference_1_2_1.list_empty_info.size()), this->reference_1_2_1.list_empty_info.empty() ? nullptr : &this->reference_1_2_1.list_empty_info[0]},
 		};
 		return init;
 	};

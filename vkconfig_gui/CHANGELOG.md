@@ -1,4 +1,11 @@
-## Vulkan Configurator 3.4.2 - Febuary 2025
+## Vulkan Configurator 3.4.3 - May 2026
+[Vulkan SDK 1.4.3XX.0](https://github.com/LunarG/VulkanTools/tree/main)
+
+### Improvements:
+- Improve generated layer settings C++ library to output to code for `vulkan.hpp`
+- Clean up generated layer settings C++ library for less friction on use
+
+## Vulkan Configurator 3.4.2 - Febuary 2026
 [Vulkan SDK 1.4.341.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.341)
 
 ### Improvements:

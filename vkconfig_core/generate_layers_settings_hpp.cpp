@@ -22,7 +22,7 @@
 
 #include <QTextStream>
 
-bool GenerateSettingsCode(Configurator& configurator, const Path& export_path) {
+bool GenerateSettingsCode(Configurator& configurator, ExportHppMode mode, const Path& export_path) {
     QFile file(export_path.AbsolutePath().c_str());
 
     const bool result_layers_file = file.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -60,7 +60,11 @@ bool GenerateSettingsCode(Configurator& configurator, const Path& export_path) {
     stream << "#include <vector>\n";
     stream << "#include <string>\n";
     stream << "\n";
-    stream << "#include <vulkan/vulkan.h>\n";
+    if (mode == EXPORT_HPP_VULKAN_HPP) {
+        stream << "#include <vulkan/vulkan.hpp>\n";
+    } else {
+        stream << "#include <vulkan/vulkan.h>\n";
+    }
     stream << "\n";
     stream << "struct LayerSettings;\n";
     stream << "\n";
@@ -241,25 +245,31 @@ bool GenerateSettingsCode(Configurator& configurator, const Path& export_path) {
         for (std::size_t setting_index = 0, setting_count = parameter.settings.size(); setting_index < setting_count;
              ++setting_index) {
             SettingData* setting = parameter.settings[setting_index];
-            if (setting->type != SETTING_LIST && setting->type != SETTING_FLAGS) {
+            if (IsInfoStringArrayRequired(setting->type)) {
+                stream << format("\tstd::vector<const char*> %s_info;\n", setting->key.c_str()).c_str();
+                continue;
+            } else if (IsInfoStringRequired(setting->type)) {
+                stream << format("\tconst char* %s_info = nullptr;\n", setting->key.c_str()).c_str();
                 continue;
             }
-
-            stream << format("\tstd::vector<const char*> %s_info;\n", setting->key.c_str()).c_str();
         }
 
+        stream << "\n";
         stream << "\tvoid init() {\n";
         for (std::size_t setting_index = 0, setting_count = parameter.settings.size(); setting_index < setting_count;
              ++setting_index) {
             SettingData* setting = parameter.settings[setting_index];
-            if (setting->type != SETTING_LIST && setting->type != SETTING_FLAGS) {
+            if (IsInfoStringArrayRequired(setting->type)) {
+                stream
+                    << format("\t\tthis->%s_info.resize(this->%s.size());\n", setting->key.c_str(), setting->key.c_str()).c_str();
+                stream << format("\t\tfor (std::size_t i = 0, n = %s_info.size(); i < n; ++i) {\n", setting->key.c_str()).c_str();
+                stream << format("\t\t\tthis->%s_info[i] = this->%s[i].c_str();\n", setting->key.c_str(), setting->key.c_str())
+                              .c_str();
+                stream << "\t\t}\n";
                 continue;
+            } else if (IsInfoStringRequired(setting->type)) {
+                stream << format("\t\tthis->%s_info = this->%s.c_str();\n", setting->key.c_str(), setting->key.c_str()).c_str();
             }
-
-            stream << format("\t\tthis->%s_info.resize(this->%s.size());\n", setting->key.c_str(), setting->key.c_str()).c_str();
-            stream << format("\t\tfor (std::size_t i = 0, n = %s_info.size(); i < n; ++i) {\n", setting->key.c_str()).c_str();
-            stream << format("\t\t\tthis->%s_info[i] = this->%s[i].c_str();\n", setting->key.c_str(), setting->key.c_str()).c_str();
-            stream << "\t\t}\n";
         }
         stream << "\t}\n";
 
@@ -303,8 +313,14 @@ bool GenerateSettingsCode(Configurator& configurator, const Path& export_path) {
     stream << "\t// \tconst void*                 pNext;\n";
     stream << "\t// \tuint32_t                    settingCount;\n";
     stream << "\t// \tconst VkLayerSettingEXT*    pSettings;\n";
-    stream << "\t// } VkLayerSettingsCreateInfoEXT;\n";
-    stream << "\tstd::vector<VkLayerSettingEXT> info() {\n";
+    stream << "\t// } VkLayerSettingsCreateInfoEXT;\n\n";
+
+    if (mode == EXPORT_HPP_VULKAN_HPP) {
+        stream << "\tstd::vector<vk::LayerSettingEXT> info() {\n";
+    } else {
+        stream << "\tstd::vector<VkLayerSettingEXT> info() {\n";
+    }
+
     for (std::size_t parameter_index = 0, parameter_count = configuration->parameters.size(); parameter_index < parameter_count;
          ++parameter_index) {
         const Parameter& parameter = configuration->parameters[parameter_index];
@@ -333,7 +349,11 @@ bool GenerateSettingsCode(Configurator& configurator, const Path& export_path) {
     }
 
     stream << "\n";
-    stream << "\t\tstd::vector<VkLayerSettingEXT> init{\n";
+    if (mode == EXPORT_HPP_VULKAN_HPP) {
+        stream << "\t\tstd::vector<vk::LayerSettingEXT> init{\n";
+    } else {
+        stream << "\t\tstd::vector<VkLayerSettingEXT> init{\n";
+    }
 
     for (std::size_t parameter_index = 0, parameter_count = configuration->parameters.size(); parameter_index < parameter_count;
          ++parameter_index) {
@@ -366,22 +386,24 @@ bool GenerateSettingsCode(Configurator& configurator, const Path& export_path) {
                 continue;
             }
 
+            std::string layer_settings_type = mode == EXPORT_HPP_VULKAN_HPP ? ::GetLayerSettingTypeHPPString(setting->type)
+                                                                            : ::GetLayerSettingTypeString(setting->type);
             if (IsArray(setting->type)) {
                 stream << format(
-                              "\t\t\t{\"%s\", \"%s\", %s, static_cast<uint32_t>(this->%s.%s_info.size()), &this->%s.%s_info[0]},\n",
-                              parameter.key.c_str(), setting->key.c_str(), ::GetLayerSettingTypeString(setting->type),
+                              "\t\t\t{\"%s\", \"%s\", %s, static_cast<uint32_t>(this->%s.%s_info.size()), this->%s.%s_info.empty() "
+                              "? nullptr : &this->%s.%s_info[0]},\n",
+                              parameter.key.c_str(), setting->key.c_str(), layer_settings_type.c_str(),
                               ::GetCodeData(parameter.key).c_str(), setting->key.c_str(), ::GetCodeData(parameter.key).c_str(),
-                              setting->key.c_str())
+                              setting->key.c_str(), ::GetCodeData(parameter.key).c_str(), setting->key.c_str())
                               .c_str();
             } else if (IsString(setting->type)) {
                 stream << format("\t\t\t{\"%s\", \"%s\", %s, 1, this->%s.%s.c_str()},\n", parameter.key.c_str(),
-                                 setting->key.c_str(), ::GetLayerSettingTypeString(setting->type),
-                                 ::GetCodeData(parameter.key).c_str(), setting->key.c_str())
+                                 setting->key.c_str(), layer_settings_type.c_str(), ::GetCodeData(parameter.key).c_str(),
+                                 setting->key.c_str())
                               .c_str();
             } else {
                 stream << format("\t\t\t{\"%s\", \"%s\", %s, 1, &this->%s.%s},\n", parameter.key.c_str(), setting->key.c_str(),
-                                 ::GetLayerSettingTypeString(setting->type), ::GetCodeData(parameter.key).c_str(),
-                                 setting->key.c_str())
+                                 layer_settings_type.c_str(), ::GetCodeData(parameter.key).c_str(), setting->key.c_str())
                               .c_str();
             }
         }

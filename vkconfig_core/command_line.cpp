@@ -762,7 +762,7 @@ void CommandLine::usage() const {
             printf("\tGenerate layer settings files either for system configuration or documentation of a layers configuration.\n");
             printf("\n");
             printf("Arguments\n");
-            printf("\t`[--generate (html | markdown | txt | bash | bat | hpp)]`\n");
+            printf("\t`[--generate (html | markdown | txt | bash | bat | hpp | hxx)]`\n");
             printf("\t\tSpecify the layer settings generation mode, the default value is 'txt':\n");
             printf(
                 "\t\t- 'html' to generate the HTML layer settings documentation, the default filename is "
@@ -779,7 +779,12 @@ void CommandLine::usage() const {
             printf(
                 "\t\t- 'bat' to generate the environment variables layer settings script for 'command prompt', the default "
                 "filename is 'vk_layer_settings.bat'\n");
-            printf("\t\t- 'hpp' to generate the C++ layer settings helper code, the default filename is 'vk_layer_settings.hpp'\n");
+            printf(
+                "\t\t- 'hpp' to generate the C++ layer settings helper code using 'vulkan.h', the default filename is "
+                "'vk_layer_settings.hpp'\n");
+            printf(
+                "\t\t- 'hxx' to generate the C++ layer settings helper code using 'vulkan.hpp', the default filename is "
+                "'vk_layer_settings.hpp'\n");
             printf("\t  (Run 'vkconfig layers --list' to enumerate the available layers.)\n");
             printf("\n");
             printf("\t`[--configuration [<configuration_index> | <configuration_name> | default]]`\n");
@@ -803,7 +808,8 @@ void CommandLine::usage() const {
             printf("\t\t- If the 'generate' is set to 'txt', the default filename is 'vk_layer_settings.txt'\n");
             printf("\t\t- If the 'generate' is set to 'bash', the default filename is 'vk_layer_settings.sh'\n");
             printf("\t\t- If the 'generate' is set to 'bat', the default filename is 'vk_layer_settings.bat'\n");
-            printf("\t\t- If the 'generate' is set to 'hpp', the default filename is 'vk_layer_settings.hpp'\n");
+            printf("\t\t- If the 'generate' is set to 'hpp', the default filename is 'vulkan_layer_settings.hpp'\n");
+            printf("\t\t- If the 'generate' is set to 'hxx', the default filename is 'vulkan_hpp_layer_settings.hpp'\n");
             printf("\n");
             printf("\t`[(--output | -o) <output_file>]`\n");
             printf("\t\tSpecify the output file path. If <output_dir> is set, then <output_file> must be the filename only.\n");
@@ -812,7 +818,8 @@ void CommandLine::usage() const {
             printf("\t\t- If the 'generate' is set to 'txt', the default filename is 'vk_layer_settings.txt'\n");
             printf("\t\t- If the 'generate' is set to 'bash', the default filename is 'vk_layer_settings.sh'\n");
             printf("\t\t- If the 'generate' is set to 'bat', the default filename is 'vk_layer_settings.bat'\n");
-            printf("\t\t- If the 'generate' is set to 'hpp', the default filename is 'vk_layer_settings.hpp'\n");
+            printf("\t\t- If the 'generate' is set to 'hpp', the default filename is 'vulkan_layer_settings.hpp'\n");
+            printf("\t\t- If the 'generate' is set to 'hxx', the default filename is 'vulkan_hpp_layer_settings.hpp'\n");
             printf("\n");
             printf("\t`[--dry-run]`\n");
             printf("\t\tRun without affecting the system and Vulkan Configurator files.\n");

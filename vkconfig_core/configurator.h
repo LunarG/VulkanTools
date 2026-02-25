@@ -47,6 +47,7 @@ enum EnabledUI {
 };
 
 enum ExportEnvMode { EXPORT_ENV_BASH = 0, EXPORT_ENV_CMD };
+enum ExportHppMode { EXPORT_HPP_VULKAN_H = 0, EXPORT_HPP_VULKAN_HPP };
 
 struct LayersSettings {
     std::string configuration_name;

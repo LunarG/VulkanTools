@@ -22,4 +22,4 @@
 
 #include "configurator.h"
 
-bool GenerateSettingsCode(Configurator& configurator, const Path& export_path);
+bool GenerateSettingsCode(Configurator& configurator, ExportHppMode mode, const Path& export_path);

@@ -77,7 +77,7 @@ const char* GetLayerSettingTypeString(SettingType type) {
 
     static const char* table[] = {
         "VK_LAYER_SETTING_TYPE_STRING_EXT",   // SETTING_STRING
-        "VK_LAYER_SETTING_TYPE_INT32_EXT",    // SETTING_INT
+        "VK_LAYER_SETTING_TYPE_INT64_EXT",    // SETTING_INT
         "VK_LAYER_SETTING_TYPE_FLOAT32_EXT",  // SETTING_FLOAT
         "N/A",                                // SETTING_GROUP
         "VK_LAYER_SETTING_TYPE_STRING_EXT",   // SETTING_SAVE_FILE
@@ -96,12 +96,36 @@ const char* GetLayerSettingTypeString(SettingType type) {
     return table[type];
 }
 
+const char* GetLayerSettingTypeHPPString(SettingType type) {
+    assert(type >= SETTING_FIRST && type <= SETTING_LAST);
+
+    static const char* table[] = {
+        "vk::LayerSettingTypeEXT::eString",   // SETTING_STRING
+        "vk::LayerSettingTypeEXT::eInt64",    // SETTING_INT
+        "vk::LayerSettingTypeEXT::eFloat32",  // SETTING_FLOAT
+        "N/A",                                // SETTING_GROUP
+        "vk::LayerSettingTypeEXT::eString",   // SETTING_SAVE_FILE
+        "vk::LayerSettingTypeEXT::eString",   // SETTING_LOAD_FILE
+        "vk::LayerSettingTypeEXT::eString",   // SETTING_SAVE_FOLDER
+        "vk::LayerSettingTypeEXT::eString",   // SETTING_LOAD_FOLDER
+        "vk::LayerSettingTypeEXT::eBool32",   // SETTING_BOOL
+        "vk::LayerSettingTypeEXT::eInt32",    // SETTING_BOOL_NUMERIC_DEPRECATED
+        "vk::LayerSettingTypeEXT::eString",   // SETTING_ENUM
+        "vk::LayerSettingTypeEXT::eString",   // SETTING_FLAGS
+        "vk::LayerSettingTypeEXT::eUint32",   // SETTING_FRAMES
+        "vk::LayerSettingTypeEXT::eString"    // SETTING_LIST
+    };
+    static_assert(std::size(table) == SETTING_COUNT, "The tranlation table size doesn't match the enum number of elements");
+
+    return table[type];
+}
+
 const char* GetCodeTypeString(SettingType type) {
     assert(type >= SETTING_FIRST && type <= SETTING_LAST);
 
     static const char* table[] = {
         "const char*",  // SETTING_STRING
-        "int32_t",      // SETTING_INT
+        "int64_t",      // SETTING_INT
         "float",        // SETTING_FLOAT
         "N/A",          // SETTING_GROUP
         "const char*",  // SETTING_SAVE_FILE
