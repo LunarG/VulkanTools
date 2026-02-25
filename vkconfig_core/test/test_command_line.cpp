@@ -620,7 +620,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default) {
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
-    EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
+    EXPECT_EQ(GENERATE_SETTINGS_HPP_VULKAN_H, command_line.generate_settings_mode);
     EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
@@ -644,7 +644,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit) {
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
-    EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
+    EXPECT_EQ(GENERATE_SETTINGS_HPP_VULKAN_H, command_line.generate_settings_mode);
     EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
@@ -668,7 +668,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_implicit_and_output) {
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
-    EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
+    EXPECT_EQ(GENERATE_SETTINGS_HPP_VULKAN_H, command_line.generate_settings_mode);
     EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
@@ -693,7 +693,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output) {
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
-    EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
+    EXPECT_EQ(GENERATE_SETTINGS_HPP_VULKAN_H, command_line.generate_settings_mode);
     EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
@@ -718,7 +718,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dir)
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
-    EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
+    EXPECT_EQ(GENERATE_SETTINGS_HPP_VULKAN_H, command_line.generate_settings_mode);
     EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
@@ -743,7 +743,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dir_
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
-    EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
+    EXPECT_EQ(GENERATE_SETTINGS_HPP_VULKAN_H, command_line.generate_settings_mode);
     EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());
@@ -769,7 +769,7 @@ TEST(test_command_line, usage_mode_settings_hpp_default_explicit_and_output_dryr
     EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
     EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
     EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
-    EXPECT_EQ(GENERATE_SETTINGS_HPP, command_line.generate_settings_mode);
+    EXPECT_EQ(GENERATE_SETTINGS_HPP_VULKAN_H, command_line.generate_settings_mode);
     EXPECT_TRUE(command_line.selected_layers_name.empty());
     EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
     EXPECT_TRUE(command_line.GetInputPath().Empty());

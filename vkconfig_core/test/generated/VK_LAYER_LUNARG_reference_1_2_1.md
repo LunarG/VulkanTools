@@ -195,7 +195,7 @@ Integer Description.
 
 | Methods: | |
 | --- | --- |
-| `VK_EXT_layer_settings`: | <pre>int32_t data[] = { 76 };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "int_required_only", VK_LAYER_SETTING_TYPE_INT32_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };</pre> |
+| `VK_EXT_layer_settings`: | <pre>int64_t data[] = { 76 };<br>VkLayerSettingEXT setting {<br>&emsp;"VK_LAYER_LUNARG_reference_1_2_1", "int_required_only", VK_LAYER_SETTING_TYPE_INT64_EXT,<br>&emsp;static_cast<uint32_t>(std::size(data)), data };</pre> |
 | `vk_layer_settings.txt`: | <pre>lunarg_reference_1_2_1.int_required_only = 76</pre> |
 | Environment variables: | <pre>export VK_LUNARG_REFERENCE_1_2_1_INT_REQUIRED_ONLY=76<br>export VK_REFERENCE_1_2_1_INT_REQUIRED_ONLY=76<br>export VK_INT_REQUIRED_ONLY=76</pre> |
 | Android system properties: | <pre>adb shell setprop debug.vulkan.lunarg_reference_1_2_1.int_required_only 76<br>adb shell setprop debug.vulkan.reference_1_2_1.int_required_only 76<br>adb shell setprop debug.vulkan.int_required_only 76</pre> |

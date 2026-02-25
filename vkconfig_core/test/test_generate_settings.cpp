@@ -253,7 +253,7 @@ TEST(test_settings, layer_generate_cmd) {
     EXPECT_STREQ(data_reference.c_str(), data_generated.c_str());
 }
 
-TEST(test_settings, config_generate_hpp) {
+TEST(test_settings, config_generate_vulkan_h) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",  // Generate a settings file
@@ -272,14 +272,14 @@ TEST(test_settings, config_generate_hpp) {
     EXPECT_STREQ(data_reference.c_str(), data_generated.c_str());
 }
 
-TEST(test_settings, layer_generate_hpp) {
+TEST(test_settings, layer_generate_vulkan_h) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
     static char* argv[] = {(char*)"vkconfig",     (char*)"settings",                         // Generate a settings file
                            (char*)"--generate",   (char*)"hpp",                              // Type of settings file
                            (char*)"--layer",      (char*)"VK_LAYER_LUNARG_reference_1_2_1",  // Only for a specific layer
                            (char*)"--output-dir", (char*)path.c_str(),
-                           (char*)"--output",     (char*)"VK_LAYER_LUNARG_reference_1_2_1.code"};
+                           (char*)"--output",     (char*)"VK_LAYER_LUNARG_reference_1_2_1.vulkan_h_code"};
     int argc = static_cast<int>(std::size(argv));
 
     CommandLine command_line(argc, argv);
@@ -288,8 +288,48 @@ TEST(test_settings, layer_generate_hpp) {
     int result = ::generate_settings(configurator, command_line);
     EXPECT_EQ(result, 0);
 
-    std::string data_generated = ::Read(path + "/VK_LAYER_LUNARG_reference_1_2_1.code");
-    std::string data_reference = ::Read(":/test/generated/VK_LAYER_LUNARG_reference_1_2_1.hpp");
+    std::string data_generated = ::Read(path + "/VK_LAYER_LUNARG_reference_1_2_1.vulkan_h_code");
+    std::string data_reference = ::Read(":/test/generated/VK_LAYER_LUNARG_reference_1_2_1.vulkan_h_code");
+    EXPECT_STREQ(data_reference.c_str(), data_generated.c_str());
+}
+
+TEST(test_settings, config_generate_vulkan_hpp) {
+    const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
+
+    static char* argv[] = {(char*)"vkconfig",     (char*)"settings",  // Generate a settings file
+                           (char*)"--generate",   (char*)"hxx",       // Type of settings file
+                           (char*)"--output-dir", (char*)path.c_str(), (char*)"--output", (char*)"vulkan_hpp_layer_settings.code"};
+    int argc = static_cast<int>(std::size(argv));
+
+    CommandLine command_line(argc, argv);
+    Configurator& configurator = GetTestConfigurator();
+
+    int result = ::generate_settings(configurator, command_line);
+    EXPECT_EQ(result, 0);
+
+    std::string data_generated = ::Read(path + "/vulkan_hpp_layer_settings.code");
+    std::string data_reference = ::Read(":/test/generated/vulkan_hpp_layer_settings.hpp");
+    EXPECT_STREQ(data_reference.c_str(), data_generated.c_str());
+}
+
+TEST(test_settings, layer_generate_vulkan_hpp) {
+    const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
+
+    static char* argv[] = {(char*)"vkconfig",     (char*)"settings",                         // Generate a settings file
+                           (char*)"--generate",   (char*)"hxx",                              // Type of settings file
+                           (char*)"--layer",      (char*)"VK_LAYER_LUNARG_reference_1_2_1",  // Only for a specific layer
+                           (char*)"--output-dir", (char*)path.c_str(),
+                           (char*)"--output",     (char*)"VK_LAYER_LUNARG_reference_1_2_1.vulkan_hpp_code"};
+    int argc = static_cast<int>(std::size(argv));
+
+    CommandLine command_line(argc, argv);
+    Configurator& configurator = GetTestConfigurator();
+
+    int result = ::generate_settings(configurator, command_line);
+    EXPECT_EQ(result, 0);
+
+    std::string data_generated = ::Read(path + "/VK_LAYER_LUNARG_reference_1_2_1.vulkan_hpp_code");
+    std::string data_reference = ::Read(":/test/generated/VK_LAYER_LUNARG_reference_1_2_1.vulkan_hpp_code");
     EXPECT_STREQ(data_reference.c_str(), data_generated.c_str());
 }
 

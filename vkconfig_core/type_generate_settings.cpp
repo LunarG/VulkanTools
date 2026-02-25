@@ -24,13 +24,14 @@
 
 const char* GetLabel(GenerateSettingsMode mode) {
     static const char* TABLE[] = {
-        "N/A",                                          // GENERATE_SETTINGS_NONE
-        "HTML documentation",                           // GENERATE_SETTINGS_HTML
-        "Markdown documentation",                       // GENERATE_SETTINGS_MARKDOWN
-        "vk_layer_settings.txt",                        // GENERATE_SETTINGS_TXT
-        "Environment Variables bash script",            // GENERATE_SETTINGS_BASH
-        "Environment Variables command prompt script",  // GENERATE_SETTINGS_CMD
-        "VK_EXT_layer_settings C++ code",               // GENERATE_SETTINGS_HPP
+        "N/A",                                            // GENERATE_SETTINGS_NONE
+        "HTML documentation",                             // GENERATE_SETTINGS_HTML
+        "Markdown documentation",                         // GENERATE_SETTINGS_MARKDOWN
+        "vk_layer_settings.txt",                          // GENERATE_SETTINGS_TXT
+        "Environment Variables bash script",              // GENERATE_SETTINGS_BASH
+        "Environment Variables command prompt script",    // GENERATE_SETTINGS_CMD
+        "VK_EXT_layer_settings C++ code for vulkan.h",    // GENERATE_SETTINGS_HPP_VULKAN_H
+        "VK_EXT_layer_settings C++ code for vulkan.hpp",  // GENERATE_SETTINGS_HPP_VULKAN_HPP
     };
     static_assert(std::size(TABLE) == GENERATE_SETTINGS_COUNT);
 
@@ -45,7 +46,8 @@ const char* GetDefaultFileExt(GenerateSettingsMode mode) {
         ".txt",   // GENERATE_SETTINGS_TXT
         ".sh",    // GENERATE_SETTINGS_BASH
         ".bat",   // GENERATE_SETTINGS_CMD
-        ".hpp",   // GENERATE_SETTINGS_HPP
+        ".hpp",   // GENERATE_SETTINGS_HPP_VULKAN_H
+        ".hpp",   // GENERATE_SETTINGS_HPP_VULKAN_HPP
     };
     static_assert(std::size(TABLE) == GENERATE_SETTINGS_COUNT);
 
@@ -54,13 +56,14 @@ const char* GetDefaultFileExt(GenerateSettingsMode mode) {
 
 std::string GetDefaultFilename(GenerateSettingsMode mode) {
     static const char* TABLE[] = {
-        "N/A",                    // GENERATE_SETTINGS_NONE
-        "vk_layer_settings",      // GENERATE_SETTINGS_HTML
-        "vk_layer_settings",      // GENERATE_SETTINGS_MARKDOWN
-        "vk_layer_settings",      // GENERATE_SETTINGS_TXT
-        "vk_layer_settings",      // GENERATE_SETTINGS_BASH
-        "vk_layer_settings",      // GENERATE_SETTINGS_CMD
-        "vulkan_layer_settings",  // GENERATE_SETTINGS_HPP
+        "N/A",                        // GENERATE_SETTINGS_NONE
+        "vk_layer_settings",          // GENERATE_SETTINGS_HTML
+        "vk_layer_settings",          // GENERATE_SETTINGS_MARKDOWN
+        "vk_layer_settings",          // GENERATE_SETTINGS_TXT
+        "vk_layer_settings",          // GENERATE_SETTINGS_BASH
+        "vk_layer_settings",          // GENERATE_SETTINGS_CMD
+        "vulkan_layer_settings",      // GENERATE_SETTINGS_HPP_VULKAN_H
+        "vulkan_hpp_layer_settings",  // GENERATE_SETTINGS_HPP_VULKAN_HPP
     };
     static_assert(std::size(TABLE) == GENERATE_SETTINGS_COUNT);
 
@@ -75,7 +78,8 @@ const char* GetToken(GenerateSettingsMode mode) {
         "txt",       // GENERATE_SETTINGS_TXT
         "bash",      // GENERATE_SETTINGS_BASH
         "bat",       // GENERATE_SETTINGS_CMD
-        "hpp",       // GENERATE_SETTINGS_HPP
+        "hpp",       // GENERATE_SETTINGS_HPP_VULKAN_H
+        "hxx",       // GENERATE_SETTINGS_HPP_VULKAN_HPP
     };
     static_assert(std::size(TABLE) == GENERATE_SETTINGS_COUNT);
 

@@ -62,9 +62,17 @@ enum SettingType {  // Enum value can't be changed
 
 enum { SETTING_COUNT = SETTING_LAST - SETTING_FIRST + 1 };
 
+inline bool IsInfoStringArrayRequired(SettingType type) { return type == SETTING_LIST || type == SETTING_FLAGS; }
+
+inline bool IsInfoStringRequired(SettingType type) {
+    return type != SETTING_INT && type != SETTING_FLOAT && type != SETTING_GROUP && type != SETTING_BOOL &&
+           type != SETTING_BOOL_NUMERIC_DEPRECATED && type != SETTING_FLAGS && type != SETTING_LIST;
+}
+
 SettingType GetSettingType(const char* token);
 const char* GetToken(SettingType type);
 const char* GetLayerSettingTypeString(SettingType type);
+const char* GetLayerSettingTypeHPPString(SettingType type);
 const char* GetCodeTypeString(SettingType type);
 bool IsString(SettingType type);
 bool IsArray(SettingType type);

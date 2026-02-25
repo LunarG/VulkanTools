@@ -395,8 +395,11 @@ bool Configurator::Generate(GenerateSettingsMode mode, const Path& output_path) 
         case GENERATE_SETTINGS_CMD: {
             result = ::GenerateSettingsEnv(*this, EXPORT_ENV_CMD, output_path);
         } break;
-        case GENERATE_SETTINGS_HPP: {
-            result = ::GenerateSettingsCode(*this, output_path);
+        case GENERATE_SETTINGS_HPP_VULKAN_H: {
+            result = ::GenerateSettingsCode(*this, EXPORT_HPP_VULKAN_H, output_path);
+        } break;
+        case GENERATE_SETTINGS_HPP_VULKAN_HPP: {
+            result = ::GenerateSettingsCode(*this, EXPORT_HPP_VULKAN_HPP, output_path);
         } break;
     }
 

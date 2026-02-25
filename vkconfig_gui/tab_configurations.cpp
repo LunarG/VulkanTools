@@ -518,9 +518,15 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             menu.addAction(action_export_env_variables_cmd_script);
 
             QAction *action_export_extension_code = new QAction(
-                format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_HPP)).c_str(), nullptr);
+                format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_HPP_VULKAN_H)).c_str(), nullptr);
             action_export_extension_code->setEnabled(item != nullptr);
             menu.addAction(action_export_extension_code);
+
+            QAction *action_export_extension_code_hpp = new QAction(
+                format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_HPP_VULKAN_HPP)).c_str(),
+                nullptr);
+            action_export_extension_code_hpp->setEnabled(item != nullptr);
+            menu.addAction(action_export_extension_code_hpp);
 
             QPoint point(right_click->globalX(), right_click->globalY());
             QAction *action = menu.exec(point);
@@ -546,7 +552,9 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             } else if (action == action_export_env_variables_cmd_script) {
                 this->GenerateClicked(GENERATE_SETTINGS_CMD);
             } else if (action == action_export_extension_code) {
-                this->GenerateClicked(GENERATE_SETTINGS_HPP);
+                this->GenerateClicked(GENERATE_SETTINGS_HPP_VULKAN_H);
+            } else if (action == action_export_extension_code_hpp) {
+                this->GenerateClicked(GENERATE_SETTINGS_HPP_VULKAN_HPP);
             } else if (action == action_export_settings) {
                 this->GenerateClicked(GENERATE_SETTINGS_TXT);
             } else if (action == action_export_markdown) {
