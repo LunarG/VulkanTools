@@ -23,70 +23,70 @@ from vulkan_object import Struct, Command
 TRACKED_STATE = {
     'vkAllocateCommandBuffers':
         'if(result == VK_SUCCESS)\n' +
-            'ApiDumpInstance::current().addCmdBuffers(\n' +
+            'api_dump.addCmdBuffers(\n' +
                 'device,\n' +
                 'pAllocateInfo->commandPool,\n' +
                 'std::vector<VkCommandBuffer>(pCommandBuffers, pCommandBuffers + pAllocateInfo->commandBufferCount),\n' +
                 'pAllocateInfo->level\n'
             ');',
     'vkDestroyCommandPool':
-        'ApiDumpInstance::current().eraseCmdBufferPool(device, commandPool);'
+        'api_dump.eraseCmdBufferPool(device, commandPool);'
     ,
     'vkFreeCommandBuffers':
-        'ApiDumpInstance::current().eraseCmdBuffers(device, commandPool, std::vector<VkCommandBuffer>(pCommandBuffers, pCommandBuffers + commandBufferCount));'
+        'api_dump.eraseCmdBuffers(device, commandPool, std::vector<VkCommandBuffer>(pCommandBuffers, pCommandBuffers + commandBufferCount));'
     ,
 }
 
 PARAMETER_STATE = {
     'pDynamicState': {
         'VkGraphicsPipelineCreateInfo':
-            'ApiDumpInstance::current().setIsDynamicViewport('
+            'api_dump.setIsDynamicViewport('
             'object.pDynamicState && '
             'std::count('
                 'object.pDynamicState->pDynamicStates, '
                 'object.pDynamicState->pDynamicStates + object.pDynamicState->dynamicStateCount, '
                 'VK_DYNAMIC_STATE_VIEWPORT'
             ') > 0);'
-            'ApiDumpInstance::current().setIsDynamicScissor('
+            'api_dump.setIsDynamicScissor('
             'object.pDynamicState && '
             'std::count('
                 'object.pDynamicState->pDynamicStates, '
                 'object.pDynamicState->pDynamicStates + object.pDynamicState->dynamicStateCount, '
                 'VK_DYNAMIC_STATE_SCISSOR'
             '));'
-            'ApiDumpInstance::current().setIsGPLPreRasterOrFragmentShader(checkForGPLPreRasterOrFragmentShader(object));',
+            'api_dump.setIsGPLPreRasterOrFragmentShader(checkForGPLPreRasterOrFragmentShader(object));',
     },
     'commandBuffer': {
         'vkBeginCommandBuffer':
-            'ApiDumpInstance::current().setCmdBuffer(commandBuffer);',
+            'api_dump.setCmdBuffer(commandBuffer);',
     },
     'memoryProperties': {
         'VkPhysicalDeviceMemoryProperties2':
-            'ApiDumpInstance::current().setMemoryHeapCount(object.memoryProperties.memoryHeapCount);',
+            'api_dump.setMemoryHeapCount(object.memoryProperties.memoryHeapCount);',
     },
     'type': {
         'VkDescriptorGetInfoEXT':
-            'ApiDumpInstance::current().setDescriptorType(object.type);',
+            'api_dump.setDescriptorType(object.type);',
         'VkResourceDescriptorInfoEXT':
-            'ApiDumpInstance::current().setDescriptorType(object.type);',
+            'api_dump.setDescriptorType(object.type);',
         'VkIndirectExecutionSetInfoEXT':
-            'ApiDumpInstance::current().setIndirectExecutionSetInfoType(object.type);',
+            'api_dump.setIndirectExecutionSetInfoType(object.type);',
         'VkIndirectCommandsLayoutTokenEXT':
-            'ApiDumpInstance::current().setIndirectCommandsLayoutToken(object.type);',
+            'api_dump.setIndirectCommandsLayoutToken(object.type);',
     },
     'source': {
         'VkDescriptorSetAndBindingMappingEXT':
-            'ApiDumpInstance::current().setDescriptorMappingSource(object.source);',
+            'api_dump.setDescriptorMappingSource(object.source);',
     },
     'sps_max_sub_layers_minus1':{
         'StdVideoH265SequenceParameterSet':
-            'ApiDumpInstance::current().setSpsMaxSubLayersMinus1(object.sps_max_sub_layers_minus1);'
-            'ApiDumpInstance::current().setIsInVps(false);',
+            'api_dump.setSpsMaxSubLayersMinus1(object.sps_max_sub_layers_minus1);'
+            'api_dump.setIsInVps(false);',
     },
     'vps_max_sub_layers_minus1':{
         'StdVideoH265VideoParameterSet':
-            'ApiDumpInstance::current().setVpsMaxSubLayersMinus1(object.vps_max_sub_layers_minus1);'
-            'ApiDumpInstance::current().setIsInVps(true);',
+            'api_dump.setVpsMaxSubLayersMinus1(object.vps_max_sub_layers_minus1);'
+            'api_dump.setIsInVps(true);',
     },
 }
 
@@ -96,7 +96,7 @@ VALIDITY_CHECKS = {
     },
     'VkCommandBufferBeginInfo': {
         # Tracked state ApiDumpInstance, and inherited cmd_buffer
-        'pInheritanceInfo': 'ApiDumpInstance::current().getCmdBufferLevel() == VK_COMMAND_BUFFER_LEVEL_SECONDARY',
+        'pInheritanceInfo': 'api_dump.getCmdBufferLevel() == VK_COMMAND_BUFFER_LEVEL_SECONDARY',
     },
     'VkDescriptorSetLayoutBinding': {
         'pImmutableSamplers':
@@ -107,8 +107,8 @@ VALIDITY_CHECKS = {
         'pQueueFamilyIndices': 'object.sharingMode == VK_SHARING_MODE_CONCURRENT',
     },
     'VkPipelineViewportStateCreateInfo': {
-        'pViewports': '!ApiDumpInstance::current().getIsDynamicViewport()', # Inherited state variable is_dynamic_viewport
-        'pScissors': '!ApiDumpInstance::current().getIsDynamicScissor()',   # Inherited state variable is_dynamic_scissor
+        'pViewports': '!api_dump.getIsDynamicViewport()', # Inherited state variable is_dynamic_viewport
+        'pScissors': '!api_dump.getIsDynamicScissor()',   # Inherited state variable is_dynamic_scissor
     },
     'VkSwapchainCreateInfoKHR': {
         'pQueueFamilyIndices': 'object.imageSharingMode == VK_SHARING_MODE_CONCURRENT',
@@ -130,51 +130,51 @@ VALIDITY_CHECKS = {
             '(object.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER)',
     },
     'VkDescriptorDataEXT':{
-        'pSampler': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLER',
-        'pCombinedImageSampler': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER',
-        'pInputAttachmentImage': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT',
-        'pSampledImage': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE',
-        'pStorageImage': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE',
-        'pUniformTexelBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER',
-        'pStorageTexelBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER',
-        'pUniformBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER',
-        'pStorageBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER',
-        'accelerationStructure': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR',
+        'pSampler': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLER',
+        'pCombinedImageSampler': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER',
+        'pInputAttachmentImage': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT',
+        'pSampledImage': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE',
+        'pStorageImage': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE',
+        'pUniformTexelBuffer': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER',
+        'pStorageTexelBuffer': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER',
+        'pUniformBuffer': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER',
+        'pStorageBuffer': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER',
+        'accelerationStructure': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR',
     },
     'VkResourceDescriptorDataEXT':{
-        'pImage': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT',
-        'pTexelBuffer': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER',
-        'pAddressRange': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV || ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV',
-        'pTensorARM': 'ApiDumpInstance::current().getDescriptorType() == VK_DESCRIPTOR_TYPE_TENSOR_ARM',
+        'pImage': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE || api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE || api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_SAMPLE_WEIGHT_IMAGE_QCOM || api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM || api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT',
+        'pTexelBuffer': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER || api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER',
+        'pAddressRange': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER || api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR || api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV || api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV',
+        'pTensorARM': 'api_dump.getDescriptorType() == VK_DESCRIPTOR_TYPE_TENSOR_ARM',
     },
     'VkDescriptorMappingSourceDataEXT':{
-        'constantOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT',
-        'pushIndex' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT',
-        'indirectIndex' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT',
-        'indirectIndexArray' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT',
-        'heapData' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT',
-        'pushDataOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT',
-        'pushAddressOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT',
-        'indirectAddress' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT',
-        'shaderRecordIndex' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT',
-        'shaderRecordDataOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT',
-        'shaderRecordAddressOffset' : 'ApiDumpInstance::current().getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT',
+        'constantOffset' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_CONSTANT_OFFSET_EXT',
+        'pushIndex' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT',
+        'indirectIndex' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_EXT',
+        'indirectIndexArray' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_INDIRECT_INDEX_ARRAY_EXT',
+        'heapData' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_RESOURCE_HEAP_DATA_EXT',
+        'pushDataOffset' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT',
+        'pushAddressOffset' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT',
+        'indirectAddress' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_INDIRECT_ADDRESS_EXT',
+        'shaderRecordIndex' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_SHADER_RECORD_INDEX_EXT',
+        'shaderRecordDataOffset' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_DATA_EXT',
+        'shaderRecordAddressOffset' : 'api_dump.getDescriptorMappingSource() == VK_DESCRIPTOR_MAPPING_SOURCE_SHADER_RECORD_ADDRESS_EXT',
     },
     'VkPipelineRenderingCreateInfo': {
-        'colorAttachmentCount': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
-        'pColorAttachmentFormats': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
-        'depthAttachmentFormat': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
-        'stencilAttachmentFormat': '!ApiDumpInstance::current().getIsGPLPreRasterOrFragmentShader()',
+        'colorAttachmentCount': '!api_dump.getIsGPLPreRasterOrFragmentShader()',
+        'pColorAttachmentFormats': '!api_dump.getIsGPLPreRasterOrFragmentShader()',
+        'depthAttachmentFormat': '!api_dump.getIsGPLPreRasterOrFragmentShader()',
+        'stencilAttachmentFormat': '!api_dump.getIsGPLPreRasterOrFragmentShader()',
     },
     'VkIndirectExecutionSetInfoEXT':{
-        'pPipelineInfo': 'ApiDumpInstance::current().getIndirectExecutionSetInfoType() == VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT',
-        'pShaderInfo': 'ApiDumpInstance::current().getIndirectExecutionSetInfoType() == VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT',
+        'pPipelineInfo': 'api_dump.getIndirectExecutionSetInfoType() == VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT',
+        'pShaderInfo': 'api_dump.getIndirectExecutionSetInfoType() == VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT',
     },
     'VkIndirectCommandsTokenDataEXT':{
-        'pPushConstant': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT || ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT',
-        'pVertexBuffer': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT',
-        'pIndexBuffer': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT',
-        'pExecutionSet': 'ApiDumpInstance::current().getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT',
+        'pPushConstant': 'api_dump.getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT || api_dump.getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT',
+        'pVertexBuffer': 'api_dump.getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT',
+        'pIndexBuffer': 'api_dump.getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT',
+        'pExecutionSet': 'api_dump.getIndirectCommandsLayoutToken() == VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT',
     },
     'StdVideoH265HrdParameters':{
         'pSubLayerHrdParametersNal': 'object.flags.nal_hrd_parameters_present_flag == 1',
@@ -184,12 +184,12 @@ VALIDITY_CHECKS = {
 
 SPECIAL_LENGTH = {
     'VkPhysicalDeviceMemoryBudgetPropertiesEXT': {
-        'heapBudget': 'ApiDumpInstance::current().getMemoryHeapCount()',
-        'heapUsage': 'ApiDumpInstance::current().getMemoryHeapCount()',
+        'heapBudget': 'api_dump.getMemoryHeapCount()',
+        'heapUsage': 'api_dump.getMemoryHeapCount()',
     },
     'StdVideoH265HrdParameters':{
-        'pSubLayerHrdParametersNal':'ApiDumpInstance::current().getIsInVps() ? ApiDumpInstance::current().getVpsMaxSubLayersMinus1() : ApiDumpInstance::current().getSpsMaxSubLayersMinus1()',
-        'pSubLayerHrdParametersVcl':'ApiDumpInstance::current().getIsInVps() ? ApiDumpInstance::current().getVpsMaxSubLayersMinus1() : ApiDumpInstance::current().getSpsMaxSubLayersMinus1()',
+        'pSubLayerHrdParametersNal':'api_dump.getIsInVps() ? api_dump.getVpsMaxSubLayersMinus1() : api_dump.getSpsMaxSubLayersMinus1()',
+        'pSubLayerHrdParametersVcl':'api_dump.getIsInVps() ? api_dump.getVpsMaxSubLayersMinus1() : api_dump.getSpsMaxSubLayersMinus1()',
     }
 }
 
@@ -313,7 +313,7 @@ def get_fixed_array_length(fixed_length, var, parent):
 
     # Special case due to the length being non-constant non-local
     if parent.name == 'VkPhysicalDeviceMemoryBudgetPropertiesEXT' and var.name in ['heapBudget', 'heapUsage']:
-        return f'std::min(ApiDumpInstance::current().getMemoryHeapCount(), {fixed_length})'
+        return f'std::min(api_dump.getMemoryHeapCount(), {fixed_length})'
 
     if lengthIsMember:
         object_access = 'object.' if isinstance(parent, Struct) else ''
@@ -378,17 +378,17 @@ class ApiDumpGenerator(BaseGenerator):
             if command.name in HANDWRITTEN_FUNCTIONS:
                 continue
             protect.add_guard(self, command.protect)
-            self.write('template<ApiDumpFormat Format>')
             self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({command_param_declaration_text(command)})')
             self.write('{')
             if command.name not in BLOCKING_API_CALLS:
                 self.write(f'''
-                    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
-                    dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
-                     if constexpr (Format == ApiDumpFormat::Text) {{
-                        if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {{
-                            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
-                            dump_params_{command.name}<Format>(ApiDumpInstance::current(), {command_param_usage_text(command)});
+                    auto& api_dump = ApiDumpInstance::current();
+                    std::lock_guard<std::mutex> lg(api_dump.outputMutex());
+                    dump_function_head(api_dump, "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
+                     if (api_dump.settings().format() == ApiDumpFormat::Text) {{
+                        if(api_dump.settings().shouldPreDump() && api_dump.shouldDumpOutput()) {{
+                            dump_before_pre_dump_formatting(api_dump);
+                            dump_params_{command.name}(api_dump, {command_param_usage_text(command)});
                         }}
                     }}''')
 
@@ -415,8 +415,8 @@ class ApiDumpGenerator(BaseGenerator):
             return_str = f'{command.returnType} result = ' if command.returnType != 'void' else ''
             self.write(f'{return_str}instance_dispatch_table({command.params[0].name})->{command.name[2:]}({command_param_usage_text(command)});')
             if command.name in BLOCKING_API_CALLS:
-                self.write('std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
-                self.write(f'dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");')
+                self.write('std::lock_guard<std::mutex> lg(api_dump.outputMutex());')
+                self.write(f'dump_function_head(api_dump, "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");')
 
             if command.name in TRACKED_STATE:
                 self.write(TRACKED_STATE[command.name])
@@ -425,7 +425,7 @@ class ApiDumpGenerator(BaseGenerator):
                 self.write('''
                     if (pPhysicalDeviceCount != nullptr && pPhysicalDevices != nullptr) {
                         for (uint32_t i = 0; i < *pPhysicalDeviceCount; i++) {
-                            ApiDumpInstance::current().set_vk_instance(pPhysicalDevices[i], instance);
+                            api_dump.set_vk_instance(pPhysicalDevices[i], instance);
                         }
                     }''')
 
@@ -438,16 +438,16 @@ class ApiDumpGenerator(BaseGenerator):
                 self.write('}\n')
                 self.write('(*pToolCount)++;')
 
-            self.write('if (ApiDumpInstance::current().shouldDumpOutput()) {')
+            self.write('if (api_dump.shouldDumpOutput()) {')
             if command.returnType != 'void':
                 if self.get_unaliased_type(command.returnType) in self.vulkan_defined_types:
-                    self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result, dump_return_value_{command.returnType}<Format>);')
+                    self.write(f'dump_return_value(api_dump, "{command.returnType}", result, dump_return_value_{command.returnType});')
                 else:
-                    self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result);')
-            self.write(f'''dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
-                dump_params_{command.name}<Format>(ApiDumpInstance::current(), {command_param_usage_text(command)});
-                dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
-                flush(ApiDumpInstance::current().settings());
+                    self.write(f'dump_return_value(api_dump, "{command.returnType}", result);')
+            self.write(f'''dump_pre_function_formatting(api_dump);
+                dump_params_{command.name}(api_dump, {command_param_usage_text(command)});
+                dump_post_function_formatting(api_dump);
+                api_dump.settings().flush();
             }}''')
             if command.returnType != 'void':
                 self.write('return result;')
@@ -462,28 +462,28 @@ class ApiDumpGenerator(BaseGenerator):
 
             protect.add_guard(self, command.protect)
 
-            self.write('template<ApiDumpFormat Format>')
             self.write(f'VKAPI_ATTR {command.returnType} VKAPI_CALL {command.name}({command_param_declaration_text(command)})')
             self.write('{')
+            self.write('auto& api_dump = ApiDumpInstance::current();')
 
             if command.name not in BLOCKING_API_CALLS:
-                self.write('std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
+                self.write('std::lock_guard<std::mutex> lg(api_dump.outputMutex());')
                 if command.name in ['vkDebugMarkerSetObjectNameEXT', 'vkSetDebugUtilsObjectNameEXT']:
-                    self.write('ApiDumpInstance::current().update_object_name_map(pNameInfo);')
+                    self.write('api_dump.update_object_name_map(pNameInfo);')
                 self.write(f'''
-                    dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
-                    if constexpr (Format == ApiDumpFormat::Text) {{
-                        if(ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {{
-                            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
-                            dump_params_{command.name}<Format>(ApiDumpInstance::current(), {command_param_usage_text(command)});
+                    dump_function_head(api_dump, "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");
+                    if (api_dump.settings().format() == ApiDumpFormat::Text) {{
+                        if(api_dump.settings().shouldPreDump() && api_dump.shouldDumpOutput()) {{
+                            dump_before_pre_dump_formatting(api_dump);
+                            dump_params_{command.name}(api_dump, {command_param_usage_text(command)});
                         }}
                     }}''')
 
             return_str = f'{command.returnType} result = ' if command.returnType != 'void' else ''
             self.write(f'{return_str}device_dispatch_table({command.params[0].name})->{command.name[2:]}({command_param_usage_text(command)});')
             if command.name in BLOCKING_API_CALLS:
-                self.write('std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());')
-                self.write(f'dump_function_head(ApiDumpInstance::current(), "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");')
+                self.write('std::lock_guard<std::mutex> lg(api_dump.outputMutex());')
+                self.write(f'dump_function_head(api_dump, "{command.name}", "{command_param_usage_text(command)}", "{command.returnType}");')
 
             if command.name in TRACKED_STATE:
                 self.write('' + TRACKED_STATE[command.name])
@@ -491,28 +491,27 @@ class ApiDumpGenerator(BaseGenerator):
             if command.name == 'vkDestroyDevice':
                 self.write('destroy_device_dispatch_table(get_dispatch_key(device));')
 
-            self.write('if (ApiDumpInstance::current().shouldDumpOutput()) {')
+            self.write('if (api_dump.shouldDumpOutput()) {')
             if command.returnType != 'void':
                 return_type = self.get_unaliased_type(command.returnType)
                 if return_type in self.vulkan_defined_types or return_type == 'VkDeviceAddress':
-                    self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result, dump_return_value_{command.returnType}<Format>);')
+                    self.write(f'dump_return_value(api_dump, "{command.returnType}", result, dump_return_value_{command.returnType});')
                 else:
-                    self.write(f'dump_return_value<Format>(ApiDumpInstance::current().settings(), "{command.returnType}", result);')
+                    self.write(f'dump_return_value(api_dump, "{command.returnType}", result);')
 
-            self.write(f'''dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
-                dump_params_{command.name}<Format>(ApiDumpInstance::current(), {command_param_usage_text(command)});
-                dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
-                flush(ApiDumpInstance::current().settings());
+            self.write(f'''dump_pre_function_formatting(api_dump);
+                dump_params_{command.name}(api_dump, {command_param_usage_text(command)});
+                dump_post_function_formatting(api_dump);
+                api_dump.settings().flush();
             }}''')
 
             if command.name == 'vkQueuePresentKHR':
-                self.write('ApiDumpInstance::current().nextFrame();')
+                self.write('api_dump.nextFrame();')
             if command.returnType != 'void':
                 self.write('return result;')
             self.write('}')
         protect.add_guard(self, None)
 
-        self.write('\ntemplate<ApiDumpFormat Format>')
         self.write('VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkInstance instance, const char* pName)')
         self.write('{\n')
         for command in self.vk.commands.values():
@@ -523,12 +522,11 @@ class ApiDumpGenerator(BaseGenerator):
             if command.name in NON_TEMPLATEDTED_FUNCTIONS:
                 self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
             else:
-                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name}<Format>);')
+                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
         protect.add_guard(self, None)
         self.write('\n    return nullptr;')
         self.write('}')
 
-        self.write('\ntemplate<ApiDumpFormat Format>')
         self.write('VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevice device, const char* pName)')
         self.write('{\n')
         for command in [x for x in self.vk.commands.values() if x.device ]:
@@ -537,7 +535,7 @@ class ApiDumpGenerator(BaseGenerator):
             if command.name in NON_TEMPLATEDTED_FUNCTIONS:
                 self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
             else:
-                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name}<Format>);')
+                self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({command.name});')
         protect.add_guard(self, None)
 
         self.write('\n    return nullptr;')
@@ -547,19 +545,17 @@ class ApiDumpGenerator(BaseGenerator):
         for enum in enums.values():
             protect.add_guard(self, enum.protect)
             if enum.name in self.return_types:
-                self.write('template <ApiDumpFormat Format>')
-                self.write(f'void dump_return_value_{enum.name}(const {enum.name}& object, const ApiDumpSettings& settings) {{')
+                self.write(f'void dump_return_value_{enum.name}(ApiDumpInstance& api_dump, const {enum.name}& object) {{')
                 self.write_enum_contents(enum)
                 self.write('}')
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'void dump_{enum.name}(const {enum.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
+            self.write(f'void dump_{enum.name}(ApiDumpInstance& api_dump, const {enum.name} object, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write('dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
+            self.write('dump_start(api_dump, OutputConstruct::value, type_name, var_name, indents, address);')
             if enum.name in self.return_types:
-                self.write(f'dump_return_value_{enum.name}<Format>(object, settings);')
+                self.write(f'dump_return_value_{enum.name}(api_dump, object);')
             else:
                 self.write_enum_contents(enum)
-            self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
+            self.write('dump_end(api_dump, OutputConstruct::value, indents);')
             self.write('}')
         protect.add_guard(self, None)
 
@@ -567,10 +563,9 @@ class ApiDumpGenerator(BaseGenerator):
         for struct in structs.values():
             protect.add_guard(self, struct.protect)
 
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'void dump_{struct.name}(const {struct.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
+            self.write(f'void dump_{struct.name}(ApiDumpInstance& api_dump, const {struct.name}& object, const char* type_name, const char *var_name, int indents, const void* address = nullptr)')
             self.write('{')
-            self.write(f'dump_start<Format>(settings, OutputConstruct::{"api_union" if struct.union else "api_struct"}, type_name, var_name, indents, address);')
+            self.write(f'dump_start(api_dump, OutputConstruct::{"api_union" if struct.union else "api_struct"}, type_name, var_name, indents, address);')
 
             for member in struct.members:
                 validity_check = self.get_validity_check(member, struct)
@@ -587,7 +582,7 @@ class ApiDumpGenerator(BaseGenerator):
                 custom_fullType = get_fulltype(member)
                 validity_check = self.get_validity_check(member, struct)
                 if member != struct.members[0]:
-                    self.write('dump_separate_members<Format>(settings);')
+                    self.write('dump_separate_members(api_dump);')
                 if validity_check is not None:
                     self.write(f'if({validity_check}) {{')
 
@@ -597,21 +592,21 @@ class ApiDumpGenerator(BaseGenerator):
                 if validity_check is not None:
                     if not struct.union: # Union's use validity_check to only print the active element
                         self.write(f'''}} else {{
-                            if constexpr (Format == ApiDumpFormat::Text || Format == ApiDumpFormat::Html) {{
-                                dump_special<Format>("UNUSED", settings, "{custom_fullType}", "{member.name}", indents + 1);
-                            }} else if constexpr (Format == ApiDumpFormat::Json) {{
-                                dump_json_UNUSED(settings, "{custom_fullType}", "{member.name}", indents + 2);
+                            if (api_dump.settings().format() == ApiDumpFormat::Text || api_dump.settings().format() == ApiDumpFormat::Html) {{
+                                dump_special(api_dump, "UNUSED", "{custom_fullType}", "{member.name}", indents + 1);
+                            }} else if (api_dump.settings().format() == ApiDumpFormat::Json) {{
+                                dump_json_UNUSED(api_dump, "{custom_fullType}", "{member.name}", indents + 2);
                             }}''')
                     self.write('}')
 
             self.write('')
             for member in struct.members:
                 if member.pointer and member.name == 'pNext' and struct.name not in ['VkBaseInStructure', 'VkBaseOutStructure']:
-                    self.write('if constexpr (Format == ApiDumpFormat::Text) {')
-                    self.write(f'    dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "{member.fullType}", "{member.type}", indents < 2 ? indents + 1 : indents);')
+                    self.write('if (api_dump.settings().format() == ApiDumpFormat::Text) {')
+                    self.write(f'    dump_pNext_trampoline(api_dump, object.pNext, "{member.fullType}", "{member.type}", indents < 2 ? indents + 1 : indents);')
                     self.write('}')
 
-            self.write('dump_end<Format>(settings, OutputConstruct::api_struct, indents);')
+            self.write('dump_end(api_dump, OutputConstruct::api_struct, indents);')
             self.write('}')
         protect.add_guard(self, None)
 
@@ -629,9 +624,8 @@ class ApiDumpGenerator(BaseGenerator):
                 type_erase_handle = 'static_cast<void*>(object)'
             protect.add_guard(self, handle.protect)
             self.write(f'''
-                template <ApiDumpFormat Format>
-                void dump_{handle.name}(const {handle.name}& object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
-                    dump_handle<Format>({type_erase_handle}, settings, type_name, var_name, indents, address);
+                void dump_{handle.name}(ApiDumpInstance& api_dump, const {handle.name}& object, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                    dump_handle(api_dump, {type_erase_handle}, type_name, var_name, indents, address);
                 }}''')
         protect.add_guard(self, None)
 
@@ -645,21 +639,20 @@ class ApiDumpGenerator(BaseGenerator):
         for bitmask in self.vk.bitmasks.values():
             protect.add_guard(self, bitmask.protect)
             self.write(f'''
-                template <ApiDumpFormat Format>
-                void dump_{bitmask.name}(const {bitmask.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
-                    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
-                    dump_value_start<Format>(settings);
-                    settings.stream() << object;
+                void dump_{bitmask.name}(ApiDumpInstance& api_dump, const {bitmask.name} object, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                    dump_start(api_dump, OutputConstruct::value, type_name, var_name, indents, address);
+                    dump_value_start(api_dump);
+                    api_dump.settings().stream() << object;
                     bool is_first = true;''')
             for field in bitmask.flags:
                 self.write(f'if(object {"==" if  field.zero or field.multiBit else "&"} {field.name}) {{')
-                self.write(f'settings.stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
+                self.write(f'api_dump.settings().stream() << (is_first ? \" (\" : \" | \") << "{field.name}"; is_first = false;')
                 self.write('}')
             self.write('''
                 if(!is_first)
-                settings.stream() << ")";
-                dump_value_end<Format>(settings);
-                dump_end<Format>(settings, OutputConstruct::value, indents);
+                api_dump.settings().stream() << ")";
+                dump_value_end(api_dump);
+                dump_end(api_dump, OutputConstruct::value, indents);
                 }''')
         protect.add_guard(self, None)
 
@@ -667,25 +660,23 @@ class ApiDumpGenerator(BaseGenerator):
 
         for flag in self.vk.flags.values():
             protect.add_guard(self, flag.protect)
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'void dump_{flag.name}(const {flag.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{')
+            self.write(f'void dump_{flag.name}(ApiDumpInstance& api_dump, const {flag.name} object, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{')
             if flag.bitmaskName is not None:
-                self.write(f'dump_{flag.bitmaskName}<Format>(static_cast<{flag.bitmaskName}>(object), settings, type_name, var_name, indents, address);')
+                self.write(f'dump_{flag.bitmaskName}(api_dump, static_cast<{flag.bitmaskName}>(object), type_name, var_name, indents, address);')
             else:
-                self.write('dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);')
-                self.write('dump_value<Format>(settings, object);')
-                self.write('dump_end<Format>(settings, OutputConstruct::value, indents);')
+                self.write('dump_start(api_dump, OutputConstruct::value, type_name, var_name, indents, address);')
+                self.write('dump_value(api_dump, object);')
+                self.write('dump_end(api_dump, OutputConstruct::value, indents);')
             self.write('}')
         protect.add_guard(self, None)
 
         self.write('\n//======================= Func Pointer Implementations ======================//\n')
 
         for funcpointer in self.vk.funcPointers.values():
-            self.write('template <ApiDumpFormat Format>')
-            self.write(f'''void dump_{funcpointer.name}(const {funcpointer.name} object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
-                dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
-                dump_address<Format>(settings, &object);
-                dump_end<Format>(settings, OutputConstruct::value, indents);
+            self.write(f'''void dump_{funcpointer.name}(ApiDumpInstance& api_dump, const {funcpointer.name} object, const char* type_name, const char *var_name, int indents, const void* address = nullptr) {{
+                dump_start(api_dump, OutputConstruct::value, type_name, var_name, indents, address);
+                dump_address(api_dump, &object);
+                dump_end(api_dump, OutputConstruct::value, indents);
             }}''')
 
         self.write('\n//=================== Video Struct and Union Implementations ==================//\n')
@@ -696,45 +687,43 @@ class ApiDumpGenerator(BaseGenerator):
 
         self.write('\n//======================== pNext Chain Implementation =======================//\n')
         self.write('''
-            template <ApiDumpFormat Format>
-            void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents) {
+            void dump_pNext_struct_name(ApiDumpInstance& api_dump, const void* object, const char* type_name, const char *var_name, int indents) {
                 if (object == nullptr) {
-                    dump_nullptr<Format>(settings, type_name, var_name, indents);
+                    dump_nullptr(api_dump, type_name, var_name, indents);
                     return;
                 }
                 VkBaseInStructure base_struct{};
                 memcpy(&base_struct, object, sizeof(VkBaseInStructure));
                 if (base_struct.sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO || base_struct.sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO) {
                     if (base_struct.pNext != nullptr) {
-                        dump_pNext_struct_name<Format>(base_struct.pNext, settings, type_name, var_name, indents);
+                        dump_pNext_struct_name(api_dump, base_struct.pNext, type_name, var_name, indents);
                     } else {
-                        dump_nullptr<Format>(settings, "const void*", "pNext", indents);
+                        dump_nullptr(api_dump, "const void*", "pNext", indents);
                     }
                     return;
                 }
-                dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents);
+                dump_start(api_dump, OutputConstruct::value, type_name, var_name, indents);
                 switch(base_struct.sType) {''')
         for struct in [ x for x in self.vk.structs.values() if not x.union ]:
             protect.add_guard(self, struct.protect)
             if struct.sType is not None:
                 self.write(f'''
                     case {struct.sType}:
-                        dump_string<Format>(settings, "{struct.name}");
+                        dump_value(api_dump, "{struct.name}");
                         break;''')
         protect.add_guard(self, None)
         self.write('''
                 default:
-                    dump_string<Format>(settings, "NULL");
+                    dump_value(api_dump, "NULL");
                     break;
                 }
-                dump_end<Format>(settings, OutputConstruct::value, indents);
+                dump_end(api_dump, OutputConstruct::value, indents);
             }
 
-            template <ApiDumpFormat Format>
-            void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, const char* type_name, const char *var_name, int indents) {
+            void dump_pNext_trampoline(ApiDumpInstance& api_dump, const void* object, const char* type_name, const char *var_name, int indents) {
                 if (object == NULL) {
-                    if constexpr (Format == ApiDumpFormat::Html || Format == ApiDumpFormat::Json) {
-                        dump_nullptr<Format>(settings, type_name, var_name, indents);
+                    if (api_dump.settings().format() == ApiDumpFormat::Html || api_dump.settings().format() == ApiDumpFormat::Json) {
+                        dump_nullptr(api_dump, type_name, var_name, indents);
                     }
                     return;
                 }
@@ -746,22 +735,22 @@ class ApiDumpGenerator(BaseGenerator):
             if struct.sType is not None:
                 self.write(f'''
                     case {struct.sType}:
-                        dump_{struct.name}<Format>(*reinterpret_cast<const {struct.name}*>(object), settings, (Format == ApiDumpFormat::Json ? "{struct.name}*" : "{struct.name}"), "pNext", indents, reinterpret_cast<const {struct.name}*>(object));
+                        dump_{struct.name}(api_dump, *reinterpret_cast<const {struct.name}*>(object), (api_dump.settings().format() == ApiDumpFormat::Json ? "{struct.name}*" : "{struct.name}"), "pNext", indents, reinterpret_cast<const {struct.name}*>(object));
                         break;''')
         protect.add_guard(self, None)
         self.write('''
                 case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO: // 47
                 case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO: // 48
                     if (base_struct.pNext != nullptr) {
-                        dump_pNext_trampoline<Format>(reinterpret_cast<const void*>(base_struct.pNext), settings, type_name, var_name, indents);
+                        dump_pNext_trampoline(api_dump, reinterpret_cast<const void*>(base_struct.pNext), type_name, var_name, indents);
                     } else {
-                        dump_nullptr<Format>(settings, "const void*", "pNext", indents);
+                        dump_nullptr(api_dump, "const void*", "pNext", indents);
                     }
                     break;
                 default:
-                    dump_start<Format>(settings, OutputConstruct::value, "const void*", "pNext", indents);
-                    dump_value<Format>(settings, "UNKNOWN (", (int64_t) (base_struct.sType), ")");
-                    dump_end<Format>(settings, OutputConstruct::value, indents);
+                    dump_start(api_dump, OutputConstruct::value, "const void*", "pNext", indents);
+                    dump_value(api_dump, "UNKNOWN (", (int64_t) (base_struct.sType), ")");
+                    dump_end(api_dump, OutputConstruct::value, indents);
                     }
                 }''')
 
@@ -770,14 +759,12 @@ class ApiDumpGenerator(BaseGenerator):
         for command in [x for x in self.vk.commands.values() if x.name not in FUNCTION_IMPLEMENTATION_IGNORE_LIST]:
             protect.add_guard(self, command.protect)
             self.write(f'''
-                template <ApiDumpFormat Format>
-                void dump_params_{command.name}(ApiDumpInstance& dump_inst, {command_param_declaration_text(command)}) {{
-                    const ApiDumpSettings& settings(dump_inst.settings());
-                    if(settings.showParams()) {{
-                        dump_pre_params_formatting<Format>(settings);''')
+                void dump_params_{command.name}(ApiDumpInstance& api_dump, {command_param_declaration_text(command)}) {{
+                    if(api_dump.settings().showParams()) {{
+                        dump_pre_params_formatting(api_dump);''')
             for param in command.params:
                 if param != command.params[0]:
-                    self.write('dump_separate_members<Format>(settings);')
+                    self.write('dump_separate_members(api_dump);')
 
                 parameter_state = self.get_parameter_state(param, command)
                 if parameter_state is not None:
@@ -785,17 +772,16 @@ class ApiDumpGenerator(BaseGenerator):
 
                 self.write_value(param, command)
 
-            self.write('''dump_post_params_formatting<Format>(settings);
-                    flush(settings);
+            self.write('''dump_post_params_formatting(api_dump);
+                    api_dump.settings().flush();
                 }
             }''')
         protect.add_guard(self, None)
 
         self.write('\n//========================== Type Implementations =========================//\n')
         self.write('''
-            template <ApiDumpFormat Format>
-            void dump_return_value_VkDeviceAddress(const VkDeviceAddress& address, const ApiDumpSettings& settings) {
-                dump_value_hex<Format>(settings, static_cast<uint64_t>(address));
+            void dump_return_value_VkDeviceAddress(ApiDumpInstance& api_dump, const VkDeviceAddress& address) {
+                dump_value_hex(api_dump, static_cast<uint64_t>(address));
             }''')
 
     def build_alias_map(self):
@@ -910,73 +896,73 @@ class ApiDumpGenerator(BaseGenerator):
         object_access = 'object.' if isinstance(parent, Struct) else ''
         call_type = self.get_unaliased_type(var.type)
         if isinstance(parent, Command):
-            indent = '(Format == ApiDumpFormat::Json ? 4 : 1)'
+            indent = '(api_dump.settings().format() == ApiDumpFormat::Json ? 4 : 1)'
         else:
-            indent = 'indents + (Format == ApiDumpFormat::Json ? 2 : 1)'
+            indent = 'indents + (api_dump.settings().format() == ApiDumpFormat::Json ? 2 : 1)'
 
         value = f'{object_access}{var.name}'
         if self.get_is_array(var):
-            element_type = f'dump_type<Format, {custom_type}>'
+            element_type = f'dump_type<{custom_type}>'
             if var.type == 'char':
-                element_type = 'dump_char<Format>'
+                element_type = 'dump_char'
             if custom_type == 'uint8_t': # ostream << treats uint8_t as char which we dont want
-                element_type = 'dump_type<Format, uint32_t>'
+                element_type = 'dump_type<uint32_t>'
             elif custom_type == 'int8_t': # ostream << treats int8_t as char which we dont want
-                element_type = 'dump_type<Format, int32_t>'
+                element_type = 'dump_type<int32_t>'
 
             elif call_type in self.vulkan_defined_types:
-                element_type = f'dump_{call_type}<Format>'
+                element_type = f'dump_{call_type}'
 
             if parent.name in ['VkShaderModuleCreateInfo', 'VkShaderCreateInfoEXT'] and var.name == 'pCode':
                 array_len = f'{object_access}{var.length}'
                 self.write(f'''
-                    if(settings.showShader()) {{
-                        dump_spirv<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", {indent});
+                    if(api_dump.settings().showShader()) {{
+                        dump_spirv(api_dump, {value}, {array_len}, "{custom_fullType}", "{var.name}", {indent});
                     }} else {{
-                        dump_special<Format>("SHADER DATA", settings, "{var.fullType}", "{var.name}", {indent});
+                        dump_special(api_dump, "SHADER DATA", "{var.fullType}", "{var.name}", {indent});
                     }}''')
 
             elif len(var.fixedSizeArray) > 2:
                 raise RuntimeError("Unhandled fixed array dimentionality")
             elif len(var.fixedSizeArray) == 2:
-                self.write(f'dump_double_array<Format>({value}, {var.fixedSizeArray[0]},  {var.fixedSizeArray[1]}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
+                self.write(f'dump_double_array(api_dump, {value}, {var.fixedSizeArray[0]},  {var.fixedSizeArray[1]}, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
 
             elif len(var.fixedSizeArray) == 1 and isinstance(parent, Struct): # Fixed length array's passed as parameters are treated as void*, so only match when printing members
                 fixed_array_len = get_fixed_array_length(var.fixedSizeArray[0], var, parent)
-                self.write(f'dump_single_array<Format>({value}, {fixed_array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
+                self.write(f'dump_single_array(api_dump, {value}, {fixed_array_len}, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
 
             else:
                 array_len = get_array_length(var, parent)
                 if var.fullType.count('*') > 1 and var.type not in ['void', 'char'] and (call_type in self.vulkan_defined_types):
-                    self.write(f'dump_double_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
+                    self.write(f'dump_double_pointer_array(api_dump, {value}, {array_len}, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
                 else:
-                    self.write(f'dump_pointer_array<Format>({value}, {array_len}, settings, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
+                    self.write(f'dump_pointer_array(api_dump, {value}, {array_len}, "{custom_fullType}", "{var.name}", "{custom_type}", {indent}, {element_type});')
         else:
             if var.pointer and var.type not in self.only_use_as_pointer_types and var.type not in self.vk.funcPointers.keys() and var.type not in ['void', 'char'] and not (var.name == 'pNext' and var.fullType in ['void*', 'const void*']):
-                pointer_type = f'dump_type<Format, {custom_type}>'
+                pointer_type = f'dump_type<{custom_type}>'
                 if (var.type in self.vulkan_defined_types):
-                    pointer_type = f'dump_{call_type}<Format>'
+                    pointer_type = f'dump_{call_type}'
 
-                self.write(f'dump_pointer<Format>({value}, settings, "{custom_fullType}", "{var.name}", {indent}, {pointer_type});')
+                self.write(f'dump_pointer(api_dump, {value}, "{custom_fullType}", "{var.name}", {indent}, {pointer_type});')
             else:
-                value_type = f'dump_type<Format, {var.fullType}>'
+                value_type = f'dump_type<{var.fullType}>'
                 if var.name == 'apiVersion':
-                    value_type = 'dump_api_version<Format>'
+                    value_type = 'dump_api_version'
                 elif var.name == 'pNext' and var.fullType in ['void*', 'const void*']:
-                    value_type = 'dump_pNext<Format>'
+                    value_type = 'dump_pNext'
                 elif var.type == 'char':
-                    value_type = 'dump_char<Format>'
+                    value_type = 'dump_char'
                 elif var.fullType == 'VkDeviceAddress':
-                    value_type = f'dump_type_hex<Format, {var.fullType}>'
+                    value_type = f'dump_type_hex< {var.fullType}>'
                 elif var.fullType == 'uint8_t': # ostream << treats uint8_t as char which we dont want
-                    value_type = 'dump_type<Format, uint32_t>'
+                    value_type = 'dump_type< uint32_t>'
                 elif var.fullType == 'int8_t': # ostream << treats int8_t as char which we dont want
-                    value_type = 'dump_type<Format, int32_t>'
+                    value_type = 'dump_type< int32_t>'
                 elif call_type in self.vulkan_defined_types:
-                    value_type = f'dump_{call_type}<Format>'
+                    value_type = f'dump_{call_type}'
                 elif var.type in TREAT_AS_POINTERS and TREAT_AS_POINTERS[var.type] == var.name:
-                    value_type = 'dump_uint64_t_as_pointer<Format>'
-                self.write(f'{value_type}({value}, settings, "{custom_fullType}", "{var.name}", {indent});')
+                    value_type = 'dump_uint64_t_as_pointer'
+                self.write(f'{value_type}(api_dump, {value}, "{custom_fullType}", "{var.name}", {indent});')
 
     def write_enum_contents(self, enum):
         int_cast = ('' if any(f.negative for f in enum.fields) else 'u') + (f'int{enum.bitWidth}_t')
@@ -987,9 +973,9 @@ class ApiDumpGenerator(BaseGenerator):
         for field in enum.fields:
             protect.add_guard(self, field.protect)
             self.write(f'''case {field.name}:
-                    dump_enum<Format>(settings, "{field.name}", static_cast<{int_cast}>(object));
+                    dump_enum(api_dump, "{field.name}", static_cast<{int_cast}>(object));
                     break;''')
         protect.add_guard(self, None)
         self.write('default:')
-        self.write(f'    dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<{int_cast}>(object));')
+        self.write(f'    dump_enum_with_value(api_dump, "UNKNOWN", static_cast<{int_cast}>(object));')
         self.write('}')
