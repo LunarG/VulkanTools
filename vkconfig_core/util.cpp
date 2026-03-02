@@ -214,6 +214,35 @@ std::vector<std::string> SplitSpace(const std::string& parse) {
     return split_result;
 }
 
+std::vector<std::string> SplitArgs(const std::string& value) {
+    std::vector<std::string> space_splitted = SplitSpace(value);
+
+    std::vector<std::string> split_result;
+
+    bool previous_value_had_dash = false;
+    for (std::size_t i = 0, n = space_splitted.size(); i < n; ++i) {
+        std::string value = space_splitted[i];
+        if (value.empty()) {
+            continue;
+        }
+
+        if (split_result.empty()) {
+            split_result.push_back(value);
+            previous_value_had_dash = value[0] == '-';
+            continue;
+        }
+
+        if (previous_value_had_dash && value[0] != '-') {
+            split_result[split_result.size() - 1] += " " + value;
+        } else {
+            split_result.push_back(value);
+            previous_value_had_dash = value[0] == '-';
+        }
+    }
+
+    return split_result;
+}
+
 std::string Merge(const std::vector<std::string>& value, const std::string& delimiter) {
     std::string result;
 

@@ -418,7 +418,7 @@ void TabApplications::on_launch_options_args_textEdited(const QString &text) {
     Executable *executable = configurator.executables.GetActiveExecutable();
     ExecutableOptions *options = executable->GetActiveOptions();
 
-    options->args = SplitSpace(text.toStdString());
+    options->args = SplitArgs(text.toStdString());
 }
 
 void TabApplications::on_launch_options_envs_textEdited(const QString &text) {

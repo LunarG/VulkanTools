@@ -876,6 +876,31 @@ TEST(test_command_line, usage_mode_settings_html_default_implicit_and_output) {
     EXPECT_EQ(HELP_DEFAULT, command_line.help);
 }
 
+TEST(test_command_line, usage_mode_settings_html_default_implicit_and_output_whitespace) {
+    static char* argv[] = {(char*)"vkconfig",   (char*)"settings",  // settings
+                           (char*)"--generate", (char*)"html",      // generate
+                           (char*)"--output",   (char*)"\"./my directory/my settings.html\""};
+    int argc = static_cast<int>(std::size(argv));
+
+    CommandLine command_line(argc, argv);
+
+    EXPECT_EQ(COMMAND_SETTINGS, command_line.command);
+    EXPECT_EQ(COMMAND_RESET_SOFT, command_line.command_reset_arg);
+    EXPECT_EQ(COMMAND_LAYERS_NONE, command_line.command_layers_arg);
+    EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
+    EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
+    EXPECT_EQ(GENERATE_SETTINGS_HTML, command_line.generate_settings_mode);
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
+    EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
+    EXPECT_TRUE(command_line.GetInputPath().Empty());
+    EXPECT_STREQ("\"./my directory/my settings.html\"",
+                 ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
+    EXPECT_EQ(false, command_line.dry_run);
+    EXPECT_EQ(ERROR_NONE, command_line.error);
+    EXPECT_TRUE(command_line.error_args.empty());
+    EXPECT_EQ(HELP_DEFAULT, command_line.help);
+}
+
 TEST(test_command_line, usage_mode_settings_html_default_explicit_and_output) {
     static char* argv[] = {(char*)"vkconfig",   (char*)"settings",       // settings
                            (char*)"--generate", (char*)"html",           // generate
