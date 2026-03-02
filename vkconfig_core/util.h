@@ -65,11 +65,13 @@ bool IsStringFound(const std::vector<std::string>& list, const std::string& valu
 
 std::string TrimString(const std::string& str, const std::string& whitespaces = " \t");
 
-std::string TrimSurroundingWhitespace(const std::string& str, const std::string& whitespaces = " \"\t\n\r");
+std::string TrimSurroundingWhitespace(const std::string& str, const std::string& whitespaces = " \t\n\r");
 
 std::vector<std::string> Split(const std::string& value, const std::string& delimiter);
 
 std::vector<std::string> SplitSpace(const std::string& value);
+
+std::vector<std::string> SplitArgs(const std::string& value);
 
 std::string Merge(const std::vector<std::string>& value, const std::string& delimiter);
 

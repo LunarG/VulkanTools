@@ -195,10 +195,14 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object, ConfiguratorMo
             executable_options.label = json_options_object.value("label").toString().toStdString();
             executable_options.working_folder = json_options_object.value("working_folder").toString().toStdString();
 
+            std::vector<std::string> args;
             const QJsonArray& json_command_lines_array = json_options_object.value("arguments").toArray();
             for (int k = 0, p = json_command_lines_array.size(); k < p; ++k) {
-                executable_options.args.push_back(json_command_lines_array[k].toString().toStdString());
+                args.push_back(json_command_lines_array[k].toString().toStdString());
             }
+            // Workaround to resolved badly stored arguments when we were using SplitSpace instead of SplitArgs to fill the
+            // executable arguments option in the UI
+            executable_options.args = SplitArgs(Merge(args, " "));
 
             const QJsonArray& json_environment_variables_array = json_options_object.value("environment_variables").toArray();
             for (int k = 0, p = json_environment_variables_array.size(); k < p; ++k) {

@@ -135,13 +135,101 @@ TEST(test_util, trim_surrounding_whitepace) {
     std::vector<std::string> strings;
     strings.push_back("-o profile.json");
     strings.push_back(" -o profile.json ");
-    strings.push_back("\"-o profile.json\"");
+    strings.push_back("\t-o profile.json\n");
 
     for (std::size_t i = 0, n = strings.size(); i < n; ++i) {
         std::string trimed_string = TrimSurroundingWhitespace(strings[i]);
 
         EXPECT_STREQ("-o profile.json", trimed_string.c_str());
     }
+}
+
+TEST(test_util, split_args_single) {
+    const std::string source_arg = "--argA";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(1, split_arg.size());
+    EXPECT_STREQ("--argA", split_arg[0].c_str());
+}
+
+TEST(test_util, split_args_single_with_parem) {
+    const std::string source_arg = "--argA value-A";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(1, split_arg.size());
+    EXPECT_STREQ("--argA value-A", split_arg[0].c_str());
+}
+
+TEST(test_util, split_args_single_no_quote) {
+    const std::string source_arg = "--argA value A";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(1, split_arg.size());
+    EXPECT_STREQ("--argA value A", split_arg[0].c_str());
+}
+
+TEST(test_util, split_args_multiple_no_quote) {
+    const std::string source_arg = "--argA value A --argB";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(2, split_arg.size());
+    EXPECT_STREQ("--argA value A", split_arg[0].c_str());
+    EXPECT_STREQ("--argB", split_arg[1].c_str());
+}
+
+TEST(test_util, split_args_single_with_quote_with_space) {
+    const std::string source_arg = "--argA \"value A\"";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(1, split_arg.size());
+    EXPECT_STREQ("--argA \"value A\"", split_arg[0].c_str());
+}
+
+TEST(test_util, split_args_single_with_quote_without_space) {
+    const std::string source_arg = "--argA \"value-A\"";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(1, split_arg.size());
+    EXPECT_STREQ("--argA \"value-A\"", split_arg[0].c_str());
+}
+
+TEST(test_util, split_args_single_with_quote_and_extra) {
+    const std::string source_arg = "--argA \"value-A\" --argB";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(2, split_arg.size());
+    EXPECT_STREQ("--argA \"value-A\"", split_arg[0].c_str());
+    EXPECT_STREQ("--argB", split_arg[1].c_str());
+}
+
+TEST(test_util, split_args_single_with_command_quote_without_space) {
+    const std::string source_arg = "command --argA \"value-A\"";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(2, split_arg.size());
+    EXPECT_STREQ("command", split_arg[0].c_str());
+    EXPECT_STREQ("--argA \"value-A\"", split_arg[1].c_str());
+}
+
+TEST(test_util, split_args_single_with_command_double_quote_without_space) {
+    const std::string source_arg = "command area --argA \"value-A\"";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(3, split_arg.size());
+    EXPECT_STREQ("command", split_arg[0].c_str());
+    EXPECT_STREQ("area", split_arg[1].c_str());
+    EXPECT_STREQ("--argA \"value-A\"", split_arg[2].c_str());
+}
+
+TEST(test_util, split_args_multiple) {
+    const std::string source_arg = "--argA --argB valueB --argC \"value C\" --argD value D";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(4, split_arg.size());
+    EXPECT_STREQ("--argA", split_arg[0].c_str());
+    EXPECT_STREQ("--argB valueB", split_arg[1].c_str());
+    EXPECT_STREQ("--argC \"value C\"", split_arg[2].c_str());
+    EXPECT_STREQ("--argD value D", split_arg[3].c_str());
+}
+
+TEST(test_util, split_args_multiple_mix) {
+    const std::string source_arg = "cargo run --example solari --features=\"bevy_solari https free_camera\"";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(4, split_arg.size());
+    EXPECT_STREQ("cargo", split_arg[0].c_str());
+    EXPECT_STREQ("run", split_arg[1].c_str());
+    EXPECT_STREQ("--example solari", split_arg[2].c_str());
+    EXPECT_STREQ("--features=\"bevy_solari https free_camera\"", split_arg[3].c_str());
 }
 
 TEST(test_util, split_arg_default) {

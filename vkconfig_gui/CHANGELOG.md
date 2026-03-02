@@ -5,6 +5,9 @@
 - Improve generated layer settings C++ library to output to code for `vulkan.hpp`
 - Clean up generated layer settings C++ library for less friction on use
 
+### Fixes:
+- Fix command line whitespace decoding #2625
+
 ## Vulkan Configurator 3.4.2 - Febuary 2026
 [Vulkan SDK 1.4.341.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.341)
 
@@ -25,7 +28,7 @@
 - Add `settings --layers` command lines option to list multiple layer names when generating files
 - Add Validation and API Dump default configuration for interleaved log in stdout
 - Add diagnostic log refresh button
-- Add layer settings reset to default values button
+- Add layer settings reset to default values button #2573
 - Improved UI to set an external `vk_layer_settings.txt` file
 - Improved "View Enabled Layers" and "Configure All Layers" UI
 - Add buttons to open Vulkan SDK directories in diagnostics tab #2585
