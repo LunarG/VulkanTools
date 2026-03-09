@@ -1,9 +1,16 @@
-## Vulkan Configurator 3.4.3 - May 2026
+## Vulkan Configurator 3.5.0 - May 2026
 [Vulkan SDK 1.4.3XX.0](https://github.com/LunarG/VulkanTools/tree/main)
 
+### Features:
+- Add selecting Vulkan Layers configuration from system tray
+- Add selecting Vullan physical device from system tray
+- Add enabling Vulkan Loader log from system tray
+
 ### Improvements:
+- Clarify UI to clarify what is overridden by Vulkan Configurator: Layers, Devices, Loader log
 - Improve generated layer settings C++ library to output to code for `vulkan.hpp`
 - Clean up generated layer settings C++ library for less friction on use
+- Add preferences settings to show "Vulkan Executables Scope"
 
 ### Fixes:
 - Fix command line whitespace decoding #2625

@@ -57,7 +57,7 @@ bool GenerateSettingsTXT(Configurator& configurator, OverrideArea override_area,
                 break;
             }
             default:
-            case EXECUTABLE_NONE:
+                assert(0);
                 break;
         }
 

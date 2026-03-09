@@ -143,6 +143,8 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
             this->ui->driver_paths_list->blockSignals(false);
         } break;
     }
+
+    this->window.UpdateUI_Status();
 }
 
 void TabDrivers::CleanUI() {}
@@ -185,6 +187,8 @@ void TabDrivers::on_driver_override_toggled(bool checked) {
     configurator.driver_override_info =
         ::GetDeviceInfo(configurator.vulkan_system_info.physicalDevices[this->ui->driver_forced_name->currentIndex()]);
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void TabDrivers::on_driver_mode_changed(int index) {

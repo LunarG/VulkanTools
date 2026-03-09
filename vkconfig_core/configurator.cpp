@@ -442,7 +442,7 @@ bool Configurator::WriteLoaderSettings(OverrideArea override_area, const Path& l
                 break;
             }
             default:
-            case EXECUTABLE_NONE:
+                assert(0);
                 break;
         }
 
@@ -1089,14 +1089,17 @@ bool Configurator::Load() {
         // TAB_CONFIGURATIONS
         if (json_interface_object.value(GetToken(TAB_CONFIGURATIONS)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_CONFIGURATIONS)).toObject();
+            if (json_object.value("override_layers") != QJsonValue::Undefined) {
+                this->layers_override_enabled = json_object.value("override_layers").toBool();
+            }
             this->advanced = json_object.value("advanced").toBool();
             this->executable_scope = ::GetExecutableScope(json_object.value("executable_scope").toString().toStdString().c_str());
             this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
         }
 
-        // TAB_LAYERS
-        if (json_interface_object.value(GetToken(TAB_LAYERS)) != QJsonValue::Undefined) {
-            const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_LAYERS)).toObject();
+        // TAB_LAYERS_PATHS
+        if (json_interface_object.value(GetToken(TAB_LAYERS_PATHS)) != QJsonValue::Undefined) {
+            const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_LAYERS_PATHS)).toObject();
             (void)json_object;
         }
 
@@ -1224,10 +1227,17 @@ bool Configurator::Load() {
                 ::SetHomePath(json_object.value("VULKAN_HOME").toString().toStdString());
             }
 
+            if (json_object.value("layers_show_scope") != QJsonValue::Undefined) {
+                this->configuration_show_scope = json_object.value("layers_show_scope").toBool();
+            } else {
+                this->configuration_show_scope = this->executable_scope != EXECUTABLE_ANY;
+            }
+
             if (json_object.value("all_enabled_executables_behavior") != QJsonValue::Undefined) {
                 this->executable_behavior = ::GetExecutableAllEnabledBehavior(
                     json_object.value("all_enabled_executables_behavior").toString().toStdString().c_str());
             }
+
             if (json_object.value("VULKAN_DOWNLOAD") != QJsonValue::Undefined) {
                 ::SetDownloadPath(json_object.value("VULKAN_DOWNLOAD").toString().toStdString());
             }
@@ -1277,17 +1287,15 @@ bool Configurator::Save() const {
     // TAB_CONFIGURATIONS
     {
         QJsonObject json_object;
+        json_object.insert("override_layers", this->layers_override_enabled);
         json_object.insert("advanced", this->advanced);
         json_object.insert("executable_scope", ::GetToken(this->executable_scope));
         json_object.insert("selected_global_configuration", this->selected_global_configuration.c_str());
         json_interface_object.insert(::GetToken(TAB_CONFIGURATIONS), json_object);
     }
 
-    // TAB_LAYERS
-    {
-        QJsonObject json_object;
-        json_interface_object.insert(GetToken(TAB_LAYERS), json_object);
-    }
+    // TAB_LAYERS_PATHS
+    {}
 
     // TAB_DRIVER
     {
@@ -1368,6 +1376,7 @@ bool Configurator::Save() const {
         json_object.insert("show_external_layers_settings", this->show_external_layers_settings);
         json_object.insert("VULKAN_HOME", ::Path(Path::HOME).RelativePath().c_str());
         json_object.insert("VULKAN_DOWNLOAD", ::Path(Path::DOWNLOAD).RelativePath().c_str());
+        json_object.insert("layers_show_scope", this->configuration_show_scope);
         json_object.insert("all_enabled_executables_behavior", ::GetToken(this->executable_behavior));
 
         json_interface_object.insert(GetToken(TAB_PREFERENCES), json_object);
@@ -1449,9 +1458,13 @@ bool Configurator::ShouldNotify() const {
 }
 
 bool Configurator::HasActiveSettings() const {
+    if (!this->layers_override_enabled) {
+        return false;
+    }
+
     switch (this->executable_scope) {
         default:
-        case EXECUTABLE_NONE:
+            assert(0);
             return false;
         case EXECUTABLE_ALL:
         case EXECUTABLE_PER:
@@ -1483,18 +1496,20 @@ bool Configurator::HasActiveSettings() const {
 }
 
 bool Configurator::HasEnabledUI(EnabledUI enabled_ui) const {
+    if (!this->layers_override_enabled) {
+        return false;
+    }
+
     switch (enabled_ui) {
         default:
             assert(false);
             return false;
         case ENABLE_UI_CONFIG: {
             switch (this->GetExecutableScope()) {
-                default:
-                case EXECUTABLE_NONE:
-                    return false;
                 case EXECUTABLE_ALL:
                 case EXECUTABLE_PER:
                     return this->executables.GetActiveExecutable() != nullptr;
+                default:
                 case EXECUTABLE_ANY:
                     return true;
             }

@@ -39,7 +39,7 @@
 #include <QSystemTrayIcon>
 
 #include <string>
-#include <array>
+#include <vector>
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -57,32 +57,25 @@ class MainWindow : public QMainWindow {
     void changeEvent(QEvent *event) override;
 
     QSystemTrayIcon *_tray_icon = nullptr;
-    QMenu *_tray_icon_menu = nullptr;
-    QAction *_tray_restore_action = nullptr;
-    std::array<QAction *, EXECUTABLE_SCOPE_COUNT> _tray_layers;
-    QAction *_tray_quit_action = nullptr;
-
-   private slots:
-    void trayActionRestore();
-    void on_tray_none(bool checked);
-    void on_tray_any(bool checked);
-    void on_tray_all(bool checked);
-    void on_tray_per(bool checked);
-
-    void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
    public Q_SLOTS:
     void commitDataRequest(QSessionManager &manager);
 
     void on_tab_widget_currentChanged(int index);
 
+    void OnIconActivated(QSystemTrayIcon::ActivationReason reason);
+    void OnTrayActionShow();
+    void OnTrayActionOverrideLayers(bool toggled);
+    void OnTrayActionOverrideDevice(bool toggled);
+    void OnTrayActionOverrideLog(bool toggled);
+    void OnLayersChanged(int index);
+    void OnDeviceChanged(int index);
+
     void UpdateUI_Status();
 
    private:
     MainWindow(const MainWindow &) = delete;
     MainWindow &operator=(const MainWindow &) = delete;
-
-    void InitTray();
 
    public:
     QApplication &app;
