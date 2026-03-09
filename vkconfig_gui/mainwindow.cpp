@@ -48,7 +48,7 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent)
       _tray_icon(nullptr),
       _tray_icon_menu(nullptr),
       _tray_restore_action(nullptr),
-      _tray_layers{nullptr, nullptr, nullptr, nullptr},
+      _tray_layers{nullptr, nullptr, nullptr},
       _tray_quit_action(nullptr),
       app(app),
       ui(new Ui::MainWindow) {
@@ -56,7 +56,7 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent)
 
     this->tabs[TAB_DIAGNOSTIC].reset(new TabDiagnostics(*this, ui));
     this->tabs[TAB_APPLICATIONS].reset(new TabApplications(*this, ui));
-    this->tabs[TAB_LAYERS].reset(new TabLayers(*this, ui));
+    this->tabs[TAB_LAYERS_PATHS].reset(new TabLayers(*this, ui));
     this->tabs[TAB_CONFIGURATIONS].reset(new TabConfigurations(*this, ui));
     this->tabs[TAB_DOCUMENTATION].reset(new TabDocumentation(*this, ui));
     this->tabs[TAB_DRIVERS].reset(new TabDrivers(*this, ui));
@@ -119,7 +119,7 @@ void MainWindow::InitTray() {
             this->_tray_icon_menu->addAction(this->_tray_layers[i]);
         }
 
-        this->connect(this->_tray_layers[EXECUTABLE_NONE], &QAction::toggled, this, &MainWindow::on_tray_none);
+        // this->connect(this->_tray_layers[EXECUTABLE_NONE], &QAction::toggled, this, &MainWindow::on_tray_none);
         this->connect(this->_tray_layers[EXECUTABLE_ANY], &QAction::toggled, this, &MainWindow::on_tray_any);
         this->connect(this->_tray_layers[EXECUTABLE_ALL], &QAction::toggled, this, &MainWindow::on_tray_all);
         this->connect(this->_tray_layers[EXECUTABLE_PER], &QAction::toggled, this, &MainWindow::on_tray_per);
@@ -145,7 +145,7 @@ void MainWindow::UpdateUI_Status() {
         }
     }
 
-    if (configurator.GetExecutableScope() != EXECUTABLE_NONE) {
+    if (configurator.layers_override_enabled) {
         const QIcon icon(":/resourcefiles/vkconfig-on.png");
         this->setWindowIcon(icon);
         if (QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -191,7 +191,7 @@ void MainWindow::trayActionRestore() {
 void MainWindow::on_tray_none(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
-        configurator.SetExecutableScope(EXECUTABLE_NONE);
+        configurator.layers_override_enabled = false;
         configurator.Override(OVERRIDE_AREA_ALL);
 
         this->UpdateUI(UPDATE_REBUILD_UI);
@@ -201,6 +201,7 @@ void MainWindow::on_tray_none(bool checked) {
 void MainWindow::on_tray_any(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
+        configurator.layers_override_enabled = true;
         configurator.SetExecutableScope(EXECUTABLE_ANY);
         configurator.Override(OVERRIDE_AREA_ALL);
 
@@ -211,6 +212,7 @@ void MainWindow::on_tray_any(bool checked) {
 void MainWindow::on_tray_all(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
+        configurator.layers_override_enabled = true;
         configurator.SetExecutableScope(EXECUTABLE_ALL);
         configurator.Override(OVERRIDE_AREA_ALL);
 
@@ -221,6 +223,7 @@ void MainWindow::on_tray_all(bool checked) {
 void MainWindow::on_tray_per(bool checked) {
     if (checked) {
         Configurator &configurator = Configurator::Get();
+        configurator.layers_override_enabled = true;
         configurator.SetExecutableScope(EXECUTABLE_PER);
         configurator.Override(OVERRIDE_AREA_ALL);
 
@@ -241,7 +244,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         if (!(configurator.Get(HIDE_MESSAGE_USE_SYSTEM_TRAY))) {
             std::string shut_down_state;
 
-            if (configurator.GetExecutableScope() != EXECUTABLE_NONE) {
+            if (configurator.layers_override_enabled) {
                 shut_down_state =
                     "Vulkan Layers override will remain in effect while Vulkan Configurator remain active in the system tray.";
             } else {

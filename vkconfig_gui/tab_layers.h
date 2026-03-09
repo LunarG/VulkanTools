@@ -36,6 +36,7 @@ class TabLayers : public Tab {
     void UpdateUI_LayersPaths(UpdateUIMode ui_update_mode);
 
    public Q_SLOTS:
+    void on_layers_override_toggled(bool checked);
     void on_paths_changed();
     void on_paths_toggled();
     void on_layers_validate_checkBox_toggled(bool checked);
