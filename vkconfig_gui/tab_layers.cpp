@@ -32,7 +32,7 @@
 #include <chrono>
 #include <thread>
 
-TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_LAYERS, window, ui) {
+TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_LAYERS_PATHS, window, ui) {
     Configurator &configurator = Configurator::Get();
 
     this->ui->layers_progress->setValue(0);
@@ -125,8 +125,11 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
 }
 
 void TabLayers::UpdateUI(UpdateUIMode ui_update_mode) {
+    const Configurator &configurator = Configurator::Get();
+
     this->ui->layers_progress->resetFormat();
     this->ui->layers_progress->setValue(0);
+
     this->UpdateUI_LayersPaths(ui_update_mode);
 }
 

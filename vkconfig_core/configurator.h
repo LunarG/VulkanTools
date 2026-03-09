@@ -177,6 +177,8 @@ class Configurator {
     Version latest_sdk_version = Version::NONE;
     Version current_sdk_version = Version::VKHEADER;
 
+    bool configuration_show_scope = false;
+    bool layers_override_enabled = true;
     bool driver_override_enabled = false;
     DriverMode driver_override_mode = DRIVER_MODE_SINGLE;
     DeviceInfo driver_override_info;
