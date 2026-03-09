@@ -146,10 +146,56 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(VkPhysicalDevice physicalDevice, c
 
 extern "C" {
 
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance instance, const char* funcName) {
+    return instance_dispatch_table(instance)->GetPhysicalDeviceProcAddr(instance, funcName);
+}
+
+EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct) {
+    assert(pVersionStruct != NULL);
+    assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
+
+    // Fill in the function pointers if our version is at least capable of having the structure contain them.
+    if (pVersionStruct->loaderLayerInterfaceVersion >= 2) {
+        pVersionStruct->pfnGetInstanceProcAddr = vkGetInstanceProcAddr;
+        pVersionStruct->pfnGetDeviceProcAddr = vkGetDeviceProcAddr;
+        pVersionStruct->pfnGetPhysicalDeviceProcAddr = vk_layerGetPhysicalDeviceProcAddr;
+    }
+
+    if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION) {
+        pVersionStruct->loaderLayerInterfaceVersion = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+    }
+
+    return VK_SUCCESS;
+}
+
 EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char* pLayerName,
                                                                                       uint32_t* pPropertyCount,
                                                                                       VkExtensionProperties* pProperties) {
-    return util_GetExtensionProperties(0, NULL, pPropertyCount, pProperties);
+    static const VkExtensionProperties extensionProperties[] = {{
+        "VK_EXT_layer_settings",
+        2,
+    }};
+    if (pLayerName && strcmp(pLayerName, "VK_LAYER_LUNARG_api_dump") == 0) {
+        return util_GetExtensionProperties(ARRAY_SIZE(extensionProperties), extensionProperties, pPropertyCount, pProperties);
+    } else {
+        return VK_ERROR_LAYER_NOT_PRESENT;
+    }
+}
+
+EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                                                                    const char* pLayerName,
+                                                                                    uint32_t* pPropertyCount,
+                                                                                    VkExtensionProperties* pProperties) {
+    static const VkExtensionProperties extensionProperties[] = {{
+        "VK_EXT_tooling_info",
+        1,
+    }};
+    if (pLayerName && strcmp(pLayerName, "VK_LAYER_LUNARG_api_dump") == 0) {
+        return util_GetExtensionProperties(ARRAY_SIZE(extensionProperties), extensionProperties, pPropertyCount, pProperties);
+    } else {
+        return instance_dispatch_table(physicalDevice)
+            ->EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pPropertyCount, pProperties);
+    }
 }
 
 EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount,
