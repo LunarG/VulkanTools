@@ -168,7 +168,8 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
                 this->log_path = working_directory.AbsolutePath() + "/" + filename;
             }
 
-            configurator.SetExecutableScope(selected_mode == DIAGNOSTIC_VULKAN_PROFILE ? EXECUTABLE_NONE : EXECUTABLE_ANY);
+            // configurator.SetExecutableScope(selected_mode == DIAGNOSTIC_VULKAN_PROFILE ? EXECUTABLE_NONE : EXECUTABLE_ANY);
+            configurator.layers_override_enabled = selected_mode != DIAGNOSTIC_VULKAN_PROFILE;
             configurator.Override(OVERRIDE_AREA_ALL);
 
             this->process->setArguments(args);

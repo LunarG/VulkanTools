@@ -91,7 +91,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>7</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -120,9 +120,19 @@
          <number>0</number>
         </property>
         <item row="1" column="0">
-         <widget class="QGroupBox" name="groupBox_8">
+         <widget class="QGroupBox" name="configurations_group_box_override">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="title">
-           <string/>
+           <string>Override System Vulkan Layers Configuration</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <property name="spacing">
@@ -208,7 +218,10 @@
                      </font>
                     </property>
                     <property name="title">
-                     <string>Vulkan Layers Configuration Scope:</string>
+                     <string>Vulkan Executables Scope:</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>false</bool>
                     </property>
                     <layout class="QHBoxLayout" name="horizontalLayout_2">
                      <property name="spacing">
@@ -914,9 +927,22 @@
          <number>5</number>
         </property>
         <item>
-         <widget class="QGroupBox" name="groupBox_7">
+         <widget class="QGroupBox" name="layers_group_box_override">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="title">
-           <string/>
+           <string>Override System Vulkan Layers Paths</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_29">
            <property name="spacing">
@@ -953,6 +979,13 @@
                  <height>24</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
                <property name="toolTip">
                 <string>Check to validate the layer manifests wheen adding a user path. This may take some time...</string>
                </property>
@@ -980,6 +1013,13 @@
                  <width>16777215</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
                </property>
                <property name="value">
                 <number>24</number>
@@ -1009,6 +1049,13 @@
                  <height>24</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
                <property name="placeholderText">
                 <string>Enter a Vulkan layers directory to control them in Vulkan Configurator</string>
                </property>
@@ -1033,6 +1080,13 @@
                  <width>24</width>
                  <height>24</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
                </property>
                <property name="toolTip">
                 <string>Append a user-defined layers path</string>
@@ -1068,6 +1122,13 @@
                  <height>24</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
                <property name="toolTip">
                 <string>Reload all modified layer manifest</string>
                </property>
@@ -1091,6 +1152,13 @@
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+               <bold>false</bold>
+              </font>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -1161,7 +1229,7 @@
            </font>
           </property>
           <property name="title">
-           <string>Override Vulkan Devices to all Vulkan applications:</string>
+           <string>Override System Vulkan Devices</string>
           </property>
           <property name="checkable">
            <bool>true</bool>

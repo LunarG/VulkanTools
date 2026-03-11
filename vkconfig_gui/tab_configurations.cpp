@@ -81,6 +81,9 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->ui->configurations_layers_list->installEventFilter(&window);
     this->ui->configurations_settings->installEventFilter(&window);
 
+    this->connect(this->ui->configurations_group_box_override, SIGNAL(toggled(bool)), this,
+                  SLOT(on_configurations_override_toggled(bool)));
+
     this->connect(this->ui->configurations_executable_scope, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_configurations_executable_scope_currentIndexChanged(int)));
     this->connect(this->ui->configurations_executable_list, SIGNAL(currentIndexChanged(int)), this,
@@ -347,6 +350,10 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
         this->advanced_mode->setToolTip("Configure all Available Vulkan Layers");
     }
 
+    this->ui->configurations_group_box_scope->blockSignals(true);
+    this->ui->configurations_group_box_scope->setChecked(configurator.layers_override_enabled);
+    this->ui->configurations_group_box_scope->blockSignals(true);
+
     this->ui->configurations_executable_scope->setToolTip(::GetTooltip(scope));
     this->ui->configurations_executable_list->setEnabled(enabled_executable);
     this->ui->configurations_executable_append->setEnabled(enabled_executable);
@@ -402,7 +409,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
         return true;
     }
 
-    if (configurator.GetExecutableScope() == EXECUTABLE_NONE || !ui->configurations_list->isEnabled()) {
+    if (!configurator.layers_override_enabled || !ui->configurations_list->isEnabled()) {
         return true;
     } else if (target == this->ui->configurations_list) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
@@ -1096,6 +1103,14 @@ void TabConfigurations::on_configurations_advanced_toggle_pressed() {
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
+void TabConfigurations::on_configurations_override_toggled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+    configurator.layers_override_enabled = checked;
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
+    this->window.UpdateUI_Status();
+}
+
 void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(int index) {
     Configurator &configurator = Configurator::Get();
 
@@ -1305,7 +1320,7 @@ void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow)
                 alert.setText(text.c_str());
                 alert.setIcon(QMessageBox::Warning);
                 alert.setCheckBox(new QCheckBox("Do not show again."));
-                alert.setInformativeText(format("Use the '%s' tab to add the missing layers.", GetLabel(TAB_LAYERS)).c_str());
+                alert.setInformativeText(format("Use the '%s' tab to add the missing layers.", GetLabel(TAB_LAYERS_PATHS)).c_str());
 
                 alert.exec();
                 if (alert.checkBox()->isChecked()) {
