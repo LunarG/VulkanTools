@@ -5,6 +5,7 @@
 - Add selecting Vulkan Layers configuration from system tray
 - Add selecting Vullan physical device from system tray
 - Add enabling Vulkan Loader log from system tray
+- Add Vulkan Drivers override mode for no physical device
 
 ### Improvements:
 - Clarify UI to clarify what is overridden by Vulkan Configurator: Layers, Devices, Loader log

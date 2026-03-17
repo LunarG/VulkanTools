@@ -65,7 +65,6 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
             this->ui->driver_mode->blockSignals(false);
 
             switch (configurator.driver_override_mode) {
-                default:
                 case DRIVER_MODE_SINGLE: {
                     this->ui->driver_forced_name->blockSignals(true);
                     this->ui->driver_forced_name->clear();
@@ -118,6 +117,17 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
                     this->ui->drivers_device_list->setVisible(true);
                     this->ui->drivers_label_last->setVisible(true);
                 } break;
+                case DRIVER_MODE_NONE: {
+                    this->ui->driver_name_label->setVisible(false);
+                    this->ui->driver_forced_name->setVisible(false);
+                    this->ui->drivers_label_first->setVisible(false);
+                    this->ui->drivers_device_list->setVisible(false);
+                    this->ui->drivers_label_last->setVisible(false);
+                } break;
+                default: {
+                    assert(0);
+                    break;
+                }
             }
 
             this->ui->driver_group_box_paths->blockSignals(true);

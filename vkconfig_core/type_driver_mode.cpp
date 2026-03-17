@@ -27,6 +27,7 @@ const char* GetToken(DriverMode mode) {
     static const char* TOKENS[] = {
         "Single",  // DRIVER_MODE_SINGLE
         "Sorted",  // DRIVER_MODE_SORTED
+        "None",    // DRIVER_MODE_NONE
     };
     static_assert(std::size(TOKENS) == DRIVER_MODE_COUNT);
 

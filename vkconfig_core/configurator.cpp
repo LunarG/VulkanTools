@@ -244,6 +244,14 @@ QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSett
                 }
                 json_settings.insert("device_configurations", json_devices);
             } break;
+            case DRIVER_MODE_NONE: {
+                QJsonArray json_devices;
+                json_settings.insert("device_configurations", json_devices);
+            } break;
+            default: {
+                assert(0);
+                break;
+            }
         }
     }
 
@@ -316,6 +324,13 @@ QJsonObject Configurator::CreateJsonGlobalObject() const {
                 }
                 json_settings.insert("device_configurations", json_devices);
             } break;
+            case DRIVER_MODE_NONE: {
+                QJsonArray json_devices;
+                json_settings.insert("device_configurations", json_devices);
+            } break;
+            default: {
+                assert(0);
+            }
         }
     }
 

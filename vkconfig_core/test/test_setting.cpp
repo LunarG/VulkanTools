@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2020-2021 Valve Corporation
- * Copyright (c) 2020-2021 LunarG, Inc.
+ * Copyright (c) 2020-2026 Valve Corporation
+ * Copyright (c) 2020-2026 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,10 @@
 
 TEST(test_setting, is_enum_true) { EXPECT_EQ(true, IsEnum(SETTING_ENUM)); }
 
-TEST(test_setting, is_flags_true)  { EXPECT_EQ(true, IsFlags(SETTING_FLAGS)); }
+TEST(test_setting, is_flags_true) { EXPECT_EQ(true, IsFlags(SETTING_FLAGS)); }
 
 TEST(test_setting, is_enum_false) { EXPECT_EQ(false, IsEnum(SETTING_STRING)); }
 
 TEST(test_setting, get_setting_token) { EXPECT_STREQ("STRING", GetToken(SETTING_STRING)); }
 
 TEST(test_setting, get_setting_type) { EXPECT_EQ(SETTING_STRING, GetSettingType("STRING")); }
-
