@@ -91,7 +91,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -132,7 +132,7 @@
            <string>Control the Vulkan  Layers used by running Vulkan applications</string>
           </property>
           <property name="title">
-           <string>Override System Vulkan Layers</string>
+           <string>Configure System Vulkan Layers</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -1235,7 +1235,7 @@
            <string>Control Vulkan Physical Device used by all running Vulkan applications</string>
           </property>
           <property name="title">
-           <string>Override System Vulkan Devices</string>
+           <string>Configure System Vulkan Devices</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
@@ -1324,6 +1324,11 @@
                <item>
                 <property name="text">
                  <string>Order Vulkan physical devices</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>No Vulkan physical device available</string>
                 </property>
                </item>
               </widget>
@@ -2644,7 +2649,7 @@
              <string>Produce Vulkan Loader Log to all running Vulkan applications</string>
             </property>
             <property name="title">
-             <string>Override System Vulkan Loader Log</string>
+             <string>Configure System Vulkan Loader Log</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
