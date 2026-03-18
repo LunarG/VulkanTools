@@ -33,4 +33,4 @@ enum { LAYER_BUILTIN_COUNT = LAYER_BUILTIN_LAST - LAYER_BUILTIN_FIRST + 1 };
 LayerBuiltin GetLayerBuiltin(const char* token);
 const char* GetToken(LayerBuiltin builtin);
 const char* GetLabel(LayerBuiltin builtin);
-const char* GetDescription(LayerBuiltin builtin);
+// const char* GetDescription(LayerBuiltin builtin);

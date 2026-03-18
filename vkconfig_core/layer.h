@@ -82,7 +82,6 @@ class Layer {
     bool IsValid() const;
 
     LayerControl GetActualControl() const;
-    std::string GetActualControlTooltip() const;
 
     int FindPresetIndex(const SettingDataSet& settings) const;
 

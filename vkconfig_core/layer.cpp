@@ -103,30 +103,6 @@ LayerControl Layer::GetActualControl() const {
     }
 }
 
-std::string Layer::GetActualControlTooltip() const {
-    if (this->type == LAYER_TYPE_IMPLICIT) {
-        if (!this->disable_env.empty()) {
-            if (qEnvironmentVariableIsSet(this->disable_env.c_str())) {
-                return format("'%s' is set", this->disable_env.c_str());
-            }
-        }
-
-        if (!this->enable_env.empty()) {
-            const std::string& value = qgetenv(this->enable_env.c_str()).toStdString();
-            if (value == this->enable_value) {
-                return format("'%s' is set to '%s'.", this->enable_env.c_str(), value.c_str());
-            } else {
-                return format("Set '%s' to '%s' to enable '%s' by default.", this->enable_env.c_str(), this->enable_value.c_str(),
-                              this->key.c_str());
-            }
-        }
-
-        return format("Set '%s' to disable '%s' by default.", this->disable_env.c_str(), this->key.c_str());
-    } else {
-        return ::GetDescription(LAYER_CONTROL_AUTO);
-    }
-}
-
 int Layer::FindPresetIndex(const SettingDataSet& settings) const {
     for (std::size_t i = 0, n = this->presets.size(); i < n; ++i) {
         if (::HasPreset(settings, this->presets[i].settings)) {
