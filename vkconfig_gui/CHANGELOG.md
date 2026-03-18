@@ -13,12 +13,14 @@
 - Clean up generated layer settings C++ library for less friction on use
 - Add preferences settings to show "Vulkan Executables Scope"
 - Add `vkconfig.json` backup when doing a "Reset To Default" #2570
+- Add "Discard Ordering and Enabling Layers" default configuration #2596
 
 ### Fixes:
 - Fix command line whitespace decoding #2625
 - Fix application launcher 'options' edit #2598
 - Fix "Vulkan Layers Located by Vulkan Applications" tooltips #2595
 - Fix "discard" layer control tooltip #2595
+- Fix "Validation with API Dump log" configuration not loaded
 
 ## Vulkan Configurator 3.4.2 - Febuary 2026
 [Vulkan SDK 1.4.341.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.341)
