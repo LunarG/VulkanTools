@@ -1,0 +1,44 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Discard Ordering and Enabling Layers",
+        "version": 1,
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "selected_layer_name": "",
+        "default_layer_control": "discard",
+        "override_layers": true,
+        "override_loader": false,
+        "loader_message_types": [
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "perf",
+            "layer",
+            "driver"
+        ],
+        "layers": [
+            {
+                "builtin": "unordered_layer_location",
+                "control": "auto",
+                "name": "Vulkan Layers Located by Vulkan Applications",
+                "override_settings": true,
+                "platforms": [
+                    "WINDOWS_X86",
+                    "WINDOWS_ARM",
+                    "LINUX",
+                    "MACOS"
+                ],
+                "rank": 9,
+                "settings": [
+                ],
+                "type": "Explicit",
+                "version": "latest"
+            }
+        ]
+    }
+}
