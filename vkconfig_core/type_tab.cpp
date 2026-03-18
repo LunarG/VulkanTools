@@ -25,14 +25,14 @@
 
 const char* GetLabel(TabType type) {
     static const char* TOKENS[]{
-        "Vulkan Layers",         // TAB_CONFIGURATIONS
-        "Vulkan Layers Paths",   // TAB_LAYERS_PATHS
-        "Vulkan Drivers",        // TAB_DRIVERS
-        "Application Launcher",  // TAB_APPLICATIONS
-        "Diagnostics",           // TAB_DIAGNOSTIC
-        "Documentation",         // TAB_DOCUMENTATION
-        "Preferences",           // TAB_PREFERENCES
-        "About"                  // TAB_ABOUT
+        "Vulkan Layers Configuration",  // TAB_CONFIGURATIONS
+        "Vulkan Layers Paths",          // TAB_LAYERS_PATHS
+        "Vulkan Drivers",               // TAB_DRIVERS
+        "Application Launcher",         // TAB_APPLICATIONS
+        "Diagnostics",                  // TAB_DIAGNOSTIC
+        "Documentation",                // TAB_DOCUMENTATION
+        "Preferences",                  // TAB_PREFERENCES
+        "About"                         // TAB_ABOUT
     };
 
     static_assert(std::size(TOKENS) == TAB_COUNT, "The tranlation table size doesn't match the enum number of elements");

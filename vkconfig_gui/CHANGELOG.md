@@ -12,6 +12,7 @@
 - Improve generated layer settings C++ library to output to code for `vulkan.hpp`
 - Clean up generated layer settings C++ library for less friction on use
 - Add preferences settings to show "Vulkan Executables Scope"
+- Add `vkconfig.json` backup when doing a "Reset To Default" #2570
 
 ### Fixes:
 - Fix command line whitespace decoding #2625

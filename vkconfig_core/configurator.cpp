@@ -572,6 +572,7 @@ void Configurator::Reset(bool hard) {
     this->Surrender(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     const Path& vkconfig_init_path = ::Path(Path::INIT);
+    vkconfig_init_path.Backup();
     vkconfig_init_path.Remove();
 
     QSettings settings("LunarG", VKCONFIG_SHORT_NAME);

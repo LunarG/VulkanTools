@@ -61,6 +61,7 @@ class Path {
     void Clear();
     bool Exists() const;
     bool Create(bool as_file = false) const;
+    bool Backup() const;
     bool Remove() const;
     std::string Filename() const;
     std::string Basename() const;
