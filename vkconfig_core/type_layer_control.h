@@ -42,4 +42,3 @@ LayerControl MapToUnordered(LayerControl control);
 LayerControl GetLayerControl(const char* token);
 const char* GetToken(LayerControl control);
 const char* GetLabel(LayerControl control);
-const char* GetDescription(LayerControl control);

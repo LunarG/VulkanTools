@@ -29,6 +29,56 @@
 
 #include <QMessageBox>
 
+static const char *GetDescription(LayerControl control, LayerBuiltin builtin) {
+    if (builtin == LAYER_BUILTIN_UNORDERED) {
+        static const char *TABLE[] = {
+            "Vulkan Layers located by Vulkan Applications using 'VK_ADD_LAYER_PATH' at launch",  // LAYER_CONTROL_AUTO
+            "Prevent Vulkan applications from loading additional Vulkan Layers not visible by Vulkan Configurator",  // LAYER_CONTROL_DISCARD
+        };
+        static_assert(std::size(TABLE) == LAYER_CONTROL_UNORDERED_COUNT);
+
+        return TABLE[control];
+    } else {
+        static const char
+            *
+                TABLE[] =
+                    {
+                        "Explicit layers are disabled by default and implicit layers are enabled by default.",  // LAYER_CONTROL_AUTO
+                        "Discard the layer, the Vulkan Loader isn't made awate of this layer but the Vulkan application can locate "
+                        "it.",                                           // LAYER_CONTROL_DISCARD
+                        "Enable the layer, ensuring its execution.",     // LAYER_CONTROL_ON
+                        "Disable the layer, preventing its execution.",  // LAYER_CONTROL_OFF
+                    };
+        static_assert(std::size(TABLE) == LAYER_CONTROL_COUNT);
+
+        return TABLE[control];
+    }
+}
+
+static std::string GetActualControlTooltip(const Layer *layer) {
+    if (layer->type == LAYER_TYPE_IMPLICIT) {
+        if (!layer->disable_env.empty()) {
+            if (qEnvironmentVariableIsSet(layer->disable_env.c_str())) {
+                return format("'%s' is set", layer->disable_env.c_str());
+            }
+        }
+
+        if (!layer->enable_env.empty()) {
+            const std::string &value = qgetenv(layer->enable_env.c_str()).toStdString();
+            if (value == layer->enable_value) {
+                return format("'%s' is set to '%s'.", layer->enable_env.c_str(), value.c_str());
+            } else {
+                return format("Set '%s' to '%s' to enable '%s' by default.", layer->enable_env.c_str(), layer->enable_value.c_str(),
+                              layer->key.c_str());
+            }
+        }
+
+        return format("Set '%s' to disable '%s' by default.", layer->disable_env.c_str(), layer->key.c_str());
+    } else {
+        return ::GetDescription(LAYER_CONTROL_AUTO, LAYER_BUILTIN_NONE);
+    }
+}
+
 ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const Parameter &parameter)
     : layer_name(parameter.key), tab(tab) {
     const Configurator &configurator = Configurator::Get();
@@ -48,22 +98,18 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     for (int i = first; i <= last; ++i) {
         const LayerControl layer_control = static_cast<LayerControl>(i);
         std::string label = ::GetLabel(layer_control);
-        /*
-        if (i == LAYER_CONTROL_AUTO && layer != nullptr) {
-            label += layer->GetActualControl() == LAYER_CONTROL_ON ? " (E)" : " (D)";
-        }
-        */
+
         this->layer_state->addItem(label.c_str());
-        this->layer_state->setItemData(i, ::GetDescription(layer_control), Qt::ToolTipRole);
+        this->layer_state->setItemData(i, ::GetDescription(layer_control, parameter.builtin), Qt::ToolTipRole);
     }
     this->layer_state->setCurrentIndex(parameter.control);
 
-    if (parameter.control == LAYER_CONTROL_AUTO && layer != nullptr) {
+    if (parameter.builtin == LAYER_BUILTIN_NONE && parameter.control == LAYER_CONTROL_AUTO && layer != nullptr) {
         std::string message = ::GetToken(layer->type) + std::string(" layer: ") + ::GetLabel(layer->GetActualControl());
-        message += format(". %s", layer->GetActualControlTooltip().c_str());
+        message += format(". %s", ::GetActualControlTooltip(layer).c_str());
         this->layer_state->setToolTip(message.c_str());
     } else {
-        this->layer_state->setToolTip(::GetDescription(parameter.control));
+        this->layer_state->setToolTip(::GetDescription(parameter.control, parameter.builtin));
     }
 
     this->connect(this->layer_state, SIGNAL(currentIndexChanged(int)), this, SLOT(on_layer_state_currentIndexChanged(int)));
@@ -97,7 +143,7 @@ ConfigurationLayerWidget::ConfigurationLayerWidget(TabConfigurations *tab, const
     this->setText(decorated_name.c_str());
 
     if (parameter.builtin != LAYER_BUILTIN_NONE) {
-        this->setToolTip(::GetDescription(parameter.builtin));
+        this->setToolTip(::GetDescription(parameter.control, parameter.builtin));
     } else if (!parameter.manifest.Empty()) {
         this->setToolTip(parameter.manifest.AbsolutePath().c_str());
     }
@@ -192,7 +238,7 @@ void ConfigurationLayerWidget::on_layer_state_currentIndexChanged(int index) {
         }
 
         parameter->control = control;
-        this->layer_state->setToolTip(GetDescription(control));
+        this->layer_state->setToolTip(GetDescription(control, parameter->builtin));
 
         configurator.Override(OVERRIDE_AREA_ALL);
     }
