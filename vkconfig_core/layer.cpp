@@ -41,7 +41,6 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QJsonArray>
-#include <QDateTime>
 #include <QCheckBox>
 #include <QDesktopServices>
 #include <QFileDialog>

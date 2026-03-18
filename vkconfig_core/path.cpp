@@ -189,6 +189,28 @@ bool Path::Create(bool as_file) const {
     return true;
 }
 
+bool Path::Backup() const {
+    if (this->IsFile()) {
+        QFile file(this->AbsolutePath().c_str());
+
+        QDateTime date_time = QDateTime::currentDateTime();
+        std::string date = date_time.toString(Qt::ISODate).toStdString();
+        std::replace(date.begin(), date.end(), ':', '-');
+
+        std::string path = this->AbsolutePath();
+        std::string extension = path.substr(path.find_last_of("."));
+        std::string prefix = path.substr(0, path.find_last_of("."));
+        //"vkconfig-" + date_time.toString(Qt::ISODate).toStdString() + ".json";
+
+        std::string dest = prefix + "-" + date + extension;
+
+        bool result = file.copy(dest.c_str());
+        return result;
+    } else {
+        return false;
+    }
+}
+
 bool Path::Remove() const {
     if (!this->Exists()) {
         return false;
