@@ -48,7 +48,7 @@ class TabApplications : public Tab {
     void on_launch_executable_remove_pressed();
 
     void on_launch_options_list_activated(int index);
-    void on_launch_options_list_textEdited(const QString& text);
+    void on_launch_options_list_finished();
     void on_launch_options_append_pressed();
     void on_launch_options_remove_pressed();
 

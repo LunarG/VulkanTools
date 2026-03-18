@@ -53,8 +53,8 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
 
     this->connect(this->ui->launch_options_list, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_launch_options_list_activated(int)));
-    this->connect(this->ui->launch_options_list->lineEdit(), SIGNAL(textEdited(QString)), this,
-                  SLOT(on_launch_options_list_textEdited(QString)));
+    this->connect(this->ui->launch_options_list->lineEdit(), &QLineEdit::editingFinished, this,
+                  &TabApplications::on_launch_options_list_finished);
     this->connect(this->ui->launch_options_append, SIGNAL(clicked()), this, SLOT(on_launch_options_append_pressed()));
     this->connect(this->ui->launch_options_remove, SIGNAL(clicked()), this, SLOT(on_launch_options_remove_pressed()));
 
@@ -328,14 +328,15 @@ void TabApplications::on_launch_options_list_activated(int index) {
     ui->launch_options_log_edit->setToolTip(options->log_file.AbsolutePath().c_str());
 }
 
-void TabApplications::on_launch_options_list_textEdited(const QString &text) {
+void TabApplications::on_launch_options_list_finished() {
+    std::string new_text = this->ui->launch_options_list->lineEdit()->text().toStdString();
+
     Configurator &configurator = Configurator::Get();
     Executable *executable = configurator.executables.GetActiveExecutable();
-    executable->RenameActiveOptions(text.toStdString());
+    executable->RenameActiveOptions(new_text);
 
     this->RebuildOptions();
     this->ui->launch_options_list->setCurrentIndex(executable->GetActiveOptionsIndex());
-    // this->ui->launch_options_list->setItemText(executable->GetActiveOptionsIndex(), text);
 }
 
 void TabApplications::on_launch_options_append_pressed() {
