@@ -110,7 +110,9 @@ int main(int argc, char* argv[]) {
         QMessageBox alert;
         alert.QDialog::setWindowTitle("Vulkan Configurator failed to start...");
         alert.setText("Could not find a Vulkan Loader. Please install the Vulkan SDK.");
-        alert.setInformativeText("<a href=\"https://vulkan.lunarg.com/sdk/home\">https://vulkan.lunarg.com/sdk/home</a>");
+        alert.setInformativeText(
+            "<a href=\"https://vulkan.lunarg.com/doc/sdk\">For more information: Read the Vulkan SDK 'Getting Started' "
+            "documentation</a>");
         alert.setIcon(QMessageBox::Critical);
         alert.exec();
         return -1;
