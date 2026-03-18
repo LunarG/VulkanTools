@@ -15,6 +15,7 @@
 
 ### Fixes:
 - Fix command line whitespace decoding #2625
+- Fix application launcher 'options' edit #2598
 
 ## Vulkan Configurator 3.4.2 - Febuary 2026
 [Vulkan SDK 1.4.341.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.341)
