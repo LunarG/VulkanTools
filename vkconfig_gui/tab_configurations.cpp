@@ -414,11 +414,11 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             this->UpdateUI_Settings(UPDATE_REBUILD_UI);
         }
 
-        return true;
+        return false;
     }
 
     if (!configurator.layers_override_enabled || !ui->configurations_list->isEnabled()) {
-        return true;
+        return false;
     } else if (target == this->ui->configurations_list) {
         QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
         if (right_click) {

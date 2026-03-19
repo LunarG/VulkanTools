@@ -364,7 +364,7 @@ void MainWindow::showEvent(QShowEvent *event) {
 
 bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     if (this->tabs[this->ui->tab_widget->currentIndex()] == nullptr) {
-        return false;
+        return true;
     }
 
     return this->tabs[this->ui->tab_widget->currentIndex()]->EventFilter(target, event);
