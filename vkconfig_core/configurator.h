@@ -68,7 +68,6 @@ class Configurator {
     struct LoaderSettings {
         Path executable_path;
         std::vector<LoaderLayerSettings> layers;
-        bool override_layers = true;
     };
 
     static Configurator& Get();
@@ -165,7 +164,6 @@ class Configurator {
 
     const ConfiguratorMode& mode;
 
-    bool force_full_loader_log = false;
     bool reset_hard = false;
     bool has_crashed = false;
     TabType active_tab = TAB_CONFIGURATIONS;
@@ -185,7 +183,6 @@ class Configurator {
     std::vector<DeviceInfo> driver_override_list;
     std::map<Path, bool> driver_paths;
     bool driver_paths_enabled = false;
-
     bool loader_log_enabled = false;
     int loader_log_messages_flags = GetBit(LOG_ERROR);
 

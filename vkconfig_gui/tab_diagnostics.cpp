@@ -131,8 +131,6 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
             std::string filename;
 
             if (selected_mode == DIAGNOSTIC_VULKAN_LOADER_LOG) {
-                configurator.force_full_loader_log = true;
-
                 this->status.clear();
 
                 args += "--summary";
@@ -178,10 +176,6 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
             this->process->closeWriteChannel();
 
             while (this->process->waitForFinished(1000)) {
-            }
-
-            if (selected_mode == DIAGNOSTIC_VULKAN_LOADER_LOG) {
-                configurator.force_full_loader_log = false;
             }
 
             configurator.SetExecutableScope(saved_scope);

@@ -196,7 +196,7 @@ QJsonObject Configurator::CreateJsonSettingObject(const Configurator::LoaderSett
         json_settings.insert("app_keys", json_app_keys);
     }
 
-    if (loader_settings.override_layers) {
+    if (this->layers_override_enabled) {
         json_settings.insert("layers", json_layers);
     }
 
