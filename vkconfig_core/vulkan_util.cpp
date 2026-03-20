@@ -35,6 +35,9 @@ std::string GetUUIDString(const uint8_t deviceUUID[VK_UUID_SIZE]) {
 
     for (std::size_t i = 0, n = VK_UUID_SIZE; i < n; ++i) {
         result += format("%02X", deviceUUID[i]);
+        if (i == 3 || i == 5 || i == 7) {
+            result += "-";
+        }
     }
 
     return result;
