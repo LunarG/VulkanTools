@@ -22,6 +22,7 @@
 - Fix "discard" layer control tooltip #2595
 - Fix "Validation with API Dump log" configuration not loaded
 - Fix high CPU usage on idle when no layers configuration is active #2603
+- Fix UUID display in log, following the RFC9562 standard
 
 ## Vulkan Configurator 3.4.2 - Febuary 2026
 [Vulkan SDK 1.4.341.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.341)
