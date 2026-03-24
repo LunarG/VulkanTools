@@ -38,11 +38,16 @@ class TabLayers : public Tab {
    public Q_SLOTS:
     void on_paths_changed();
     void on_paths_toggled();
-    void on_layers_validate_checkBox_toggled(bool checked);
     void on_layers_append_pressed();
     void on_layers_browse_pressed();
     void on_layers_reload_pressed();
 
+    void on_focus_search();
+    void on_search_textEdited(const QString &text);
+    void on_search_clear_pressed();
+
    private:
     void LoadLayersManifest(const QString &selected_path);
+
+    std::string layer_filter;
 };

@@ -33,7 +33,23 @@ const char* GetLabel(LayersPaths Layers_paths_type) {
         "Vulkan Configurator",            // LAYERS_PATHS_GUI
         "${VULKAN_SDK}",                  // LAYERS_PATHS_SDK
     };
-    static_assert(std::size(TABLE) == LAYERS_PATHS_COUNT, "The tranlation table size doesn't match the enum number of elements");
+    static_assert(std::size(TABLE) == LAYERS_PATHS_COUNT);
+
+    return TABLE[Layers_paths_type];
+}
+
+LayerType GetLayerType(LayersPaths Layers_paths_type) {
+    static LayerType TABLE[] = {
+        LAYER_TYPE_IMPLICIT,  // LAYERS_PATHS_IMPLICIT_SYSTEM
+        LAYER_TYPE_IMPLICIT,  // LAYERS_PATHS_IMPLICIT_ENV_SET
+        LAYER_TYPE_IMPLICIT,  // LAYERS_PATHS_IMPLICIT_ENV_ADD
+        LAYER_TYPE_EXPLICIT,  // LAYERS_PATHS_EXPLICIT_SYSTEM
+        LAYER_TYPE_EXPLICIT,  // LAYERS_PATHS_EXPLICIT_ENV_SET
+        LAYER_TYPE_EXPLICIT,  // LAYERS_PATHS_EXPLICIT_ENV_ADD
+        LAYER_TYPE_EXPLICIT,  // LAYERS_PATHS_GUI
+        LAYER_TYPE_EXPLICIT,  // LAYERS_PATHS_SDK
+    };
+    static_assert(std::size(TABLE) == LAYERS_PATHS_COUNT);
 
     return TABLE[Layers_paths_type];
 }

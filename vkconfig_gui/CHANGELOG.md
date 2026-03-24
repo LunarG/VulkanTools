@@ -15,6 +15,11 @@
 - Add `vkconfig.json` backup when doing a "Reset To Default" #2570
 - Add "Discard Ordering and Enabling Layers" default configuration #2596
 - Improve Vulkan drivers loading, add all drivers in a part at once
+- Refactor layers tab to display layer sorted by name and enabling them individually
+- Add layer search bar in layer tab
+- Show paths instead of Vulkan Configurator variables
+- Improve UI consistency
+- Move 'Validate Layer Manifest' settings to the preference tab
 
 ### Fixes:
 - Fix command line whitespace decoding #2625
@@ -24,6 +29,8 @@
 - Fix "Validation with API Dump log" configuration not loaded
 - Fix high CPU usage on idle when no layers configuration is active #2603
 - Fix UUID display in log, following the RFC9562 standard
+- Fix icon to remove a Vulkan driver
+- Fix key binding shortcuts (Eg: CTRL+F to search things on various tabs)
 
 ## Vulkan Configurator 3.4.2 - Febuary 2026
 [Vulkan SDK 1.4.341.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.341)

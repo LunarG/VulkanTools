@@ -28,6 +28,16 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <set>
+
+struct LayerDisplay {
+    std::string key;
+    Path manifest_path;
+    Version api_version;
+    LayerDescriptor descriptor;
+};
+
+bool operator<(const LayerDisplay& a, const LayerDisplay& b);
 
 class LayerManager : public Serialize {
    public:
@@ -49,26 +59,23 @@ class LayerManager : public Serialize {
     Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false);
 
     void LoadAllInstalledLayers(ConfiguratorMode configurator_mode);
-    void LoadLayersFromPath(const Path& layers_path, LayerType type, ConfiguratorMode configurator_mode);
     LayerLoadStatus LoadLayer(const Path& layer_path, LayerType type, ConfiguratorMode configurator_mode);
 
-    bool AreLayersEnabled(const LayersPathInfo& path_info) const;
-    void AppendPath(const LayersPathInfo& path_info);
-    void RemovePath(const LayersPathInfo& path_info);
-    void UpdatePathEnabled(const LayersPathInfo& path_info, LayersPaths layers_paths);
-    std::vector<Path> CollectManifestPaths() const;
+    void AppendPath(const Path& path, LayerType type, bool added = false);
+    void RemovePath(const Path& path);
+
+    bool IsEnabled(const Path& manifest_path) const;
+    void Enable(const Path& manifest_path, bool enabled);
+
+    std::set<LayerDisplay> BuildLayerDisplayList() const;
 
     std::vector<std::string> GatherLayerNames() const;
-    std::vector<const Layer*> GatherLayers(const LayersPathInfo& path_info) const;
 
     std::vector<Layer> available_layers;
-    std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> paths;
-    Path last_layers_path = Path(Path::HOME);
+    Path last_layers_dir = Path(Path::HOME);
     bool validate_manifests = false;
+    std::map<Path, LayerDescriptor> layers_found;
 
    private:
-    void InitSystemPaths();
-    void UpdateLayersEnabled(const LayersPathInfo& path_info);
-
-    std::map<Path, LayerStatus> layers_found;
+    std::set<Path> layers_removed;
 };

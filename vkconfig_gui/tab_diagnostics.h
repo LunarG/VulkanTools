@@ -59,6 +59,7 @@ class TabDiagnostics : public Tab {
     void on_search_whole_activated();
     void on_search_regex_activated();
 
+    void on_diagnostic_loader_messages_toggled();
     void on_diagnostic_loader_messages_toggled(bool checked);
     void on_diagnostic_loader_errors_toggled(bool checked);
     void on_diagnostic_loader_warns_toggled(bool checked);

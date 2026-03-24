@@ -35,6 +35,7 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QShortcut>
 
 static std::string BuildPlatformsLog(int platforms) {
     std::string log;
@@ -144,6 +145,10 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->ui->configurations_group_box_layers->installEventFilter(this->advanced_mode);
 
     this->connect(this->advanced_mode, SIGNAL(pressed()), this, SLOT(on_configurations_advanced_toggle_pressed()));
+
+    QShortcut *shortcut_override =
+        new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Space), this->ui->configurations_group_box_override);
+    this->connect(shortcut_override, SIGNAL(activated()), this, SLOT(on_configurations_override_toggled()));
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
@@ -313,12 +318,17 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
 }
 
 void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
+    const Configurator &configurator = Configurator::Get();
+
+    this->ui->configurations_group_box_override->blockSignals(true);
+    this->ui->configurations_group_box_override->setChecked(configurator.layers_override_enabled);
+    this->ui->configurations_group_box_override->blockSignals(false);
+
     this->UpdateUI_Configurations(ui_update_mode);
     this->UpdateUI_Applications(ui_update_mode);
     this->UpdateUI_Layers(ui_update_mode);
     this->UpdateUI_Settings(ui_update_mode);
 
-    const Configurator &configurator = Configurator::Get();
     const ExecutableScope scope = configurator.GetExecutableScope();
 
     const bool enabled_executable = ::EnabledExecutables(scope);
@@ -1109,6 +1119,10 @@ void TabConfigurations::on_configurations_advanced_toggle_pressed() {
     configurator.advanced = !configurator.advanced;
 
     this->UpdateUI(UPDATE_REBUILD_UI);
+}
+
+void TabConfigurations::on_configurations_override_toggled() {
+    this->ui->configurations_group_box_override->setChecked(!this->ui->configurations_group_box_override->isChecked());
 }
 
 void TabConfigurations::on_configurations_override_toggled(bool checked) {

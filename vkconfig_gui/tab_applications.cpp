@@ -93,11 +93,11 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     QShortcut *shortcut_prev = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3), this->ui->launch_log_text);
     this->connect(shortcut_prev, SIGNAL(activated()), this, SLOT(on_search_prev_pressed()));
 
-    QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->launch_log_text);
+    QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->launch_search_case);
     this->connect(shortcut_case, SIGNAL(activated()), this, SLOT(on_search_case_activated()));
-    QShortcut *shortcut_whole = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_W), this->ui->launch_log_text);
+    QShortcut *shortcut_whole = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_W), this->ui->launch_search_whole);
     this->connect(shortcut_whole, SIGNAL(activated()), this, SLOT(on_search_whole_activated()));
-    QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->launch_log_text);
+    QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->launch_search_regex);
     this->connect(shortcut_regex, SIGNAL(activated()), this, SLOT(on_search_regex_activated()));
 
     this->on_search_clear_pressed();
@@ -152,7 +152,7 @@ void TabApplications::UpdateUI(UpdateUIMode mode) {
         ui->launch_executable_list->blockSignals(true);
         ui->launch_executable_list->clear();
         for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
-            ui->launch_executable_list->addItem(executables[i].path.RelativePath().c_str());
+            ui->launch_executable_list->addItem(executables[i].path.AbsolutePath().c_str());
         }
         ui->launch_executable_list->setCurrentIndex(configurator.executables.GetActiveExecutableIndex());
         ui->launch_executable_list->blockSignals(false);
@@ -320,11 +320,11 @@ void TabApplications::on_launch_options_list_activated(int index) {
 
     const ExecutableOptions *options = executable->GetActiveOptions();
 
-    ui->launch_options_dir_edit->setText(options->working_folder.RelativePath().c_str());
+    ui->launch_options_dir_edit->setText(options->working_folder.AbsolutePath().c_str());
     ui->launch_options_dir_edit->setToolTip(options->working_folder.AbsolutePath().c_str());
     ui->launch_options_args_edit->setText(Merge(options->args, " ").c_str());
     ui->launch_options_envs_edit->setText(Merge(options->envs, " ").c_str());
-    ui->launch_options_log_edit->setText(options->log_file.RelativePath().c_str());
+    ui->launch_options_log_edit->setText(options->log_file.AbsolutePath().c_str());
     ui->launch_options_log_edit->setToolTip(options->log_file.AbsolutePath().c_str());
 }
 

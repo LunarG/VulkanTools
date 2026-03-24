@@ -38,12 +38,19 @@ class TabDrivers : public Tab {
     void on_driver_mode_changed(int index);
     void on_driver_name_changed(int index);
 
+    void on_driver_override_toggled();
     void on_driver_paths_toggled(bool checked);
     void on_paths_changed();
     void on_paths_toggled();
     void on_driver_append_pressed();
     void on_driver_browse_pressed();
 
+    void on_focus_search();
+    void on_search_textEdited(const QString &text);
+    void on_search_clear_pressed();
+    void on_search_next_pressed();
+
    private:
     std::string new_path;
+    std::string driver_filter;
 };

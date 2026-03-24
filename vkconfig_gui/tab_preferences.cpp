@@ -48,6 +48,7 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->preferences_vk_download_open, SIGNAL(clicked()), this, SLOT(on_vk_download_open_pressed()));
     this->connect(this->ui->preferences_reset, SIGNAL(clicked()), this, SLOT(on_reset_hard_pressed()));
     this->connect(this->ui->preferences_show_debug_settings, SIGNAL(toggled(bool)), this, SLOT(on_layer_debug_mode_toggled(bool)));
+    this->connect(this->ui->preferences_validate_layer, SIGNAL(toggled(bool)), this, SLOT(on_layer_validate_toggled(bool)));
     this->connect(this->ui->preferences_open_page, SIGNAL(clicked()), this, SLOT(on_open_page_pressed()));
     this->connect(this->ui->preferences_notify_releases, SIGNAL(toggled(bool)), this, SLOT(on_notify_releases_toggled(bool)));
     this->connect(this->ui->preferences_download, SIGNAL(clicked()), this, SLOT(on_download_pressed()));
@@ -85,8 +86,8 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
 
     this->ui->preferences_progress->setVisible(false);
     this->ui->preferences_notify_releases->setChecked(configurator.GetUseNotifyReleases());
-
     this->ui->preferences_download->setText("Searching Latest Vulkan SDK...");
+    this->ui->preferences_validate_layer->setChecked(configurator.layers.validate_manifests);
 
 #if WORKAROUND_WINARM_RELEASE_NOTIFICATION_BUG
     // Windows ARM crash, it looks like a Qt bug in 6.8.2...
@@ -170,11 +171,13 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->configurations_settings_reset->setIcon(::Get(new_theme_mode, ::ICON_RELOAD));
 
     // Drivers
-    this->ui->driver_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
+    this->ui->driver_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
+    this->ui->driver_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
 
     // Layers
     this->ui->layers_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
     this->ui->layers_reload_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_RELOAD));
+    this->ui->layers_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
 
     // Applications
     this->ui->launch_executable_search->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
@@ -259,7 +262,8 @@ void TabPreferences::on_theme_mode_changed(int index) {
         this->ui->configurations_list->setPalette(palette);
         this->ui->configurations_settings->setPalette(palette);
         this->ui->configurations_layers_list->setPalette(palette);
-        this->ui->layers_paths_tree->setPalette(palette);
+        this->ui->layers_list->setPalette(palette);
+        this->ui->driver_paths_list->setPalette(palette);
 
         delete dummy_widget;
     }
@@ -429,6 +433,11 @@ void TabPreferences::on_reset_hard_pressed() {
 void TabPreferences::on_notify_releases_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.SetUseNotifyReleases(checked);
+}
+
+void TabPreferences::on_layer_validate_toggled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+    configurator.layers.validate_manifests = checked;
 }
 
 void TabPreferences::on_layer_debug_mode_toggled(bool checked) {

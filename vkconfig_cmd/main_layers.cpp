@@ -87,22 +87,21 @@ static int RunLayersSurrender(Configurator& configurator, const CommandLine& com
 }
 
 static int RunLayersPath(Configurator& configurator, const CommandLine& command_line) {
-    printf("vkconfig: [INFO] Paths to find Vulkan Layers\n");
+    printf("vkconfig: [INFO] Vulkan Layers paths:\n");
 
-    for (int layers_paths_index = 0, layers_paths_count = LAYERS_PATHS_COUNT; layers_paths_index < layers_paths_count;
-         ++layers_paths_index) {
-        const std::vector<LayersPathInfo>& paths = configurator.layers.paths[layers_paths_index];
-        printf("\n%s:\n", GetLabel(static_cast<LayersPaths>(layers_paths_index)));
+    const std::set<LayerDisplay>& layer_display_list = configurator.layers.BuildLayerDisplayList();
 
-        if (paths.empty()) {
-            printf(" - None\n");
-        } else {
-            for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
-                if (paths[i].enabled) {
-                    printf(" - %s\n", paths[i].path.AbsolutePath().c_str());
-                }
-            }
+    for (auto it = layer_display_list.begin(), end = layer_display_list.end(); it != end; ++it) {
+        const Layer* layer = configurator.layers.FindFromManifest(it->manifest_path, true);
+        if (layer == nullptr) {
+            continue;
         }
+
+        const std::string status = layer->status == STATUS_STABLE ? "" : format(" (%s)", ::GetToken(layer->status));
+        const std::string text = format("%s - %s%s, %s layer", layer->key.c_str(), layer->api_version.str().c_str(), status.c_str(),
+                                        ::GetToken(layer->type));
+
+        printf(" - %s\n", text.c_str());
     }
 
     return 0;

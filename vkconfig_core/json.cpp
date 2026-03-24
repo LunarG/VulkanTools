@@ -25,12 +25,12 @@
 
 #include <cassert>
 
-QJsonDocument ParseJsonFile(const char* file) {
-    QFile file_schema(file);
-    const bool result = file_schema.open(QIODevice::ReadOnly | QIODevice::Text);
+QJsonDocument ParseJsonFile(const char* path) {
+    QFile file(path);
+    const bool result = file.open(QIODevice::ReadOnly | QIODevice::Text);
     if (result) {
-        const QString& data = file_schema.readAll();
-        file_schema.close();
+        const QString& data = file.readAll();
+        file.close();
 
         QJsonParseError json_parse_error;
         const QJsonDocument& json_document = QJsonDocument::fromJson(data.toUtf8(), &json_parse_error);

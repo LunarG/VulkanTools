@@ -26,7 +26,7 @@
 const char* GetLabel(TabType type) {
     static const char* TOKENS[]{
         "Vulkan Layers Configuration",  // TAB_CONFIGURATIONS
-        "Vulkan Layers Paths",          // TAB_LAYERS_PATHS
+        "Vulkan Layers Available",      // TAB_LAYERS_PATHS
         "Vulkan Drivers",               // TAB_DRIVERS
         "Application Launcher",         // TAB_APPLICATIONS
         "Diagnostics",                  // TAB_DIAGNOSTIC
