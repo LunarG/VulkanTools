@@ -1160,8 +1160,8 @@ bool Configurator::Load() {
                 }
             }
 
-            if (json_object.value("last_driver_path") != QJsonValue::Undefined) {
-                this->last_driver_path = json_object.value("last_driver_path").toString().toStdString();
+            if (json_object.value("last_driver_dir") != QJsonValue::Undefined) {
+                this->last_driver_dir = json_object.value("last_driver_dir").toString().toStdString();
             }
             if (json_object.value("driver_paths") != QJsonValue::Undefined) {
                 const QJsonObject& json_object_paths = json_object.value("driver_paths").toObject();
@@ -1349,7 +1349,7 @@ bool Configurator::Save() const {
         }
         json_object.insert("driver_override_list", json_driver_override_list_array);
 
-        json_object.insert("last_driver_path", this->last_driver_path.RelativePath().c_str());
+        json_object.insert("last_driver_dir", this->last_driver_dir.RelativePath().c_str());
         QJsonObject json_object_paths;
         for (auto it = this->driver_paths.begin(); it != this->driver_paths.end(); ++it) {
             QJsonObject json_object_path;

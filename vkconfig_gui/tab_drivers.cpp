@@ -135,7 +135,7 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
             this->ui->driver_group_box_paths->blockSignals(false);
 
             this->ui->driver_paths_list->clear();
-            this->ui->driver_path_lineedit->setText(configurator.last_driver_path.RelativePath().c_str());
+            this->ui->driver_path_lineedit->setText(configurator.last_driver_dir.RelativePath().c_str());
             this->ui->driver_paths_list->blockSignals(true);
 
             for (auto it = configurator.driver_paths.begin(); it != configurator.driver_paths.end(); ++it) {
@@ -252,8 +252,8 @@ void TabDrivers::on_driver_append_pressed() {
 
     if (!selected_path.Exists()) {
         QMessageBox alert;
-        alert.setWindowTitle("Vulkan Driver Manifest file not found");
-        alert.setText("The path");
+        alert.setWindowTitle("Vulkan Driver Manifest directory not found");
+        alert.setText("The directory:");
         alert.setInformativeText(selected_path.AbsolutePath().c_str());
         alert.setStandardButtons(QMessageBox::Ok);
         alert.setDefaultButton(QMessageBox::Ok);
@@ -262,8 +262,12 @@ void TabDrivers::on_driver_append_pressed() {
         return;
     }
 
-    configurator.driver_paths.insert(std::pair(selected_path, true));
-    configurator.last_driver_path = selected_path;
+    configurator.last_driver_dir = selected_path;
+
+    const std::vector<Path> drivers_paths = ::CollectFilePaths(selected_path);
+    for (std::size_t i = 0, n = drivers_paths.size(); i < n; ++i) {
+        configurator.driver_paths.insert(std::pair(drivers_paths[i], true));
+    }
 
     configurator.UpdateVulkanSystemInfo();
 
@@ -273,9 +277,10 @@ void TabDrivers::on_driver_append_pressed() {
 void TabDrivers::on_driver_browse_pressed() {
     Configurator &configurator = Configurator::Get();
 
-    const Path &selected_path = QFileDialog::getOpenFileName(this->ui->driver_browse_button, "Adding a Driver Manifests File...",
-                                                             configurator.last_driver_path.AbsolutePath().c_str(), "*.json")
-                                    .toStdString();
+    const Path &selected_path =
+        QFileDialog::getExistingDirectory(this->ui->driver_browse_button, "Adding Driver Manifests Directory...",
+                                          configurator.last_driver_dir.AbsolutePath().c_str())
+            .toStdString();
 
     if (selected_path.Empty()) {
         return;
