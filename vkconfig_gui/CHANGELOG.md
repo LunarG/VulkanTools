@@ -14,6 +14,7 @@
 - Add preferences settings to show "Vulkan Executables Scope"
 - Add `vkconfig.json` backup when doing a "Reset To Default" #2570
 - Add "Discard Ordering and Enabling Layers" default configuration #2596
+- Improve Vulkan drivers loading, add all drivers in a part at once
 
 ### Fixes:
 - Fix command line whitespace decoding #2625

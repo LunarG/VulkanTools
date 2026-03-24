@@ -64,6 +64,15 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
 
                 std::vector<LayersPathInfo> &paths_group = configurator.layers.paths[group_path];
                 for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
+                    const std::string &layer_path = paths_group[i].path.AbsolutePath();
+                    const std::vector<Path> &manifest_paths = CollectFilePaths(layer_path);
+                    /*
+                                        if (group_path != LAYERS_PATHS_GUI) {
+                                            if (manifest_paths.empty()) {
+                                                continue;
+                                            }
+                                        }
+                    */
                     QTreeWidgetItem *item_state = new QTreeWidgetItem;
                     item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
                     item_state->setSizeHint(0, QSize(0, ITEM_HEIGHT));
@@ -74,9 +83,6 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
 
                     ui->layers_paths_tree->addTopLevelItem(item_state);
                     ui->layers_paths_tree->setItemWidget(item_state, 0, layer_path_widget);
-
-                    const std::string &layer_path = paths_group[i].path.AbsolutePath();
-                    const std::vector<Path> &manifest_paths = CollectFilePaths(layer_path);
 
                     for (std::size_t manifest_index = 0, manifest_count = manifest_paths.size(); manifest_index < manifest_count;
                          ++manifest_index) {
@@ -96,6 +102,8 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
                         if (layer->status != STATUS_STABLE) {
                             label += format(" (%s)", GetToken(layer->status));
                         }
+
+                        // label += " - " + layer->manifest_path.AbsolutePath();
 
                         QTreeWidgetItem *item = new QTreeWidgetItem;
                         item->setText(0, label.c_str());

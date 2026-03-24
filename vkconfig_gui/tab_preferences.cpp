@@ -170,7 +170,7 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->configurations_settings_reset->setIcon(::Get(new_theme_mode, ::ICON_RELOAD));
 
     // Drivers
-    this->ui->driver_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
+    this->ui->driver_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
 
     // Layers
     this->ui->layers_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));

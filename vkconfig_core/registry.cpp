@@ -214,6 +214,10 @@ std::vector<LayersPathInfo> LoadRegistrySoftwareLayers(const char *path, LayerTy
         info.type = type;
         info.path = path.IsFile() ? path.AbsoluteDir() : path.AbsolutePath();
 
+        if (!path.Exists()) {
+            continue;
+        }
+
         if (::Found(result, info.path)) {
             continue;
         }
