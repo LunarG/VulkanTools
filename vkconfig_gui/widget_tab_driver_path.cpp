@@ -32,10 +32,10 @@ DriverPathWidget::DriverPathWidget(const Path& path, bool enabled) : path(path),
     const Configurator& configurator = Configurator::Get();
 
     this->buttom_remove = new QPushButton(this);
-    this->buttom_remove->setIcon(::Get(configurator.current_theme_mode, ::ICON_FOLDER_REMOVE));
+    this->buttom_remove->setIcon(::Get(configurator.current_theme_mode, ::ICON_FILE_REMOVE));
     this->buttom_remove->setFixedSize(24, 24);
 
-    this->setText(format("%s", this->path.RelativePath().c_str()).c_str());
+    this->setText(format("%s", this->path.AbsolutePath().c_str()).c_str());
     this->setToolTip(format("%s", this->path.AbsolutePath().c_str()).c_str());
 
     this->connect(this, SIGNAL(toggled(bool)), this, SLOT(on_toggled(bool)));

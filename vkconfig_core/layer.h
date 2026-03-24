@@ -36,21 +36,15 @@
 #include <vector>
 #include <string>
 
-struct LayerStatus {
+struct LayerDescriptor {
+    LayerType type = LAYER_TYPE_EXPLICIT;
     std::string last_modified;
     bool validated = false;
-    bool disabled = false;
-};
-
-struct LayersPathInfo {
-    Path path;
-    LayerType type = LAYER_TYPE_EXPLICIT;
     bool enabled = true;
+    bool added = false;
 };
 
-bool operator<(const LayersPathInfo& a, const LayersPathInfo& b);
-
-bool Found(const std::vector<LayersPathInfo>& data, const Path& path);
+bool Found(const std::vector<Path>& data, const Path& path);
 
 enum LayerLoadStatus {
     LAYER_LOAD_ADDED = 0,
@@ -64,8 +58,8 @@ enum LayerLoadStatus {
     LAYER_LOAD_LAST = LAYER_LOAD_IGNORED,
 };
 
-inline bool IsDisabled(LayerLoadStatus status) {
-    return status == LAYER_LOAD_FAILED || status == LAYER_LOAD_INVALID || status == LAYER_LOAD_IGNORED;
+inline bool IsEnabled(LayerLoadStatus status) {
+    return !(status == LAYER_LOAD_FAILED || status == LAYER_LOAD_INVALID || status == LAYER_LOAD_IGNORED);
 }
 
 enum { LAYER_LOAD_COUNT = LAYER_LOAD_LAST - LAYER_LOAD_FIRST + 1 };
@@ -115,18 +109,19 @@ class Layer {
     std::string enable_env;
     std::string enable_value;
     bool is_32bits = false;
-    bool enabled = true;
 
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
     LayerLoadStatus Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
-                         const std::map<Path, LayerStatus>& layers_found, ConfiguratorMode configurator_mode);
+                         ConfiguratorMode configurator_mode);
 
    private:
     Layer& operator=(const Layer&) = delete;
 
     std::vector<std::shared_ptr<SettingMeta> > memory;  // Settings are deleted when all layers instances are deleted.
 };
+
+bool operator<(const Layer& layer_a, const Layer& layer_b);
 
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set);

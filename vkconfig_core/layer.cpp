@@ -49,11 +49,9 @@
 #include <string>
 #include <algorithm>
 
-bool operator<(const LayersPathInfo& a, const LayersPathInfo& b) { return a.path.RelativePath() < b.path.RelativePath(); }
-
-bool Found(const std::vector<LayersPathInfo>& data, const Path& path) {
+bool Found(const std::vector<Path>& data, const Path& path) {
     for (std::size_t i = 0, n = data.size(); i < n; ++i) {
-        if (data[i].path == path) {
+        if (data[i] == path) {
             return true;
         }
     }
@@ -179,7 +177,7 @@ void Layer::FillPresetSettings(SettingDataSet& settings_data, const std::vector<
 }
 
 LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
-                            const std::map<Path, LayerStatus>& layers_found, ConfiguratorMode configurator_mode) {
+                            ConfiguratorMode configurator_mode) {
     this->type = type;  // Set layer type, no way to know this from the json file
 
     if (full_path_to_file.Empty()) {
@@ -196,13 +194,6 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
 
     this->manifest_path = full_path_to_file;
     this->last_modified = full_path_to_file.LastModified();
-
-    auto it = layers_found.find(full_path_to_file.AbsolutePath().c_str());
-    if (it != layers_found.end()) {
-        if (it->second.disabled && it->second.last_modified == this->last_modified) {
-            return LAYER_LOAD_FAILED;
-        }
-    }
 
     // Convert the text to a JSON document & validate it.
     // It does need to be a valid json formatted file.
@@ -252,7 +243,7 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
 
     this->key = ReadStringValue(json_layer_object, "name");
 
-    if (this->key == "VK_LAYER_LUNARG_override") {
+    if (this->key == "VK_LAYER_LUNARG_override" || !(this->key.rfind("VK_", 0) == 0)) {
         return LAYER_LOAD_IGNORED;
     }
 
@@ -260,12 +251,7 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
 
     JsonValidator validator;
 
-    std::string cached_last_modified;
-    if (it != layers_found.end()) {
-        cached_last_modified = it->second.last_modified;
-    }
-    const bool should_validate = request_validate_manifest && ((last_modified != cached_last_modified) || !it->second.validated);
-    const bool is_valid = should_validate ? validator.Check(json_text) : true;
+    const bool is_valid = request_validate_manifest ? validator.Check(json_text) : true;
 
     if (!is_valid) {
         switch (configurator_mode) {
@@ -405,6 +391,14 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
     }
 
     return this->IsValid() ? LAYER_LOAD_ADDED : LAYER_LOAD_INVALID;  // Not all JSON file are layer JSON valid
+}
+
+bool operator<(const Layer& layer_a, const Layer& layer_b) {
+    if (layer_a.key == layer_b.key) {
+        return layer_a.api_version < layer_b.api_version;
+    } else {
+        return layer_a.key < layer_b.key;
+    }
 }
 
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set) {

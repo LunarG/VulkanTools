@@ -25,8 +25,31 @@
 
 #include <gtest/gtest.h>
 
-inline SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
+static SettingMetaString* InstantiateString(Layer& layer, const std::string& key) {
     return static_cast<SettingMetaString*>(layer.Instantiate(layer.settings, key, SETTING_STRING));
+}
+
+static void AddLayer(LayerManager& layers, const char* key, LayerType type) {
+    std::string path = format("./%s.json", key);
+
+    layers.available_layers.push_back(Layer(key, Version(1, 0, 0), Version(1, 2, 148), "1", path.c_str()));
+    layers.available_layers[layers.available_layers.size() - 1].manifest_path = path;
+    layers.available_layers[layers.available_layers.size() - 1].type = type;
+
+    LayerDescriptor descriptor;
+    descriptor.type = type;
+    layers.layers_found.insert(std::make_pair(path, descriptor));
+}
+
+static void InitLayers(LayerManager& layers) {
+    AddLayer(layers, "VK_LAYER_KHRONOS_implicit", LAYER_TYPE_IMPLICIT);
+    AddLayer(layers, "VK_LAYER_KHRONOS_explicit", LAYER_TYPE_EXPLICIT);
+    AddLayer(layers, "VK_LAYER_KHRONOS_validation", LAYER_TYPE_EXPLICIT);
+    AddLayer(layers, "VK_LAYER_KHRONOS_profiles", LAYER_TYPE_EXPLICIT);
+    AddLayer(layers, "VK_LAYER_KHRONOS_timeline_semaphore", LAYER_TYPE_EXPLICIT);
+    AddLayer(layers, "VK_LAYER_KHRONOS_synchronization2", LAYER_TYPE_EXPLICIT);
+    AddLayer(layers, "VK_LAYER_KHRONOS_shader_object", LAYER_TYPE_EXPLICIT);
+    AddLayer(layers, "VK_LAYER_KHRONOS_memory_decompression", LAYER_TYPE_EXPLICIT);
 }
 
 TEST(test_parameter, apply_settings) {
@@ -65,47 +88,40 @@ TEST(test_parameter, apply_settings) {
 
 TEST(test_parameter, ordering_found_parameter_rank) {
     LayerManager layers;
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_implicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_explicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_validation", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_profiles", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_timeline_semaphore", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_synchronization2", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_shader_object", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_memory_decompression", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    ::InitLayers(layers);
 
-    layers.available_layers[0].type = LAYER_TYPE_IMPLICIT;
+    Parameter parameter_validation("VK_LAYER_KHRONOS_validation", LAYER_CONTROL_AUTO);
+    EXPECT_EQ(PARAMETER_RANK_VALIDATION_LAYER, GetParameterOrdering(layers, parameter_validation));
+
+    Parameter parameter_profile("VK_LAYER_KHRONOS_profiles", LAYER_CONTROL_ON);
+    EXPECT_EQ(PARAMETER_RANK_PROFILES_LAYER, GetParameterOrdering(layers, parameter_profile));
+
+    Parameter parameter_timeline_semaphore("VK_LAYER_KHRONOS_timeline_semaphore", LAYER_CONTROL_OFF);
+    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER, GetParameterOrdering(layers, parameter_timeline_semaphore));
+
+    Parameter parameter_synchronization2("VK_LAYER_KHRONOS_synchronization2", LAYER_CONTROL_AUTO);
+    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER, GetParameterOrdering(layers, parameter_synchronization2));
+
+    Parameter parameter_shader_object("VK_LAYER_KHRONOS_shader_object", LAYER_CONTROL_ON);
+    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER, GetParameterOrdering(layers, parameter_shader_object));
+
+    Parameter parameter_memory_decompression("VK_LAYER_KHRONOS_memory_decompression", LAYER_CONTROL_OFF);
+    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER, GetParameterOrdering(layers, parameter_memory_decompression));
+
+    Parameter parameter_explicit("VK_LAYER_KHRONOS_explicit", LAYER_CONTROL_ON);
+    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_LAYER, GetParameterOrdering(layers, parameter_explicit));
 
     Parameter parameter_implicit("VK_LAYER_KHRONOS_implicit", LAYER_CONTROL_OFF);
     parameter_implicit.type = LAYER_TYPE_IMPLICIT;
-
-    EXPECT_EQ(PARAMETER_RANK_VALIDATION_LAYER,
-              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_validation", LAYER_CONTROL_AUTO)));
-    EXPECT_EQ(PARAMETER_RANK_PROFILES_LAYER,
-              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_profiles", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER,
-              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_timeline_semaphore", LAYER_CONTROL_OFF)));
-    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER,
-              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_synchronization2", LAYER_CONTROL_AUTO)));
-    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER,
-              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_shader_object", LAYER_CONTROL_ON)));
-    EXPECT_EQ(PARAMETER_RANK_EXTENSION_LAYER,
-              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_memory_decompression", LAYER_CONTROL_OFF)));
-    EXPECT_EQ(PARAMETER_RANK_EXPLICIT_LAYER,
-              GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_explicit", LAYER_CONTROL_ON)));
     EXPECT_EQ(PARAMETER_RANK_IMPLICIT_LAYER, GetParameterOrdering(layers, parameter_implicit));
-    EXPECT_EQ(PARAMETER_RANK_MISSING_LAYER, GetParameterOrdering(layers, Parameter("VK_LAYER_KHRONOS_missing", LAYER_CONTROL_OFF)));
+
+    Parameter parameter_missing("VK_LAYER_KHRONOS_missing", LAYER_CONTROL_OFF);
+    EXPECT_EQ(PARAMETER_RANK_MISSING_LAYER, GetParameterOrdering(layers, parameter_missing));
 }
 
 TEST(test_parameter, has_missing_layer) {
     LayerManager layers;
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_implicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_explicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    ::InitLayers(layers);
 
     std::vector<Parameter> parameters;
     parameters.push_back(Parameter("VK_LAYER_KHRONOS_implicit", LAYER_CONTROL_AUTO));
@@ -118,8 +134,7 @@ TEST(test_parameter, has_missing_layer) {
 
 TEST(test_parameter, no_missing_layer) {
     LayerManager layers;
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_implicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_explicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    ::InitLayers(layers);
 
     std::vector<Parameter> parameters;
     parameters.push_back(Parameter("VK_LAYER_KHRONOS_implicit", LAYER_CONTROL_AUTO));
@@ -132,20 +147,7 @@ TEST(test_parameter, no_missing_layer) {
 
 TEST(test_parameter, order_parameter_automatic) {
     LayerManager layers;
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_implicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_explicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_validation", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_profiles", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_timeline_semaphore", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_synchronization2", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_shader_object", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_memory_decompression", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers[0].type = LAYER_TYPE_IMPLICIT;
+    ::InitLayers(layers);
 
     Parameter unordered_layers(::GetToken(LAYER_BUILTIN_UNORDERED), LAYER_CONTROL_AUTO);
     unordered_layers.builtin = LAYER_BUILTIN_UNORDERED;
@@ -193,18 +195,7 @@ TEST(test_parameter, order_parameter_automatic) {
 
 TEST(test_parameter, order_parameter_manual_partial) {
     LayerManager layers;
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_implicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_explicit", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_validation", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(Layer("VK_LAYER_KHRONOS_profiles", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_timeline_semaphore", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_synchronization2", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_memory_decompression", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
-    layers.available_layers[0].type = LAYER_TYPE_IMPLICIT;
+    ::InitLayers(layers);
 
     std::vector<Parameter> parameters;
     parameters.push_back(Parameter("VK_LAYER_KHRONOS_implicit", LAYER_CONTROL_AUTO));

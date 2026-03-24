@@ -42,6 +42,7 @@
 #include <QDesktopServices>
 #include <QSettings>
 #include <QWidgetAction>
+#include <QShortcut>
 
 #include <cassert>
 
@@ -72,6 +73,9 @@ MainWindow::MainWindow(QApplication &app, QWidget *parent)
     }
 
     this->ui->tab_widget->setCurrentIndex(configurator.active_tab);
+    this->ui->tab_widget->installEventFilter(this);
+
+    this->connect(ui->tab_widget, SIGNAL(currentChanged(int)), this, SLOT(on_tab_widget_currentChanged(int)));
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 
@@ -383,6 +387,34 @@ void MainWindow::on_tab_widget_currentChanged(int index) {
 
     Configurator &configurator = Configurator::Get();
     configurator.active_tab = static_cast<TabType>(index);
+
+    switch (configurator.active_tab) {
+        case TAB_CONFIGURATIONS: {
+        } break;
+        case TAB_LAYERS_PATHS: {
+            // QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->tab_widget);
+            // this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
+
+            // QShortcut *shortcut_open = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), this->ui->layers_list);
+            // this->connect(shortcut_open, SIGNAL(activated()), this, SLOT(on_layers_browse_pressed()));
+        } break;
+        case TAB_DRIVERS: {
+            // QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->tab_widget);
+            // this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
+        } break;
+        case TAB_APPLICATIONS: {
+            // QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->tab_widget);
+            // this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
+        } break;
+        case TAB_DIAGNOSTIC: {
+        } break;
+        case TAB_DOCUMENTATION: {
+        } break;
+        case TAB_PREFERENCES: {
+        } break;
+        case TAB_ABOUT: {
+        } break;
+    }
 
     this->tabs[index]->UpdateUI(UPDATE_REBUILD_UI);
 }

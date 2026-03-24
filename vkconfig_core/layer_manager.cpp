@@ -25,36 +25,34 @@
 
 #include <QJsonArray>
 
-std::vector<LayersPathInfo> GetEnvVariablePaths(const char *variable_name, LayerType type) {
-    std::vector<LayersPathInfo> result;
+static std::vector<Path> GetEnvVariablePaths(const char *variable_name, LayerType type) {
+    std::vector<Path> result;
 
     const char *SEPARATOR = GetToken(PARSE_ENV_VAR);
 
     const std::vector<std::string> &paths = UniqueStrings(Split(qgetenv(variable_name).toStdString(), SEPARATOR));
     result.resize(paths.size());
     for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
-        result[i].path = paths[i];
-        result[i].enabled = true;
-        result[i].type = type;
+        result[i] = paths[i];
     }
 
     return result;
 }
 
-std::vector<LayersPathInfo> GetImplicitLayerPaths() {
-    std::vector<LayersPathInfo> result;
+static std::vector<Path> GetImplicitLayerPaths() {
+    std::vector<Path> result;
 
 #if VKC_ENV == VKC_ENV_WIN32
-    const std::vector<LayersPathInfo> &admin_registry_paths =
+    const std::vector<Path> &admin_registry_paths =
         LoadRegistrySoftwareLayers("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ImplicitLayers", LAYER_TYPE_IMPLICIT);
     result.insert(result.begin(), admin_registry_paths.begin(), admin_registry_paths.end());
 
-    const std::vector<LayersPathInfo> &user_registry_paths =
+    const std::vector<Path> &user_registry_paths =
         LoadRegistrySoftwareLayers("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ImplicitLayers", LAYER_TYPE_IMPLICIT);
     result.insert(result.begin(), user_registry_paths.begin(), user_registry_paths.end());
 
     // Search for drivers specific layers
-    const std::vector<LayersPathInfo> &drivers_registry_paths =
+    const std::vector<Path> &drivers_registry_paths =
         LoadRegistrySystemLayers("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers");
     result.insert(result.begin(), drivers_registry_paths.begin(), drivers_registry_paths.end());
 #else
@@ -89,32 +87,25 @@ std::vector<LayersPathInfo> GetImplicitLayerPaths() {
             paths.push_back(LAYERS_PATHS[i]);
         }
     }
-
-    for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
-        LayersPathInfo info;
-        info.type = LAYER_TYPE_IMPLICIT;
-        info.path = paths[i];
-        result.push_back(info);
-    }
 #endif
 
     return result;
 }
 
-std::vector<LayersPathInfo> GetExplicitLayerPaths() {
-    std::vector<LayersPathInfo> result;
+std::vector<Path> GetExplicitLayerPaths() {
+    std::vector<Path> result;
 
 #if VKC_ENV == VKC_ENV_WIN32
-    const std::vector<LayersPathInfo> &admin_registry_paths =
+    const std::vector<Path> &admin_registry_paths =
         LoadRegistrySoftwareLayers("HKEY_LOCAL_MACHINE\\Software\\Khronos\\Vulkan\\ExplicitLayers", LAYER_TYPE_EXPLICIT);
     result.insert(result.begin(), admin_registry_paths.begin(), admin_registry_paths.end());
 
-    const std::vector<LayersPathInfo> &user_registry_paths =
+    const std::vector<Path> &user_registry_paths =
         LoadRegistrySoftwareLayers("HKEY_CURRENT_USER\\Software\\Khronos\\Vulkan\\ExplicitLayers", LAYER_TYPE_EXPLICIT);
     result.insert(result.begin(), user_registry_paths.begin(), user_registry_paths.end());
 
     // Search for drivers specific layers
-    const std::vector<LayersPathInfo> &drivers_registry_paths =
+    const std::vector<Path> &drivers_registry_paths =
         LoadRegistrySystemLayers("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers");
     result.insert(result.begin(), drivers_registry_paths.begin(), drivers_registry_paths.end());
 #else
@@ -149,39 +140,23 @@ std::vector<LayersPathInfo> GetExplicitLayerPaths() {
             paths.push_back(LAYERS_PATHS[i]);
         }
     }
-
-    for (std::size_t i = 0, n = paths.size(); i < n; ++i) {
-        LayersPathInfo info;
-        info.type = LAYER_TYPE_EXPLICIT;
-        info.path = paths[i];
-        result.push_back(info);
-    }
 #endif
 
     return result;
 }
 
-static LayersPathInfo *FindPathInfo(std::array<std::vector<LayersPathInfo>, LAYERS_PATHS_COUNT> &paths, const std::string &path) {
-    for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
-        for (std::size_t i = 0, n = paths[paths_type_index].size(); i < n; ++i) {
-            if (paths[paths_type_index][i].path == path) {
-                return &paths[paths_type_index][i];
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-LayerManager::LayerManager() { this->InitSystemPaths(); }
+LayerManager::LayerManager() {}
 
 bool LayerManager::Load(const QJsonObject &json_root_object, ConfiguratorMode configurator_mode) {
+    this->available_layers.clear();
+    this->layers_found.clear();
+
     // LAYERS_PATHS_GUI
     if (json_root_object.value("layers") != QJsonValue::Undefined) {
         const QJsonObject &json_layers_object = json_root_object.value("layers").toObject();
 
-        if (json_layers_object.value("last_layers_path") != QJsonValue::Undefined) {
-            this->last_layers_path = json_layers_object.value("last_layers_path").toString().toStdString();
+        if (json_layers_object.value("last_layers_dir") != QJsonValue::Undefined) {
+            this->last_layers_dir = json_layers_object.value("last_layers_dir").toString().toStdString();
         }
 
         if (json_layers_object.value("validate_manifests") != QJsonValue::Undefined) {
@@ -195,26 +170,26 @@ bool LayerManager::Load(const QJsonObject &json_root_object, ConfiguratorMode co
             for (int i = 0, n = json_layers_found_keys.length(); i < n; ++i) {
                 const QJsonObject &json_status_object = json_layers_found_object.value(json_layers_found_keys[i]).toObject();
 
-                LayerStatus layer_status;
-                layer_status.last_modified = json_status_object.value("last_modified").toString().toStdString();
-                layer_status.validated = json_status_object.value("validated").toBool();
-                layer_status.disabled = json_status_object.value("disabled").toBool();
+                LayerDescriptor descriptor;
+                if (json_status_object.value("type") != QJsonValue::Undefined) {
+                    descriptor.type = ::GetLayerType(json_status_object.value("type").toString().toStdString().c_str());
+                }
+                descriptor.last_modified = json_status_object.value("last_modified").toString().toStdString();
+                descriptor.validated = json_status_object.value("validated").toBool();
+                if (json_status_object.value("enabled") != QJsonValue::Undefined) {
+                    descriptor.enabled = json_status_object.value("enabled").toBool();
+                }
 
                 const Path &manifest_path = json_layers_found_keys[i].toStdString();
 
-                this->layers_found.insert(std::make_pair(manifest_path, layer_status));
+                this->layers_found.insert(std::make_pair(manifest_path, descriptor));
             }
         }
 
-        if (json_layers_object.value("paths") != QJsonValue::Undefined) {
-            const QJsonObject &json_paths_object = json_layers_object.value("paths").toObject();
-            const QStringList &json_paths_keys = json_paths_object.keys();
-
-            for (int i = 0, n = json_paths_keys.length(); i < n; ++i) {
-                LayersPathInfo info;
-                info.path = json_paths_keys[i].toStdString();
-                info.enabled = json_paths_object.value(json_paths_keys[i].toStdString().c_str()).toBool();
-                this->AppendPath(info);
+        if (json_layers_object.value("removed") != QJsonValue::Undefined) {
+            const QJsonArray &array = json_layers_object.value("removed").toArray();
+            for (int i = 0, n = array.size(); i < n; ++i) {
+                this->layers_removed.insert(array[i].toString().toStdString());
             }
         }
     }
@@ -225,30 +200,26 @@ bool LayerManager::Load(const QJsonObject &json_root_object, ConfiguratorMode co
 }
 
 bool LayerManager::Save(QJsonObject &json_root_object) const {
-    QJsonObject json_layers_status_object;
+    QJsonObject json_layers_found_object;
     for (auto it = this->layers_found.begin(); it != this->layers_found.end(); ++it) {
-        QJsonObject json_layer_status_object;
-        json_layer_status_object.insert("last_modified", it->second.last_modified.c_str());
-        json_layer_status_object.insert("validated", it->second.validated);
-        json_layer_status_object.insert("disabled", it->second.disabled);
-        json_layers_status_object.insert(it->first.AbsolutePath().c_str(), json_layer_status_object);
+        QJsonObject object;
+        object.insert("last_modified", it->second.last_modified.c_str());
+        object.insert("type", ::GetToken(it->second.type));
+        object.insert("validated", it->second.validated);
+        object.insert("enabled", it->second.enabled);
+        json_layers_found_object.insert(it->first.AbsolutePath().c_str(), object);
     }
 
-    QJsonObject json_paths_object;
-    for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
-        const std::vector<LayersPathInfo> &path_infos = this->paths[paths_type_index];
-
-        for (std::size_t i = 0, n = path_infos.size(); i < n; ++i) {
-            json_paths_object.insert(path_infos[i].path.RelativePath().c_str(), path_infos[i].enabled);
-        }
+    QJsonArray json_layers_removed_array;
+    for (auto it = this->layers_removed.begin(); it != this->layers_removed.end(); ++it) {
+        json_layers_removed_array.append(it->AbsolutePath().c_str());
     }
 
     QJsonObject json_layers_object;
     json_layers_object.insert("validate_manifests", this->validate_manifests);
-    json_layers_object.insert("last_layers_path", this->last_layers_path.RelativePath().c_str());
-    json_layers_object.insert("found", json_layers_status_object);
-    json_layers_object.insert("paths", json_paths_object);
-
+    json_layers_object.insert("last_layers_dir", this->last_layers_dir.RelativePath().c_str());
+    json_layers_object.insert("found", json_layers_found_object);
+    json_layers_object.insert("removed", json_layers_removed_array);
     json_root_object.insert("layers", json_layers_object);
 
     return true;
@@ -257,48 +228,43 @@ bool LayerManager::Save(QJsonObject &json_root_object) const {
 std::string LayerManager::Log() const {
     std::string log;
 
-    for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
-        const std::vector<LayersPathInfo> &paths_group = this->paths[group_index];
-        if (paths_group.empty()) {
-            log += format(" %d. %s paths:\n", group_index + 1, ::GetLabel(static_cast<LayersPaths>(group_index)));
-            log += format(" - None\n");
-        } else {
-            log += format(" %d. %s paths:\n", group_index + 1, ::GetLabel(static_cast<LayersPaths>(group_index)));
+    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
+        const Layer *layer = &this->available_layers[i];
+
+        auto it = this->layers_found.find(layer->manifest_path);
+        if (it == this->layers_found.end()) {
+            assert(0);
+            continue;
         }
 
-        for (std::size_t path_index = 0, path_count = paths_group.size(); path_index < path_count; ++path_index) {
-            log += format(" - %s (%s)\n", paths_group[path_index].path.AbsolutePath().c_str(),
-                          paths_group[path_index].enabled ? "Enabled" : "Disabled");
+        const LayerDescriptor &descriptor = it->second;
 
-            const std::vector<const Layer *> layers = this->GatherLayers(paths_group[path_index]);
+        if (descriptor.type == LAYER_TYPE_IMPLICIT) {
+            log += format("   * %s - %s (Auto: %s)", layer->key.c_str(), layer->api_version.str().c_str(),
+                          GetLabel(layer->GetActualControl()));
+        } else {
+            log += format("   * %s - %s", layer->key.c_str(), layer->api_version.str().c_str());
+        }
 
-            for (std::size_t i = 0, n = layers.size(); i < n; ++i) {
-                if (layers[i]->type == LAYER_TYPE_IMPLICIT) {
-                    log += format("   * %s - %s (Auto: %s)", layers[i]->key.c_str(), layers[i]->api_version.str().c_str(),
-                                  GetLabel(layers[i]->GetActualControl()));
+        if (layer->status != STATUS_STABLE) {
+            log += format(" (%s)", GetToken(layer->status));
+        }
+        log += "\n";
+
+        log += format("     %s\n", layer->manifest_path.AbsolutePath().c_str());
+        log += "\n";
+
+        if (descriptor.type == LAYER_TYPE_IMPLICIT) {
+            if (!layer->disable_env.empty()) {
+                const std::string &value = qEnvironmentVariableIsSet(layer->disable_env.c_str()) ? "set" : "not set";
+                log += format("     '%s' is %s\n", layer->disable_env.c_str(), value.c_str());
+            }
+            if (!layer->enable_env.empty()) {
+                if (qEnvironmentVariableIsSet(layer->enable_env.c_str())) {
+                    const std::string &value = qgetenv(layer->enable_env.c_str()).toStdString();
+                    log += format("     '%s' is set to '%s'\n", layer->enable_env.c_str(), value.c_str());
                 } else {
-                    log += format("   * %s - %s", layers[i]->key.c_str(), layers[i]->api_version.str().c_str());
-                }
-
-                if (layers[i]->status != STATUS_STABLE) {
-                    log += format(" (%s)", GetToken(layers[i]->status));
-                }
-                log += "\n";
-
-                if (layers[i]->type == LAYER_TYPE_IMPLICIT) {
-                    if (!layers[i]->disable_env.empty()) {
-                        const std::string &value = qEnvironmentVariableIsSet(layers[i]->disable_env.c_str()) ? "set" : "not set";
-                        log += format("     '%s' is %s\n", layers[i]->disable_env.c_str(), value.c_str());
-                    }
-                    if (!layers[i]->enable_env.empty()) {
-                        if (qEnvironmentVariableIsSet(layers[i]->enable_env.c_str())) {
-                            const std::string &value = qgetenv(layers[i]->enable_env.c_str()).toStdString();
-                            log += format("     '%s' is set to '%s'\n", layers[i]->enable_env.c_str(), value.c_str());
-                        } else {
-                            log += format("     '%s' is not set to '%s'\n", layers[i]->enable_env.c_str(),
-                                          layers[i]->enable_value.c_str());
-                        }
-                    }
+                    log += format("     '%s' is not set to '%s'\n", layer->enable_env.c_str(), layer->enable_value.c_str());
                 }
             }
         }
@@ -309,57 +275,25 @@ std::string LayerManager::Log() const {
     return log;
 }
 
-void LayerManager::InitSystemPaths() {
-    this->available_layers.clear();
-    this->layers_found.clear();
-
-    this->paths[LAYERS_PATHS_IMPLICIT_SYSTEM] = GetImplicitLayerPaths();
-
-    // LAYERS_PATHS_IMPLICIT_ENV_SET: VK_IMPLICIT_LAYER_PATH env variables
-    this->paths[LAYERS_PATHS_IMPLICIT_ENV_SET] = GetEnvVariablePaths("VK_IMPLICIT_LAYER_PATH", LAYER_TYPE_IMPLICIT);
-
-    // LAYERS_PATHS_IMPLICIT_ENV_ADD: VK_ADD_IMPLICIT_LAYER_PATH env variables
-    this->paths[LAYERS_PATHS_IMPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_IMPLICIT_LAYER_PATH", LAYER_TYPE_IMPLICIT);
-
-    // LAYERS_PATHS_EXPLICIT_SYSTEM
-    this->paths[LAYERS_PATHS_EXPLICIT_SYSTEM] = GetExplicitLayerPaths();
-
-    // LAYERS_PATHS_EXPLICIT_ENV_SET: VK_LAYER_PATH env variables
-    this->paths[LAYERS_PATHS_EXPLICIT_ENV_SET] = GetEnvVariablePaths("VK_LAYER_PATH", LAYER_TYPE_EXPLICIT);
-
-    // LAYERS_PATHS_EXPLICIT_ENV_ADD: VK_ADD_LAYER_PATH env variables
-    this->paths[LAYERS_PATHS_EXPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_LAYER_PATH", LAYER_TYPE_EXPLICIT);
-
-    // LAYERS_PATHS_GUI
-    this->paths[LAYERS_PATHS_GUI].clear();
-
-    // LAYERS_PATHS_SDK
-    this->paths[LAYERS_PATHS_SDK].clear();
-    {
-        LayersPathInfo info;
-        info.path = Path(Path::SDK_EXPLICIT_LAYERS);
-        info.enabled = true;
-        this->paths[LAYERS_PATHS_SDK].push_back(info);
-    }
-}
-
 void LayerManager::Clear() { this->available_layers.clear(); }
 
 bool LayerManager::Empty() const { return this->available_layers.empty(); }
 
 std::size_t LayerManager::Size() const { return this->available_layers.size(); }
 
-std::vector<Path> LayerManager::GatherManifests(const std::string &layer_name) const {
+std::vector<Path> LayerManager::GatherManifests(const std::string &layer_key) const {
     std::vector<Path> result;
 
     for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
-        if (!this->available_layers[i].enabled) {
+        if (this->available_layers[i].key != layer_key) {
             continue;
         }
 
-        if (this->available_layers[i].key == layer_name) {
-            result.push_back(this->available_layers[i].manifest_path);
+        if (!this->IsEnabled(this->available_layers[i].manifest_path)) {
+            continue;
         }
+
+        result.push_back(this->available_layers[i].manifest_path);
     }
 
     std::sort(result.rbegin(), result.rend());
@@ -367,17 +301,19 @@ std::vector<Path> LayerManager::GatherManifests(const std::string &layer_name) c
     return result;
 }
 
-std::vector<Version> LayerManager::GatherVersions(const std::string &layer_name) const {
+std::vector<Version> LayerManager::GatherVersions(const std::string &layer_key) const {
     std::vector<Version> result;
 
     for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
-        if (!this->available_layers[i].enabled) {
+        if (this->available_layers[i].key != layer_key) {
             continue;
         }
 
-        if (this->available_layers[i].key == layer_name) {
-            result.push_back(this->available_layers[i].api_version);
+        if (!this->IsEnabled(this->available_layers[i].manifest_path)) {
+            continue;
         }
+
+        result.push_back(this->available_layers[i].api_version);
     }
 
     std::sort(result.rbegin(), result.rend());
@@ -422,15 +358,17 @@ const Layer *LayerManager::FindLastModified(const std::string &layer_name, const
     const Layer *result = nullptr;
 
     for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
-        if (this->available_layers[i].enabled == false) {
-            continue;
-        }
         if (this->available_layers[i].key != layer_name) {
             continue;
         }
         if (this->available_layers[i].api_version != version) {
             continue;
         }
+
+        if (!this->IsEnabled(this->available_layers[i].manifest_path)) {
+            continue;
+        }
+
         if (result != nullptr) {
             if (result->last_modified > this->available_layers[i].last_modified) {
                 continue;
@@ -445,8 +383,10 @@ const Layer *LayerManager::FindLastModified(const std::string &layer_name, const
 
 const Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find_disabled_layers) const {
     for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
-        if (!find_disabled_layers && this->available_layers[i].enabled == false) {
-            continue;
+        if (!find_disabled_layers) {
+            if (!this->IsEnabled(this->available_layers[i].manifest_path)) {
+                continue;
+            }
         }
 
         if (this->available_layers[i].manifest_path == manifest_path) {
@@ -458,8 +398,10 @@ const Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find
 
 Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find_disabled_layers) {
     for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
-        if (!find_disabled_layers && this->available_layers[i].enabled == false) {
-            continue;
+        if (!find_disabled_layers) {
+            if (!this->IsEnabled(this->available_layers[i].manifest_path)) {
+                continue;
+            }
         }
 
         if (this->available_layers[i].manifest_path == manifest_path) {
@@ -471,24 +413,44 @@ Layer *LayerManager::FindFromManifest(const Path &manifest_path, bool find_disab
 
 // Find all installed layers on the system.
 void LayerManager::LoadAllInstalledLayers(ConfiguratorMode configurator_mode) {
-    this->available_layers.clear();
+    std::array<std::vector<Path>, LAYERS_PATHS_COUNT> paths;
 
-    for (std::size_t group_index = 0, group_count = this->paths.size(); group_index < group_count; ++group_index) {
+    // Search new layers
+    paths[LAYERS_PATHS_IMPLICIT_SYSTEM] = GetImplicitLayerPaths();
+
+    // LAYERS_PATHS_IMPLICIT_ENV_SET: VK_IMPLICIT_LAYER_PATH env variables
+    paths[LAYERS_PATHS_IMPLICIT_ENV_SET] = GetEnvVariablePaths("VK_IMPLICIT_LAYER_PATH", LAYER_TYPE_IMPLICIT);
+
+    // LAYERS_PATHS_IMPLICIT_ENV_ADD: VK_ADD_IMPLICIT_LAYER_PATH env variables
+    paths[LAYERS_PATHS_IMPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_IMPLICIT_LAYER_PATH", LAYER_TYPE_IMPLICIT);
+
+    // LAYERS_PATHS_EXPLICIT_SYSTEM
+    paths[LAYERS_PATHS_EXPLICIT_SYSTEM] = GetExplicitLayerPaths();
+
+    // LAYERS_PATHS_EXPLICIT_ENV_SET: VK_LAYER_PATH env variables
+    paths[LAYERS_PATHS_EXPLICIT_ENV_SET] = GetEnvVariablePaths("VK_LAYER_PATH", LAYER_TYPE_EXPLICIT);
+
+    // LAYERS_PATHS_EXPLICIT_ENV_ADD: VK_ADD_LAYER_PATH env variables
+    paths[LAYERS_PATHS_EXPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_LAYER_PATH", LAYER_TYPE_EXPLICIT);
+
+    // LAYERS_PATHS_SDK
+    paths[LAYERS_PATHS_SDK].push_back(Path(Path::SDK_EXPLICIT_LAYERS));
+
+    for (std::size_t group_index = 0, group_count = paths.size(); group_index < group_count; ++group_index) {
         const LayersPaths layers_path = static_cast<LayersPaths>(group_index);
 
-        const std::vector<LayersPathInfo> &paths_group = this->paths[group_index];
+        const std::vector<Path> &paths_group = paths[group_index];
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
-            this->LoadLayersFromPath(paths_group[i].path, paths_group[i].type, configurator_mode);
-            this->UpdatePathEnabled(paths_group[i], layers_path);
+            const std::vector<Path> &layers_paths = ::CollectFilePaths(paths_group[i]);
+
+            for (std::size_t p = 0, o = layers_paths.size(); p < o; ++p) {
+                this->AppendPath(layers_paths[p], ::GetLayerType(layers_path));
+            }
         }
     }
-}
 
-void LayerManager::LoadLayersFromPath(const Path &layers_path, LayerType type, ConfiguratorMode configurator_mode) {
-    const std::vector<Path> &layers_paths = CollectFilePaths(layers_path);
-
-    for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        this->LoadLayer(layers_paths[i], type, configurator_mode);
+    for (auto it = this->layers_found.begin(); it != this->layers_found.end(); ++it) {
+        this->LoadLayer(it->first, it->second.type, configurator_mode);
     }
 }
 
@@ -506,134 +468,81 @@ LayerLoadStatus LayerManager::LoadLayer(const Path &layer_path, LayerType type, 
         }
 
         // Modified to reload
-        LayerLoadStatus status =
-            already_loaded_layer->Load(layer_path, type, this->validate_manifests, this->layers_found, configurator_mode);
+        LayerLoadStatus status = already_loaded_layer->Load(layer_path, type, this->validate_manifests, configurator_mode);
         if (status == LAYER_LOAD_ADDED) {
             it->second.last_modified = already_loaded_layer->last_modified;
             return LAYER_LOAD_RELOADED;
         } else {
-            it->second.disabled = IsDisabled(status);
+            // it->second.enabled = ::IsEnabled(status);
             return status;
         }
     } else {
         Layer layer;
-        LayerLoadStatus status = layer.Load(layer_path, type, this->validate_manifests, this->layers_found, configurator_mode);
+        LayerLoadStatus status = layer.Load(layer_path, type, this->validate_manifests, configurator_mode);
         if (status == LAYER_LOAD_ADDED) {
             this->available_layers.push_back(layer);
         }
 
         auto it = this->layers_found.find(layer_path);
+        // assert(it != this->layers_found.end());
         if (it != layers_found.end()) {
-            it->second.disabled = IsDisabled(status);
-            it->second.validated = this->validate_manifests && !it->second.disabled;
+            // it->second.enabled = ::IsEnabled(status);
+            // it->second.validated = this->validate_manifests && it->second.enabled;
             it->second.last_modified = layer.last_modified;
         } else {
-            LayerStatus found;
-            found.disabled = IsDisabled(status);
-            found.validated = this->validate_manifests && !found.disabled;
-            found.last_modified = layer.last_modified;
-            this->layers_found.insert(std::make_pair(layer.manifest_path, found));
+            LayerDescriptor descriptor;
+            descriptor.type = layer.type;
+            descriptor.last_modified = layer.last_modified;
+            descriptor.validated = this->validate_manifests;
+            descriptor.enabled = true;
+            descriptor.added = true;
+            layers_found.insert(std::make_pair(layer.manifest_path, descriptor));
         }
 
         return status;
     }
 }
 
-bool LayerManager::AreLayersEnabled(const LayersPathInfo &path_info) const {
-    for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
-        for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
-            if (this->paths[paths_type_index][i].path == path_info.path) {
-                if (this->paths[paths_type_index][i].enabled) {
-                    return true;  // If one path is enabled, then the layer remains enable
-                }
-            }
+void LayerManager::AppendPath(const Path &path, LayerType type, bool added) {
+    if (added) {
+        auto it_removed = this->layers_removed.find(path);
+        if (it_removed != this->layers_removed.end()) {
+            this->layers_removed.erase(it_removed);
         }
     }
 
-    return false;
-}
-
-void LayerManager::AppendPath(const LayersPathInfo &info) {
-    LayersPathInfo *existing_info = FindPathInfo(this->paths, info.path.RelativePath());
-    if (existing_info != nullptr) {
-        existing_info->enabled = info.enabled;
-    } else {
-        this->paths[LAYERS_PATHS_GUI].push_back(info);
+    if (this->layers_removed.find(path) != this->layers_removed.end()) {
+        return;
     }
 
-    std::sort(this->paths[LAYERS_PATHS_GUI].begin(), this->paths[LAYERS_PATHS_GUI].end());
-}
-
-void LayerManager::RemovePath(const LayersPathInfo &path_info) {
-    const std::vector<Path> &layers_paths = CollectFilePaths(path_info.path);
-
-    for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        Layer *layer = this->FindFromManifest(layers_paths[i]);
-        if (layer == nullptr) {
-            continue;
-        }
-
-        layer->enabled = false;
-    }
-
-    for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
-        std::vector<LayersPathInfo> new_path_list;
-        for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
-            if (path_info.path == this->paths[paths_type_index][i].path) {
-                continue;
-            }
-
-            new_path_list.push_back(this->paths[paths_type_index][i]);
-        }
-        this->paths[paths_type_index] = new_path_list;
+    auto it = this->layers_found.find(path);
+    if (it == this->layers_found.end()) {
+        LayerDescriptor descriptor;
+        descriptor.type = type;
+        descriptor.added = added;
+        descriptor.last_modified = path.LastModified();
+        this->layers_found.insert(std::make_pair(path, descriptor));
     }
 }
 
-void LayerManager::UpdatePathEnabled(const LayersPathInfo &path_info, LayersPaths paths_type_index) {
-    for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
-        if (path_info.path == this->paths[paths_type_index][i].path) {
-            this->paths[paths_type_index][i].enabled = path_info.enabled;
-            break;
-        }
+void LayerManager::RemovePath(const Path &path) {
+    auto it_found = this->layers_found.find(path);
+    if (it_found != this->layers_found.end()) {
+        this->layers_found.erase(it_found);
     }
 
-    this->UpdateLayersEnabled(path_info);
-}
-
-void LayerManager::UpdateLayersEnabled(const LayersPathInfo &path_info) {
-    const bool are_enabled = this->AreLayersEnabled(path_info);
-
-    const std::vector<Path> &layers_paths = ::CollectFilePaths(path_info.path);
-
-    for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        Layer *layer = this->FindFromManifest(layers_paths[i], true);
-        if (layer == nullptr) {
-            continue;
-        }
-
-        layer->enabled = are_enabled;
-    }
-}
-
-std::vector<Path> LayerManager::CollectManifestPaths() const {
-    std::vector<Path> results;
-
-    for (int paths_type_index = LAYERS_PATHS_FIRST; paths_type_index <= LAYERS_PATHS_LAST; ++paths_type_index) {
-        for (std::size_t i = 0, n = this->paths[paths_type_index].size(); i < n; ++i) {
-            const std::vector<Path> &layers_paths = ::CollectFilePaths(this->paths[paths_type_index][i].path);
-            results.insert(results.end(), layers_paths.begin(), layers_paths.end());
-        }
-    }
-
-    return results;
+    this->layers_removed.insert(path);
 }
 
 std::vector<std::string> LayerManager::GatherLayerNames() const {
     std::vector<std::string> result;
 
     for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
-        if (this->available_layers[i].enabled == false) {
-            continue;
+        auto it = this->layers_found.find(this->available_layers[i].manifest_path);
+        if (it != this->layers_found.end()) {
+            if (!it->second.enabled) {
+                continue;
+            }
         }
 
         if (std::find(result.begin(), result.end(), this->available_layers[i].key) != result.end()) {
@@ -646,17 +555,45 @@ std::vector<std::string> LayerManager::GatherLayerNames() const {
     return result;
 }
 
-std::vector<const Layer *> LayerManager::GatherLayers(const LayersPathInfo &path_info) const {
-    std::vector<const Layer *> result;
+bool LayerManager::IsEnabled(const Path &manifest_path) const {
+    auto it = this->layers_found.find(manifest_path);
+    if (it != this->layers_found.end()) {
+        return it->second.enabled;
+    }
+    return false;
+}
 
-    for (std::size_t i = 0, n = this->available_layers.size(); i < n; ++i) {
-        const std::string &layer_path = path_info.path.AbsolutePath();
-        const std::string &current_layer_path = this->available_layers[i].manifest_path.AbsolutePath();
-        if (current_layer_path.find(layer_path) == std::string::npos) {
+void LayerManager::Enable(const Path &manifest_path, bool enabled) {
+    auto it = this->layers_found.find(manifest_path);
+    if (it != this->layers_found.end()) {
+        it->second.enabled = enabled;
+    }
+}
+
+bool operator<(const LayerDisplay &a, const LayerDisplay &b) {
+    if (a.key == b.key) {
+        return a.api_version < b.api_version;
+    } else {
+        return a.key < b.key;
+    }
+}
+
+std::set<LayerDisplay> LayerManager::BuildLayerDisplayList() const {
+    std::set<LayerDisplay> result;
+
+    for (auto it = this->layers_found.begin(), end = this->layers_found.end(); it != end; ++it) {
+        const Layer *layer = this->FindFromManifest(it->first, true);
+        if (layer == nullptr) {
             continue;
         }
 
-        result.push_back(&this->available_layers[i]);
+        LayerDisplay layer_display;
+        layer_display.key = layer->key;
+        layer_display.manifest_path = it->first;
+        layer_display.api_version = layer->api_version;
+        layer_display.descriptor = it->second;
+
+        result.insert(layer_display);
     }
 
     return result;

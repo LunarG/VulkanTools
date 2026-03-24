@@ -25,12 +25,12 @@
 #include "style.h"
 
 #include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/json.h"
 
 #include <QFileDialog>
+#include <QShortcut>
 
 TabDrivers::TabDrivers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DRIVERS, window, ui) {
-    this->ui->drivers_device_list->installEventFilter(&window);
-
     Configurator &configurator = Configurator::Get();
 
     if (configurator.vulkan_system_info.loaderVersion < Version(1, 4, 322) && false) {
@@ -43,8 +43,24 @@ TabDrivers::TabDrivers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) :
     this->connect(this->ui->driver_forced_name, SIGNAL(currentIndexChanged(int)), this, SLOT(on_driver_name_changed(int)));
 
     this->connect(this->ui->driver_group_box_paths, SIGNAL(toggled(bool)), this, SLOT(on_driver_paths_toggled(bool)));
-    this->connect(this->ui->driver_browse_button, SIGNAL(clicked()), this, SLOT(on_driver_browse_pressed()));
-    this->connect(this->ui->driver_path_lineedit, SIGNAL(returnPressed()), this, SLOT(on_driver_append_pressed()));
+    this->connect(this->ui->driver_browse, SIGNAL(clicked()), this, SLOT(on_driver_browse_pressed()));
+    this->connect(this->ui->driver_path, SIGNAL(returnPressed()), this, SLOT(on_driver_append_pressed()));
+
+    this->connect(this->ui->driver_search, SIGNAL(textEdited(QString)), this, SLOT(on_search_textEdited(QString)));
+    this->connect(this->ui->driver_search, SIGNAL(returnPressed()), this, SLOT(on_search_next_pressed()));
+    this->connect(this->ui->driver_search_clear, SIGNAL(clicked()), this, SLOT(on_search_clear_pressed()));
+
+    QShortcut *shortcut_override = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Space), this->ui->driver_group_box_override);
+    this->connect(shortcut_override, SIGNAL(activated()), this, SLOT(on_driver_override_toggled()));
+
+    QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->driver_paths_list);
+    this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
+    QShortcut *shortcut_browse = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), this->ui->driver_paths_list);
+    this->connect(shortcut_browse, SIGNAL(activated()), this, SLOT(on_driver_browse_pressed()));
+
+    // this->ui->driver_group_box_override->installEventFilter(&window);
+    this->ui->drivers_device_list->installEventFilter(&window);
+    this->ui->driver_paths_list->installEventFilter(&window);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
@@ -53,6 +69,9 @@ TabDrivers::~TabDrivers() {}
 
 void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
     Configurator &configurator = Configurator::Get();
+
+    this->ui->driver_search_clear->setEnabled(!this->ui->driver_search->text().isEmpty());
+    this->ui->driver_search->setFocus();
 
     switch (ui_update_mode) {
         case UPDATE_REFRESH_UI:
@@ -131,14 +150,23 @@ void TabDrivers::UpdateUI(UpdateUIMode ui_update_mode) {
             }
 
             this->ui->driver_group_box_paths->blockSignals(true);
-            this->ui->driver_group_box_paths->setChecked(configurator.driver_paths_enabled);
+            this->ui->driver_group_box_paths->setChecked(configurator.driver_paths_enabled && configurator.driver_override_enabled);
             this->ui->driver_group_box_paths->blockSignals(false);
 
             this->ui->driver_paths_list->clear();
-            this->ui->driver_path_lineedit->setText(configurator.last_driver_dir.RelativePath().c_str());
             this->ui->driver_paths_list->blockSignals(true);
 
             for (auto it = configurator.driver_paths.begin(); it != configurator.driver_paths.end(); ++it) {
+                if (!this->driver_filter.empty()) {
+                    const std::string text = it->first.AbsolutePath();
+
+                    std::string lower_text = ::ToLowerCase(text);
+                    std::string driver_filter_search = ::ToLowerCase(this->driver_filter);
+                    if (lower_text.find(driver_filter_search.c_str()) == std::string::npos) {
+                        continue;
+                    }
+                }
+
                 QListWidgetItem *item_state = new QListWidgetItem;
                 item_state->setFlags(item_state->flags() | Qt::ItemIsSelectable);
                 item_state->setSizeHint(QSize(0, ITEM_HEIGHT));
@@ -190,12 +218,38 @@ bool TabDrivers::EventFilter(QObject *target, QEvent *event) {
     return false;
 }
 
+void TabDrivers::on_focus_search() { this->ui->driver_search->setFocus(); }
+
+void TabDrivers::on_search_textEdited(const QString &text) {
+    this->driver_filter = text.toStdString();
+
+    this->ui->driver_search_clear->setEnabled(!text.isEmpty());
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
+}
+
+void TabDrivers::on_search_clear_pressed() {
+    this->driver_filter.clear();
+
+    this->ui->driver_search->clear();
+    this->ui->driver_search_clear->setEnabled(false);
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
+}
+
+void TabDrivers::on_search_next_pressed() {}
+
+void TabDrivers::on_driver_override_toggled() {
+    this->ui->driver_group_box_override->setChecked(!this->ui->driver_group_box_override->isChecked());
+}
+
 void TabDrivers::on_driver_override_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
 
+    int index = std::max<int>(this->ui->driver_forced_name->currentIndex(), 0);
+
     configurator.driver_override_enabled = checked;
-    configurator.driver_override_info =
-        ::GetDeviceInfo(configurator.vulkan_system_info.physicalDevices[this->ui->driver_forced_name->currentIndex()]);
+    configurator.driver_override_info = ::GetDeviceInfo(configurator.vulkan_system_info.physicalDevices[index]);
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
@@ -244,7 +298,7 @@ void TabDrivers::on_paths_toggled() {
 
 void TabDrivers::on_driver_append_pressed() {
     Configurator &configurator = Configurator::Get();
-    const Path &selected_path = this->ui->driver_path_lineedit->text().toStdString();
+    const Path &selected_path = this->ui->driver_path->text().toStdString();
 
     if (selected_path.Empty()) {
         return;
@@ -277,16 +331,41 @@ void TabDrivers::on_driver_append_pressed() {
 void TabDrivers::on_driver_browse_pressed() {
     Configurator &configurator = Configurator::Get();
 
-    const Path &selected_path =
-        QFileDialog::getExistingDirectory(this->ui->driver_browse_button, "Adding Driver Manifests Directory...",
-                                          configurator.last_driver_dir.AbsolutePath().c_str())
-            .toStdString();
+    const Path &selected_path = QFileDialog::getExistingDirectory(this->ui->driver_browse, "Adding Driver Manifests Directory...",
+                                                                  configurator.last_driver_dir.AbsolutePath().c_str())
+                                    .toStdString();
 
     if (selected_path.Empty()) {
         return;
     }
+    /*
+        QJsonDocument document = ParseJsonFile(selected_path.AbsolutePath().c_str());
+        if (document.isNull() || document.isEmpty()) {
+            QMessageBox alert;
+            alert.setWindowTitle("Could not open the JSON file");
+            alert.setText("The path");
+            alert.setInformativeText(selected_path.AbsolutePath().c_str());
+            alert.setStandardButtons(QMessageBox::Ok);
+            alert.setDefaultButton(QMessageBox::Ok);
+            alert.setIcon(QMessageBox::Warning);
+            alert.exec();
+            return;
+        }
 
-    this->ui->driver_path_lineedit->setText(selected_path.AbsolutePath().c_str());
+        const QJsonObject& json_root_object = document.object();
+        if (json_root_object.value("ICD") == QJsonValue::Undefined) {
+            QMessageBox alert;
+            alert.setWindowTitle("Could not open the JSON file");
+            alert.setText("The path");
+            alert.setInformativeText(selected_path.AbsolutePath().c_str());
+            alert.setStandardButtons(QMessageBox::Ok);
+            alert.setDefaultButton(QMessageBox::Ok);
+            alert.setIcon(QMessageBox::Warning);
+            alert.exec();
+            return;
+        }
+    */
+    this->ui->driver_path->setText(selected_path.AbsolutePath().c_str());
 
     this->on_driver_append_pressed();
 }

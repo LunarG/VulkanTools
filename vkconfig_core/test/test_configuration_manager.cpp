@@ -22,6 +22,14 @@
 
 #include <gtest/gtest.h>
 
+static void InitLayer(LayerManager& layer_manager, const char* dir) {
+    const std::vector<Path>& layers_paths = ::CollectFilePaths(dir);
+
+    for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
+        layer_manager.LoadLayer(layers_paths[i], LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    }
+}
+
 TEST(test_configuration_manager, init_default) {
     ConfigurationManager configuration_manager;
 
@@ -35,7 +43,7 @@ TEST(test_configuration_manager, init_default) {
 
 TEST(test_configuration_manager, create_remove) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    ::InitLayer(layer_manager, ":/layers");
 
     ConfigurationManager configuration_manager;
 
@@ -67,7 +75,7 @@ TEST(test_configuration_manager, create_remove) {
 
 TEST(test_configuration_manager, duplicate_names) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    ::InitLayer(layer_manager, ":/layers");
 
     ConfigurationManager configuration_manager;
 
@@ -93,7 +101,7 @@ TEST(test_configuration_manager, duplicate_names) {
 
 TEST(test_configuration_manager, duplicate_object) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    ::InitLayer(layer_manager, ":/layers");
 
     ConfigurationManager configuration_manager;
 
@@ -117,7 +125,7 @@ TEST(test_configuration_manager, duplicate_object) {
 
 TEST(test_configuration_manager, sort) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    ::InitLayer(layer_manager, ":/layers");
 
     ConfigurationManager configuration_manager;
 
@@ -138,7 +146,7 @@ TEST(test_configuration_manager, sort) {
 
 TEST(test_configuration_manager, default_configuration) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    ::InitLayer(layer_manager, ":/layers");
 
     ConfigurationManager configuration_manager;
     configuration_manager.LoadDefaultConfigurations(layer_manager);
@@ -149,7 +157,7 @@ TEST(test_configuration_manager, default_configuration) {
 
 TEST(test_configuration_manager, RenameConfiguration) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    ::InitLayer(layer_manager, ":/layers");
 
     ConfigurationManager configuration_manager;
     configuration_manager.LoadDefaultConfigurations(layer_manager);
@@ -172,7 +180,7 @@ TEST(test_configuration_manager, RenameConfiguration) {
 
 TEST(test_configuration_manager, SaveConfiguration) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    ::InitLayer(layer_manager, ":/layers");
 
     ConfigurationManager configuration_manager;
     EXPECT_TRUE(configuration_manager.Empty());
@@ -202,7 +210,7 @@ TEST(test_configuration_manager, SaveConfiguration) {
 
 TEST(test_configuration_manager, ExportImport) {
     LayerManager layer_manager;
-    layer_manager.LoadLayersFromPath(":/layers", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    ::InitLayer(layer_manager, ":/layers");
 
     ConfigurationManager configuration_manager;
     configuration_manager.LoadDefaultConfigurations(layer_manager);
@@ -237,7 +245,7 @@ TEST(test_configuration_manager, UpdateConfigurations) {
     EXPECT_STREQ(missing_layers_init[0].c_str(), "VK_LAYER_KHRONOS_validation");
     EXPECT_EQ(2, configuration_init->parameters.size());
 
-    layer_manager.LoadLayersFromPath(":/sdk", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    ::InitLayer(layer_manager, ":/sdk");
     configuration_manager.UpdateConfigurations(layer_manager);
 
     std::size_t count_update = configuration_manager.available_configurations.size();

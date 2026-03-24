@@ -55,11 +55,17 @@ static bool operator==(const Parameter& a, const Parameter& b) {
 
 static bool operator!=(const std::vector<Parameter>& a, const std::vector<Parameter>& b) { return !(a == b); }
 
-std::map<std::string, std::string> Dummy() { return std::map<std::string, std::string>(); }
+static void InitLayer(LayerManager& layer_manager) {
+    const std::vector<Path>& layers_paths = ::CollectFilePaths(":/sdk");
+
+    for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
+        layer_manager.LoadLayer(layers_paths[i], LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+    }
+}
 
 struct TestBuilin {
     TestBuilin() : layer_manager() {
-        this->layer_manager.LoadLayersFromPath(":/sdk", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+        ::InitLayer(this->layer_manager);
         EXPECT_TRUE(!this->layer_manager.available_layers.empty());
     }
 

@@ -60,6 +60,9 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->diagnostic_dir_system, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_system_pressed()));
     this->connect(this->ui->diagnostic_dir_info, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_info_pressed()));
 
+    QShortcut *shortcut_override = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Space), this->ui->diagnostic_group_box_loader_log);
+    this->connect(shortcut_override, SIGNAL(activated()), this, SLOT(on_diagnostic_loader_messages_toggled()));
+
     QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->diagnostic_status_text);
     this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
     QShortcut *shortcut_next = new QShortcut(QKeySequence(Qt::Key_F3), this->ui->diagnostic_status_text);
@@ -67,11 +70,11 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     QShortcut *shortcut_prev = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3), this->ui->diagnostic_status_text);
     this->connect(shortcut_prev, SIGNAL(activated()), this, SLOT(on_search_prev_pressed()));
 
-    QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->diagnostic_status_text);
+    QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->diagnostic_search_case);
     this->connect(shortcut_case, SIGNAL(activated()), this, SLOT(on_search_case_activated()));
-    QShortcut *shortcut_whole = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_W), this->ui->diagnostic_status_text);
+    QShortcut *shortcut_whole = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_W), this->ui->diagnostic_search_whole);
     this->connect(shortcut_whole, SIGNAL(activated()), this, SLOT(on_search_whole_activated()));
-    QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->diagnostic_status_text);
+    QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->diagnostic_search_regex);
     this->connect(shortcut_regex, SIGNAL(activated()), this, SLOT(on_search_regex_activated()));
 
     this->ui->diagnostic_search_next->setEnabled(false);
@@ -307,6 +310,10 @@ bool TabDiagnostics::EventFilter(QObject *target, QEvent *event) {
     }
 
     return false;
+}
+
+void TabDiagnostics::on_diagnostic_loader_messages_toggled() {
+    this->ui->diagnostic_group_box_loader_log->setChecked(!this->ui->diagnostic_group_box_loader_log->isChecked());
 }
 
 void TabDiagnostics::on_diagnostic_loader_messages_toggled(bool checked) {
@@ -596,9 +603,16 @@ void TabDiagnostics::on_export_file() {
     }
 }
 
-void TabDiagnostics::on_focus_search() { this->ui->diagnostic_search_edit->setFocus(); }
+void TabDiagnostics::on_focus_search() {
+    this->ui->diagnostic_search_edit->setFocus();
+    this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
+}
 
 void TabDiagnostics::on_search_textEdited(const QString &text) {
+    if (!this->ui->diagnostic_search_clear->isEnabled()) {
+        this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
+    }
+
     this->ui->diagnostic_search_next->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
     this->ui->diagnostic_search_prev->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
 
@@ -608,7 +622,10 @@ void TabDiagnostics::on_search_textEdited(const QString &text) {
 
 void TabDiagnostics::on_search_clear_pressed() {
     this->diagnostic_search_text.clear();
+    this->ui->diagnostic_export_file->setEnabled(false);
     this->ui->diagnostic_search_edit->clear();
+    this->ui->diagnostic_search_next->setEnabled(false);
+    this->ui->diagnostic_search_prev->setEnabled(false);
     this->ui->diagnostic_search_clear->setEnabled(false);
 }
 
@@ -667,7 +684,7 @@ void TabDiagnostics::on_context_menu(const QPoint &pos) {
     menu->addSeparator();
 
     QAction *action_search = new QAction("Search...", nullptr);
-    action_search->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
+    // action_search->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
     action_search->setEnabled(true);
     menu->addAction(action_search);
 

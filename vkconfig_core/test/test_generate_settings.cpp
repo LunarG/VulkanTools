@@ -42,8 +42,7 @@ Configurator& GetTestConfigurator() {
     path.Create();
 
     Configurator& configurator = Configurator::Get();
-    configurator.layers.LoadLayersFromPath(":/layers/VK_LAYER_LUNARG_reference_1_2_1.json", LAYER_TYPE_EXPLICIT,
-                                           CONFIGURATOR_MODE_CMD);
+    configurator.layers.LoadLayer(":/layers/VK_LAYER_LUNARG_reference_1_2_1.json", LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     configurator.configurations.CreateConfiguration(configurator.layers, "configuration");
     configurator.SetActiveConfigurationName("configuration");
     return configurator;

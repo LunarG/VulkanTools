@@ -26,29 +26,27 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-LayersPathWidget::LayersPathWidget(const LayersPathInfo& path_info, LayersPaths layers_path, bool removabled)
-    : layers_path(layers_path), path_info(path_info) {
-    this->setChecked(this->path_info.enabled);
-
+LayerWidget::LayerWidget(const Layer* layer)
+    : layer_key(layer->key), api_version(layer->api_version), manifest_path(layer->manifest_path) {
     const Configurator& configurator = Configurator::Get();
+
+    const std::string status = layer->status == STATUS_STABLE ? "" : format(" (%s)", ::GetToken(layer->status));
+    const std::string text = format("%s - %s%s, %s layer", layer->key.c_str(), layer->api_version.str().c_str(), status.c_str(),
+                                    ::GetToken(layer->type));
+
+    this->setText(text.c_str());
+    this->setToolTip(format("%s", manifest_path.AbsolutePath().c_str()).c_str());
 
     this->buttom_remove = new QPushButton(this);
     this->buttom_remove->setIcon(::Get(configurator.current_theme_mode, ::ICON_FOLDER_REMOVE));
-    this->buttom_remove->setToolTip("Only layer paths manually added with Vulkan Configurator can be removed.");
+    this->buttom_remove->setToolTip("Remove the Vulkan layer from Vulkan Configurator");
     this->buttom_remove->setFixedSize(24, 24);
-    this->buttom_remove->setEnabled(layers_path == LAYERS_PATHS_GUI);
-
-    if (!removabled) {
-        this->buttom_remove->hide();
-    }
-
-    this->setText(format("[%s] %s", GetLabel(layers_path), path_info.path.AbsolutePath().c_str()).c_str());
 
     this->connect(this, SIGNAL(toggled(bool)), this, SLOT(on_toggled(bool)));
     this->connect(this->buttom_remove, SIGNAL(clicked(bool)), this, SLOT(on_buttom_remove_clicked(bool)));
 }
 
-void LayersPathWidget::resizeEvent(QResizeEvent* event) {
+void LayerWidget::resizeEvent(QResizeEvent* event) {
     QSize size = event->size();
 
     const QFontMetrics fm = this->buttom_remove->fontMetrics();
@@ -58,20 +56,22 @@ void LayersPathWidget::resizeEvent(QResizeEvent* event) {
     this->buttom_remove->setGeometry(remove_button_rect);
 }
 
-void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
+void LayerWidget::on_buttom_remove_clicked(bool checked) {
     (void)checked;
 
     Configurator& configurator = Configurator::Get();
 
     if (!(configurator.Get(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH))) {
         QMessageBox alert;
-        alert.setWindowTitle("Removing a layers path...");
+        alert.setWindowTitle(format("Removing %s %s layer...", this->layer_key.c_str(), this->api_version.str().c_str()).c_str());
         alert.setIcon(QMessageBox::Question);
         alert.setDefaultButton(QMessageBox::No);
         alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         alert.setCheckBox(new QCheckBox("Do not show again."));
-        alert.setText(format("Are you sure you want to remove the following path from %s?", VKCONFIG_NAME).c_str());
-        alert.setInformativeText(this->path_info.path.AbsolutePath().c_str());
+        alert.setText(format("Are you sure you want to remove %s %s from %s?", this->layer_key.c_str(),
+                             this->api_version.str().c_str(), VKCONFIG_NAME)
+                          .c_str());
+        alert.setInformativeText(format("The layer is located: %s", this->manifest_path.AbsolutePath().c_str()).c_str());
         int ret_val = alert.exec();
         if (alert.checkBox()->isChecked()) {
             configurator.Set(HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH);
@@ -81,21 +81,14 @@ void LayersPathWidget::on_buttom_remove_clicked(bool checked) {
         }
     }
 
-    configurator.layers.RemovePath(this->path_info);
-
-    this->path_info.path.Clear();
+    configurator.layers.RemovePath(this->manifest_path);
 
     emit itemChanged();
 }
 
-void LayersPathWidget::on_toggled(bool checked) {
-    // Check the path is not removed
-    if (!this->path_info.path.Empty()) {
-        this->path_info.enabled = checked;
+void LayerWidget::on_toggled(bool checked) {
+    Configurator& configurator = Configurator::Get();
+    configurator.layers.Enable(this->manifest_path, checked);
 
-        Configurator& configurator = Configurator::Get();
-        configurator.layers.UpdatePathEnabled(this->path_info, this->layers_path);
-
-        emit itemToggled();
-    }
+    emit itemToggled();
 }

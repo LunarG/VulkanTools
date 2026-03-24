@@ -50,6 +50,7 @@ class TabConfigurations : public Tab {
    public Q_SLOTS:
     void on_configurations_advanced_toggle_pressed();
 
+    void on_configurations_override_toggled();
     void on_configurations_override_toggled(bool checked);
     void on_configurations_executable_scope_currentIndexChanged(int index);
     void on_configurations_executable_list_currentIndexChanged(int index);

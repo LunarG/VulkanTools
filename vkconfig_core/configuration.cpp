@@ -173,7 +173,7 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
 
             if (layer != nullptr) {
                 parameter.manifest = layer->manifest_path;
-                parameter.type = layer->type;
+                // parameter.type = layer->type;
             }
 
             if (parameter.api_version != Version::LATEST) {
