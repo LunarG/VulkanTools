@@ -91,7 +91,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -989,6 +989,12 @@
              </property>
              <item>
               <widget class="QLineEdit" name="layers_search">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
@@ -1001,6 +1007,9 @@
                  <pointsize>10</pointsize>
                  <bold>false</bold>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>Enter search text to filter layers in the list... (Ctrl+F)</string>
                </property>
                <property name="placeholderText">
                 <string>Enter search text to filter layers in the list... (Ctrl+F)</string>
@@ -1050,6 +1059,18 @@
                  <height>24</height>
                 </size>
                </property>
+               <property name="sizeIncrement">
+                <size>
+                 <width>0</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>0</width>
+                 <height>24</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <family>Arial</family>
@@ -1066,6 +1087,9 @@
                <property name="invertedAppearance">
                 <bool>false</bool>
                </property>
+               <property name="textDirection">
+                <enum>QProgressBar::BottomToTop</enum>
+               </property>
                <property name="format">
                 <string>Loading layers... %p%</string>
                </property>
@@ -1073,6 +1097,12 @@
              </item>
              <item>
               <widget class="QLineEdit" name="layers_path_lineedit">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -1091,6 +1121,9 @@
                  <pointsize>10</pointsize>
                  <bold>false</bold>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>Add a Vulkan Layer manifests path... (Ctrl+O)</string>
                </property>
                <property name="placeholderText">
                 <string>Add a Vulkan Layer manifests path... (Ctrl+O)</string>
@@ -1519,6 +1552,12 @@
                 </property>
                 <item>
                  <widget class="QLineEdit" name="driver_search">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="maximumSize">
                    <size>
                     <width>16777215</width>
@@ -1531,6 +1570,9 @@
                     <pointsize>10</pointsize>
                     <bold>false</bold>
                    </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>Enter search text to filter drivers in the list... (Ctrl+F)</string>
                   </property>
                   <property name="placeholderText">
                    <string>Enter search text to filter drivers in the list... (Ctrl+F)</string>
@@ -1552,6 +1594,12 @@
                 </item>
                 <item>
                  <widget class="QLineEdit" name="driver_path">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="maximumSize">
                    <size>
                     <width>16777215</width>
@@ -1564,6 +1612,9 @@
                     <pointsize>10</pointsize>
                     <bold>false</bold>
                    </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>Add Vulkan Driver manifests path... (Ctrl+O)</string>
                   </property>
                   <property name="placeholderText">
                    <string>Add Vulkan Driver manifests path... (Ctrl+O)</string>
@@ -2429,6 +2480,9 @@
                 <width>16777215</width>
                 <height>24</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Enter search text in the current log... (Ctrl+F)</string>
               </property>
               <property name="placeholderText">
                <string>Enter search text in the current log... (Ctrl+F)</string>

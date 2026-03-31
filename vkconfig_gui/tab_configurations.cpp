@@ -195,19 +195,22 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
         ListItem *item = new ListItem(configuration.key.c_str());
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         item->setText(configuration.key.c_str());
+
         if (configurator.GetActiveConfiguration() == &configuration) {
-            item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_ON));
+            item->setIcon(::Get(configurator.current_theme_mode, has_missing_layer ? ::ICON_SYSTEM_INVALID : ::ICON_SYSTEM_ON));
             item->setToolTip(configuration_tooltip.c_str());
             current_row = static_cast<int>(i);
-        } else if (has_missing_layer) {
-            item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_INVALID));
-            item->setToolTip(
-                format("The '%s' configuration has missing layers. These layers are ignored.", configuration.key.c_str()).c_str());
         } else {
-            item->setIcon(::Get(configurator.current_theme_mode, ::ICON_SYSTEM_OFF));
+            item->setIcon(::Get(configurator.current_theme_mode, has_missing_layer ? ::ICON_SYSTEM_INVALID : ::ICON_SYSTEM_OFF));
             item->setToolTip(
                 format("Select the '%s' configuration to use it with Vulkan executables", configuration.key.c_str()).c_str());
         }
+
+        if (has_missing_layer) {
+            item->setToolTip(
+                format("The '%s' configuration has missing layers. These layers are ignored.", configuration.key.c_str()).c_str());
+        }
+
         ui->configurations_list->addItem(item);
     }
 

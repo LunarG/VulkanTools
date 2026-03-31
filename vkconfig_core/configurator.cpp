@@ -1116,7 +1116,41 @@ bool Configurator::Load() {
         // TAB_LAYERS_PATHS
         if (json_interface_object.value(GetToken(TAB_LAYERS_PATHS)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_LAYERS_PATHS)).toObject();
-            (void)json_object;
+            if (json_object.value("last_driver_dir") != QJsonValue::Undefined) {
+                this->layers.last_layers_dir = json_object.value("last_driver_dir").toString().toStdString();
+            }
+            if (json_object.value("validate_manifests") != QJsonValue::Undefined) {
+                this->layers.validate_manifests = json_object.value("validate_manifests").toBool();
+            }
+            if (json_object.value("layers") != QJsonValue::Undefined) {
+                const QJsonObject& json_object_paths = json_object.value("layers").toObject();
+                QStringList keys = json_object_paths.keys();
+                for (std::size_t i = 0, n = keys.size(); i < n; ++i) {
+                    const QJsonArray& json_descriptors = json_object_paths.value(keys[i]).toArray();
+
+                    std::vector<LayerDisplay> descriptors;
+                    for (std::size_t j = 0, o = json_descriptors.size(); j < o; ++j) {
+                        const QJsonObject& json_descriptor_object = json_descriptors[j].toObject();
+
+                        LayerDisplay display;
+                        display.id.key = json_descriptor_object.value("key").toString().toStdString();
+                        display.id.manifest_path = keys[i].toStdString();
+                        display.id.api_version = Version::NONE;
+                        display.descriptor.enabled = json_descriptor_object.value("enabled").toBool();
+                        display.descriptor.removed = json_descriptor_object.value("removed").toBool();
+                        display.descriptor.validated = json_descriptor_object.value("validated").toBool();
+                        descriptors.push_back(display);
+                    }
+
+                    this->layers.AppendInit(Path(keys[i].toStdString()), descriptors);
+                }
+            }
+            if (json_object.value("paths") != QJsonValue::Undefined) {
+                const QJsonArray& json_paths = json_object.value("paths").toArray();
+                for (std::size_t i = 0, n = json_paths.size(); i < n; ++i) {
+                    this->layers.gui_added_layers_paths.insert(json_paths[i].toString().toStdString());
+                }
+            }
         }
 
         // TAB_DRIVERS
@@ -1198,6 +1232,10 @@ bool Configurator::Load() {
         // TAB_PREFERENCES
         if (json_interface_object.value(GetToken(TAB_PREFERENCES)) != QJsonValue::Undefined) {
             const QJsonObject& json_object = json_interface_object.value(GetToken(TAB_PREFERENCES)).toObject();
+
+            if (json_object.value("validate_manifests") != QJsonValue::Undefined) {
+                this->layers.validate_manifests = json_object.value("validate_manifests").toBool();
+            }
 
             if (json_object.value("use_notify_releases") != QJsonValue::Undefined) {
                 this->use_notify_releases = json_object.value("use_notify_releases").toBool();
@@ -1311,7 +1349,55 @@ bool Configurator::Save() const {
     }
 
     // TAB_LAYERS_PATHS
-    {}
+    {
+        std::map<Path, std::map<std::string, LayerDisplay>> data = this->layers.BuildLayerStoreList();
+
+        QJsonObject json_layers;
+        for (auto it = data.begin(); it != data.end(); ++it) {
+            std::map<std::string, LayerDisplay> descriptors = it->second;
+
+            QJsonArray json_layer_descriptors;
+
+            bool is_user_added_path =
+                this->layers.gui_added_layers_paths.find(it->first.AbsoluteDir()) != this->layers.gui_added_layers_paths.end();
+
+            bool keep = false;  // Only remember paths that don't have all layer removed
+
+            for (auto jt = it->second.begin(); jt != it->second.end(); ++jt) {
+                if (!jt->second.descriptor.removed) {
+                    keep = true;
+                }
+
+                QJsonObject json_descriptor;
+                json_descriptor.insert("key", jt->first.c_str());
+                json_descriptor.insert("validated", jt->second.descriptor.validated);
+                json_descriptor.insert("enabled", jt->second.descriptor.enabled);
+                json_descriptor.insert("removed", jt->second.descriptor.removed);
+
+                json_layer_descriptors.append(json_descriptor);
+            }
+
+            if (is_user_added_path) {
+                if (keep) {
+                    json_layers.insert(it->first.AbsolutePath().c_str(), json_layer_descriptors);
+                }
+            } else {
+                json_layers.insert(it->first.AbsolutePath().c_str(), json_layer_descriptors);
+            }
+        }
+
+        QJsonArray json_paths;
+        for (auto it = this->layers.gui_added_layers_paths.begin(); it != this->layers.gui_added_layers_paths.end(); ++it) {
+            json_paths.append(it->AbsolutePath().c_str());
+        }
+
+        QJsonObject json_object;
+        json_object.insert("paths", json_paths);
+        json_object.insert("layers", json_layers);
+        json_object.insert("validate_manifests", this->layers.validate_manifests);
+        json_object.insert("last_driver_dir", this->layers.last_layers_dir.AbsolutePath().c_str());
+        json_interface_object.insert(::GetToken(TAB_LAYERS_PATHS), json_object);
+    }
 
     // TAB_DRIVER
     {

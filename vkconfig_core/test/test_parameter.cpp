@@ -32,13 +32,14 @@ static SettingMetaString* InstantiateString(Layer& layer, const std::string& key
 static void AddLayer(LayerManager& layers, const char* key, LayerType type) {
     std::string path = format("./%s.json", key);
 
-    layers.available_layers.push_back(Layer(key, Version(1, 0, 0), Version(1, 2, 148), "1", path.c_str()));
-    layers.available_layers[layers.available_layers.size() - 1].manifest_path = path;
-    layers.available_layers[layers.available_layers.size() - 1].type = type;
+    Layer layer(key);
+    layer.file_format_version = Version(1, 0, 0);
+    layer.api_version = Version(1, 2, 148);
+    layer.implementation_version = "1";
+    layer.type = type;
+    layer.manifest_path = path;
 
-    LayerDescriptor descriptor;
-    descriptor.type = type;
-    layers.layers_found.insert(std::make_pair(path, descriptor));
+    layers.available_layers.push_back(layer);
 }
 
 static void InitLayers(LayerManager& layers) {
@@ -237,8 +238,13 @@ TEST(test_parameter, order_parameter_manual_partial) {
     EXPECT_STREQ(parameters[8].key.c_str(), "VK_LAYER_KHRONOS_timeline_semaphore");
 
     // Insert a new layer in the parameter list
-    layers.available_layers.push_back(
-        Layer("VK_LAYER_KHRONOS_shader_object", Version(1, 0, 0), Version(1, 2, 148), "1", "layer.json"));
+    Layer layer("VK_LAYER_KHRONOS_shader_object");
+    layer.manifest_path = "./layer.json";
+    layer.api_version = Version(1, 2, 148);
+    layer.file_format_version = Version(1, 0, 0);
+    layer.implementation_version = "1";
+
+    layers.available_layers.push_back(layer);
 
     Parameter parameter_implicit2("VK_LAYER_KHRONOS_shader_object", LAYER_CONTROL_AUTO);
     parameters.push_back(parameter_implicit2);
