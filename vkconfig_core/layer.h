@@ -36,21 +36,10 @@
 #include <vector>
 #include <string>
 
-struct LayerDescriptor {
-    LayerType type = LAYER_TYPE_EXPLICIT;
-    std::string last_modified;
-    bool validated = false;
-    bool enabled = true;
-    bool added = false;
-};
-
-bool Found(const std::vector<Path>& data, const Path& path);
-
 enum LayerLoadStatus {
     LAYER_LOAD_ADDED = 0,
     LAYER_LOAD_RELOADED,
     LAYER_LOAD_UNMODIFIED,
-    LAYER_LOAD_FAILED,
     LAYER_LOAD_INVALID,
     LAYER_LOAD_IGNORED,
 
@@ -58,11 +47,20 @@ enum LayerLoadStatus {
     LAYER_LOAD_LAST = LAYER_LOAD_IGNORED,
 };
 
-inline bool IsEnabled(LayerLoadStatus status) {
-    return !(status == LAYER_LOAD_FAILED || status == LAYER_LOAD_INVALID || status == LAYER_LOAD_IGNORED);
-}
-
 enum { LAYER_LOAD_COUNT = LAYER_LOAD_LAST - LAYER_LOAD_FIRST + 1 };
+
+struct LayerId {
+    Path manifest_path;
+    std::string key;
+    Version api_version;
+};
+
+struct LayerDescriptor {
+    bool validated = false;
+    bool enabled = true;
+    bool removed = false;
+    bool recent = false;
+};
 
 class Layer {
    public:
@@ -70,8 +68,8 @@ class Layer {
 
     Layer();
     Layer(const std::string& key);
-    Layer(const std::string& key, const Version& file_format_version, const Version& api_version,
-          const std::string& implementation_version, const std::string& library_path);
+
+    LayerId GetId() const;
 
     bool IsValid() const;
 
@@ -113,8 +111,9 @@ class Layer {
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
 
-    LayerLoadStatus Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
-                         ConfiguratorMode configurator_mode);
+    LayerLoadStatus Load(const QJsonObject& json_layer_object);
+
+    LayerDescriptor descriptor;
 
    private:
     Layer& operator=(const Layer&) = delete;

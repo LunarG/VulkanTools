@@ -81,6 +81,8 @@ class Path {
     friend bool operator!=(const Path& a, const Path& b);
 };
 
+bool Found(const std::vector<Path>& data, const Path& path);
+
 std::string AbsolutePath(Path::Builtin path, bool native_separator = true);
 std::string RelativePath(Path::Builtin path);
 
@@ -97,6 +99,10 @@ void SetHomePath(const std::string& path);
 void SetDownloadPath(const std::string& path);
 
 std::vector<Path> CollectFilePaths(const Path& directory, const char* filter = "*json");
+
+std::vector<Path> CollectLayersPaths(const Path& directory);
+
+std::vector<Path> CollectDriversPaths(const Path& directory);
 
 std::vector<std::string> CollectProfileNamesFromFile(const Path& profile_path);
 

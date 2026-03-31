@@ -31,9 +31,7 @@
 #include <set>
 
 struct LayerDisplay {
-    std::string key;
-    Path manifest_path;
-    Version api_version;
+    LayerId id;
     LayerDescriptor descriptor;
 };
 
@@ -51,31 +49,44 @@ class LayerManager : public Serialize {
     bool Empty() const;
     std::size_t Size() const;
 
-    std::vector<Path> GatherManifests(const std::string& layer_name) const;
-    std::vector<Version> GatherVersions(const std::string& layer_name) const;
-    const Layer* Find(const std::string& layer_name, const Version& version = Version::LATEST) const;
-    const Layer* FindLastModified(const std::string& layer_name, const Version& version) const;
+    std::vector<Path> GatherManifests(const std::string& layer_key) const;
+    std::vector<Version> GatherVersions(const std::string& layer_key) const;
+
+    const Layer* Find(LayerId id, bool enable_only = true) const;
+    Layer* Find(LayerId id, bool enable_only = true);
+
+    const Layer* Find(const std::string& layer_key, const Version& version = Version::LATEST) const;
+    const Layer* FindLastModified(const std::string& layer_key, const Version& version) const;
     const Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false) const;
     Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false);
 
     void LoadAllInstalledLayers(ConfiguratorMode configurator_mode);
-    LayerLoadStatus LoadLayer(const Path& layer_path, LayerType type, ConfiguratorMode configurator_mode);
+    LayerLoadStatus LoadLayers(const Path& layer_path, LayerType type, ConfiguratorMode configurator_mode);
 
-    void AppendPath(const Path& path, LayerType type, bool added = false);
-    void RemovePath(const Path& path);
-
-    bool IsEnabled(const Path& manifest_path) const;
-    void Enable(const Path& manifest_path, bool enabled);
+    void RemoveLayer(LayerId id);
+    void EnableLayer(LayerId id, bool enable);
 
     std::set<LayerDisplay> BuildLayerDisplayList() const;
+    std::map<Path, std::map<std::string, LayerDisplay>> BuildLayerStoreList() const;
+    std::vector<Path> BuildLayerPaths() const;
 
     std::vector<std::string> GatherLayerNames() const;
+
+    std::set<Path> gui_added_layers_paths;
 
     std::vector<Layer> available_layers;
     Path last_layers_dir = Path(Path::HOME);
     bool validate_manifests = false;
-    std::map<Path, LayerDescriptor> layers_found;
+
+    void AppendInit(const Path& path, const std::vector<LayerDisplay>& layers) {
+        this->layer_init.insert(std::make_pair(path, layers));
+    }
 
    private:
-    std::set<Path> layers_removed;
+    LayerLoadStatus LoadLayer(const QJsonObject& json_layer_object, const Path& layer_path, LayerType type,
+                              const std::string& last_modified, Version file_format_version, LayerDescriptor descriptor);
+
+    void ApplyLayerDescriptor();
+
+    std::map<Path, std::vector<LayerDisplay>> layer_init;
 };

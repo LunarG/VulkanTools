@@ -33,7 +33,6 @@
 #include "util.h"
 #include "path.h"
 #include "json.h"
-#include "json_validator.h"
 #include "is_dll_32.h"
 #include "configurator.h"
 
@@ -42,36 +41,22 @@
 #include <QMessageBox>
 #include <QJsonArray>
 #include <QCheckBox>
-#include <QDesktopServices>
-#include <QFileDialog>
 
 #include <cassert>
 #include <string>
 #include <algorithm>
 
-bool Found(const std::vector<Path>& data, const Path& path) {
-    for (std::size_t i = 0, n = data.size(); i < n; ++i) {
-        if (data[i] == path) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT) {}
 
 Layer::Layer(const std::string& key) : key(key), status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT) {}
 
-Layer::Layer(const std::string& key, const Version& file_format_version, const Version& api_version,
-             const std::string& implementation_version, const std::string& library_path)
-    : key(key),
-      file_format_version(file_format_version),
-      binary_path(library_path),
-      api_version(api_version),
-      implementation_version(implementation_version),
-      status(STATUS_STABLE),
-      platforms(PLATFORM_DESKTOP_BIT) {}
+LayerId Layer::GetId() const {
+    LayerId id;
+    id.manifest_path = this->manifest_path;
+    id.key = this->key;
+    id.api_version = this->api_version;
+    return id;
+}
 
 bool Layer::IsValid() const {
     return file_format_version != Version::NONE && !key.empty() && !binary_path.Empty() && api_version != Version::NONE &&
@@ -176,71 +161,7 @@ void Layer::FillPresetSettings(SettingDataSet& settings_data, const std::vector<
     }
 }
 
-LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool request_validate_manifest,
-                            ConfiguratorMode configurator_mode) {
-    this->type = type;  // Set layer type, no way to know this from the json file
-
-    if (full_path_to_file.Empty()) {
-        return LAYER_LOAD_IGNORED;
-    }
-
-    QFile file(full_path_to_file.AbsolutePath().c_str());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return LAYER_LOAD_FAILED;
-    }
-
-    QString json_text = file.readAll();
-    file.close();
-
-    this->manifest_path = full_path_to_file;
-    this->last_modified = full_path_to_file.LastModified();
-
-    // Convert the text to a JSON document & validate it.
-    // It does need to be a valid json formatted file.
-    QJsonParseError json_parse_error;
-    const QJsonDocument& json_document = QJsonDocument::fromJson(json_text.toUtf8(), &json_parse_error);
-    if (json_parse_error.error != QJsonParseError::NoError) {
-        return LAYER_LOAD_FAILED;
-    }
-
-    // Make sure it's not empty
-    if (json_document.isNull() || json_document.isEmpty()) {
-        return LAYER_LOAD_FAILED;
-    }
-
-    // First check it's a layer manifest, ignore otherwise.
-    const QJsonObject& json_root_object = json_document.object();
-    if (json_root_object.value("file_format_version") == QJsonValue::Undefined) {
-        return LAYER_LOAD_IGNORED;  // Not a layer JSON file
-    }
-    if (json_root_object.value("layer") == QJsonValue::Undefined) {
-        return LAYER_LOAD_IGNORED;  // Not a layer JSON file
-    }
-
-    this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
-    if (this->file_format_version.GetMajor() > 1) {
-        switch (configurator_mode) {
-            default: {
-            } break;
-            case CONFIGURATOR_MODE_GUI: {
-                QMessageBox alert;
-                alert.setWindowTitle("Failed to load a layer manifest...");
-                alert.setText(format("Unsupported layer file format: %s.", this->file_format_version.str().c_str()).c_str());
-                alert.setInformativeText(
-                    format("The %s layer is being ignored.", full_path_to_file.AbsolutePath().c_str()).c_str());
-                alert.setIcon(QMessageBox::Critical);
-                alert.exec();
-            } break;
-            case CONFIGURATOR_MODE_CMD: {
-                fprintf(stderr, "vkconfig: [ERROR] Unsupported layer file format: %s\n", this->file_format_version.str().c_str());
-                fprintf(stderr, "\n  (%s layer is ignored\n)", full_path_to_file.AbsolutePath().c_str());
-            } break;
-        }
-        return LAYER_LOAD_INVALID;
-    }
-
-    const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
-
+LayerLoadStatus Layer::Load(const QJsonObject& json_layer_object) {
     this->key = ReadStringValue(json_layer_object, "name");
 
     if (this->key == "VK_LAYER_LUNARG_override" || !(this->key.rfind("VK_", 0) == 0)) {
@@ -248,50 +169,6 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
     }
 
     this->api_version = ReadVersionValue(json_layer_object, "api_version");
-
-    JsonValidator validator;
-
-    const bool is_valid = request_validate_manifest ? validator.Check(json_text) : true;
-
-    if (!is_valid) {
-        switch (configurator_mode) {
-            default: {
-            } break;
-            case CONFIGURATOR_MODE_GUI: {
-                QMessageBox alert;
-                alert.setWindowTitle("Failed to load a layer manifest...");
-                alert.setText(format("%s is not a valid layer file", full_path_to_file.AbsolutePath().c_str()).c_str());
-                alert.setInformativeText("Do you want to save the validation log?");
-                alert.setIcon(QMessageBox::Critical);
-                alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-                alert.setDefaultButton(QMessageBox::Yes);
-                int result = alert.exec();
-                if (result == QMessageBox::Yes) {
-                    const QString& selected_path = QFileDialog::getSaveFileName(
-                        nullptr, format("Export %s validation log", full_path_to_file.AbsolutePath().c_str()).c_str(),
-                        (AbsolutePath(Path::HOME) + "/" + full_path_to_file.Basename() + "_log.txt").c_str(), "Log(*.txt)");
-                    QFile log_file(selected_path);
-                    const bool result = log_file.open(QIODevice::WriteOnly | QIODevice::Text);
-                    if (result) {
-                        QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path));
-                        log_file.write(validator.message.toStdString().c_str());
-                        log_file.close();
-                    } else {
-                        QMessageBox alert;
-                        alert.setWindowTitle("Failed to save layer manifest log...");
-                        alert.setText(format("Couldn't not open %s file...", selected_path.toStdString().c_str()).c_str());
-                        alert.setIcon(QMessageBox::Critical);
-                        alert.exec();
-                    }
-                }
-            } break;
-            case CONFIGURATOR_MODE_CMD: {
-                fprintf(stderr, "vkconfig: [ERROR] Couldn't validate layer file: %s\n", full_path_to_file.AbsolutePath().c_str());
-                fprintf(stderr, "\n%s\n)", validator.message.toStdString().c_str());
-            } break;
-        }
-        return LAYER_LOAD_INVALID;
-    }
 
     const QJsonValue& json_library_path_value = json_layer_object.value("library_path");
     if (json_library_path_value != QJsonValue::Undefined) {
@@ -301,7 +178,7 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
     const Path& binary = this->manifest_path.AbsoluteDir() + "/" + this->binary_path.AbsolutePath();
     if (::IsDLL32Bit(binary.AbsolutePath())) {
         this->is_32bits = true;
-        return LAYER_LOAD_INVALID;
+        return LAYER_LOAD_IGNORED;
     }
 
     if (json_layer_object.value("prefix") != QJsonValue::Undefined) {
@@ -390,9 +267,127 @@ LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, bool 
         }
     }
 
-    return this->IsValid() ? LAYER_LOAD_ADDED : LAYER_LOAD_INVALID;  // Not all JSON file are layer JSON valid
+    return this->IsValid() ? LAYER_LOAD_ADDED : LAYER_LOAD_INVALID;
 }
 
+/*
+LayerLoadStatus Layer::Load(const Path& full_path_to_file, LayerType type, ConfiguratorMode configurator_mode) {
+    this->type = type;  // Set layer type, no way to know this from the json file
+
+    if (full_path_to_file.Empty()) {
+        return LAYER_LOAD_IGNORED;
+    }
+
+    QFile file(full_path_to_file.AbsolutePath().c_str());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return LAYER_LOAD_FAILED;
+    }
+
+    QString json_text = file.readAll();
+    file.close();
+
+    this->manifest_path = full_path_to_file;
+    this->last_modified = full_path_to_file.LastModified();
+
+    // Convert the text to a JSON document & validate it.
+    // It does need to be a valid json formatted file.
+    QJsonParseError json_parse_error;
+    const QJsonDocument& json_document = QJsonDocument::fromJson(json_text.toUtf8(), &json_parse_error);
+    if (json_parse_error.error != QJsonParseError::NoError) {
+        return LAYER_LOAD_FAILED;
+    }
+
+    // Make sure it's not empty
+    if (json_document.isNull() || json_document.isEmpty()) {
+        return LAYER_LOAD_FAILED;
+    }
+
+    // First check it's a layer manifest, ignore otherwise.
+    const QJsonObject& json_root_object = json_document.object();
+    if (json_root_object.value("file_format_version") == QJsonValue::Undefined) {
+        return LAYER_LOAD_IGNORED;  // Not a layer JSON file
+    }
+    if (json_root_object.value("layer") == QJsonValue::Undefined && json_root_object.value("layers") == QJsonValue::Undefined) {
+        return LAYER_LOAD_IGNORED;  // Not a layer JSON file
+    }
+
+    this->file_format_version = ReadVersionValue(json_root_object, "file_format_version");
+    if (this->file_format_version.GetMajor() > 1) {
+        switch (configurator_mode) {
+            default: {
+            } break;
+            case CONFIGURATOR_MODE_GUI: {
+                QMessageBox alert;
+                alert.setWindowTitle("Failed to load a layer manifest...");
+                alert.setText(format("Unsupported layer file format: %s.", this->file_format_version.str().c_str()).c_str());
+                alert.setInformativeText(
+                    format("The %s layer is being ignored.", full_path_to_file.AbsolutePath().c_str()).c_str());
+                alert.setIcon(QMessageBox::Critical);
+                alert.exec();
+            } break;
+            case CONFIGURATOR_MODE_CMD: {
+                fprintf(stderr, "vkconfig: [ERROR] Unsupported layer file format: %s\n", this->file_format_version.str().c_str());
+                fprintf(stderr, "\n  (%s layer is ignored\n)", full_path_to_file.AbsolutePath().c_str());
+            } break;
+        }
+        return LAYER_LOAD_INVALID;
+    }
+
+    JsonValidator validator;
+
+    const bool is_valid = request_validate_manifest ? validator.Check(json_text) : true;
+    if (!is_valid) {
+        switch (configurator_mode) {
+            default: {
+            } break;
+            case CONFIGURATOR_MODE_GUI: {
+                QMessageBox alert;
+                alert.setWindowTitle("Failed to load a layer manifest...");
+                alert.setText(format("%s is not a valid layer file", full_path_to_file.AbsolutePath().c_str()).c_str());
+                alert.setInformativeText("Do you want to save the validation log?");
+                alert.setIcon(QMessageBox::Critical);
+                alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                alert.setDefaultButton(QMessageBox::Yes);
+                int result = alert.exec();
+                if (result == QMessageBox::Yes) {
+                    const QString& selected_path = QFileDialog::getSaveFileName(
+                        nullptr, format("Export %s validation log", full_path_to_file.AbsolutePath().c_str()).c_str(),
+                        (AbsolutePath(Path::HOME) + "/" + full_path_to_file.Basename() + "_log.txt").c_str(), "Log(*.txt)");
+                    QFile log_file(selected_path);
+                    const bool result = log_file.open(QIODevice::WriteOnly | QIODevice::Text);
+                    if (result) {
+                        QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path));
+                        log_file.write(validator.message.toStdString().c_str());
+                        log_file.close();
+                    } else {
+                        QMessageBox alert;
+                        alert.setWindowTitle("Failed to save layer manifest log...");
+                        alert.setText(format("Couldn't not open %s file...", selected_path.toStdString().c_str()).c_str());
+                        alert.setIcon(QMessageBox::Critical);
+                        alert.exec();
+                    }
+                }
+            } break;
+            case CONFIGURATOR_MODE_CMD: {
+                fprintf(stderr, "vkconfig: [ERROR] Couldn't validate layer file: %s\n", full_path_to_file.AbsolutePath().c_str());
+                fprintf(stderr, "\n%s\n)", validator.message.toStdString().c_str());
+            } break;
+        }
+        return LAYER_LOAD_INVALID;
+    }
+
+    if (json_root_object.value("layers") == QJsonValue::Undefined) {
+        const QJsonArray& json_layers_array = json_root_object.value("layers").toArray();
+        for (int i = 0, n = json_layers_array.size(); i < n; ++i) {
+            const QJsonObject& json_layer_object = json_layers_array[i].toObject();
+            return this->LoadLayer(json_layer_object);
+        }
+    } else {
+        const QJsonObject& json_layer_object = ReadObject(json_root_object, "layer");
+        return this->LoadLayer(json_layer_object);
+    }
+}
+*/
 bool operator<(const Layer& layer_a, const Layer& layer_b) {
     if (layer_a.key == layer_b.key) {
         return layer_a.api_version < layer_b.api_version;

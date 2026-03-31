@@ -38,6 +38,7 @@ class TabLayers : public Tab {
    public Q_SLOTS:
     void on_paths_changed();
     void on_paths_toggled();
+    void on_layers_edit_pressed();
     void on_layers_append_pressed();
     void on_layers_browse_pressed();
     void on_layers_reload_pressed();

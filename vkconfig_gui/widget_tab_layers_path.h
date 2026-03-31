@@ -31,7 +31,7 @@ class LayerWidget : public QCheckBox {
     Q_OBJECT
 
    public:
-    LayerWidget(const Layer *layer);
+    LayerWidget(const Layer &layer);
 
    protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -45,8 +45,6 @@ class LayerWidget : public QCheckBox {
     void itemToggled();
 
    public:
-    std::string layer_key;
-    Version api_version;
-    Path manifest_path;
+    LayerId layer_id;
     QPushButton *buttom_remove = nullptr;
 };

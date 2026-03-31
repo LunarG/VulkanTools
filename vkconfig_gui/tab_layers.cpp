@@ -44,7 +44,9 @@ TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : T
 
     this->connect(this->ui->layers_browse_button, SIGNAL(clicked()), this, SLOT(on_layers_browse_pressed()));
     this->connect(this->ui->layers_reload_button, SIGNAL(clicked()), this, SLOT(on_layers_reload_pressed()));
+    this->connect(this->ui->layers_path_lineedit, SIGNAL(editingFinished()), this, SLOT(on_layers_append_pressed()));
     this->connect(this->ui->layers_path_lineedit, SIGNAL(returnPressed()), this, SLOT(on_layers_append_pressed()));
+    // this->connect(this->ui->layers_path_lineedit, SIGNAL(clicked()), this, SLOT(on_layers_edit_pressed()));
 
     this->connect(this->ui->layers_search, SIGNAL(textEdited(QString)), this, SLOT(on_search_textEdited(QString)));
     this->connect(this->ui->layers_search_clear, SIGNAL(clicked()), this, SLOT(on_search_clear_pressed()));
@@ -77,14 +79,14 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
             const std::set<LayerDisplay> &layer_display_list = configurator.layers.BuildLayerDisplayList();
 
             for (auto it = layer_display_list.begin(), end = layer_display_list.end(); it != end; ++it) {
-                const Layer *layer = configurator.layers.FindFromManifest(it->manifest_path, true);
+                const Layer *layer = configurator.layers.Find(it->id, false);
                 if (layer == nullptr) {
                     continue;
                 }
 
                 if (!this->layer_filter.empty()) {
                     const std::string status = layer->status == STATUS_STABLE ? "" : format(" (%s)", ::GetToken(layer->status));
-                    const std::string text = format("%s - %s%s, %s layer", layer->key.c_str(), layer->api_version.str().c_str(),
+                    const std::string text = format("%s - %s%s - %s layer", layer->key.c_str(), layer->api_version.str().c_str(),
                                                     status.c_str(), ::GetToken(layer->type));
 
                     std::string lower_text = ::ToLowerCase(text);
@@ -98,19 +100,12 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
                 item->setFlags(item->flags() | Qt::ItemIsSelectable);
                 item->setSizeHint(QSize(0, ITEM_HEIGHT));
 
-                LayerWidget *layer_widget = new LayerWidget(layer);
-                layer_widget->setChecked(it->descriptor.enabled);
-                if (it->descriptor.added) {
-                    QPalette palette = layer_widget->palette();
-                    palette.setColor(QPalette::Active, QPalette::WindowText, QColor(255, 0, 0));
-                    layer_widget->setPalette(palette);
-                }
-
+                LayerWidget *layer_widget = new LayerWidget(*layer);
                 this->connect(layer_widget, SIGNAL(itemChanged()), this, SLOT(on_paths_changed()));
                 this->connect(layer_widget, SIGNAL(itemToggled()), this, SLOT(on_paths_toggled()));
 
-                ui->layers_list->addItem(item);
-                ui->layers_list->setItemWidget(item, layer_widget);
+                this->ui->layers_list->addItem(item);
+                this->ui->layers_list->setItemWidget(item, layer_widget);
             }
         } break;
         default: {
@@ -122,7 +117,15 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
 
 void TabLayers::UpdateUI(UpdateUIMode ui_update_mode) {
     const Configurator &configurator = Configurator::Get();
+    /*
+    QSizePolicy policy_search = this->ui->layers_search->sizePolicy();
+    policy_search.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+    this->ui->layers_search->setSizePolicy(policy_search);
 
+    QSizePolicy policy_append = this->ui->layers_path_lineedit->sizePolicy();
+    policy_append.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+    this->ui->layers_path_lineedit->setSizePolicy(policy_append);
+    */
     this->ui->layers_search_clear->setEnabled(!this->ui->layers_search->text().isEmpty());
     this->ui->layers_search->setFocus();
     this->ui->layers_progress->resetFormat();
@@ -158,9 +161,23 @@ void TabLayers::on_paths_toggled() {
     this->UpdateUI_LayersPaths(UPDATE_REFRESH_UI);
 }
 
+void TabLayers::on_layers_edit_pressed() {
+    /*
+    QSizePolicy policy_search = this->ui->layers_search->sizePolicy();
+    policy_search.setHorizontalPolicy(QSizePolicy::Preferred);
+    this->ui->layers_search->setSizePolicy(policy_search);
+
+    QSizePolicy policy_append = this->ui->layers_path_lineedit->sizePolicy();
+    policy_append.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+    this->ui->layers_path_lineedit->setSizePolicy(policy_append);
+    */
+}
+
 void TabLayers::on_layers_append_pressed() { this->LoadLayersManifest(this->ui->layers_path_lineedit->text()); }
 
 void TabLayers::on_layers_browse_pressed() {
+    this->on_layers_edit_pressed();
+
     Configurator &configurator = Configurator::Get();
 
     const QString selected_path =
@@ -170,7 +187,18 @@ void TabLayers::on_layers_browse_pressed() {
     this->LoadLayersManifest(selected_path);
 }
 
-void TabLayers::on_focus_search() { this->ui->layers_search->setFocus(); }
+void TabLayers::on_focus_search() {
+    this->ui->layers_search->setFocus();
+    /*
+    QSizePolicy policy_search = this->ui->layers_search->sizePolicy();
+    policy_search.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+    this->ui->layers_search->setSizePolicy(policy_search);
+
+    QSizePolicy policy_append = this->ui->layers_path_lineedit->sizePolicy();
+    policy_append.setHorizontalPolicy(QSizePolicy::Preferred);
+    this->ui->layers_path_lineedit->setSizePolicy(policy_append);
+    */
+}
 
 void TabLayers::on_search_textEdited(const QString &text) {
     this->layer_filter = text.toStdString();
@@ -190,6 +218,8 @@ void TabLayers::on_search_clear_pressed() {
 }
 
 void TabLayers::on_layers_reload_pressed() {
+    this->ui->layers_search->setVisible(false);
+    this->ui->layers_search_clear->setVisible(false);
     this->ui->layers_path_lineedit->setVisible(false);
     this->ui->layers_browse_button->setVisible(false);
     this->ui->layers_progress->setVisible(true);
@@ -200,11 +230,7 @@ void TabLayers::on_layers_reload_pressed() {
 
     std::vector<int> layers_count(LAYER_LOAD_COUNT, 0);
 
-    const std::vector<Path> &layers_paths = ::CollectFilePaths(new_path);
-
-    for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        configurator.layers.AppendPath(layers_paths[i], LAYER_TYPE_EXPLICIT, true);
-    }
+    const std::vector<Path> &layers_paths = ::CollectLayersPaths(new_path);
 
     this->ui->layers_progress->setMaximum(static_cast<int>(layers_paths.size()));
     this->ui->layers_progress->setValue(0);
@@ -217,7 +243,7 @@ void TabLayers::on_layers_reload_pressed() {
         this->ui->layers_progress->setValue(static_cast<int>(i + 1));
         this->ui->layers_progress->update();
 
-        LayerLoadStatus status = configurator.layers.LoadLayer(layers_paths[i], LAYER_TYPE_EXPLICIT, configurator.mode);
+        LayerLoadStatus status = configurator.layers.LoadLayers(layers_paths[i], LAYER_TYPE_EXPLICIT, configurator.mode);
         ++layers_count[status];
 
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
@@ -248,6 +274,8 @@ void TabLayers::on_layers_reload_pressed() {
         }
     }
 
+    this->ui->layers_search->setVisible(true);
+    this->ui->layers_search_clear->setVisible(true);
     this->ui->layers_path_lineedit->setVisible(true);
     this->ui->layers_browse_button->setVisible(true);
     this->ui->layers_progress->setVisible(false);
@@ -261,6 +289,8 @@ void TabLayers::LoadLayersManifest(const QString &selected_path) {
         if (!configurator.layers.last_layers_dir.Empty()) {
             this->ui->layers_path_lineedit->setText(configurator.layers.last_layers_dir.AbsolutePath().c_str());
         }
+
+        configurator.layers.gui_added_layers_paths.insert(configurator.layers.last_layers_dir);
 
         this->on_layers_reload_pressed();
 

@@ -26,7 +26,7 @@ static void InitLayer(LayerManager& layer_manager, const char* dir) {
     const std::vector<Path>& layers_paths = ::CollectFilePaths(dir);
 
     for (std::size_t i = 0, n = layers_paths.size(); i < n; ++i) {
-        layer_manager.LoadLayer(layers_paths[i], LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
+        layer_manager.LoadLayers(layers_paths[i], LAYER_TYPE_EXPLICIT, CONFIGURATOR_MODE_CMD);
     }
 }
 

@@ -92,7 +92,7 @@ static int RunLayersPath(Configurator& configurator, const CommandLine& command_
     const std::set<LayerDisplay>& layer_display_list = configurator.layers.BuildLayerDisplayList();
 
     for (auto it = layer_display_list.begin(), end = layer_display_list.end(); it != end; ++it) {
-        const Layer* layer = configurator.layers.FindFromManifest(it->manifest_path, true);
+        const Layer* layer = configurator.layers.FindFromManifest(it->id.manifest_path, true);
         if (layer == nullptr) {
             continue;
         }

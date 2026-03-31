@@ -318,7 +318,19 @@ void TabDrivers::on_driver_append_pressed() {
 
     configurator.last_driver_dir = selected_path;
 
-    const std::vector<Path> drivers_paths = ::CollectFilePaths(selected_path);
+    const std::vector<Path> drivers_paths = ::CollectDriversPaths(selected_path);
+    if (drivers_paths.empty()) {
+        QMessageBox alert;
+        alert.setWindowTitle("No Vulkan Driver Manifest found in the directory");
+        alert.setText("The directory:");
+        alert.setInformativeText(selected_path.AbsolutePath().c_str());
+        alert.setStandardButtons(QMessageBox::Ok);
+        alert.setDefaultButton(QMessageBox::Ok);
+        alert.setIcon(QMessageBox::Warning);
+        alert.exec();
+        return;
+    }
+
     for (std::size_t i = 0, n = drivers_paths.size(); i < n; ++i) {
         configurator.driver_paths.insert(std::pair(drivers_paths[i], true));
     }
