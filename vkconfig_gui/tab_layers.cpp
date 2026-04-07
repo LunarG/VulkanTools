@@ -46,7 +46,6 @@ TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : T
     this->connect(this->ui->layers_reload_button, SIGNAL(clicked()), this, SLOT(on_layers_reload_pressed()));
     this->connect(this->ui->layers_path_lineedit, SIGNAL(editingFinished()), this, SLOT(on_layers_append_pressed()));
     this->connect(this->ui->layers_path_lineedit, SIGNAL(returnPressed()), this, SLOT(on_layers_append_pressed()));
-    // this->connect(this->ui->layers_path_lineedit, SIGNAL(clicked()), this, SLOT(on_layers_edit_pressed()));
 
     this->connect(this->ui->layers_search, SIGNAL(textEdited(QString)), this, SLOT(on_search_textEdited(QString)));
     this->connect(this->ui->layers_search_clear, SIGNAL(clicked()), this, SLOT(on_search_clear_pressed()));
@@ -58,8 +57,6 @@ TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : T
     QShortcut *shortcut_reload = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_R), this->ui->layers_list);
     this->connect(shortcut_reload, SIGNAL(activated()), this, SLOT(on_layers_reload_pressed()));
 
-    // this->ui->layers_browse_button->installEventFilter(&window);
-    // this->ui->layers_reload_button->installEventFilter(&window);
     this->ui->layers_list->installEventFilter(&window);
 }
 
@@ -117,15 +114,7 @@ void TabLayers::UpdateUI_LayersPaths(UpdateUIMode ui_update_mode) {
 
 void TabLayers::UpdateUI(UpdateUIMode ui_update_mode) {
     const Configurator &configurator = Configurator::Get();
-    /*
-    QSizePolicy policy_search = this->ui->layers_search->sizePolicy();
-    policy_search.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
-    this->ui->layers_search->setSizePolicy(policy_search);
 
-    QSizePolicy policy_append = this->ui->layers_path_lineedit->sizePolicy();
-    policy_append.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
-    this->ui->layers_path_lineedit->setSizePolicy(policy_append);
-    */
     this->ui->layers_search_clear->setEnabled(!this->ui->layers_search->text().isEmpty());
     this->ui->layers_search->setFocus();
     this->ui->layers_progress->resetFormat();
@@ -161,18 +150,6 @@ void TabLayers::on_paths_toggled() {
     this->UpdateUI_LayersPaths(UPDATE_REFRESH_UI);
 }
 
-void TabLayers::on_layers_edit_pressed() {
-    /*
-    QSizePolicy policy_search = this->ui->layers_search->sizePolicy();
-    policy_search.setHorizontalPolicy(QSizePolicy::Preferred);
-    this->ui->layers_search->setSizePolicy(policy_search);
-
-    QSizePolicy policy_append = this->ui->layers_path_lineedit->sizePolicy();
-    policy_append.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
-    this->ui->layers_path_lineedit->setSizePolicy(policy_append);
-    */
-}
-
 void TabLayers::on_layers_append_pressed() { this->LoadLayersManifest(this->ui->layers_path_lineedit->text()); }
 
 void TabLayers::on_layers_browse_pressed() {
@@ -187,18 +164,7 @@ void TabLayers::on_layers_browse_pressed() {
     this->LoadLayersManifest(selected_path);
 }
 
-void TabLayers::on_focus_search() {
-    this->ui->layers_search->setFocus();
-    /*
-    QSizePolicy policy_search = this->ui->layers_search->sizePolicy();
-    policy_search.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
-    this->ui->layers_search->setSizePolicy(policy_search);
-
-    QSizePolicy policy_append = this->ui->layers_path_lineedit->sizePolicy();
-    policy_append.setHorizontalPolicy(QSizePolicy::Preferred);
-    this->ui->layers_path_lineedit->setSizePolicy(policy_append);
-    */
-}
+void TabLayers::on_focus_search() { this->ui->layers_search->setFocus(); }
 
 void TabLayers::on_search_textEdited(const QString &text) {
     this->layer_filter = text.toStdString();
