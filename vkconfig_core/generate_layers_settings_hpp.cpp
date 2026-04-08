@@ -278,6 +278,16 @@ bool GenerateSettingsCode(Configurator& configurator, ExportHppMode mode, const 
 
     stream << "// `LayerSettings` allows initializing layer settings from Vulkan application code.\n";
     stream << "struct LayerSettings {\n";
+    stream << "\tstd::vector<std::string> layer_list {\n";
+    for (std::size_t parameter_index = 0, parameter_count = configuration->parameters.size(); parameter_index < parameter_count;
+         ++parameter_index) {
+        const Parameter& parameter = configuration->parameters[parameter_index];
+        if (parameter.control == LAYER_CONTROL_ON && parameter.builtin == LAYER_BUILTIN_NONE) {
+            stream << format("\t\t\"%s\",\n", parameter.key.c_str()).c_str();
+        }
+    }
+    stream << "\t};\n";
+
     for (std::size_t parameter_index = 0, parameter_count = configuration->parameters.size(); parameter_index < parameter_count;
          ++parameter_index) {
         const Parameter& parameter = configuration->parameters[parameter_index];
@@ -315,10 +325,18 @@ bool GenerateSettingsCode(Configurator& configurator, ExportHppMode mode, const 
     stream << "\t// \tconst VkLayerSettingEXT*    pSettings;\n";
     stream << "\t// } VkLayerSettingsCreateInfoEXT;\n\n";
 
+    stream << "\tstd::vector<const char*> layers() {\n";
+    stream << "\t\tstd::vector<const char*> results;\n";
+    stream << "\t\tfor (std::size_t i = 0, n = layer_list.size(); i < n; ++i) {\n";
+    stream << "\t\t\tresults.push_back(layer_list[i].c_str());\n";
+    stream << "\t\t};\n";
+    stream << "\t\treturn results;\n";
+    stream << "\t};\n\n";
+
     if (mode == EXPORT_HPP_VULKAN_HPP) {
-        stream << "\tstd::vector<vk::LayerSettingEXT> info() {\n";
+        stream << "\tstd::vector<vk::LayerSettingEXT> settings() {\n";
     } else {
-        stream << "\tstd::vector<VkLayerSettingEXT> info() {\n";
+        stream << "\tstd::vector<VkLayerSettingEXT> settings() {\n";
     }
 
     for (std::size_t parameter_index = 0, parameter_count = configuration->parameters.size(); parameter_index < parameter_count;

@@ -57,6 +57,15 @@ std::string Read(const Path& path) {
     return data.toStdString();
 }
 
+TEST(test_settings, init) {
+    const std::vector<VkLayerSettingEXT>& settings = layer_settings.settings();
+    std::vector<const char*> layers = layer_settings.layers();
+
+    VkInstanceCreateInfo create_info;
+    create_info.enabledLayerCount = static_cast<uint32_t>(layers.size());
+    create_info.ppEnabledLayerNames = &layers[0];
+}
+
 TEST(test_settings, config_generate_html) {
     const std::string path(std::string(CMAKE_CURRENT_SOURCE_DIR) + "/tmp");
 
