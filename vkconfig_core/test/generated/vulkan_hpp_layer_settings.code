@@ -300,6 +300,9 @@ private:
 
 // `LayerSettings` allows initializing layer settings from Vulkan application code.
 struct LayerSettings {
+	std::vector<std::string> layer_list {
+		"VK_LAYER_LUNARG_reference_1_2_1",
+	};
 	Reference121SettingData reference_1_2_1;
 
 	// Use for VkLayerSettingsCreateInfoEXT `settingCount` and `pSettings` argument
@@ -311,7 +314,15 @@ struct LayerSettings {
 	// 	const VkLayerSettingEXT*    pSettings;
 	// } VkLayerSettingsCreateInfoEXT;
 
-	std::vector<vk::LayerSettingEXT> info() {
+	std::vector<const char*> layers() {
+		std::vector<const char*> results;
+		for (std::size_t i = 0, n = layer_list.size(); i < n; ++i) {
+			results.push_back(layer_list[i].c_str());
+		};
+		return results;
+	};
+
+	std::vector<vk::LayerSettingEXT> settings() {
 		this->reference_1_2_1.init();
 
 		std::vector<vk::LayerSettingEXT> init{
