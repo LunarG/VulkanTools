@@ -26,7 +26,7 @@
 
 #include "../vkconfig_core/type_generate_settings.h"
 
-#include <QPushButton>
+#include <QComboBox>
 #include <QAbstractItemView>
 
 class TabConfigurations : public Tab {
@@ -48,8 +48,6 @@ class TabConfigurations : public Tab {
     void UpdateUI_Settings(UpdateUIMode ui_update_mode);
 
    public Q_SLOTS:
-    void on_configurations_advanced_toggle_pressed();
-
     void on_configurations_override_toggled();
     void on_configurations_override_toggled(bool checked);
     void on_configurations_executable_scope_currentIndexChanged(int index);
@@ -68,18 +66,20 @@ class TabConfigurations : public Tab {
     void on_configuration_settings_file_disable_pressed();
 
     void on_configurations_layers_list_currentRowChanged(int currentRow);
+    void on_configurations_layers_display_currentIndexChanged(int index);
 
     void on_configurations_layerVersionChanged();
 
    private:
     SettingsTreeManager _settings_tree_manager;
-    QPushButton *advanced_mode = nullptr;
+    QComboBox *layer_display_mode = nullptr;
 
     void OnContextMenuNewClicked(ListItem *item);
     void OnContextMenuImportClicked(ListItem *item);
     void OnContextMenuRenameClicked(ListItem *item);
     void OnContextMenuDuplicateClicked(ListItem *item);
     void OnContextMenuDeleteClicked(ListItem *item);
+    void OnContextMenuResetLayersOrderClicked(ListItem *item);
     void OnContextMenuResetOneClicked(ListItem *item);
     void OnContextMenuResetAllClicked(ListItem *item);
     void OnContextMenuExportConfigsClicked(ListItem *item);

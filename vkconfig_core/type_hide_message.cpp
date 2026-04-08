@@ -48,7 +48,8 @@ const char* GetToken(HideMessageType value) {
                                 "HIDE_MESSAGE_WARN_DARK_THEME_ICON",
                                 "HIDE_MESSAGE_QUESTION_REMOVING_LAYERS_PATH",
                                 "HIDE_MESSAGE_QUESTION_REMOVING_DRIVER_PATH",
-                                "HIDE_MESSAGE_ERROR_32BIT"};
+                                "HIDE_MESSAGE_ERROR_32BIT",
+                                "HIDE_MESSAGE_LAYERS_ORDER_RESET"};
     static_assert(std::size(TOKENS) == HIDE_MESSAGE_COUNT);
 
     if (value >= HIDE_MESSAGE_FIRST && value <= HIDE_MESSAGE_LAST) {

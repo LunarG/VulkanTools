@@ -15,21 +15,25 @@
  * limitations under the License.
  *
  * Authors:
+ * - Richard S. Wright Jr. <richard@lunarg.com>
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
 #pragma once
 
-enum LayerBuiltin {
-    LAYER_BUILTIN_NONE = 0,
-    LAYER_BUILTIN_UNORDERED,
+enum LayersDisplayMode {  // Enum value can't be changed
+    LAYERS_DISPLAY_ALL = 0,
+    LAYERS_DISPLAY_EXPLICIT_ONLY,
+    LAYERS_DISPLAY_ENABLED_ONLY,
 
-    LAYER_BUILTIN_FIRST = LAYER_BUILTIN_NONE,
-    LAYER_BUILTIN_LAST = LAYER_BUILTIN_UNORDERED,
+    LAYERS_DISPLAY_FIRST = LAYERS_DISPLAY_ALL,
+    LAYERS_DISPLAY_LAST = LAYERS_DISPLAY_ENABLED_ONLY
 };
 
-enum { LAYER_BUILTIN_COUNT = LAYER_BUILTIN_LAST - LAYER_BUILTIN_FIRST + 1 };
+enum { LAYERS_DISPLAY_COUNT = LAYERS_DISPLAY_LAST - LAYERS_DISPLAY_FIRST + 1 };
 
-LayerBuiltin GetLayerBuiltin(const char* token);
-const char* GetToken(LayerBuiltin builtin);
-const char* GetLabel(LayerBuiltin builtin);
+const char* GetToken(LayersDisplayMode mode);
+
+const char* GetLabel(LayersDisplayMode mode);
+
+LayersDisplayMode GetLayersDisplayMode(const char* token);

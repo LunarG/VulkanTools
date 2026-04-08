@@ -19,9 +19,9 @@
  */
 
 #include "widget_tab_configurations_layer.h"
+#include "widget_resize_combobox.h"
 #include "tab_configurations.h"
 #include "mainwindow.h"
-#include "widget_resize_button.h"
 #include "style.h"
 #include "item_tree.h"
 
@@ -138,13 +138,21 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->ui->configurations_executable_scope->setCurrentIndex(current_scope);
     this->ui->configurations_executable_scope->blockSignals(false);
 
-    this->advanced_mode = new ResizeButton(this->ui->configurations_group_box_layers, 0);
-    this->advanced_mode->setMinimumSize(24, 24);
-    this->advanced_mode->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    this->advanced_mode->adjustSize();
-    this->ui->configurations_group_box_layers->installEventFilter(this->advanced_mode);
-
-    this->connect(this->advanced_mode, SIGNAL(pressed()), this, SLOT(on_configurations_advanced_toggle_pressed()));
+    this->layer_display_mode = new ResizeComboBox(this->ui->configurations_group_box_layers, 0);
+    for (int i = 0, n = LAYERS_DISPLAY_COUNT; i < n; ++i) {
+        LayersDisplayMode mode = static_cast<LayersDisplayMode>(i);
+        this->layer_display_mode->addItem(::GetLabel(mode));
+    }
+    this->layer_display_mode->setCurrentIndex(configurator.layers_display_mode);
+    QFont font = this->layer_display_mode->font();
+    font.setBold(false);
+    this->layer_display_mode->setFont(font);
+    this->layer_display_mode->setMinimumSize(196, 24);
+    this->layer_display_mode->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    this->layer_display_mode->adjustSize();
+    this->ui->configurations_group_box_layers->installEventFilter(this->layer_display_mode);
+    this->connect(this->layer_display_mode, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_configurations_layers_display_currentIndexChanged(int)));
 
     QShortcut *shortcut_override =
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Space), this->ui->configurations_group_box_override);
@@ -252,26 +260,55 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
 
     Configurator &configurator = Configurator::Get();
     this->ui->configurations_group_box_layers->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LAYERS));
-    this->ui->execute_closer_application_label->setVisible(configurator.advanced);
-    this->ui->execute_closer_driver_label->setVisible(configurator.advanced);
-    this->ui->configurations_layers_list->setDragEnabled(configurator.advanced);
+    this->ui->execute_closer_application_label->setVisible(configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY);
+    this->ui->execute_closer_driver_label->setVisible(configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY);
+    this->ui->configurations_layers_list->setDragEnabled(configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY);
 
     Configuration *configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
         bool selected_layer = configuration->selected_layer_name.empty();
+        bool first_implicit_layer = true;
+
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
             Parameter &parameter = configuration->parameters[i];
 
-            if (!configurator.advanced) {
-                if (parameter.control != LAYER_CONTROL_ON && parameter.control != LAYER_CONTROL_OFF) {
-                    continue;
+            switch (configurator.layers_display_mode) {
+                default:
+                    break;
+                case LAYERS_DISPLAY_ENABLED_ONLY: {
+                    if (configurator.layers_display_mode == LAYERS_DISPLAY_ENABLED_ONLY) {
+                        if (parameter.control != LAYER_CONTROL_ON && parameter.control != LAYER_CONTROL_OFF) {
+                            continue;
+                        }
+                    }
+                    break;
+                }
+                case LAYERS_DISPLAY_EXPLICIT_ONLY: {
+                    if (parameter.IsAutoImplicitLayer()) {
+                        if (first_implicit_layer) {
+                            first_implicit_layer = false;
+
+                            QListWidgetItem *item = new ListItem(implicit_layers);
+                            item->setFlags(item->flags() | Qt::ItemIsSelectable);
+                            item->setSizeHint(QSize(0, ITEM_HEIGHT));
+                            if (configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY) {
+                                item->setIcon(::Get(configurator.current_theme_mode, ICON_DRAG));
+                            }
+                            this->ui->configurations_layers_list->addItem(item);
+
+                            QLabel *layer_widget = new QLabel("Vulkan Implicit Layers Located by Vulkan Configurator");
+                            this->ui->configurations_layers_list->setItemWidget(item, layer_widget);
+                        }
+                        continue;
+                    }
+                    break;
                 }
             }
 
             QListWidgetItem *item = new ListItem(parameter.key.c_str());
             item->setFlags(item->flags() | Qt::ItemIsSelectable);
             item->setSizeHint(QSize(0, ITEM_HEIGHT));
-            if (configurator.advanced) {
+            if (configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY) {
                 item->setIcon(::Get(configurator.current_theme_mode, ICON_DRAG));
             }
             this->ui->configurations_layers_list->addItem(item);
@@ -359,15 +396,6 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
             "Change the 'Vulkan Loader Configuration scope' to apply a configuration.");
     }
 
-    assert(this->advanced_mode != nullptr);
-    if (configurator.advanced) {
-        this->advanced_mode->setIcon(::Get(configurator.current_theme_mode, ::ICON_SHOW));
-        this->advanced_mode->setToolTip("View only Enabled Vulkan layers");
-    } else {
-        this->advanced_mode->setIcon(::Get(configurator.current_theme_mode, ::ICON_ADVANCED));
-        this->advanced_mode->setToolTip("Configure all Available Vulkan Layers");
-    }
-
     this->ui->configurations_group_box_scope->blockSignals(true);
     this->ui->configurations_group_box_scope->setVisible(configurator.configuration_show_scope);
     this->ui->configurations_group_box_scope->setChecked(configurator.layers_override_enabled);
@@ -409,7 +437,11 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
         // Layers were reordered, we need to update the configuration
 
         std::vector<std::string> layer_names;
-        for (int i = 0, n = ui->configurations_layers_list->count(); i < n; ++i) {
+        for (int i = 0, n = this->ui->configurations_layers_list->count(); i < n; ++i) {
+            QListWidgetItem *item = this->ui->configurations_layers_list->item(i);
+            layer_names.push_back(static_cast<ListItem *>(item)->key.c_str());
+
+            /*
             QWidget *widget = ui->configurations_layers_list->itemWidget(ui->configurations_layers_list->item(i));
             if (widget != nullptr) {
                 ConfigurationLayerWidget *layer_widget = dynamic_cast<ConfigurationLayerWidget *>(widget);
@@ -417,10 +449,19 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     layer_names.push_back(layer_widget->layer_name);
                 }
             }
+*/
         }
 
         Configuration *configuration = configurator.GetActiveConfiguration();
         if (configuration != nullptr) {
+            QListWidgetItem *item = this->ui->configurations_layers_list->currentItem();
+            if (item != nullptr) {
+                Parameter *parameter = configuration->Find(static_cast<ListItem *>(item)->key);
+                if (parameter != nullptr) {
+                    parameter->was_explicitly_rank = true;
+                }
+            }
+
             configuration->Reorder(layer_names);
             configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
@@ -504,7 +545,17 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 
             menu.addSeparator();
 
-            QAction *action_reset_one = new QAction("Reset the Default Configuration", nullptr);
+            std::string label = name;
+            if (!label.empty()) {
+                label = format(" '%s'", label.c_str());
+            }
+
+            QAction *action_reset_order = new QAction(format("Reset the%s Default Layers order", label.c_str()).c_str(), nullptr);
+            action_reset_order->setEnabled(item != nullptr);
+            action_reset_order->setToolTip("Reset the configuration, discarding all changes of this configuration.");
+            menu.addAction(action_reset_order);
+
+            QAction *action_reset_one = new QAction(format("Reset the%s Default Configuration", label.c_str()).c_str(), nullptr);
             action_reset_one->setEnabled(configurator.configurations.IsDefaultConfiguration(name));
             action_reset_one->setToolTip("Reset the configuration, discarding all changes of this configuration.");
             menu.addAction(action_reset_one);
@@ -569,6 +620,8 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 this->OnContextMenuDuplicateClicked(item);
             } else if (action == action_delete) {
                 this->OnContextMenuDeleteClicked(item);
+            } else if (action == action_reset_order) {
+                this->OnContextMenuResetLayersOrderClicked(item);
             } else if (action == action_reset_one) {
                 this->OnContextMenuResetOneClicked(item);
             } else if (action == action_reset_all) {
@@ -993,6 +1046,39 @@ void TabConfigurations::OnContextMenuDeleteClicked(ListItem *item) {
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
+void TabConfigurations::OnContextMenuResetLayersOrderClicked(ListItem *item) {
+    assert(item);
+    assert(!item->key.empty());
+
+    Configurator &configurator = Configurator::Get();
+    Configuration *configuration = configurator.configurations.FindConfiguration(item->key);
+    assert(configuration != nullptr);
+
+    if (!(configurator.Get(HIDE_MESSAGE_LAYERS_ORDER_RESET))) {
+        QMessageBox alert;
+        alert.setWindowTitle(format("Resetting *%s* Layers order...", configuration->key.c_str()).c_str());
+        alert.setText(format("Are you sure you want to reset the *%s* layers order?", configuration->key.c_str()).c_str());
+        alert.setInformativeText("The Vulkan Layers order will be reset to the default order.");
+        alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        alert.setDefaultButton(QMessageBox::Yes);
+        alert.setCheckBox(new QCheckBox("Do not show again."));
+        alert.setIcon(QMessageBox::Warning);
+        int retval = alert.exec();
+
+        if (alert.checkBox()->isChecked()) {
+            configurator.Set(HIDE_MESSAGE_LAYERS_ORDER_RESET);
+        }
+
+        if (retval == QMessageBox::No) {
+            return;
+        }
+    }
+
+    configuration->ResetLayersOrder(configurator.layers);
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
+}
+
 void TabConfigurations::OnContextMenuResetOneClicked(ListItem *item) {
     assert(item);
     assert(!item->key.empty());
@@ -1002,15 +1088,15 @@ void TabConfigurations::OnContextMenuResetOneClicked(ListItem *item) {
     assert(configuration != nullptr);
 
     QMessageBox alert;
-    alert.setWindowTitle(format("Resetting *%s* loader configuration...", configuration->key.c_str()).c_str());
-    alert.setText(format("Are you sure you want to reset the *%s* loader configuration?", configuration->key.c_str()).c_str());
+    alert.setWindowTitle(format("Resetting *%s* layers configuration...", configuration->key.c_str()).c_str());
+    alert.setText(format("Are you sure you want to reset the *%s* layers configuration?", configuration->key.c_str()).c_str());
     if (configuration->IsDefault())
         alert.setInformativeText(
-            format("The loader configuration, including layers settings, will be restored to default built-in *%s* configuration.",
+            format("The layers configuration, including layers settings, will be restored to default built-in *%s* configuration.",
                    configuration->key.c_str())
                 .c_str());
     else if (configurator.configurations.HasFile(*configuration))
-        alert.setInformativeText(format("The loader configuration, including layers settings, will be reloaded using the *%s* "
+        alert.setInformativeText(format("The layers configuration, including layers settings, will be reloaded using the *%s* "
                                         "saved file from previous %s run.",
                                         configuration->key.c_str(), VKCONFIG_NAME)
                                      .c_str());
@@ -1115,13 +1201,6 @@ void TabConfigurations::GenerateClicked(GenerateSettingsMode mode) {
         configurator.configurations.last_path_export_settings = saved_path.AbsoluteDir();
         QDesktopServices::openUrl(QUrl::fromLocalFile(saved_path.AbsoluteDir().c_str()));
     }
-}
-
-void TabConfigurations::on_configurations_advanced_toggle_pressed() {
-    Configurator &configurator = Configurator::Get();
-    configurator.advanced = !configurator.advanced;
-
-    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void TabConfigurations::on_configurations_override_toggled() {
@@ -1427,23 +1506,30 @@ void TabConfigurations::on_configurations_layers_list_currentRowChanged(int curr
         return;  // No row selected
     }
 
-    QWidget *widget = this->ui->configurations_layers_list->itemWidget(this->ui->configurations_layers_list->item(currentRow));
-    if (widget == nullptr) {
+    ListItem *item = static_cast<ListItem *>(this->ui->configurations_layers_list->item(currentRow));
+    if (item == nullptr) {
         return;
     }
 
-    const std::string &layer_string = static_cast<ConfigurationLayerWidget *>(widget)->layer_name;
+    const std::string &layer_key = item->key;
 
     Configurator &configurator = Configurator::Get();
 
     Configuration *configuration = configurator.GetActiveConfiguration();
     assert(configuration != nullptr);
 
-    if (configuration->selected_layer_name != layer_string) {
-        configuration->selected_layer_name = layer_string;
+    if (configuration->selected_layer_name != layer_key) {
+        configuration->selected_layer_name = layer_key;
 
         this->UpdateUI_Settings(UPDATE_REBUILD_UI);
     }
+}
+
+void TabConfigurations::on_configurations_layers_display_currentIndexChanged(int index) {
+    Configurator &configurator = Configurator::Get();
+    configurator.layers_display_mode = static_cast<LayersDisplayMode>(index);
+
+    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void TabConfigurations::on_configurations_layerVersionChanged() { this->UpdateUI_Layers(UPDATE_REBUILD_UI); }
