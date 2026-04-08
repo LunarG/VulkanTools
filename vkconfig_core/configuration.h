@@ -54,7 +54,10 @@ class Configuration {
     void SwitchLayerVersion(const LayerManager& layers, const std::string& layer_key, const Path& manifest_path);
     void SwitchLayerLatest(const LayerManager& layers, const std::string& layer_key);
     void GatherParameters(const LayerManager& layers);
+    void ResetLayersOrder(const LayerManager& layers);
     void Reorder(const std::vector<std::string>& layer_names);
+
+    std::vector<Parameter*> GatherImplicitAutoLayers();
 
     std::string key = "New Configuration";  // User readable display of the configuration name (may contain spaces)
     int version = 1;

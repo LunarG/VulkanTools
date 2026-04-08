@@ -91,6 +91,7 @@ SOURCES += \
     ../vkconfig_core/version.cpp \
     ../vkconfig_core/vulkan_util.cpp \
     widget_resize_button.cpp \
+    widget_resize_combobox.cpp \
     widget_layer_version.cpp \
     widget_tab_configurations_layer.cpp \
     widget_tab_layers_path.cpp \
@@ -190,6 +191,7 @@ HEADERS += \
     ../vkconfig_core/version.h \
     ../vkconfig_core/vulkan_util.h \
     widget_resize_button.h \
+    widget_resize_combobox.h \
     widget_layer_version.h \
     widget_tab_configurations_layer.h \
     widget_tab_layers_path.h \

@@ -27,6 +27,8 @@
 
 #include <vector>
 
+static const char* implicit_layers = "implicit_layers";
+
 enum ParameterRank {
     PARAMETER_RANK_MISSING_LAYER = 0,
     PARAMETER_RANK_IMPLICIT_LAYER,
@@ -45,6 +47,8 @@ struct Parameter {
 
     Parameter(const std::string& key, const LayerControl control) : key(key), control(control) {}
 
+    bool IsAutoImplicitLayer() const;
+
     bool ApplyPresetSettings(const LayerPreset& preset);
     bool GetExpanded(const std::string& setting_key, const std::string& flag = "") const;
     void SetExpanded(const std::string& setting_key, const std::string& flag, bool expanded);
@@ -59,6 +63,7 @@ struct Parameter {
     Version api_version = Version::LATEST;
     Path manifest;
     bool override_settings = true;
+    bool was_explicitly_rank = false;
 };
 
 ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& parameter);

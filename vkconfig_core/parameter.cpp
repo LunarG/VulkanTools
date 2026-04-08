@@ -40,6 +40,10 @@ static bool IsValidationLayer(const std::string& key) { return key == "VK_LAYER_
 
 static bool IsProfilesLayer(const std::string& key) { return key == "VK_LAYER_KHRONOS_profiles"; }
 
+bool Parameter::IsAutoImplicitLayer() const {
+    return this->type == LAYER_TYPE_IMPLICIT && this->control == LAYER_CONTROL_AUTO && !this->was_explicitly_rank;
+}
+
 bool Parameter::ApplyPresetSettings(const LayerPreset& preset) {
     for (std::size_t preset_index = 0, preset_count = preset.settings.size(); preset_index < preset_count; ++preset_index) {
         const SettingData* preset_setting = preset.settings[preset_index];

@@ -34,6 +34,7 @@
 #include "type_executable_all_enabled_behavior.h"
 #include "type_configurator_mode.h"
 #include "type_diagnostic_mode.h"
+#include "type_layers_display_mode.h"
 #include "type_generate_settings.h"
 #include "type_driver_mode.h"
 #include "type_theme_mode.h"
@@ -167,7 +168,7 @@ class Configurator {
     bool reset_hard = false;
     bool has_crashed = false;
     TabType active_tab = TAB_CONFIGURATIONS;
-    bool advanced = true;
+    LayersDisplayMode layers_display_mode = LAYERS_DISPLAY_EXPLICIT_ONLY;
     Path last_path_status = Path(Path::HOME).AbsolutePath() + "/diagnostics";
     Path last_driver_dir = Path(Path::HOME).AbsolutePath();
     Path last_path_launch_log = Path(Path::HOME).AbsolutePath() + "/application_log.txt";
