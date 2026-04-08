@@ -69,7 +69,7 @@ PARAMETER_STATE = {
             'ApiDumpInstance::current().setDescriptorType(object.type);',
         'VkResourceDescriptorInfoEXT':
             'ApiDumpInstance::current().setDescriptorType(object.type);',
-        'VkIndirectExecutionSetInfoEXT':
+        'VkIndirectExecutionSetCreateInfoEXT':
             'ApiDumpInstance::current().setIndirectExecutionSetInfoType(object.type);',
         'VkIndirectCommandsLayoutTokenEXT':
             'ApiDumpInstance::current().setIndirectCommandsLayoutToken(object.type);',
