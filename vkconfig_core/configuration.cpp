@@ -158,6 +158,9 @@ bool Configuration::Load(const Path& full_path, const LayerManager& layers) {
             if (json_layer_object.value("rank") != QJsonValue::Undefined) {
                 parameter.overridden_rank = json_layer_object.value("rank").toInt();
             }
+            if (json_layer_object.value("was_explicitly_rank") != QJsonValue::Undefined) {
+                parameter.was_explicitly_rank = json_layer_object.value("was_explicitly_rank").toBool();
+            }
             if (json_layer_object.value("version") != QJsonValue::Undefined) {
                 const std::string& version = ReadStringValue(json_layer_object, "version");
                 parameter.api_version = version == "latest" ? Version::LATEST : Version(version.c_str());
@@ -249,7 +252,7 @@ bool Configuration::Save(const Path& full_path, bool export_mode) const {
     for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
         const Parameter& parameter = this->parameters[i];
 
-        if (parameter.type == LAYER_TYPE_IMPLICIT && parameter.control == LAYER_CONTROL_AUTO) {
+        if (export_mode && parameter.IsAutoImplicitLayer()) {
             continue;
         }
 
@@ -261,6 +264,7 @@ bool Configuration::Save(const Path& full_path, bool export_mode) const {
         }
         json_layer.insert("control", GetToken(parameter.control));
         json_layer.insert("rank", parameter.overridden_rank);
+        json_layer.insert("was_explicitly_rank", parameter.was_explicitly_rank);
         json_layer.insert("version", parameter.api_version == Version::LATEST ? "latest" : parameter.api_version.str().c_str());
         if (parameter.builtin == LAYER_BUILTIN_NONE && !export_mode) {
             json_layer.insert("manifest", parameter.manifest.RelativePath().c_str());
@@ -526,20 +530,39 @@ void Configuration::GatherParameters(const LayerManager& layers) {
     std::swap(this->parameters, gathered_parameters);
 }
 
+void Configuration::ResetLayersOrder(const LayerManager& layers) {
+    for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
+        this->parameters[i].was_explicitly_rank = false;
+        this->parameters[i].overridden_rank = Parameter::NO_RANK;
+    }
+
+    ::OrderParameter(this->parameters, layers);
+}
+
 void Configuration::Reorder(const std::vector<std::string>& layer_names) {
     std::vector<Parameter> ordered_parameters;
 
     int rank = 0;
 
     for (std::size_t i = 0, n = layer_names.size(); i < n; ++i) {
-        Parameter* parameter = this->Find(layer_names[i]);
-        if (parameter == nullptr) {
-            continue;
-        }
+        if (layer_names[i] == implicit_layers) {
+            std::vector<Parameter*> parameters = this->GatherImplicitAutoLayers();
+            for (std::size_t j = 0, p = parameters.size(); j < p; ++j) {
+                Parameter* parameter = parameters[j];
+                parameter->overridden_rank = rank;
+                ++rank;
+                ordered_parameters.push_back(*parameter);
+            }
+        } else {
+            Parameter* parameter = this->Find(layer_names[i]);
+            if (parameter == nullptr) {
+                continue;
+            }
 
-        parameter->overridden_rank = rank;
-        ++rank;
-        ordered_parameters.push_back(*parameter);
+            parameter->overridden_rank = rank;
+            ++rank;
+            ordered_parameters.push_back(*parameter);
+        }
     }
 
     // Add the remaining parameters not listed in `layer_names`
@@ -561,6 +584,19 @@ void Configuration::Reorder(const std::vector<std::string>& layer_names) {
     }
 
     this->parameters = ordered_parameters;
+}
+
+std::vector<Parameter*> Configuration::GatherImplicitAutoLayers() {
+    std::vector<Parameter*> result;
+
+    for (std::size_t i = 0, n = this->parameters.size(); i < n; ++i) {
+        Parameter* parameter = &this->parameters[i];
+        if (parameter->IsAutoImplicitLayer()) {
+            result.push_back(parameter);
+        }
+    }
+
+    return result;
 }
 
 bool Configuration::IsDefault() const {

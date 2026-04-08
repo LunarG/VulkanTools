@@ -20,16 +20,18 @@
 
 #pragma once
 
-enum LayerBuiltin {
-    LAYER_BUILTIN_NONE = 0,
-    LAYER_BUILTIN_UNORDERED,
+#include <QComboBox>
+#include <QEvent>
 
-    LAYER_BUILTIN_FIRST = LAYER_BUILTIN_NONE,
-    LAYER_BUILTIN_LAST = LAYER_BUILTIN_UNORDERED,
+class ResizeComboBox : public QComboBox {
+    Q_OBJECT
+
+   public:
+    ResizeComboBox(QWidget *parent, int shift);
+
+    bool eventFilter(QObject *o, QEvent *e) override;
+
+   private:
+    QWidget *parent = nullptr;
+    int shift = 0;
 };
-
-enum { LAYER_BUILTIN_COUNT = LAYER_BUILTIN_LAST - LAYER_BUILTIN_FIRST + 1 };
-
-LayerBuiltin GetLayerBuiltin(const char* token);
-const char* GetToken(LayerBuiltin builtin);
-const char* GetLabel(LayerBuiltin builtin);

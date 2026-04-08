@@ -21,6 +21,7 @@
 - Improve UI consistency
 - Move 'Validate Layer Manifest' settings to the preference tab
 - Improve keyboard shortcuts
+- Add layer display option to show only explicit layers #2636
 
 ### Fixes:
 - Fix command line whitespace decoding #2625

@@ -18,18 +18,19 @@
  * - Christophe Riccio <christophe@lunarg.com>
  */
 
-#pragma once
+#include "widget_resize_combobox.h"
 
-enum LayerBuiltin {
-    LAYER_BUILTIN_NONE = 0,
-    LAYER_BUILTIN_UNORDERED,
+ResizeComboBox::ResizeComboBox(QWidget *parent, int shift) : QComboBox(parent), parent(parent), shift(shift) {}
 
-    LAYER_BUILTIN_FIRST = LAYER_BUILTIN_NONE,
-    LAYER_BUILTIN_LAST = LAYER_BUILTIN_UNORDERED,
-};
+bool ResizeComboBox::eventFilter(QObject *o, QEvent *e) {
+    (void)o;
 
-enum { LAYER_BUILTIN_COUNT = LAYER_BUILTIN_LAST - LAYER_BUILTIN_FIRST + 1 };
+    if (e->type() == QEvent::Resize) {
+        QSize size = this->minimumSize();
 
-LayerBuiltin GetLayerBuiltin(const char* token);
-const char* GetToken(LayerBuiltin builtin);
-const char* GetLabel(LayerBuiltin builtin);
+        const QRect enabled_button_rect =
+            QRect(this->parent->width() - size.width() * (shift + 1) - 5, 0, size.width(), size.height());
+        this->setGeometry(enabled_button_rect);
+    }
+    return false;
+}

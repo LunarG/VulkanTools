@@ -153,8 +153,6 @@ void TabLayers::on_paths_toggled() {
 void TabLayers::on_layers_append_pressed() { this->LoadLayersManifest(this->ui->layers_path_lineedit->text()); }
 
 void TabLayers::on_layers_browse_pressed() {
-    this->on_layers_edit_pressed();
-
     Configurator &configurator = Configurator::Get();
 
     const QString selected_path =

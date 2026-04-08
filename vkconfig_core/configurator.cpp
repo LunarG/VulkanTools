@@ -1108,7 +1108,10 @@ bool Configurator::Load() {
             if (json_object.value("override_layers") != QJsonValue::Undefined) {
                 this->layers_override_enabled = json_object.value("override_layers").toBool();
             }
-            this->advanced = json_object.value("advanced").toBool();
+            if (json_object.value("layers_display_mode") != QJsonValue::Undefined) {
+                this->layers_display_mode =
+                    ::GetLayersDisplayMode(json_object.value("layers_display_mode").toString().toStdString().c_str());
+            }
             this->executable_scope = ::GetExecutableScope(json_object.value("executable_scope").toString().toStdString().c_str());
             this->selected_global_configuration = json_object.value("selected_global_configuration").toString().toStdString();
         }
@@ -1342,7 +1345,7 @@ bool Configurator::Save() const {
     {
         QJsonObject json_object;
         json_object.insert("override_layers", this->layers_override_enabled);
-        json_object.insert("advanced", this->advanced);
+        json_object.insert("layers_display_mode", ::GetToken(this->layers_display_mode));
         json_object.insert("executable_scope", ::GetToken(this->executable_scope));
         json_object.insert("selected_global_configuration", this->selected_global_configuration.c_str());
         json_interface_object.insert(::GetToken(TAB_CONFIGURATIONS), json_object);
