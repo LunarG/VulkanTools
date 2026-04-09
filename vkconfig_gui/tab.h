@@ -21,6 +21,7 @@
 #pragma once
 
 #include "../vkconfig_core/type_tab.h"
+#include "../vkconfig_core/type_theme_mode.h"
 
 #include "ui_mainwindow.h"
 
@@ -36,6 +37,8 @@ enum UpdateUIMode {
     UPDATE_REBUILD_UI = 0,
     UPDATE_REFRESH_UI,
 };
+
+ThemeMode GetActualThemeMode(ThemeMode mode);
 
 class Tab : public QObject {
     Q_OBJECT

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "tab.h"
+#include "highlighter.h"
 
 #include <memory>
 
@@ -97,4 +98,8 @@ class TabApplications : public Tab {
     bool search_case = false;
     bool search_whole = false;
     bool search_regex = false;
+
+    Highlighter* highlighter = nullptr;
+
+    void ResetTextCursor();
 };

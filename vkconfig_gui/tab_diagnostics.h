@@ -21,6 +21,7 @@
 #pragma once
 
 #include "tab.h"
+#include "highlighter.h"
 
 #include "../vkconfig_core/type_diagnostic_mode.h"
 #include "../vkconfig_core/path.h"
@@ -38,6 +39,8 @@ class TabDiagnostics : public Tab {
     virtual void UpdateUI(UpdateUIMode mode) override;
     virtual void CleanUI() override;
     virtual bool EventFilter(QObject* target, QEvent* event) override;
+
+    void ResetTextCursor();
 
    public Q_SLOTS:
     void on_context_menu(const QPoint& pos);
@@ -84,6 +87,8 @@ class TabDiagnostics : public Tab {
     bool search_case = false;
     bool search_whole = false;
     bool search_regex = false;
+
+    Highlighter* highlighter = nullptr;
 
     void OnCheckedLoaderMessageTypes(bool checked);
 

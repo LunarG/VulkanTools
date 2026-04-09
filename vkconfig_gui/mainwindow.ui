@@ -91,7 +91,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -952,7 +952,7 @@
            <string>List of Vulkan Layers found on the system</string>
           </property>
           <property name="title">
-           <string>Vulkan Layers available on the system</string>
+           <string>Vulkan Layers located on the system</string>
           </property>
           <property name="checkable">
            <bool>false</bool>
@@ -2698,6 +2698,9 @@
               <bold>false</bold>
              </font>
             </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -3553,6 +3556,9 @@
                <pointsize>10</pointsize>
                <bold>false</bold>
               </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>true</bool>
              </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>

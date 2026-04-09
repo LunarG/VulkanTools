@@ -25,6 +25,22 @@
 #include "../vkconfig_core/ui.h"
 
 #include <QMenu>
+#include <QStyleHints>
+
+ThemeMode GetActualThemeMode(ThemeMode mode) {
+    if (mode == THEME_MODE_AUTO) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        if (QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+            return THEME_MODE_FORCE_DARK;
+        } else
+#endif  // QT_VERSION
+        {
+            return THEME_MODE_FORCE_LIGHT;
+        }
+    } else {
+        return mode;
+    }
+}
 
 Tab::Tab(TabType type, MainWindow& window, std::shared_ptr<Ui::MainWindow> ui) : type(type), ui(ui), window(window) {}
 

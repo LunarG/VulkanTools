@@ -28,6 +28,7 @@
 #include <QMenu>
 #include <QDesktopServices>
 #include <QShortcut>
+#include <QScrollBar>
 
 TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
     this->connect(this->ui->diagnostic_mode, SIGNAL(currentIndexChanged(int)), this, SLOT(on_mode_changed(int)));
@@ -69,18 +70,26 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(shortcut_next, SIGNAL(activated()), this, SLOT(on_search_next_pressed()));
     QShortcut *shortcut_prev = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3), this->ui->diagnostic_status_text);
     this->connect(shortcut_prev, SIGNAL(activated()), this, SLOT(on_search_prev_pressed()));
+    /*
+        QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->diagnostic_search_case);
+        this->connect(shortcut_case, SIGNAL(activated()), this, SLOT(on_search_case_activated()));
+        QShortcut *shortcut_whole = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_W), this->ui->diagnostic_search_whole);
+        this->connect(shortcut_whole, SIGNAL(activated()), this, SLOT(on_search_whole_activated()));
+        QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->diagnostic_search_regex);
+        this->connect(shortcut_regex, SIGNAL(activated()), this, SLOT(on_search_regex_activated()));
+    */
+    this->highlighter = new Highlighter(this->ui->diagnostic_status_text->document());
 
-    QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->diagnostic_search_case);
-    this->connect(shortcut_case, SIGNAL(activated()), this, SLOT(on_search_case_activated()));
-    QShortcut *shortcut_whole = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_W), this->ui->diagnostic_search_whole);
-    this->connect(shortcut_whole, SIGNAL(activated()), this, SLOT(on_search_whole_activated()));
-    QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->diagnostic_search_regex);
-    this->connect(shortcut_regex, SIGNAL(activated()), this, SLOT(on_search_regex_activated()));
+    this->on_search_clear_pressed();
+
+    this->ui->diagnostic_search_case->setVisible(false);
+    this->ui->diagnostic_search_regex->setVisible(false);
+    this->ui->diagnostic_search_whole->setVisible(false);
 
     this->ui->diagnostic_search_next->setEnabled(false);
     this->ui->diagnostic_search_prev->setEnabled(false);
 
-    this->ui->diagnostic_status_text->installEventFilter(&window);
+    // this->ui->diagnostic_status_text->installEventFilter(&window);
     this->ui->diagnostic_status_text->document()->setMaximumBlockCount(65536);
     this->ui->diagnostic_status_text->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -252,6 +261,9 @@ void TabDiagnostics::UpdateStatus() {
 
     this->ui->diagnostic_search_clear->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
     this->ui->diagnostic_search_edit->setFocus();
+    this->ui->diagnostic_export_file->setEnabled(true);
+
+    this->ResetTextCursor();
 }
 
 void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
@@ -291,24 +303,35 @@ void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
     this->ui->diagnostic_group_box_loader_log->blockSignals(false);
 
     this->window.UpdateUI_Status();
+
+    this->ResetTextCursor();
+
+    // QColor background_color = palette.color(::GetActualThemeMode(configurator.current_theme_mode) == THEME_MODE_FORCE_LIGHT ?
+    // QPalette::Light : QPalette::Dark);
+    QPalette palette = this->ui->configurations_list->palette();
+    QColor highlight = palette.color(QPalette::Highlight);
+    this->highlighter->setColor(
+        ::GetActualThemeMode(configurator.current_theme_mode) == THEME_MODE_FORCE_LIGHT ? highlight.lighter() : highlight.darker());
 }
 
 void TabDiagnostics::CleanUI() {}
 
 bool TabDiagnostics::EventFilter(QObject *target, QEvent *event) {
     (void)target;
-
+    /*
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         switch (keyEvent->key()) {
             case Qt::Key_Enter:
             case Qt::Key_Return:
-                this->SearchFind(false);
+                if (this->ui->diagnostic_status_text->hasFocus()) {
+                    this->SearchFind(false);
+                }
                 return false;
         }
         return false;
     }
-
+    */
     return false;
 }
 
@@ -384,11 +407,15 @@ void TabDiagnostics::on_diagnostic_dir_info_pressed() {
 }
 
 void TabDiagnostics::on_refresh_log() {
+    static bool only_once = true;
+
     Configurator &configurator = Configurator::Get();
 
-    if (!(configurator.Get(HIDE_MESSAGE_WARN_NO_LOADER_LOG_ENABLED))) {
+    if (only_once && !(configurator.Get(HIDE_MESSAGE_WARN_NO_LOADER_LOG_ENABLED))) {
         if (this->mode == DIAGNOSTIC_VULKAN_LOADER_LOG &&
             (!configurator.loader_log_enabled || configurator.loader_log_messages_flags == 0)) {
+            only_once = false;  // don't show again during this run
+
             QMessageBox alert;
             alert.setWindowTitle("Vulkan Loader Log is disabled");
             alert.setText("Do you want enable Vulkan Loader log?");
@@ -605,35 +632,73 @@ void TabDiagnostics::on_export_file() {
 
 void TabDiagnostics::on_focus_search() {
     this->ui->diagnostic_search_edit->setFocus();
-    this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
+    // this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
 }
 
 void TabDiagnostics::on_search_textEdited(const QString &text) {
-    if (!this->ui->diagnostic_search_clear->isEnabled()) {
-        this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
-    }
+    this->highlighter->setSearch(text);
 
     this->ui->diagnostic_search_next->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
     this->ui->diagnostic_search_prev->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
 
     this->diagnostic_search_text = text.toStdString();
     this->ui->diagnostic_search_clear->setEnabled(!text.isEmpty());
+
+    if (!text.isEmpty()) {
+        this->ui->diagnostic_status_text->moveCursor(QTextCursor::StartOfWord);
+        this->SearchFind(false);
+    }
+}
+
+void TabDiagnostics::ResetTextCursor() {
+    if (this->ui->diagnostic_status_text->document()->isEmpty()) {
+        return;
+    }
+
+    QTextCursor cursor = this->ui->diagnostic_status_text->textCursor();
+    int saved_anchor = cursor.anchor();
+    int saved_Position = cursor.position();
+
+    cursor.setPosition(0, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+
+    QTextCharFormat format;
+    cursor.setCharFormat(format);
+
+    cursor.setPosition(saved_Position, QTextCursor::MoveAnchor);
+    cursor.setPosition(saved_anchor, QTextCursor::KeepAnchor);
 }
 
 void TabDiagnostics::on_search_clear_pressed() {
+    this->highlighter->setSearch("");
+
     this->diagnostic_search_text.clear();
     this->ui->diagnostic_export_file->setEnabled(false);
     this->ui->diagnostic_search_edit->clear();
     this->ui->diagnostic_search_next->setEnabled(false);
     this->ui->diagnostic_search_prev->setEnabled(false);
     this->ui->diagnostic_search_clear->setEnabled(false);
+
+    this->ResetTextCursor();
 }
 
-void TabDiagnostics::on_search_next_pressed() { this->SearchFind(false); }
+void TabDiagnostics::on_search_next_pressed() {
+    QTextCursor cursor = this->ui->diagnostic_status_text->textCursor();
+    this->ui->diagnostic_status_text->moveCursor(QTextCursor::EndOfWord);
+    this->ui->diagnostic_status_text->setTextCursor(cursor);
+    this->SearchFind(false);
+}
 
-void TabDiagnostics::on_search_prev_pressed() { this->SearchFind(true); }
+void TabDiagnostics::on_search_prev_pressed() {
+    QTextCursor cursor = this->ui->diagnostic_status_text->textCursor();
+    this->ui->diagnostic_status_text->moveCursor(QTextCursor::StartOfWord);
+    this->ui->diagnostic_status_text->setTextCursor(cursor);
+    this->SearchFind(true);
+}
 
 void TabDiagnostics::SearchFind(bool prev) {
+    this->ResetTextCursor();
+
     QTextDocument::FindFlags flags = prev ? QTextDocument::FindBackward : QTextDocument::FindFlags(0);
 
     if (this->search_case) {
@@ -643,12 +708,33 @@ void TabDiagnostics::SearchFind(bool prev) {
         flags |= QTextDocument::FindWholeWords;
     }
 
-    this->ui->diagnostic_status_text->setFocus();
-
+    bool found = false;
     if (this->search_regex) {
-        this->ui->diagnostic_status_text->find(QRegularExpression(this->ui->diagnostic_search_edit->text()), flags);
+        found = this->ui->diagnostic_status_text->find(QRegularExpression(this->ui->diagnostic_search_edit->text()), flags);
     } else {
-        this->ui->diagnostic_status_text->find(this->ui->diagnostic_search_edit->text(), flags);
+        found = this->ui->diagnostic_status_text->find(this->ui->diagnostic_search_edit->text(), flags);
+    }
+
+    QTextCursor cursor = this->ui->diagnostic_status_text->textCursor();
+
+    if (found) {
+        QTextCharFormat format;
+        format.setFontWeight(QFont::Bold);
+        cursor.mergeCharFormat(format);
+
+        this->ui->diagnostic_status_text->ensureCursorVisible();
+    } else {
+        if (!prev && !cursor.atStart()) {
+            this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
+            this->SearchFind(prev);
+            return;
+        }
+
+        if (prev && !cursor.atEnd()) {
+            this->ui->diagnostic_status_text->moveCursor(QTextCursor::End);
+            this->SearchFind(prev);
+            return;
+        }
     }
 }
 
@@ -656,21 +742,21 @@ void TabDiagnostics::on_search_case_activated() { this->ui->diagnostic_search_ca
 
 void TabDiagnostics::on_search_case_toggled(bool checked) {
     this->search_case = checked;
-    this->ui->diagnostic_status_text->setFocus();
+    this->highlighter->setCase(checked);
 }
 
 void TabDiagnostics::on_search_whole_activated() { this->ui->diagnostic_search_whole->setChecked(!this->search_whole); }
 
 void TabDiagnostics::on_search_whole_toggled(bool checked) {
     this->search_whole = checked;
-    this->ui->diagnostic_status_text->setFocus();
+    this->highlighter->setWhole(checked);
 }
 
 void TabDiagnostics::on_search_regex_activated() { this->ui->diagnostic_search_regex->setChecked(!this->search_regex); }
 
 void TabDiagnostics::on_search_regex_toggled(bool checked) {
     this->search_regex = checked;
-    this->ui->diagnostic_status_text->setFocus();
+    this->highlighter->setRegex(checked);
 }
 
 void TabDiagnostics::on_context_menu(const QPoint &pos) {
@@ -699,6 +785,12 @@ void TabDiagnostics::on_context_menu(const QPoint &pos) {
             this->ui->diagnostic_status_text->clear();
         }
     } else if (action == action_search) {
+        QTextCursor cursor = this->ui->diagnostic_status_text->textCursor();
+        if (cursor.hasSelection()) {
+            QString text = cursor.selectedText();
+            this->ui->diagnostic_search_edit->setText(text);
+            this->on_search_textEdited(text);
+        }
         this->on_focus_search();
     }
 
