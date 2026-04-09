@@ -109,6 +109,7 @@ SOURCES += \
     widget_setting_string.cpp \
     widget_setting_list_element.cpp \
     widget_setting_list.cpp \
+    highlighter.cpp \
     item_tree.cpp \
     item_list.cpp \
     item_list_device.cpp \
@@ -210,6 +211,7 @@ HEADERS += \
     widget_setting_string.h \
     widget_setting_list_element.h \
     widget_setting_list.h \
+    highlighter.h \
     item_tree.h \
     item_list.h \
     item_list_device.h \

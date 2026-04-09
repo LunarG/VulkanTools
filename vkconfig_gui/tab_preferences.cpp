@@ -212,6 +212,12 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->diagnostic_dir_system->setIcon(::Get(new_theme_mode, ::ICON_ADVANCED));
     this->ui->diagnostic_dir_info->setVisible(VKC_PLATFORM == PLATFORM_LINUX || VKC_ENV == VKC_ENV_WIN32);
 
+    /*
+        QPalette palette = this->ui->configurations_list->palette();
+        QColor background_color = palette.color(QPalette::Highlight);
+        palette.setColor(QPalette::Shadow, background_color);
+        this->ui->diagnostic_status_text->setPalette(palette);
+    */
     // Preferences
     this->ui->preferences_reset->setIcon(::Get(new_theme_mode, ::ICON_RESET));
     this->ui->preferences_vk_home_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
@@ -223,19 +229,7 @@ void TabPreferences::on_theme_mode_changed(int index) {
 
         QPalette palette = dummy_widget->palette();
 
-        ThemeMode selected_theme_mode = new_theme_mode;
-        if (new_theme_mode == THEME_MODE_AUTO) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-            if (QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
-                selected_theme_mode = THEME_MODE_FORCE_DARK;
-            } else
-#endif  // QT_VERSION
-            {
-                selected_theme_mode = THEME_MODE_FORCE_LIGHT;
-            }
-        }
-
-        switch (selected_theme_mode) {
+        switch (::GetActualThemeMode(new_theme_mode)) {
             default:
             case THEME_MODE_AUTO:
                 assert(0);

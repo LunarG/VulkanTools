@@ -92,17 +92,26 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(shortcut_next, SIGNAL(activated()), this, SLOT(on_search_next_pressed()));
     QShortcut *shortcut_prev = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3), this->ui->launch_log_text);
     this->connect(shortcut_prev, SIGNAL(activated()), this, SLOT(on_search_prev_pressed()));
-
-    QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->launch_search_case);
-    this->connect(shortcut_case, SIGNAL(activated()), this, SLOT(on_search_case_activated()));
-    QShortcut *shortcut_whole = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_W), this->ui->launch_search_whole);
-    this->connect(shortcut_whole, SIGNAL(activated()), this, SLOT(on_search_whole_activated()));
-    QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->launch_search_regex);
-    this->connect(shortcut_regex, SIGNAL(activated()), this, SLOT(on_search_regex_activated()));
+    /*
+        QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->launch_search_case);
+        this->connect(shortcut_case, SIGNAL(activated()), this, SLOT(on_search_case_activated()));
+        QShortcut *shortcut_whole = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_W), this->ui->launch_search_whole);
+        this->connect(shortcut_whole, SIGNAL(activated()), this, SLOT(on_search_whole_activated()));
+        QShortcut *shortcut_regex = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_R), this->ui->launch_search_regex);
+        this->connect(shortcut_regex, SIGNAL(activated()), this, SLOT(on_search_regex_activated()));
+    */
+    this->highlighter = new Highlighter(this->ui->launch_log_text->document());
 
     this->on_search_clear_pressed();
 
-    this->ui->launch_log_text->installEventFilter(&window);
+    this->ui->launch_search_case->setVisible(false);
+    this->ui->launch_search_regex->setVisible(false);
+    this->ui->launch_search_whole->setVisible(false);
+
+    this->ui->launch_search_next->setEnabled(false);
+    this->ui->launch_search_prev->setEnabled(false);
+
+    // this->ui->launch_log_text->installEventFilter(&window);
     this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
     this->ui->launch_log_text->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -161,13 +170,20 @@ void TabApplications::UpdateUI(UpdateUIMode mode) {
     ui->launch_clear_at_launch->setChecked(configurator.executables.launcher_clear_on_launch);
 
     this->on_launch_executable_list_activated(configurator.executables.GetActiveExecutableIndex());
+
+    this->ResetTextCursor();
+
+    QPalette palette = this->ui->configurations_list->palette();
+    QColor highlight = palette.color(QPalette::Highlight);
+    this->highlighter->setColor(
+        ::GetActualThemeMode(configurator.current_theme_mode) == THEME_MODE_FORCE_LIGHT ? highlight.lighter() : highlight.darker());
 }
 
 void TabApplications::CleanUI() { this->ResetLaunchApplication(); }
 
 bool TabApplications::EventFilter(QObject *target, QEvent *event) {
     (void)target;
-
+    /*
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         switch (keyEvent->key()) {
@@ -178,7 +194,7 @@ bool TabApplications::EventFilter(QObject *target, QEvent *event) {
         }
         return false;
     }
-
+    */
     return false;
 }
 
@@ -731,35 +747,77 @@ void TabApplications::on_export_file() {
 
 void TabApplications::on_focus_search() {
     this->ui->launch_search_edit->setFocus();
-    this->ui->launch_log_text->moveCursor(QTextCursor::Start);
+    // this->ui->launch_log_text->moveCursor(QTextCursor::Start);
 }
 
 void TabApplications::on_search_textEdited(const QString &text) {
-    if (!this->ui->launch_search_clear->isEnabled()) {
-        this->ui->launch_log_text->moveCursor(QTextCursor::Start);
-    }
+    /*
+        if (!this->ui->launch_search_clear->isEnabled()) {
+            this->ui->launch_log_text->moveCursor(QTextCursor::Start);
+        }
+    */
+    this->highlighter->setSearch(text);
 
     this->ui->launch_search_next->setEnabled(!this->ui->launch_search_edit->text().isEmpty());
     this->ui->launch_search_prev->setEnabled(!this->ui->launch_search_edit->text().isEmpty());
 
     this->search_text = text.toStdString();
     this->ui->launch_search_clear->setEnabled(!text.isEmpty());
+
+    if (!text.isEmpty()) {
+        this->ui->launch_log_text->moveCursor(QTextCursor::StartOfWord);
+        this->SearchFind(false);
+    }
+}
+
+void TabApplications::ResetTextCursor() {
+    if (this->ui->launch_log_text->document()->isEmpty()) {
+        return;
+    }
+
+    QTextCursor cursor = this->ui->launch_log_text->textCursor();
+    int saved_anchor = cursor.anchor();
+    int saved_Position = cursor.position();
+
+    cursor.setPosition(0, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+
+    QTextCharFormat format;
+    cursor.setCharFormat(format);
+
+    cursor.setPosition(saved_Position, QTextCursor::MoveAnchor);
+    cursor.setPosition(saved_anchor, QTextCursor::KeepAnchor);
 }
 
 void TabApplications::on_search_clear_pressed() {
+    this->highlighter->setSearch("");
+
     this->search_text.clear();
-    this->ui->launch_export_file->setEnabled(false);
     this->ui->launch_search_edit->clear();
     this->ui->launch_search_next->setEnabled(false);
     this->ui->launch_search_prev->setEnabled(false);
     this->ui->launch_search_clear->setEnabled(false);
+
+    this->ResetTextCursor();
 }
 
-void TabApplications::on_search_next_pressed() { this->SearchFind(false); }
+void TabApplications::on_search_next_pressed() {
+    QTextCursor cursor = this->ui->launch_log_text->textCursor();
+    this->ui->launch_log_text->moveCursor(QTextCursor::EndOfWord);
+    this->ui->launch_log_text->setTextCursor(cursor);
+    this->SearchFind(false);
+}
 
-void TabApplications::on_search_prev_pressed() { this->SearchFind(true); }
+void TabApplications::on_search_prev_pressed() {
+    QTextCursor cursor = this->ui->launch_log_text->textCursor();
+    this->ui->launch_log_text->moveCursor(QTextCursor::StartOfWord);
+    this->ui->launch_log_text->setTextCursor(cursor);
+    this->SearchFind(true);
+}
 
 void TabApplications::SearchFind(bool prev) {
+    this->ResetTextCursor();
+
     QTextDocument::FindFlags flags = prev ? QTextDocument::FindBackward : QTextDocument::FindFlags(0);
 
     if (this->search_case) {
@@ -769,12 +827,36 @@ void TabApplications::SearchFind(bool prev) {
         flags |= QTextDocument::FindWholeWords;
     }
 
-    this->ui->launch_log_text->setFocus();
-
+    bool found = false;
     if (this->search_regex) {
-        this->ui->launch_log_text->find(QRegularExpression(this->ui->launch_search_edit->text()), flags);
+        found = this->ui->launch_log_text->find(QRegularExpression(this->ui->launch_search_edit->text()), flags);
     } else {
-        this->ui->launch_log_text->find(this->ui->launch_search_edit->text(), flags);
+        found = this->ui->launch_log_text->find(this->ui->launch_search_edit->text(), flags);
+    }
+
+    QTextCursor cursor = this->ui->launch_log_text->textCursor();
+
+    if (found) {
+        QTextCharFormat format;
+        format.setFontWeight(QFont::Bold);
+        // format.setForeground(Qt::red);
+        // format.setFontStyleHint();
+        //         format.setBackground(Qt::yellow);
+        cursor.mergeCharFormat(format);
+
+        this->ui->launch_log_text->ensureCursorVisible();
+    } else {
+        if (!prev && !cursor.atStart()) {
+            this->ui->launch_log_text->moveCursor(QTextCursor::Start);
+            this->SearchFind(prev);
+            return;
+        }
+
+        if (prev && !cursor.atEnd()) {
+            this->ui->launch_log_text->moveCursor(QTextCursor::End);
+            this->SearchFind(prev);
+            return;
+        }
     }
 }
 
@@ -819,6 +901,12 @@ void TabApplications::on_context_menu(const QPoint &pos) {
     if (action == action_clear) {
         this->on_launch_clear_log_pressed();
     } else if (action == action_search) {
+        QTextCursor cursor = this->ui->launch_log_text->textCursor();
+        if (cursor.hasSelection()) {
+            QString text = cursor.selectedText();
+            this->ui->launch_log_text->setText(text);
+            this->on_search_textEdited(text);
+        }
         this->on_focus_search();
     }
 

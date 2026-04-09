@@ -23,6 +23,7 @@
 - Improve keyboard shortcuts
 - Add layer display option to show only explicit layers #2636
 - Add enabled and ordered layers to generated configuration files #2634 #2565
+- Improve "search" usability with highligher
 
 ### Fixes:
 - Fix command line whitespace decoding #2625
