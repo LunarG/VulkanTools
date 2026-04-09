@@ -35,25 +35,25 @@ Vulkan Configurator is designed around multiple tabs, each dedicated to specific
 
 ### Vulkan Layers Configuration tab
 
-This tab allows configuring Vulkan layers. This includes enabling and specifying the Vulkan layers order on the Vulkan developers matching. Each layer can be configure using the Vulkan Layers settings.
+This tab allows configuring Vulkan layers. This includes enabling and ordering Vulkan layers executed by the Vulkan applications. Each layer can be configure using the Vulkan Layers settings.
 
-<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/1-layers.png" width=1200 /></p>
+<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/1-vulkan-layers-configuration.gif" width=1200 /></p>
 
 The context menu of the layers configuration allows generating layer settings files of all types: documentation, `vk_layer_settings.txt`, environment variables scripts and `VK_EXT_layer_settings` C++ helper library.
 
-### Vulkan Layers Paths tab
+### Vulkan Layers Available tab
 
 This tab allows adding additional Vulkan layers, potentially Vulkan versions of the same Vulkan layer.
 
-<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/2-layers-path.png" width=1200 /></p>
+<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/2-vulkan-layers-available.gif" width=1200 /></p>
 
 ### Vulkan Drivers tab
 
 This tab allows adding Vulkan drivers but also either sorting or forcing Vulkan physical devices to all Vulkan applications.
 
-<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/3-drivers.png" width=1200 /></p>
+<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/3-vulkan-drivers.gif" width=1200 /></p>
 
-### Vulkan Applications tab
+### Application Launcher tab
 
 This tab is an application launcher enabling to quickly test Vulkan system changes.
 

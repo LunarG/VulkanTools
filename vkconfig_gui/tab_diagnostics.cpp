@@ -36,10 +36,11 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->diagnostic_export_file, SIGNAL(clicked()), this, SLOT(on_export_file()));
     this->connect(this->ui->diagnostic_refresh, SIGNAL(clicked()), this, SLOT(on_refresh_log()));
     this->connect(this->ui->diagnostic_search_edit, SIGNAL(textEdited(QString)), this, SLOT(on_search_textEdited(QString)));
-    this->connect(this->ui->diagnostic_search_edit, SIGNAL(returnPressed()), this, SLOT(on_search_next_pressed()));
+    this->connect(this->ui->diagnostic_search_edit, SIGNAL(returnPressed()), this, SLOT(on_search_first_pressed()));
     this->connect(this->ui->diagnostic_search_clear, SIGNAL(clicked()), this, SLOT(on_search_clear_pressed()));
     this->connect(this->ui->diagnostic_search_next, SIGNAL(clicked()), this, SLOT(on_search_next_pressed()));
     this->connect(this->ui->diagnostic_search_prev, SIGNAL(clicked()), this, SLOT(on_search_prev_pressed()));
+    this->connect(this->ui->diagnostic_status_text, SIGNAL(clicked()), this, SLOT(on_focus_text()));
     this->connect(this->ui->diagnostic_status_text, SIGNAL(customContextMenuRequested(QPoint)), this,
                   SLOT(on_context_menu(const QPoint &)));
     this->connect(this->ui->diagnostic_search_case, SIGNAL(toggled(bool)), this, SLOT(on_search_case_toggled(bool)));
@@ -303,6 +304,8 @@ bool TabDiagnostics::EventFilter(QObject *target, QEvent *event) {
         switch (keyEvent->key()) {
             case Qt::Key_Enter:
             case Qt::Key_Return:
+                // this->ui->diagnostic_status_text->setFocus();
+                // this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
                 this->SearchFind(false);
                 return false;
         }
@@ -384,11 +387,15 @@ void TabDiagnostics::on_diagnostic_dir_info_pressed() {
 }
 
 void TabDiagnostics::on_refresh_log() {
+    static bool only_once = true;
+
     Configurator &configurator = Configurator::Get();
 
-    if (!(configurator.Get(HIDE_MESSAGE_WARN_NO_LOADER_LOG_ENABLED))) {
+    if (only_once && !(configurator.Get(HIDE_MESSAGE_WARN_NO_LOADER_LOG_ENABLED))) {
         if (this->mode == DIAGNOSTIC_VULKAN_LOADER_LOG &&
             (!configurator.loader_log_enabled || configurator.loader_log_messages_flags == 0)) {
+            only_once = false;  // don't show again during this run
+
             QMessageBox alert;
             alert.setWindowTitle("Vulkan Loader Log is disabled");
             alert.setText("Do you want enable Vulkan Loader log?");
@@ -603,21 +610,23 @@ void TabDiagnostics::on_export_file() {
     }
 }
 
+void TabDiagnostics::on_focus_text() { this->ui->diagnostic_status_text->setFocus(); }
+
 void TabDiagnostics::on_focus_search() {
     this->ui->diagnostic_search_edit->setFocus();
     this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
 }
 
 void TabDiagnostics::on_search_textEdited(const QString &text) {
-    if (!this->ui->diagnostic_search_clear->isEnabled()) {
-        this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
-    }
-
     this->ui->diagnostic_search_next->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
     this->ui->diagnostic_search_prev->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
 
     this->diagnostic_search_text = text.toStdString();
     this->ui->diagnostic_search_clear->setEnabled(!text.isEmpty());
+
+    this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
+
+    this->SearchFind(false);
 }
 
 void TabDiagnostics::on_search_clear_pressed() {
@@ -629,9 +638,21 @@ void TabDiagnostics::on_search_clear_pressed() {
     this->ui->diagnostic_search_clear->setEnabled(false);
 }
 
-void TabDiagnostics::on_search_next_pressed() { this->SearchFind(false); }
+void TabDiagnostics::on_search_first_pressed() {
+    this->ui->diagnostic_status_text->setFocus();
+    // this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
+    // this->SearchFind(false);
+}
 
-void TabDiagnostics::on_search_prev_pressed() { this->SearchFind(true); }
+void TabDiagnostics::on_search_next_pressed() {
+    this->SearchFind(false);
+    this->ui->diagnostic_status_text->setFocus();
+}
+
+void TabDiagnostics::on_search_prev_pressed() {
+    this->SearchFind(true);
+    this->ui->diagnostic_status_text->setFocus();
+}
 
 void TabDiagnostics::SearchFind(bool prev) {
     QTextDocument::FindFlags flags = prev ? QTextDocument::FindBackward : QTextDocument::FindFlags(0);
@@ -642,8 +663,6 @@ void TabDiagnostics::SearchFind(bool prev) {
     if (this->search_whole) {
         flags |= QTextDocument::FindWholeWords;
     }
-
-    this->ui->diagnostic_status_text->setFocus();
 
     if (this->search_regex) {
         this->ui->diagnostic_status_text->find(QRegularExpression(this->ui->diagnostic_search_edit->text()), flags);
