@@ -47,9 +47,11 @@ class TabDiagnostics : public Tab {
     void on_export_file();
     void on_refresh_log();
 
+    void on_focus_text();
     void on_focus_search();
     void on_search_textEdited(const QString& text);
     void on_search_clear_pressed();
+    void on_search_first_pressed();
     void on_search_next_pressed();
     void on_search_prev_pressed();
     void on_search_case_toggled(bool checked);

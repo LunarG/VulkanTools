@@ -41,10 +41,11 @@ TabLayers::TabLayers(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : T
     this->ui->layers_progress->setVisible(false);
     this->ui->layers_path_lineedit->setVisible(true);
     this->ui->layers_search_clear->setEnabled(false);
+    this->ui->layers_path_lineedit->setText(configurator.layers.last_layers_dir.AbsolutePath().c_str());
 
     this->connect(this->ui->layers_browse_button, SIGNAL(clicked()), this, SLOT(on_layers_browse_pressed()));
     this->connect(this->ui->layers_reload_button, SIGNAL(clicked()), this, SLOT(on_layers_reload_pressed()));
-    this->connect(this->ui->layers_path_lineedit, SIGNAL(editingFinished()), this, SLOT(on_layers_append_pressed()));
+    // this->connect(this->ui->layers_path_lineedit, SIGNAL(editingFinished()), this, SLOT(on_layers_append_pressed()));
     this->connect(this->ui->layers_path_lineedit, SIGNAL(returnPressed()), this, SLOT(on_layers_append_pressed()));
 
     this->connect(this->ui->layers_search, SIGNAL(textEdited(QString)), this, SLOT(on_search_textEdited(QString)));
@@ -186,6 +187,7 @@ void TabLayers::on_layers_reload_pressed() {
     this->ui->layers_search_clear->setVisible(false);
     this->ui->layers_path_lineedit->setVisible(false);
     this->ui->layers_browse_button->setVisible(false);
+    this->ui->layers_reload_button->setVisible(false);
     this->ui->layers_progress->setVisible(true);
 
     Path new_path = this->ui->layers_path_lineedit->text().toStdString();
@@ -216,7 +218,16 @@ void TabLayers::on_layers_reload_pressed() {
     configurator.UpdateConfigurations();
     configurator.Override(OVERRIDE_AREA_ALL);
 
-    std::string last_layers_path = configurator.layers.last_layers_dir.AbsolutePath();
+    // std::string last_layers_path = configurator.layers.last_layers_dir.AbsolutePath();
+
+    this->ui->layers_search->setVisible(true);
+    this->ui->layers_search_clear->setVisible(true);
+    this->ui->layers_path_lineedit->setVisible(true);
+    this->ui->layers_browse_button->setVisible(true);
+    this->ui->layers_reload_button->setVisible(true);
+    this->ui->layers_progress->setVisible(false);
+
+    this->UpdateUI_LayersPaths(UPDATE_REBUILD_UI);
 
     if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED)) {
         std::string text = "Loading and reloading all located layers manifests:\n";
@@ -237,12 +248,6 @@ void TabLayers::on_layers_reload_pressed() {
             configurator.Set(HIDE_MESSAGE_NOTIFICATION_LAYERS_LOADED);
         }
     }
-
-    this->ui->layers_search->setVisible(true);
-    this->ui->layers_search_clear->setVisible(true);
-    this->ui->layers_path_lineedit->setVisible(true);
-    this->ui->layers_browse_button->setVisible(true);
-    this->ui->layers_progress->setVisible(false);
 }
 
 void TabLayers::LoadLayersManifest(const QString &selected_path) {
