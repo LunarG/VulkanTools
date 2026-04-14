@@ -309,9 +309,11 @@ void TabDiagnostics::UpdateUI(UpdateUIMode mode) {
     // QColor background_color = palette.color(::GetActualThemeMode(configurator.current_theme_mode) == THEME_MODE_FORCE_LIGHT ?
     // QPalette::Light : QPalette::Dark);
     QPalette palette = this->ui->configurations_list->palette();
-    QColor highlight = palette.color(QPalette::Highlight);
-    this->highlighter->setColor(
-        ::GetActualThemeMode(configurator.current_theme_mode) == THEME_MODE_FORCE_LIGHT ? highlight.lighter() : highlight.darker());
+    QColor highlight = palette.color(QPalette::AlternateBase);
+    this->highlighter->setColor(highlight);
+    // this->highlighter->setColor(
+    //     ::GetActualThemeMode(configurator.current_theme_mode) == THEME_MODE_FORCE_LIGHT ? highlight.lighter() :
+    //     highlight.darker());
 }
 
 void TabDiagnostics::CleanUI() {}
@@ -673,7 +675,6 @@ void TabDiagnostics::on_search_clear_pressed() {
     this->highlighter->setSearch("");
 
     this->diagnostic_search_text.clear();
-    this->ui->diagnostic_export_file->setEnabled(false);
     this->ui->diagnostic_search_edit->clear();
     this->ui->diagnostic_search_next->setEnabled(false);
     this->ui->diagnostic_search_prev->setEnabled(false);

@@ -57,18 +57,22 @@ This tab allows adding Vulkan drivers but also either sorting or forcing Vulkan 
 
 This tab is an application launcher enabling to quickly test Vulkan system changes.
 
-<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/4-applications.png" width=1200 /></p>
+<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/4-application-launcher.gif" width=1200 /></p>
 
 ### Vulkan Diagnostics tab
 
-This tab allows generating multiple log, including Vulkan loader log, Vulkan loader configuration, Vulkaninfo, etc. These logs can be exported and shared for examples to submit issues on Vulkan github repository.
+This tab allows generating multiple log, including Vulkan loader log, Vulkan loader configuration, Vulkaninfo, etc. These logs can be exported and shared, for examples, to submit issues on Vulkan github repositories.
 
-<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/5-diagnostics.png" width=1200 /></p>
+<p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/5-diagnostics.gif" width=1200 /></p>
 
 ### Vulkan Documentation tab
+
+This tab allows accessing common Vulkan documentation including Vulkan specification and Vulkan SDK documentation.
 
 <p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/6-documentation.png" width=1200 /></p>
 
 ### Vulkan Preferences tab
+
+This tab allows tayloring Vulkan Configurator UI and behavior to Vulkan developers preferences.
 
 <p align="center"><img src="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/images/7-preferences.png" width=1200 /></p>
