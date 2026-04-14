@@ -19,8 +19,13 @@
  */
 
 #include "highlighter.h"
+#include "tab.h"
 
-Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {}
+Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
+    this->format.setFontWeight(QFont::ExtraBold);
+    this->format.setFontUnderline(true);
+    this->format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+}
 
 void Highlighter::setColor(const QColor &color) {
     this->format.setBackground(color);
@@ -54,8 +59,6 @@ void Highlighter::Update() {
 }
 
 void Highlighter::highlightBlock(const QString &text) {
-    this->format.setFontWeight(QFont::Normal);
-
     QRegularExpressionMatchIterator matchIterator = this->pattern.globalMatch(text);
     while (matchIterator.hasNext()) {
         QRegularExpressionMatch match = matchIterator.next();
