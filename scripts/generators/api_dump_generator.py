@@ -330,6 +330,10 @@ class ApiDumpGenerator(BaseGenerator):
         self.only_use_as_pointer_types = set()
 
     def generate(self):
+        # Workaround for deprecation of VkDeviceCreateInfo::ppEnabledLayerNames which removed info from the XML
+        self.vk.structs['VkDeviceCreateInfo'].members[5].optional = True
+        self.vk.structs['VkDeviceCreateInfo'].members[6].length = 'enabledLayerCount'
+
         self.build_return_types()
         self.build_alias_map()
         self.build_vulkan_defined_type_set()
