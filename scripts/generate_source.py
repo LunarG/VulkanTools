@@ -50,10 +50,11 @@ def RunGenerators(api: str, registry: str, video_registry: str, directory: str, 
     sys.path.insert(0, registry_headers_path)
     try:
         from reg import Registry
-    except:
+    except Exception as err:
         print("ModuleNotFoundError: No module named 'reg'") # normal python error message
         print(f'{registry_headers_path} is not pointing to the Vulkan-Headers registry directory.')
         print("Inside Vulkan-Headers there is a registry/reg.py file that is used.")
+        print(f"Error {err=}, {type(err)=}")
         sys.exit(1) # Return without call stack so easy to spot error
 
     from base_generator import BaseGeneratorOptions
