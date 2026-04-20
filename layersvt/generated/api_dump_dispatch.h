@@ -2138,6 +2138,26 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEngi
         flush(ApiDumpInstance::current().settings());
     }
 }
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, const VkQueueFamilyDataGraphPropertiesARM* pQueueFamilyDataGraphProperties, VkBaseOutStructure* pProperties) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM", "physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pProperties", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM<Format>(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pProperties);
+        }
+    }
+    VkResult result = instance_dispatch_table(physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pProperties);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM<Format>(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pProperties);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
 #if defined(VK_USE_PLATFORM_OHOS)
 template <ApiDumpFormat Format>
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateSurfaceOHOS(VkInstance instance, const VkSurfaceCreateInfoOHOS* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface) {
@@ -2200,6 +2220,88 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceQueueFamilyPerformanceCo
     }
     return result;
 }
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM(VkPhysicalDevice physicalDevice, uint32_t* pDescriptionCount, VkShaderInstrumentationMetricDescriptionARM* pDescriptions) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM", "physicalDevice, pDescriptionCount, pDescriptions", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM<Format>(ApiDumpInstance::current(), physicalDevice, pDescriptionCount, pDescriptions);
+        }
+    }
+    VkResult result = instance_dispatch_table(physicalDevice)->EnumeratePhysicalDeviceShaderInstrumentationMetricsARM(physicalDevice, pDescriptionCount, pDescriptions);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM<Format>(ApiDumpInstance::current(), physicalDevice, pDescriptionCount, pDescriptions);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, const VkQueueFamilyDataGraphPropertiesARM* pQueueFamilyDataGraphProperties, const VkDataGraphOpticalFlowImageFormatInfoARM* pOpticalFlowImageFormatInfo, uint32_t* pFormatCount, VkDataGraphOpticalFlowImageFormatPropertiesARM* pImageFormatProperties) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM", "physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM<Format>(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties);
+        }
+    }
+    VkResult result = instance_dispatch_table(physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM<Format>(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+#if defined(VK_USE_PLATFORM_UBM_SEC)
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateUbmSurfaceSEC(VkInstance instance, const VkUbmSurfaceCreateInfoSEC* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkCreateUbmSurfaceSEC", "instance, pCreateInfo, pAllocator, pSurface", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCreateUbmSurfaceSEC<Format>(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
+        }
+    }
+    VkResult result = instance_dispatch_table(instance)->CreateUbmSurfaceSEC(instance, pCreateInfo, pAllocator, pSurface);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCreateUbmSurfaceSEC<Format>(ApiDumpInstance::current(), instance, pCreateInfo, pAllocator, pSurface);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceUbmPresentationSupportSEC(VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, struct ubm_device* device) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceUbmPresentationSupportSEC", "physicalDevice, queueFamilyIndex, device", "VkBool32");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetPhysicalDeviceUbmPresentationSupportSEC<Format>(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, device);
+        }
+    }
+    VkBool32 result = instance_dispatch_table(physicalDevice)->GetPhysicalDeviceUbmPresentationSupportSEC(physicalDevice, queueFamilyIndex, device);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkBool32", result);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetPhysicalDeviceUbmPresentationSupportSEC<Format>(ApiDumpInstance::current(), physicalDevice, queueFamilyIndex, device);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+#endif  // VK_USE_PLATFORM_UBM_SEC
 
 // Autogen device functions
 
@@ -7944,6 +8046,426 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2KHR(VkQueue queue, uint32_t submitC
     return result;
 }
 template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer3KHR(VkCommandBuffer commandBuffer, const VkBindIndexBuffer3InfoKHR* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBindIndexBuffer3KHR", "commandBuffer, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBindIndexBuffer3KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdBindIndexBuffer3KHR(commandBuffer, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBindIndexBuffer3KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers3KHR(VkCommandBuffer commandBuffer, uint32_t firstBinding, uint32_t bindingCount, const VkBindVertexBuffer3InfoKHR* pBindingInfos) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBindVertexBuffers3KHR", "commandBuffer, firstBinding, bindingCount, pBindingInfos", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBindVertexBuffers3KHR<Format>(ApiDumpInstance::current(), commandBuffer, firstBinding, bindingCount, pBindingInfos);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdBindVertexBuffers3KHR(commandBuffer, firstBinding, bindingCount, pBindingInfos);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBindVertexBuffers3KHR<Format>(ApiDumpInstance::current(), commandBuffer, firstBinding, bindingCount, pBindingInfos);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirect2KHR(VkCommandBuffer commandBuffer, const VkDrawIndirect2InfoKHR* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndirect2KHR", "commandBuffer, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdDrawIndirect2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdDrawIndirect2KHR(commandBuffer, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdDrawIndirect2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirect2KHR(VkCommandBuffer commandBuffer, const VkDrawIndirect2InfoKHR* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndexedIndirect2KHR", "commandBuffer, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdDrawIndexedIndirect2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdDrawIndexedIndirect2KHR(commandBuffer, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdDrawIndexedIndirect2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchIndirect2KHR(VkCommandBuffer commandBuffer, const VkDispatchIndirect2InfoKHR* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDispatchIndirect2KHR", "commandBuffer, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdDispatchIndirect2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdDispatchIndirect2KHR(commandBuffer, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdDispatchIndirect2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryKHR(VkCommandBuffer commandBuffer, const VkCopyDeviceMemoryInfoKHR* pCopyMemoryInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdCopyMemoryKHR", "commandBuffer, pCopyMemoryInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdCopyMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, pCopyMemoryInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdCopyMemoryKHR(commandBuffer, pCopyMemoryInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdCopyMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, pCopyMemoryInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToImageKHR(VkCommandBuffer commandBuffer, const VkCopyDeviceMemoryImageInfoKHR* pCopyMemoryInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdCopyMemoryToImageKHR", "commandBuffer, pCopyMemoryInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdCopyMemoryToImageKHR<Format>(ApiDumpInstance::current(), commandBuffer, pCopyMemoryInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdCopyMemoryToImageKHR(commandBuffer, pCopyMemoryInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdCopyMemoryToImageKHR<Format>(ApiDumpInstance::current(), commandBuffer, pCopyMemoryInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToMemoryKHR(VkCommandBuffer commandBuffer, const VkCopyDeviceMemoryImageInfoKHR* pCopyMemoryInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdCopyImageToMemoryKHR", "commandBuffer, pCopyMemoryInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdCopyImageToMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, pCopyMemoryInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdCopyImageToMemoryKHR(commandBuffer, pCopyMemoryInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdCopyImageToMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, pCopyMemoryInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdUpdateMemoryKHR(VkCommandBuffer commandBuffer, const VkDeviceAddressRangeKHR* pDstRange, VkAddressCommandFlagsKHR dstFlags, VkDeviceSize dataSize, const void* pData) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdUpdateMemoryKHR", "commandBuffer, pDstRange, dstFlags, dataSize, pData", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdUpdateMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, pDstRange, dstFlags, dataSize, pData);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdUpdateMemoryKHR(commandBuffer, pDstRange, dstFlags, dataSize, pData);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdUpdateMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, pDstRange, dstFlags, dataSize, pData);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdFillMemoryKHR(VkCommandBuffer commandBuffer, const VkDeviceAddressRangeKHR* pDstRange, VkAddressCommandFlagsKHR dstFlags, uint32_t data) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdFillMemoryKHR", "commandBuffer, pDstRange, dstFlags, data", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdFillMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, pDstRange, dstFlags, data);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdFillMemoryKHR(commandBuffer, pDstRange, dstFlags, data);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdFillMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, pDstRange, dstFlags, data);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyQueryPoolResultsToMemoryKHR(VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount, const VkStridedDeviceAddressRangeKHR* pDstRange, VkAddressCommandFlagsKHR dstFlags, VkQueryResultFlags queryResultFlags) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdCopyQueryPoolResultsToMemoryKHR", "commandBuffer, queryPool, firstQuery, queryCount, pDstRange, dstFlags, queryResultFlags", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdCopyQueryPoolResultsToMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, queryPool, firstQuery, queryCount, pDstRange, dstFlags, queryResultFlags);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdCopyQueryPoolResultsToMemoryKHR(commandBuffer, queryPool, firstQuery, queryCount, pDstRange, dstFlags, queryResultFlags);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdCopyQueryPoolResultsToMemoryKHR<Format>(ApiDumpInstance::current(), commandBuffer, queryPool, firstQuery, queryCount, pDstRange, dstFlags, queryResultFlags);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCount2KHR(VkCommandBuffer commandBuffer, const VkDrawIndirectCount2InfoKHR* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndirectCount2KHR", "commandBuffer, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdDrawIndirectCount2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdDrawIndirectCount2KHR(commandBuffer, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdDrawIndirectCount2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCount2KHR(VkCommandBuffer commandBuffer, const VkDrawIndirectCount2InfoKHR* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndexedIndirectCount2KHR", "commandBuffer, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdDrawIndexedIndirectCount2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdDrawIndexedIndirectCount2KHR(commandBuffer, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdDrawIndexedIndirectCount2KHR<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdBeginConditionalRendering2EXT(VkCommandBuffer commandBuffer, const VkConditionalRenderingBeginInfo2EXT* pConditionalRenderingBegin) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBeginConditionalRendering2EXT", "commandBuffer, pConditionalRenderingBegin", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBeginConditionalRendering2EXT<Format>(ApiDumpInstance::current(), commandBuffer, pConditionalRenderingBegin);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdBeginConditionalRendering2EXT(commandBuffer, pConditionalRenderingBegin);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBeginConditionalRendering2EXT<Format>(ApiDumpInstance::current(), commandBuffer, pConditionalRenderingBegin);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdBindTransformFeedbackBuffers2EXT(VkCommandBuffer commandBuffer, uint32_t firstBinding, uint32_t bindingCount, const VkBindTransformFeedbackBuffer2InfoEXT* pBindingInfos) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBindTransformFeedbackBuffers2EXT", "commandBuffer, firstBinding, bindingCount, pBindingInfos", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBindTransformFeedbackBuffers2EXT<Format>(ApiDumpInstance::current(), commandBuffer, firstBinding, bindingCount, pBindingInfos);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdBindTransformFeedbackBuffers2EXT(commandBuffer, firstBinding, bindingCount, pBindingInfos);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBindTransformFeedbackBuffers2EXT<Format>(ApiDumpInstance::current(), commandBuffer, firstBinding, bindingCount, pBindingInfos);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdBeginTransformFeedback2EXT(VkCommandBuffer commandBuffer, uint32_t firstCounterRange, uint32_t counterRangeCount, const VkBindTransformFeedbackBuffer2InfoEXT* pCounterInfos) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBeginTransformFeedback2EXT", "commandBuffer, firstCounterRange, counterRangeCount, pCounterInfos", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBeginTransformFeedback2EXT<Format>(ApiDumpInstance::current(), commandBuffer, firstCounterRange, counterRangeCount, pCounterInfos);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdBeginTransformFeedback2EXT(commandBuffer, firstCounterRange, counterRangeCount, pCounterInfos);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBeginTransformFeedback2EXT<Format>(ApiDumpInstance::current(), commandBuffer, firstCounterRange, counterRangeCount, pCounterInfos);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdEndTransformFeedback2EXT(VkCommandBuffer commandBuffer, uint32_t firstCounterRange, uint32_t counterRangeCount, const VkBindTransformFeedbackBuffer2InfoEXT* pCounterInfos) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdEndTransformFeedback2EXT", "commandBuffer, firstCounterRange, counterRangeCount, pCounterInfos", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdEndTransformFeedback2EXT<Format>(ApiDumpInstance::current(), commandBuffer, firstCounterRange, counterRangeCount, pCounterInfos);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdEndTransformFeedback2EXT(commandBuffer, firstCounterRange, counterRangeCount, pCounterInfos);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdEndTransformFeedback2EXT<Format>(ApiDumpInstance::current(), commandBuffer, firstCounterRange, counterRangeCount, pCounterInfos);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectByteCount2EXT(VkCommandBuffer commandBuffer, uint32_t instanceCount, uint32_t firstInstance, const VkBindTransformFeedbackBuffer2InfoEXT* pCounterInfo, uint32_t counterOffset, uint32_t vertexStride) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDrawIndirectByteCount2EXT", "commandBuffer, instanceCount, firstInstance, pCounterInfo, counterOffset, vertexStride", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdDrawIndirectByteCount2EXT<Format>(ApiDumpInstance::current(), commandBuffer, instanceCount, firstInstance, pCounterInfo, counterOffset, vertexStride);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdDrawIndirectByteCount2EXT(commandBuffer, instanceCount, firstInstance, pCounterInfo, counterOffset, vertexStride);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdDrawIndirectByteCount2EXT<Format>(ApiDumpInstance::current(), commandBuffer, instanceCount, firstInstance, pCounterInfo, counterOffset, vertexStride);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirect2EXT(VkCommandBuffer commandBuffer, const VkDrawIndirect2InfoKHR* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMeshTasksIndirect2EXT", "commandBuffer, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdDrawMeshTasksIndirect2EXT<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdDrawMeshTasksIndirect2EXT(commandBuffer, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdDrawMeshTasksIndirect2EXT<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectCount2EXT(VkCommandBuffer commandBuffer, const VkDrawIndirectCount2InfoKHR* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdDrawMeshTasksIndirectCount2EXT", "commandBuffer, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdDrawMeshTasksIndirectCount2EXT<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdDrawMeshTasksIndirectCount2EXT(commandBuffer, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdDrawMeshTasksIndirectCount2EXT<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdWriteMarkerToMemoryAMD(VkCommandBuffer commandBuffer, const VkMemoryMarkerInfoAMD* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdWriteMarkerToMemoryAMD", "commandBuffer, pInfo", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdWriteMarkerToMemoryAMD<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdWriteMarkerToMemoryAMD(commandBuffer, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdWriteMarkerToMemoryAMD<Format>(ApiDumpInstance::current(), commandBuffer, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructure2KHR(VkDevice device, const VkAccelerationStructureCreateInfo2KHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkAccelerationStructureKHR* pAccelerationStructure) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCreateAccelerationStructure2KHR", "device, pCreateInfo, pAllocator, pAccelerationStructure", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCreateAccelerationStructure2KHR<Format>(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pAccelerationStructure);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->CreateAccelerationStructure2KHR(device, pCreateInfo, pAllocator, pAccelerationStructure);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCreateAccelerationStructure2KHR<Format>(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pAccelerationStructure);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer2KHR(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -8545,6 +9067,48 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToImageIndirectKHR(VkCommandBuffer com
         dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
         flush(ApiDumpInstance::current().settings());
     }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceFaultReportsKHR(VkDevice device, uint64_t timeout, uint32_t* pFaultCounts, VkDeviceFaultInfoKHR* pFaultInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetDeviceFaultReportsKHR", "device, timeout, pFaultCounts, pFaultInfo", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetDeviceFaultReportsKHR<Format>(ApiDumpInstance::current(), device, timeout, pFaultCounts, pFaultInfo);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetDeviceFaultReportsKHR(device, timeout, pFaultCounts, pFaultInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetDeviceFaultReportsKHR<Format>(ApiDumpInstance::current(), device, timeout, pFaultCounts, pFaultInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceFaultDebugInfoKHR(VkDevice device, VkDeviceFaultDebugInfoKHR* pDebugInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetDeviceFaultDebugInfoKHR", "device, pDebugInfo", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetDeviceFaultDebugInfoKHR<Format>(ApiDumpInstance::current(), device, pDebugInfo);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetDeviceFaultDebugInfoKHR(device, pDebugInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetDeviceFaultDebugInfoKHR<Format>(ApiDumpInstance::current(), device, pDebugInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
 }
 template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2KHR(VkCommandBuffer commandBuffer, const VkRenderingEndInfoKHR* pRenderingEndInfo) {
@@ -10046,7 +10610,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureNV(VkDevice device, VkA
     }
 }
 template <ApiDumpFormat Format>
-VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureMemoryRequirementsNV(VkDevice device, const VkAccelerationStructureMemoryRequirementsInfoNV* pInfo, VkMemoryRequirements2KHR* pMemoryRequirements) {
+VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureMemoryRequirementsNV(VkDevice device, const VkAccelerationStructureMemoryRequirementsInfoNV* pInfo, VkMemoryRequirements2* pMemoryRequirements) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
     dump_function_head(ApiDumpInstance::current(), "vkGetAccelerationStructureMemoryRequirementsNV", "device, pInfo, pMemoryRequirements", "void");
@@ -11479,6 +12043,27 @@ VKAPI_ATTR void VKAPI_CALL vkGetPrivateDataEXT(VkDevice device, VkObjectType obj
         flush(ApiDumpInstance::current().settings());
     }
 }
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkQueueSetPerfHintQCOM(VkQueue queue, const VkPerfHintInfoQCOM* pPerfHintInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkQueueSetPerfHintQCOM", "queue, pPerfHintInfo", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkQueueSetPerfHintQCOM<Format>(ApiDumpInstance::current(), queue, pPerfHintInfo);
+        }
+    }
+    VkResult result = device_dispatch_table(queue)->QueueSetPerfHintQCOM(queue, pPerfHintInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkQueueSetPerfHintQCOM<Format>(ApiDumpInstance::current(), queue, pPerfHintInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 template <ApiDumpFormat Format>
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateCudaModuleNV(VkDevice device, const VkCudaModuleCreateInfoNV* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkCudaModuleNV* pModule) {
@@ -12227,7 +12812,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryRemoteAddressNV(VkDevice device, const
     return result;
 }
 template <ApiDumpFormat Format>
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelinePropertiesEXT(VkDevice device, const VkPipelineInfoEXT* pPipelineInfo, VkBaseOutStructure* pPipelineProperties) {
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelinePropertiesEXT(VkDevice device, const VkPipelineInfoKHR* pPipelineInfo, VkBaseOutStructure* pPipelineProperties) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
     dump_function_head(ApiDumpInstance::current(), "vkGetPipelinePropertiesEXT", "device, pPipelineInfo, pPipelineProperties", "VkResult");
@@ -12730,6 +13315,25 @@ VKAPI_ATTR void VKAPI_CALL vkSetDeviceMemoryPriorityEXT(VkDevice device, VkDevic
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
         dump_params_vkSetDeviceMemoryPriorityEXT<Format>(ApiDumpInstance::current(), device, memory, priority);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdSetDispatchParametersARM(VkCommandBuffer commandBuffer, const VkDispatchParametersARM* pDispatchParameters) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdSetDispatchParametersARM", "commandBuffer, pDispatchParameters", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdSetDispatchParametersARM<Format>(ApiDumpInstance::current(), commandBuffer, pDispatchParameters);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdSetDispatchParametersARM(commandBuffer, pDispatchParameters);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdSetDispatchParametersARM<Format>(ApiDumpInstance::current(), commandBuffer, pDispatchParameters);
         dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
         flush(ApiDumpInstance::current().settings());
     }
@@ -14794,6 +15398,124 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(VkDevice devi
 }
 #endif  // VK_USE_PLATFORM_METAL_EXT
 template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateShaderInstrumentationARM(VkDevice device, const VkShaderInstrumentationCreateInfoARM* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkShaderInstrumentationARM* pInstrumentation) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCreateShaderInstrumentationARM", "device, pCreateInfo, pAllocator, pInstrumentation", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCreateShaderInstrumentationARM<Format>(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pInstrumentation);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->CreateShaderInstrumentationARM(device, pCreateInfo, pAllocator, pInstrumentation);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCreateShaderInstrumentationARM<Format>(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pInstrumentation);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkDestroyShaderInstrumentationARM(VkDevice device, VkShaderInstrumentationARM instrumentation, const VkAllocationCallbacks* pAllocator) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkDestroyShaderInstrumentationARM", "device, instrumentation, pAllocator", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkDestroyShaderInstrumentationARM<Format>(ApiDumpInstance::current(), device, instrumentation, pAllocator);
+        }
+    }
+    device_dispatch_table(device)->DestroyShaderInstrumentationARM(device, instrumentation, pAllocator);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkDestroyShaderInstrumentationARM<Format>(ApiDumpInstance::current(), device, instrumentation, pAllocator);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdBeginShaderInstrumentationARM(VkCommandBuffer commandBuffer, VkShaderInstrumentationARM instrumentation) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBeginShaderInstrumentationARM", "commandBuffer, instrumentation", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBeginShaderInstrumentationARM<Format>(ApiDumpInstance::current(), commandBuffer, instrumentation);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdBeginShaderInstrumentationARM(commandBuffer, instrumentation);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBeginShaderInstrumentationARM<Format>(ApiDumpInstance::current(), commandBuffer, instrumentation);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdEndShaderInstrumentationARM(VkCommandBuffer commandBuffer) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdEndShaderInstrumentationARM", "commandBuffer", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdEndShaderInstrumentationARM<Format>(ApiDumpInstance::current(), commandBuffer);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdEndShaderInstrumentationARM(commandBuffer);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdEndShaderInstrumentationARM<Format>(ApiDumpInstance::current(), commandBuffer);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetShaderInstrumentationValuesARM(VkDevice device, VkShaderInstrumentationARM instrumentation, uint32_t* pMetricBlockCount, void* pMetricValues, VkShaderInstrumentationValuesFlagsARM flags) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetShaderInstrumentationValuesARM", "device, instrumentation, pMetricBlockCount, pMetricValues, flags", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetShaderInstrumentationValuesARM<Format>(ApiDumpInstance::current(), device, instrumentation, pMetricBlockCount, pMetricValues, flags);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetShaderInstrumentationValuesARM(device, instrumentation, pMetricBlockCount, pMetricValues, flags);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetShaderInstrumentationValuesARM<Format>(ApiDumpInstance::current(), device, instrumentation, pMetricBlockCount, pMetricValues, flags);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkClearShaderInstrumentationMetricsARM(VkDevice device, VkShaderInstrumentationARM instrumentation) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkClearShaderInstrumentationMetricsARM", "device, instrumentation", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkClearShaderInstrumentationMetricsARM<Format>(ApiDumpInstance::current(), device, instrumentation);
+        }
+    }
+    device_dispatch_table(device)->ClearShaderInstrumentationMetricsARM(device, instrumentation);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkClearShaderInstrumentationMetricsARM<Format>(ApiDumpInstance::current(), device, instrumentation);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2EXT(VkCommandBuffer commandBuffer, const VkRenderingEndInfoKHR* pRenderingEndInfo) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -14846,6 +15568,25 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(VkCommandBuffer co
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
         dump_params_vkCmdSetComputeOccupancyPriorityNV<Format>(ApiDumpInstance::current(), commandBuffer, pParameters);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartIndexEXT(VkCommandBuffer commandBuffer, uint32_t primitiveRestartIndex) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdSetPrimitiveRestartIndexEXT", "commandBuffer, primitiveRestartIndex", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdSetPrimitiveRestartIndexEXT<Format>(ApiDumpInstance::current(), commandBuffer, primitiveRestartIndex);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdSetPrimitiveRestartIndexEXT(commandBuffer, primitiveRestartIndex);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdSetPrimitiveRestartIndexEXT<Format>(ApiDumpInstance::current(), commandBuffer, primitiveRestartIndex);
         dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
         flush(ApiDumpInstance::current().settings());
     }
@@ -15620,6 +16361,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM<Format>);
     if (strcmp(pName, "vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM<Format>);
+    if (strcmp(pName, "vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM<Format>);
 #if defined(VK_USE_PLATFORM_OHOS)
     if (strcmp(pName, "vkCreateSurfaceOHOS") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateSurfaceOHOS<Format>);
@@ -15628,6 +16371,16 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV<Format>);
     if (strcmp(pName, "vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM<Format>);
+    if (strcmp(pName, "vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM<Format>);
+    if (strcmp(pName, "vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM<Format>);
+#if defined(VK_USE_PLATFORM_UBM_SEC)
+    if (strcmp(pName, "vkCreateUbmSurfaceSEC") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateUbmSurfaceSEC<Format>);
+    if (strcmp(pName, "vkGetPhysicalDeviceUbmPresentationSupportSEC") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceUbmPresentationSupportSEC<Format>);
+#endif  // VK_USE_PLATFORM_UBM_SEC
 
     return nullptr;
 }
@@ -16226,6 +16979,50 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdWriteTimestamp2KHR<Format>);
     if (strcmp(pName, "vkQueueSubmit2KHR") == 0 && (!device || device_dispatch_table(device)->QueueSubmit2KHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkQueueSubmit2KHR<Format>);
+    if (strcmp(pName, "vkCmdBindIndexBuffer3KHR") == 0 && (!device || device_dispatch_table(device)->CmdBindIndexBuffer3KHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindIndexBuffer3KHR<Format>);
+    if (strcmp(pName, "vkCmdBindVertexBuffers3KHR") == 0 && (!device || device_dispatch_table(device)->CmdBindVertexBuffers3KHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindVertexBuffers3KHR<Format>);
+    if (strcmp(pName, "vkCmdDrawIndirect2KHR") == 0 && (!device || device_dispatch_table(device)->CmdDrawIndirect2KHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndirect2KHR<Format>);
+    if (strcmp(pName, "vkCmdDrawIndexedIndirect2KHR") == 0 && (!device || device_dispatch_table(device)->CmdDrawIndexedIndirect2KHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndexedIndirect2KHR<Format>);
+    if (strcmp(pName, "vkCmdDispatchIndirect2KHR") == 0 && (!device || device_dispatch_table(device)->CmdDispatchIndirect2KHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatchIndirect2KHR<Format>);
+    if (strcmp(pName, "vkCmdCopyMemoryKHR") == 0 && (!device || device_dispatch_table(device)->CmdCopyMemoryKHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyMemoryKHR<Format>);
+    if (strcmp(pName, "vkCmdCopyMemoryToImageKHR") == 0 && (!device || device_dispatch_table(device)->CmdCopyMemoryToImageKHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyMemoryToImageKHR<Format>);
+    if (strcmp(pName, "vkCmdCopyImageToMemoryKHR") == 0 && (!device || device_dispatch_table(device)->CmdCopyImageToMemoryKHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyImageToMemoryKHR<Format>);
+    if (strcmp(pName, "vkCmdUpdateMemoryKHR") == 0 && (!device || device_dispatch_table(device)->CmdUpdateMemoryKHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdUpdateMemoryKHR<Format>);
+    if (strcmp(pName, "vkCmdFillMemoryKHR") == 0 && (!device || device_dispatch_table(device)->CmdFillMemoryKHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdFillMemoryKHR<Format>);
+    if (strcmp(pName, "vkCmdCopyQueryPoolResultsToMemoryKHR") == 0 && (!device || device_dispatch_table(device)->CmdCopyQueryPoolResultsToMemoryKHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyQueryPoolResultsToMemoryKHR<Format>);
+    if (strcmp(pName, "vkCmdDrawIndirectCount2KHR") == 0 && (!device || device_dispatch_table(device)->CmdDrawIndirectCount2KHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndirectCount2KHR<Format>);
+    if (strcmp(pName, "vkCmdDrawIndexedIndirectCount2KHR") == 0 && (!device || device_dispatch_table(device)->CmdDrawIndexedIndirectCount2KHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndexedIndirectCount2KHR<Format>);
+    if (strcmp(pName, "vkCmdBeginConditionalRendering2EXT") == 0 && (!device || device_dispatch_table(device)->CmdBeginConditionalRendering2EXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginConditionalRendering2EXT<Format>);
+    if (strcmp(pName, "vkCmdBindTransformFeedbackBuffers2EXT") == 0 && (!device || device_dispatch_table(device)->CmdBindTransformFeedbackBuffers2EXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindTransformFeedbackBuffers2EXT<Format>);
+    if (strcmp(pName, "vkCmdBeginTransformFeedback2EXT") == 0 && (!device || device_dispatch_table(device)->CmdBeginTransformFeedback2EXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginTransformFeedback2EXT<Format>);
+    if (strcmp(pName, "vkCmdEndTransformFeedback2EXT") == 0 && (!device || device_dispatch_table(device)->CmdEndTransformFeedback2EXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndTransformFeedback2EXT<Format>);
+    if (strcmp(pName, "vkCmdDrawIndirectByteCount2EXT") == 0 && (!device || device_dispatch_table(device)->CmdDrawIndirectByteCount2EXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndirectByteCount2EXT<Format>);
+    if (strcmp(pName, "vkCmdDrawMeshTasksIndirect2EXT") == 0 && (!device || device_dispatch_table(device)->CmdDrawMeshTasksIndirect2EXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawMeshTasksIndirect2EXT<Format>);
+    if (strcmp(pName, "vkCmdDrawMeshTasksIndirectCount2EXT") == 0 && (!device || device_dispatch_table(device)->CmdDrawMeshTasksIndirectCount2EXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawMeshTasksIndirectCount2EXT<Format>);
+    if (strcmp(pName, "vkCmdWriteMarkerToMemoryAMD") == 0 && (!device || device_dispatch_table(device)->CmdWriteMarkerToMemoryAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdWriteMarkerToMemoryAMD<Format>);
+    if (strcmp(pName, "vkCreateAccelerationStructure2KHR") == 0 && (!device || device_dispatch_table(device)->CreateAccelerationStructure2KHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateAccelerationStructure2KHR<Format>);
     if (strcmp(pName, "vkCmdCopyBuffer2KHR") == 0 && (!device || device_dispatch_table(device)->CmdCopyBuffer2KHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyBuffer2KHR<Format>);
     if (strcmp(pName, "vkCmdCopyImage2KHR") == 0 && (!device || device_dispatch_table(device)->CmdCopyImage2KHR))
@@ -16288,6 +17085,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyMemoryIndirectKHR<Format>);
     if (strcmp(pName, "vkCmdCopyMemoryToImageIndirectKHR") == 0 && (!device || device_dispatch_table(device)->CmdCopyMemoryToImageIndirectKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyMemoryToImageIndirectKHR<Format>);
+    if (strcmp(pName, "vkGetDeviceFaultReportsKHR") == 0 && (!device || device_dispatch_table(device)->GetDeviceFaultReportsKHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceFaultReportsKHR<Format>);
+    if (strcmp(pName, "vkGetDeviceFaultDebugInfoKHR") == 0 && (!device || device_dispatch_table(device)->GetDeviceFaultDebugInfoKHR))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceFaultDebugInfoKHR<Format>);
     if (strcmp(pName, "vkCmdEndRendering2KHR") == 0 && (!device || device_dispatch_table(device)->CmdEndRendering2KHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndRendering2KHR<Format>);
     if (strcmp(pName, "vkDebugMarkerSetObjectTagEXT") == 0 && (!device || device_dispatch_table(device)->DebugMarkerSetObjectTagEXT))
@@ -16590,6 +17391,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkSetPrivateDataEXT<Format>);
     if (strcmp(pName, "vkGetPrivateDataEXT") == 0 && (!device || device_dispatch_table(device)->GetPrivateDataEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPrivateDataEXT<Format>);
+    if (strcmp(pName, "vkQueueSetPerfHintQCOM") == 0 && (!device || device_dispatch_table(device)->QueueSetPerfHintQCOM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkQueueSetPerfHintQCOM<Format>);
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCreateCudaModuleNV") == 0 && (!device || device_dispatch_table(device)->CreateCudaModuleNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateCudaModuleNV<Format>);
@@ -16722,6 +17525,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawClusterIndirectHUAWEI<Format>);
     if (strcmp(pName, "vkSetDeviceMemoryPriorityEXT") == 0 && (!device || device_dispatch_table(device)->SetDeviceMemoryPriorityEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkSetDeviceMemoryPriorityEXT<Format>);
+    if (strcmp(pName, "vkCmdSetDispatchParametersARM") == 0 && (!device || device_dispatch_table(device)->CmdSetDispatchParametersARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetDispatchParametersARM<Format>);
     if (strcmp(pName, "vkGetDescriptorSetLayoutHostMappingInfoVALVE") == 0 && (!device || device_dispatch_table(device)->GetDescriptorSetLayoutHostMappingInfoVALVE))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetDescriptorSetLayoutHostMappingInfoVALVE<Format>);
     if (strcmp(pName, "vkGetDescriptorSetHostMappingVALVE") == 0 && (!device || device_dispatch_table(device)->GetDescriptorSetHostMappingVALVE))
@@ -16938,12 +17743,26 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
     if (strcmp(pName, "vkGetMemoryMetalHandlePropertiesEXT") == 0 && (!device || device_dispatch_table(device)->GetMemoryMetalHandlePropertiesEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryMetalHandlePropertiesEXT<Format>);
 #endif  // VK_USE_PLATFORM_METAL_EXT
+    if (strcmp(pName, "vkCreateShaderInstrumentationARM") == 0 && (!device || device_dispatch_table(device)->CreateShaderInstrumentationARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateShaderInstrumentationARM<Format>);
+    if (strcmp(pName, "vkDestroyShaderInstrumentationARM") == 0 && (!device || device_dispatch_table(device)->DestroyShaderInstrumentationARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyShaderInstrumentationARM<Format>);
+    if (strcmp(pName, "vkCmdBeginShaderInstrumentationARM") == 0 && (!device || device_dispatch_table(device)->CmdBeginShaderInstrumentationARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginShaderInstrumentationARM<Format>);
+    if (strcmp(pName, "vkCmdEndShaderInstrumentationARM") == 0 && (!device || device_dispatch_table(device)->CmdEndShaderInstrumentationARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndShaderInstrumentationARM<Format>);
+    if (strcmp(pName, "vkGetShaderInstrumentationValuesARM") == 0 && (!device || device_dispatch_table(device)->GetShaderInstrumentationValuesARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetShaderInstrumentationValuesARM<Format>);
+    if (strcmp(pName, "vkClearShaderInstrumentationMetricsARM") == 0 && (!device || device_dispatch_table(device)->ClearShaderInstrumentationMetricsARM))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkClearShaderInstrumentationMetricsARM<Format>);
     if (strcmp(pName, "vkCmdEndRendering2EXT") == 0 && (!device || device_dispatch_table(device)->CmdEndRendering2EXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndRendering2EXT<Format>);
     if (strcmp(pName, "vkCmdBeginCustomResolveEXT") == 0 && (!device || device_dispatch_table(device)->CmdBeginCustomResolveEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginCustomResolveEXT<Format>);
     if (strcmp(pName, "vkCmdSetComputeOccupancyPriorityNV") == 0 && (!device || device_dispatch_table(device)->CmdSetComputeOccupancyPriorityNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetComputeOccupancyPriorityNV<Format>);
+    if (strcmp(pName, "vkCmdSetPrimitiveRestartIndexEXT") == 0 && (!device || device_dispatch_table(device)->CmdSetPrimitiveRestartIndexEXT))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetPrimitiveRestartIndexEXT<Format>);
     if (strcmp(pName, "vkCreateAccelerationStructureKHR") == 0 && (!device || device_dispatch_table(device)->CreateAccelerationStructureKHR))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateAccelerationStructureKHR<Format>);
     if (strcmp(pName, "vkDestroyAccelerationStructureKHR") == 0 && (!device || device_dispatch_table(device)->DestroyAccelerationStructureKHR))
