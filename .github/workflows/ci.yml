@@ -61,6 +61,7 @@ jobs:
     - name: Clone repository
       uses: actions/checkout@v6
     - run: sudo apt-get -qq update && sudo apt-get install -y libwayland-dev xorg-dev
+    - run: python3 -m pip install pyparsing
     - run: python3 scripts/github_ci_linux.py --config Debug --tests GitHubCI
     - run: python3 scripts/generate_source.py --verify external/Vulkan-Headers/registry
 
