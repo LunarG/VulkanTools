@@ -954,7 +954,7 @@ class ApiDumpGenerator(BaseGenerator):
         else:
             if var.pointer and var.type not in self.only_use_as_pointer_types and var.type not in self.vk.funcPointers.keys() and var.type not in ['void', 'char'] and not (var.name == 'pNext' and var.fullType in ['void*', 'const void*']):
                 pointer_type = f'dump_type<Format, {custom_type}>'
-                if (var.type in self.vulkan_defined_types):
+                if (call_type in self.vulkan_defined_types):
                     pointer_type = f'dump_{call_type}<Format>'
 
                 self.write(f'dump_pointer<Format>({value}, settings, "{custom_fullType}", "{var.name}", {indent}, {pointer_type});')
