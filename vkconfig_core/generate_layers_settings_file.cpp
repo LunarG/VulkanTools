@@ -44,7 +44,7 @@ bool GenerateSettingsTXT(Configurator& configurator, OverrideArea override_area,
                         continue;
                     }
 
-                    if (::EnabledExecutables(configurator.GetExecutableScope())) {
+                    if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
                         configuration_name = executables[i].configuration;
                     }
 
