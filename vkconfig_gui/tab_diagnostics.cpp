@@ -195,7 +195,7 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
 
             log_status = this->status;
         } break;
-        case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION: {
+        case DIAGNOSTIC_VULKAN_LAYERS_CONFIGURATION: {
             const Configuration *configuration = nullptr;
 
             Configurator &configurator = Configurator::Get();
@@ -218,7 +218,7 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
                 log_status = file.readAll().toStdString();
                 file.close();
             } else {
-                log_status = "No active loader configuration selected.";
+                log_status = "No active layers configuration selected.";
             }
         } break;
         case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS: {
@@ -233,7 +233,7 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
             if (result) {
                 log_status = file.readAll().toStdString();
             } else {
-                log_status = "No active loader configuration applied.";
+                log_status = "No active layers configuration applied.";
             }
             file.close();
         } break;
@@ -245,7 +245,7 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
             if (result) {
                 log_status = file.readAll().toStdString();
             } else {
-                log_status = "No active loader configuration applied.";
+                log_status = "No active layers configuration applied.";
             }
             file.close();
         } break;
@@ -443,7 +443,7 @@ void TabDiagnostics::on_refresh_log() {
     }
 
     const bool per_executable =
-        (this->mode == DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION || this->mode == DIAGNOSTIC_VULKAN_LAYERS_SETTINGS) &&
+        (this->mode == DIAGNOSTIC_VULKAN_LAYERS_CONFIGURATION || this->mode == DIAGNOSTIC_VULKAN_LAYERS_SETTINGS) &&
         configurator.GetExecutableScope() == EXECUTABLE_PER;
     const bool profile_mode = this->mode == DIAGNOSTIC_VULKAN_PROFILE;
 
@@ -510,7 +510,7 @@ void TabDiagnostics::on_export_folder() {
             case DIAGNOSTIC_VULKAN_PROFILE:
                 options_count = configurator.vulkan_system_info.physicalDevices.size();
                 break;
-            case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION:
+            case DIAGNOSTIC_VULKAN_LAYERS_CONFIGURATION:
             case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS:
                 if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
                     options_count = configurator.executables.GetExecutables().size();
@@ -539,7 +539,7 @@ void TabDiagnostics::on_export_folder() {
                         export_dir.RelativePath() +
                         format("/%s.json", configurator.vulkan_system_info.physicalDevices[options_index].deviceName.c_str());
                 } break;
-                case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION:
+                case DIAGNOSTIC_VULKAN_LAYERS_CONFIGURATION:
                 case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS: {
                     if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
                         const std::vector<Executable> &executables = configurator.executables.GetExecutables();
@@ -548,7 +548,7 @@ void TabDiagnostics::on_export_folder() {
                         configuration = configurator.GetActiveConfiguration();
                     }
 
-                    if (current_mode == DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION) {
+                    if (current_mode == DIAGNOSTIC_VULKAN_LAYERS_CONFIGURATION) {
                         export_path = export_dir.RelativePath() + format("/%s.json", configuration->key.c_str());
                     } else {
                         export_path = export_dir.RelativePath() + format("/%s.txt", configuration->key.c_str());
@@ -590,7 +590,7 @@ void TabDiagnostics::on_export_file() {
             export_path = export_path.RelativePath() +
                           format("/%s.json", configurator.vulkan_system_info.physicalDevices[index].deviceName.c_str());
         } break;
-        case DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION:
+        case DIAGNOSTIC_VULKAN_LAYERS_CONFIGURATION:
         case DIAGNOSTIC_VULKAN_LAYERS_SETTINGS: {
             if (configurator.GetExecutableScope() == EXECUTABLE_PER) {
                 int index = this->ui->diagnostic_mode_options->currentIndex();
@@ -600,7 +600,7 @@ void TabDiagnostics::on_export_file() {
                 configuration = configurator.GetActiveConfiguration();
             }
 
-            if (this->mode == DIAGNOSTIC_VULKAN_LOADER_CONFIGURATION) {
+            if (this->mode == DIAGNOSTIC_VULKAN_LAYERS_CONFIGURATION) {
                 export_path = export_path.RelativePath() + format("/%s.json", configuration->key.c_str());
             } else {
                 export_path = export_path.RelativePath() + format("/%s.txt", configuration->key.c_str());

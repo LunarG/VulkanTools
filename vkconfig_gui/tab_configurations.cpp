@@ -349,9 +349,7 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
         if (configurator.GetActiveConfiguration()->override_settings) {
             this->ui->configurations_group_box_settings->setToolTip("Disabled: Use External Layerd Settings file is enabled");
         } else {
-            const std::string state = parameter->override_settings ? "Uncheck to disable" : "Check to enable";
-            const std::string tooltip = format("%s '%s' layer settings", state.c_str(), parameter->key.c_str());
-
+            const std::string tooltip = format("Check to apply '%s' layer settings", parameter->key.c_str());
             this->ui->configurations_group_box_settings->setToolTip(tooltip.c_str());
         }
     }
@@ -383,17 +381,17 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
 
             if (scope == EXECUTABLE_PER) {
                 this->ui->configurations_group_box_list->setToolTip(
-                    format("%s to select a loader configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
+                    format("%s to select a layers configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
             } else {
                 this->ui->configurations_group_box_list->setToolTip(
-                    format("%s to enable the loader configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
+                    format("%s to enable the layers configuration for '%s' executable", state.c_str(), path.c_str()).c_str());
             }
         }
     } else if (scope == EXECUTABLE_ANY) {
-        this->ui->configurations_group_box_list->setToolTip("Select the active loader configuration for any executable");
+        this->ui->configurations_group_box_list->setToolTip("Select the active layers configuration for any executable");
     } else {
         this->ui->configurations_group_box_list->setToolTip(
-            "Change the 'Vulkan Loader Configuration scope' to apply a configuration.");
+            "Change the 'Vulkan Layers Configuration scope' to apply a configuration.");
     }
 
     this->ui->configurations_group_box_scope->blockSignals(true);
@@ -1120,10 +1118,10 @@ void TabConfigurations::OnContextMenuResetAllClicked(ListItem *item) {
     Configurator &configurator = Configurator::Get();
 
     QMessageBox alert;
-    alert.setWindowTitle("Resetting all default loader configurations...");
+    alert.setWindowTitle("Resetting all default layers configurations...");
     alert.setText("Are you sure you want to reset the default loader configurations?");
     alert.setInformativeText(
-        "The loader configurations, including layers settings, will be restored to default built-in configurations.");
+        "The layers configurations, including layers settings, will be restored to default built-in configurations.");
     alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     alert.setDefaultButton(QMessageBox::Yes);
     alert.setIcon(QMessageBox::Warning);
@@ -1144,7 +1142,7 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
 
     const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".json";
     const std::string &selected_path =
-        QFileDialog::getSaveFileName(&this->window, "Export Loader Configuration File", path_export.AbsolutePath().c_str(),
+        QFileDialog::getSaveFileName(&this->window, "Export Layers Configuration File", path_export.AbsolutePath().c_str(),
                                      "JSON configuration(*.json)")
             .toStdString();
 
@@ -1157,8 +1155,8 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
     if (!result) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowTitle("Exporting of a Loader Configuration file failed...");
-        msg.setText(format("Couldn't be create '%s' Loader configuration file.", selected_path.c_str()).c_str());
+        msg.setWindowTitle("Exporting of a Layers Configuration file failed...");
+        msg.setText(format("Couldn't be create '%s' Layers configuration file.", selected_path.c_str()).c_str());
         msg.exec();
     } else {
         QDesktopServices::openUrl(QUrl::fromLocalFile(selected_path.c_str()));
@@ -1232,7 +1230,7 @@ void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(i
                 message.setText(::GetTooltip(scope));
                 message.setInformativeText(
                     "As the vk_layer_settings.txt file is written in the executable working directory, all the executables "
-                    "with the same working directory will share the same loader configuration.\n\nDo you want to continue?");
+                    "with the same working directory will share the same layers configuration.\n\nDo you want to continue?");
                 message.setIcon(QMessageBox::Information);
                 message.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
                 message.setDefaultButton(QMessageBox::Ok);
@@ -1364,10 +1362,10 @@ void TabConfigurations::UpdatePerExecutableConfigurations() {
     if (configurator.executables.UpdateConfigurations(updated_executable_paths)) {
         if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_PER_CONFIG_UPDATE)) {
             QMessageBox message;
-            message.setWindowTitle("Vulkan Executable Loader Configuration Updated");
+            message.setWindowTitle("Vulkan Executable Layers Configuration Updated");
             message.setText(
-                format("Per Executable Loader Configuration Scope requires that all executables with the same working "
-                       "directory use the same loader configuration. The following executables were switch to '%s' configuration:",
+                format("Per Executable Layers Configuration Scope requires that all executables with the same working "
+                       "directory use the same layers configuration. The following executables were switch to '%s' configuration:",
                        configuration->key.c_str())
                     .c_str());
             std::string informative;

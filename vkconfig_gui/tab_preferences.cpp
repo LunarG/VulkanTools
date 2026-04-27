@@ -156,8 +156,12 @@ void TabPreferences::on_show_executables_scope_toggled(bool checked) {
 void TabPreferences::on_all_enabled_executables_changed(int index) {
     Configurator &configurator = Configurator::Get();
 
+    configurator.Surrender(OVERRIDE_AREA_ALL);
+
     const ExecutableAllEnabledBehavior behavior = static_cast<ExecutableAllEnabledBehavior>(index);
     configurator.SetAllEnabledExecutableBehavior(behavior);
+
+    configurator.Override(OVERRIDE_AREA_ALL);
 }
 
 void TabPreferences::on_theme_mode_changed(int index) {

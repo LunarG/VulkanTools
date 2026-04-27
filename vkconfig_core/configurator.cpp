@@ -541,7 +541,9 @@ bool Configurator::Surrender(OverrideArea override_area) {
             result_layers_settings = global_removed;
         }
 
-        if (::EnabledExecutables(this->executable_scope)) {
+        if (this->GetExecutableScope() == EXECUTABLE_PER ||
+            (this->GetExecutableScope() == EXECUTABLE_ALL &&
+             this->GetAllEnabledExecutableBehavior() == EXECUTABLE_ALL_ENABLED_WORKING_DIR)) {
             const std::vector<Executable>& executables = this->executables.GetExecutables();
             for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
                 Path path(executables[i].GetActiveOptions()->working_folder.RelativePath() + "/vk_layer_settings.txt");
@@ -857,9 +859,9 @@ std::string Configurator::Log() const {
     if (this->GetExecutableScope() == EXECUTABLE_ANY || this->GetExecutableScope() == EXECUTABLE_ALL) {
         const Configuration* configuration = this->GetActiveConfiguration();
         if (configuration != nullptr) {
-            log += format(" - Active Vulkan Loader Configuration: '%s'\n", configuration->key.c_str());
+            log += format(" - Active Vulkan Layers Configuration: '%s'\n", configuration->key.c_str());
         } else {
-            log += " - No Active Vulkan Loader Configuration\n";
+            log += " - No Active Vulkan Layers Configuration\n";
         }
     }
     /*
