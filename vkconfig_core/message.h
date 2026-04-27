@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "type_platform.h"
 #include "type_severity.h"
 #include "type_button.h"
 #include "type_action.h"
@@ -53,6 +54,7 @@ struct Message {
     std::string key;
     std::string title;
     int version = 1;
+    int platform_flags = PLATFORM_DESKTOP_BIT;
     std::string description;
     std::string informative;
     SeverityType severity;
