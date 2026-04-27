@@ -30,7 +30,7 @@ const char* GetToken(DiagnosticMode mode) {
         "Vulkan Info Text",             // DIAGNOSTIC_VULKAN_INFO_TEXT
         "Vulkan Profile",               // DIAGNOSTIC_VULKAN_PROFILE
         "Vulkan Loader Log",            // DIAGNOSTIC_VULKAN_LOADER_LOG
-        "Vulkan Loader Configuration",  // DIAGNOSTIC_ACTIVE_LOADER_CONFIGURATION
+        "Vulkan Layers Configuration",  // DIAGNOSTIC_VULKAN_LAYERS_CONFIGURATION
         "Vulkan Layers Settings",       // DIAGNOSTIC_VULKAN_LAYERS_SETTINGS
         "Vulkan Loader Settings",       // DIAGNOSTIC_VULKAN_LOADER_SETTINGS
     };
@@ -57,7 +57,7 @@ const char* GetFilename(DiagnosticMode mode) {
         "/vkconfig_vulkanInfo.txt",             // DIAGNOSTIC_VULKAN_INFO_TEXT
         "/vkconfig_vulkanInfo.json",            // DIAGNOSTIC_VULKAN_PROFILE
         "/vkconfig_loader_log.txt",             // DIAGNOSTIC_VULKAN_LOADER_LOG
-        "/vkconfig_loader_configuration.json",  // DIAGNOSTIC_ACTIVE_LOADER_CONFIGURATION
+        "/vkconfig_layers_configuration.json",  // DIAGNOSTIC_VULKAN_LAYERS_CONFIGURATION
         "/vkconfig_layers_settings.txt",        // DIAGNOSTIC_VULKAN_LAYERS_SETTINGS
         "/vkconfig_loader_settings.json",       // DIAGNOSTIC_VULKAN_LOADER_SETTINGS
     };

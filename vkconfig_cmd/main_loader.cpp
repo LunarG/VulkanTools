@@ -145,7 +145,7 @@ static int RunLoaderSurrender(Configurator& configurator, const CommandLine& com
             fprintf(stderr, "vkconfig: Failed to surrender Vulkan Layers configuration...\n");
         }
     } else {
-        fprintf(stderr, "vkconfig: No active Vulkan Loader configuration, nothing to surrender\n");
+        fprintf(stderr, "vkconfig: No active Vulkan Layers configuration, nothing to surrender\n");
     }
 
     return surrender_result ? 0 : -1;

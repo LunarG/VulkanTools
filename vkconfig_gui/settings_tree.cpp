@@ -90,8 +90,10 @@ void SettingsTreeManager::CreateGUI() {
     this->ui->configurations_group_box_settings->setChecked(parameter->override_settings);
     this->ui->configurations_group_box_settings->blockSignals(false);
     this->ui->configurations_presets->setVisible(!layer->presets.empty());
-    this->ui->configurations_presets->setEnabled(!configurator.GetActiveConfiguration()->override_settings);
-    this->ui->configurations_settings->setEnabled(!configurator.GetActiveConfiguration()->override_settings);
+    this->ui->configurations_presets->setEnabled(!configurator.GetActiveConfiguration()->override_settings &&
+                                                 parameter->override_settings);
+    this->ui->configurations_settings->setEnabled(!configurator.GetActiveConfiguration()->override_settings &&
+                                                  parameter->override_settings);
     this->ui->configurations_settings_reset->setVisible(!layer->presets.empty());
 
     const std::vector<Path> &layer_versions = configurator.layers.GatherManifests(parameter->key);
@@ -515,7 +517,7 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
 
     configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
 
-    this->ui->configurations_settings_reset->setEnabled(preset_index != Layer::DEFAULT_PRESET);
+    this->ui->configurations_settings_reset->setEnabled(parameter->override_settings && preset_index != Layer::DEFAULT_PRESET);
     this->Refresh(REFRESH_ENABLE_AND_STATE);
 }
 
@@ -541,7 +543,7 @@ void SettingsTreeManager::RefreshPresetLabel() {
     const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
 
     const int preset_index = layer->FindPresetIndex(parameter->settings) + 1;
-    this->ui->configurations_settings_reset->setEnabled(preset_index != Layer::DEFAULT_PRESET);
+    this->ui->configurations_settings_reset->setEnabled(parameter->override_settings && preset_index != Layer::DEFAULT_PRESET);
     this->ui->configurations_presets->setCurrentIndex(preset_index);
 }
 
