@@ -29,17 +29,17 @@
 #include <string>
 
 struct Header {
-    Header() : status(STATUS_STABLE), view(SETTING_VIEW_STANDARD), platform_flags(PLATFORM_DESKTOP_BIT), expanded(true) {}
+    Header() {}
 
     std::string label;
     std::string description;
     std::string detailed;
     Path url;
-    StatusType status;
+    StatusType status = STATUS_STABLE;
     std::string deprecated_by_key;
-    SettingView view;
-    int platform_flags;
-    bool expanded;
+    SettingView view = SETTING_VIEW_STANDARD;
+    int platform_flags = PLATFORM_DESKTOP_BIT;
+    bool expanded = true;
 };
 
 void LoadMetaHeader(Header& header, const QJsonObject& json_object);

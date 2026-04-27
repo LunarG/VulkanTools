@@ -558,6 +558,13 @@ void Layer::AddSettingsMessages(const QJsonValue& json_settings_value) {
                 message.informative = json_message_object.value("informative").toString().toStdString();
                 message.severity = ::GetSeverityType(json_message_object.value("severity").toString().toStdString().c_str());
 
+                if (json_message_object.value("platforms") != QJsonValue::Undefined) {
+                    int platform_flags = GetPlatformFlags(ReadStringArray(json_message_object, "platforms"));
+                    if (!(platform_flags & (1 << VKC_PLATFORM))) {
+                        continue;  // Skipping messages not applied on the current platform
+                    }
+                }
+
                 const QJsonValue& json_conditions_value = json_message_object.value("conditions");
                 assert(json_conditions_value != QJsonValue::Undefined);
                 const QJsonArray& json_settings_array = json_conditions_value.toArray();
