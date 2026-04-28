@@ -506,6 +506,8 @@ void TabApplications::on_launch_button_pressed() {
         }
     }
 
+    this->highlighter->setDocument(nullptr);
+
     // We are logging, let's add that we've launched a new application
     std::string launch_log = "Launching Vulkan Application:\n";
 
@@ -790,6 +792,7 @@ void TabApplications::ResetTextCursor() {
 }
 
 void TabApplications::on_search_clear_pressed() {
+    this->highlighter->setDocument(nullptr);
     this->highlighter->setSearch("");
 
     this->search_text.clear();
@@ -816,6 +819,10 @@ void TabApplications::on_search_prev_pressed() {
 }
 
 void TabApplications::SearchFind(bool prev) {
+    if (this->highlighter->document() == nullptr) {
+        this->highlighter->setDocument(this->ui->launch_log_text->document());
+    }
+
     this->ResetTextCursor();
 
     QTextDocument::FindFlags flags = prev ? QTextDocument::FindBackward : QTextDocument::FindFlags(0);
