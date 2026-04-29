@@ -28,6 +28,7 @@
 #include "executable_manager.h"
 #include "type_platform.h"
 #include "type_override_area.h"
+#include "type_stdout_display.h"
 #include "type_hide_message.h"
 #include "type_tab.h"
 #include "type_executable_mode.h"
@@ -187,6 +188,8 @@ class Configurator {
     bool loader_log_enabled = false;
     int loader_log_messages_flags = GetBit(LOG_ERROR);
 
+    StdoutDisplay stdout_display = STDOUT_DISPLAY_ON_EXIT;
+
     QByteArray window_geometry;
     QByteArray window_state;
     ThemeMode current_theme_mode = THEME_MODE_AUTO;
@@ -194,6 +197,7 @@ class Configurator {
     bool theme_dark_alternate_enabled = false;
     QColor theme_light_alternate_color = 0xF8F8F8;
     QColor theme_dark_alternate_color = 0x202020;
+    int app_log_max_blocks = 2048;
 
    private:
     int hide_message_boxes_flags = 0;

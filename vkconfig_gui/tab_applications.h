@@ -27,6 +27,7 @@
 
 #include <QProcess>
 #include <QFile>
+#include <QTimer>
 
 class TabApplications : public Tab {
     Q_OBJECT
@@ -62,7 +63,6 @@ class TabApplications : public Tab {
     void on_launch_options_log_open_pressed();
 
     void on_context_menu(const QPoint& pos);
-    void on_export_file();
 
     void on_focus_search();
     void on_search_textEdited(const QString& text);
@@ -78,7 +78,11 @@ class TabApplications : public Tab {
 
     void on_launch_clear_at_launch_toggled(bool checked);
     void on_launch_clear_log_pressed();
+    void on_launch_stdout_display_changed(int index);
     void on_launch_button_pressed();
+
+    void on_timer_search();
+    void on_timer_stream();
 
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
@@ -98,6 +102,11 @@ class TabApplications : public Tab {
     bool search_case = false;
     bool search_whole = false;
     bool search_regex = false;
+
+    bool text_is_reset = true;
+    QTimer* timer_search = nullptr;
+    QString stream_text;
+    QTimer* timer_stream = nullptr;
 
     Highlighter* highlighter = nullptr;
 

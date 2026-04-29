@@ -59,8 +59,8 @@ class WidgetSettingFloat : public WidgetSettingBase {
 
     std::string value_buffer;
     QLineEdit* field;
-    QTimer* timer_error;
-    QTimer* timer_valid;
+    QTimer* timer_error = nullptr;
+    QTimer* timer_valid = nullptr;
     QSize resize;
     QPalette default_palette;
 };

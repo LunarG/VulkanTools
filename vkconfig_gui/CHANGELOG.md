@@ -1,5 +1,5 @@
 ## Vulkan Configurator 3.5.0 - May 2026
-[Vulkan SDK 1.4.3XX.0](https://github.com/LunarG/VulkanTools/tree/main)
+[Vulkan SDK 1.4.350.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.350)
 
 ### Features:
 - Add selecting Vulkan Layers configuration from system tray
@@ -25,6 +25,7 @@
 - Add enabled and ordered layers to generated configuration files #2634 #2565
 - Improve "search" usability with highligher
 - Add layer messages only on specified platforms #2650
+- Improve application launcher log stream speed
 
 ### Fixes:
 - Fix command line whitespace decoding #2625

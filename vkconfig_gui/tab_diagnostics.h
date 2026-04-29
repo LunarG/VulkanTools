@@ -75,6 +75,8 @@ class TabDiagnostics : public Tab {
     void on_diagnostic_dir_system_pressed();
     void on_diagnostic_dir_info_pressed();
 
+    void on_timer_search();
+
     void standardOutputAvailable();                                 // stdout output is available
     void errorOutputAvailable();                                    // Layeroutput is available
     void processClosed(int exitCode, QProcess::ExitStatus status);  // app died
@@ -87,6 +89,9 @@ class TabDiagnostics : public Tab {
     bool search_case = false;
     bool search_whole = false;
     bool search_regex = false;
+
+    bool text_is_reset = true;
+    QTimer* timer_search = nullptr;
 
     Highlighter* highlighter = nullptr;
 

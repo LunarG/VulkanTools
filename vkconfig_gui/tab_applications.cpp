@@ -42,7 +42,10 @@ static void PathInvalid(const Path &path, const char *message) {
 }
 
 TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
-    : Tab(TAB_APPLICATIONS, window, ui), _launch_application(new QProcess(this)) {
+    : Tab(TAB_APPLICATIONS, window, ui),
+      _launch_application(new QProcess(this)),
+      timer_search(new QTimer(this)),
+      timer_stream(new QTimer(this)) {
     this->connect(this->ui->launch_executable_list, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_launch_executable_list_activated(int)));
     this->connect(this->ui->launch_executable_list->lineEdit(), SIGNAL(textEdited(QString)), this,
@@ -72,9 +75,10 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
 
     this->connect(this->ui->launch_clear_at_launch, SIGNAL(toggled(bool)), this, SLOT(on_launch_clear_at_launch_toggled(bool)));
     this->connect(this->ui->launch_clear_log, SIGNAL(clicked()), this, SLOT(on_launch_clear_log_pressed()));
+    this->connect(this->ui->launch_stdout_display, SIGNAL(currentIndexChanged(int)), this,
+                  SLOT(on_launch_stdout_display_changed(int)));
     this->connect(this->ui->launch_button, SIGNAL(clicked()), this, SLOT(on_launch_button_pressed()));
 
-    this->connect(this->ui->launch_export_file, SIGNAL(clicked()), this, SLOT(on_export_file()));
     this->connect(this->ui->launch_search_edit, SIGNAL(textEdited(QString)), this, SLOT(on_search_textEdited(QString)));
     this->connect(this->ui->launch_search_edit, SIGNAL(returnPressed()), this, SLOT(on_search_next_pressed()));
     this->connect(this->ui->launch_search_clear, SIGNAL(clicked()), this, SLOT(on_search_clear_pressed()));
@@ -85,6 +89,8 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(this->ui->launch_search_case, SIGNAL(toggled(bool)), this, SLOT(on_search_case_toggled(bool)));
     this->connect(this->ui->launch_search_whole, SIGNAL(toggled(bool)), this, SLOT(on_search_whole_toggled(bool)));
     this->connect(this->ui->launch_search_regex, SIGNAL(toggled(bool)), this, SLOT(on_search_regex_toggled(bool)));
+    this->connect(this->timer_search, &QTimer::timeout, this, &TabApplications::on_timer_search);
+    this->connect(this->timer_stream, &QTimer::timeout, this, &TabApplications::on_timer_stream);
 
     QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->launch_log_text);
     this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
@@ -112,14 +118,13 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->ui->launch_search_prev->setEnabled(false);
 
     // this->ui->launch_log_text->installEventFilter(&window);
-    this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
     this->ui->launch_log_text->setContextMenuPolicy(Qt::CustomContextMenu);
 
     // Resetting this from the default prevents the log window (a QTextEdit) from overflowing.
     // Whenever the control surpasses this block count, old blocks are discarded.
     // Note: We could make this a user configurable setting down the road should this be
     // insufficinet.
-    // this->ui->launch_log_text->document()->setMaximumBlockCount(65536);
+    // this->ui->launch_log_text->document()->setMaximumBlockCount(1024);
     this->ui->launch_log_text->moveCursor(QTextCursor::End);
 
     this->ui->launch_options_args_edit->setToolTip("Eg: '--argA --argB=valueB \"--argC=value C\" --argD=\"value D\"'");
@@ -490,11 +495,15 @@ void TabApplications::on_launch_clear_at_launch_toggled(bool checked) {
 }
 
 void TabApplications::on_launch_clear_log_pressed() {
-    this->ui->launch_export_file->setEnabled(false);
     this->ui->launch_search_edit->setEnabled(false);
     this->ui->launch_clear_log->setEnabled(false);
     this->ui->launch_log_text->clear();
     this->ui->launch_log_text->update();
+}
+
+void TabApplications::on_launch_stdout_display_changed(int index) {
+    Configurator &configurator = Configurator::Get();
+    configurator.stdout_display = static_cast<StdoutDisplay>(index);
 }
 
 void TabApplications::on_launch_button_pressed() {
@@ -506,12 +515,19 @@ void TabApplications::on_launch_button_pressed() {
         }
     }
 
+    Configurator &configurator = Configurator::Get();
+
+    if (configurator.stdout_display == STDOUT_DISPLAY_ON_EXIT) {
+        this->ui->launch_log_text->document()->setMaximumBlockCount(32768);
+    } else {
+        this->ui->launch_log_text->document()->setMaximumBlockCount(configurator.app_log_max_blocks);
+    }
+
     this->highlighter->setDocument(nullptr);
 
     // We are logging, let's add that we've launched a new application
     std::string launch_log = "Launching Vulkan Application:\n";
 
-    Configurator &configurator = Configurator::Get();
     const Executable *active_executable = configurator.executables.GetActiveExecutable();
 
     assert(!active_executable->path.Empty());
@@ -677,10 +693,19 @@ void TabApplications::processClosed(int exit_code, QProcess::ExitStatus status) 
 
     assert(this->_launch_application);
 
+    this->on_timer_stream();  // flush log buffer
+
     this->Log("Process terminated", true);
 
     if (this->_log_file.isOpen()) {
         this->_log_file.close();
+
+        Configurator &configurator = Configurator::Get();
+        if (configurator.stdout_display == STDOUT_DISPLAY_ON_EXIT) {
+            this->_log_file.open(QIODevice::ReadOnly | QIODevice::Text);
+            this->ui->launch_log_text->setPlainText(this->_log_file.readAll());
+            this->_log_file.close();
+        }
     }
 
     this->ResetLaunchApplication();
@@ -693,22 +718,37 @@ void TabApplications::processClosed(int exit_code, QProcess::ExitStatus status) 
 /// If a log file is open, we also write the output to the log.
 void TabApplications::standardOutputAvailable() {
     if (this->_launch_application) {
-        this->Log(this->_launch_application->readAllStandardOutput(), false);
+        this->stream_text += this->_launch_application->readAllStandardOutput();
+        if (!this->timer_stream->isActive()) {
+            this->timer_stream->start(200);
+        }
     }
 }
 
 void TabApplications::errorOutputAvailable() {
     if (this->_launch_application) {
-        this->Log(this->_launch_application->readAllStandardError(), false);
+        this->stream_text += this->_launch_application->readAllStandardError();
+        if (!this->timer_stream->isActive()) {
+            this->timer_stream->start(200);
+        }
     }
 }
 
+void TabApplications::on_timer_stream() {
+    this->timer_stream->stop();
+    this->Log(this->stream_text, false);
+    this->stream_text.clear();
+}
+
 void TabApplications::Log(const QString &log, bool flush) {
-    this->ui->launch_export_file->setEnabled(true);
     this->ui->launch_search_edit->setEnabled(true);
     this->ui->launch_clear_log->setEnabled(true);
-    this->ui->launch_log_text->append(log);
-    this->ui->launch_log_text->moveCursor(QTextCursor::End);
+
+    Configurator &configurator = Configurator::Get();
+    if (configurator.stdout_display == STDOUT_DISPLAY_STREAM || flush) {
+        this->ui->launch_log_text->insertPlainText(log);
+        this->ui->launch_log_text->moveCursor(QTextCursor::End);
+    }
 
     if (this->_log_file.isOpen()) {
         this->_log_file.write(log.toStdString().c_str(), log.size());
@@ -718,62 +758,38 @@ void TabApplications::Log(const QString &log, bool flush) {
     }
 }
 
-void TabApplications::on_export_file() {
-    Configurator &configurator = Configurator::Get();
+void TabApplications::on_focus_search() { this->ui->launch_search_edit->setFocus(); }
 
-    Path export_path = configurator.last_path_launch_log;
+void TabApplications::on_timer_search() {
+    this->timer_search->stop();
 
-    export_path = QFileDialog::getSaveFileName(this->ui->launch_export_file, "Save file...", export_path.AbsolutePath().c_str(),
-                                               "Log (*.txt)")
-                      .toStdString();
+    this->ResetTextCursor();
 
-    if (!export_path.Empty()) {
-        configurator.last_path_launch_log = export_path.AbsoluteDir();
+    if (!this->search_text.empty()) {
+        this->highlighter->setSearch(this->search_text.c_str());
 
-        QFile json_file(export_path.AbsolutePath().c_str());
-        const bool result = json_file.open(QIODevice::WriteOnly | QIODevice::Text);
-        if (result) {
-            json_file.write(this->ui->launch_log_text->toPlainText().toStdString().c_str());
-            json_file.close();
-
-            QDesktopServices::openUrl(QUrl::fromLocalFile(export_path.AbsolutePath().c_str()));
-        } else {
-            QMessageBox message;
-            message.setIcon(QMessageBox::Critical);
-            message.setWindowTitle("Failed to save the diagnostic log!");
-            message.setText(format("Couldn't write to '%s'.", export_path.AbsolutePath().c_str()).c_str());
-            message.setInformativeText("Select a file path with 'write' rights.");
-        }
+        this->ui->launch_log_text->moveCursor(QTextCursor::StartOfWord);
+        this->SearchFind(false);
+        this->text_is_reset = false;
     }
-}
-
-void TabApplications::on_focus_search() {
-    this->ui->launch_search_edit->setFocus();
-    // this->ui->launch_log_text->moveCursor(QTextCursor::Start);
 }
 
 void TabApplications::on_search_textEdited(const QString &text) {
-    /*
-        if (!this->ui->launch_search_clear->isEnabled()) {
-            this->ui->launch_log_text->moveCursor(QTextCursor::Start);
-        }
-    */
-    this->highlighter->setSearch(text);
+    this->timer_search->start(200);
+
+    this->search_text = text.toStdString();
 
     this->ui->launch_search_next->setEnabled(!this->ui->launch_search_edit->text().isEmpty());
     this->ui->launch_search_prev->setEnabled(!this->ui->launch_search_edit->text().isEmpty());
-
-    this->search_text = text.toStdString();
     this->ui->launch_search_clear->setEnabled(!text.isEmpty());
-
-    if (!text.isEmpty()) {
-        this->ui->launch_log_text->moveCursor(QTextCursor::StartOfWord);
-        this->SearchFind(false);
-    }
 }
 
 void TabApplications::ResetTextCursor() {
     if (this->ui->launch_log_text->document()->isEmpty()) {
+        return;
+    }
+
+    if (this->text_is_reset) {
         return;
     }
 
@@ -789,6 +805,8 @@ void TabApplications::ResetTextCursor() {
 
     cursor.setPosition(saved_Position, QTextCursor::MoveAnchor);
     cursor.setPosition(saved_anchor, QTextCursor::KeepAnchor);
+
+    this->text_is_reset = true;
 }
 
 void TabApplications::on_search_clear_pressed() {
@@ -822,8 +840,6 @@ void TabApplications::SearchFind(bool prev) {
     if (this->highlighter->document() == nullptr) {
         this->highlighter->setDocument(this->ui->launch_log_text->document());
     }
-
-    this->ResetTextCursor();
 
     QTextDocument::FindFlags flags = prev ? QTextDocument::FindBackward : QTextDocument::FindFlags(0);
 
@@ -911,7 +927,7 @@ void TabApplications::on_context_menu(const QPoint &pos) {
         QTextCursor cursor = this->ui->launch_log_text->textCursor();
         if (cursor.hasSelection()) {
             QString text = cursor.selectedText();
-            this->ui->launch_log_text->setText(text);
+            this->ui->launch_log_text->setPlainText(text);
             this->on_search_textEdited(text);
         }
         this->on_focus_search();

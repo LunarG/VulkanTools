@@ -30,7 +30,8 @@
 #include <QShortcut>
 #include <QScrollBar>
 
-TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
+TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
+    : Tab(TAB_DIAGNOSTIC, window, ui), timer_search(new QTimer(this)) {
     this->connect(this->ui->diagnostic_mode, SIGNAL(currentIndexChanged(int)), this, SLOT(on_mode_changed(int)));
     this->connect(this->ui->diagnostic_mode_options, SIGNAL(currentIndexChanged(int)), this, SLOT(on_mode_options_changed(int)));
     this->connect(this->ui->diagnostic_export_folder, SIGNAL(clicked()), this, SLOT(on_export_folder()));
@@ -61,6 +62,8 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->connect(this->ui->diagnostic_dir_system, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_system_pressed()));
     this->connect(this->ui->diagnostic_dir_info, SIGNAL(clicked()), this, SLOT(on_diagnostic_dir_info_pressed()));
 
+    this->connect(this->timer_search, &QTimer::timeout, this, &TabDiagnostics::on_timer_search);
+
     QShortcut *shortcut_override = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Space), this->ui->diagnostic_group_box_loader_log);
     this->connect(shortcut_override, SIGNAL(activated()), this, SLOT(on_diagnostic_loader_messages_toggled()));
 
@@ -90,7 +93,7 @@ TabDiagnostics::TabDiagnostics(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->ui->diagnostic_search_prev->setEnabled(false);
 
     // this->ui->diagnostic_status_text->installEventFilter(&window);
-    this->ui->diagnostic_status_text->document()->setMaximumBlockCount(65536);
+    this->ui->diagnostic_status_text->document()->setMaximumBlockCount(8192);
     this->ui->diagnostic_status_text->setContextMenuPolicy(Qt::CustomContextMenu);
 
     this->UpdateStatus();
@@ -257,7 +260,7 @@ std::string TabDiagnostics::BuildStatus(DiagnosticMode selected_mode, std::size_
 void TabDiagnostics::UpdateStatus() {
     this->status = this->BuildStatus(this->mode, this->ui->diagnostic_mode_options->currentIndex());
 
-    this->ui->diagnostic_status_text->setText(this->status.c_str());
+    this->ui->diagnostic_status_text->setPlainText(this->status.c_str());
 
     this->ui->diagnostic_search_clear->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
     this->ui->diagnostic_search_edit->setFocus();
@@ -637,23 +640,36 @@ void TabDiagnostics::on_focus_search() {
     // this->ui->diagnostic_status_text->moveCursor(QTextCursor::Start);
 }
 
+void TabDiagnostics::on_timer_search() {
+    this->timer_search->stop();
+
+    this->ResetTextCursor();
+
+    if (!this->diagnostic_search_text.empty()) {
+        this->highlighter->setSearch(this->diagnostic_search_text.c_str());
+
+        this->ui->diagnostic_status_text->moveCursor(QTextCursor::StartOfWord);
+        this->SearchFind(false);
+        this->text_is_reset = false;
+    }
+}
+
 void TabDiagnostics::on_search_textEdited(const QString &text) {
-    this->highlighter->setSearch(text);
+    this->timer_search->start(200);
+
+    this->diagnostic_search_text = text.toStdString();
 
     this->ui->diagnostic_search_next->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
     this->ui->diagnostic_search_prev->setEnabled(!this->ui->diagnostic_search_edit->text().isEmpty());
-
-    this->diagnostic_search_text = text.toStdString();
     this->ui->diagnostic_search_clear->setEnabled(!text.isEmpty());
-
-    if (!text.isEmpty()) {
-        this->ui->diagnostic_status_text->moveCursor(QTextCursor::StartOfWord);
-        this->SearchFind(false);
-    }
 }
 
 void TabDiagnostics::ResetTextCursor() {
     if (this->ui->diagnostic_status_text->document()->isEmpty()) {
+        return;
+    }
+
+    if (this->text_is_reset) {
         return;
     }
 
@@ -669,6 +685,8 @@ void TabDiagnostics::ResetTextCursor() {
 
     cursor.setPosition(saved_Position, QTextCursor::MoveAnchor);
     cursor.setPosition(saved_anchor, QTextCursor::KeepAnchor);
+
+    this->text_is_reset = true;
 }
 
 void TabDiagnostics::on_search_clear_pressed() {
@@ -813,7 +831,7 @@ void TabDiagnostics::processClosed(int exit_code, QProcess::ExitStatus status) {
         }
     }
 
-    this->ui->diagnostic_status_text->setText(this->status.c_str());
+    this->ui->diagnostic_status_text->setPlainText(this->status.c_str());
 
     if (this->process->processId() > 0) {
         this->process->kill();
