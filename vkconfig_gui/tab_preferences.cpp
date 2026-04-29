@@ -61,6 +61,8 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
                   SLOT(on_theme_light_alternate_pressed()));
     this->connect(this->ui->preferences_theme_dark_alternate_open, SIGNAL(clicked()), this,
                   SLOT(on_theme_dark_alternate_pressed()));
+    this->connect(this->ui->preferences_app_log_max_blocks, SIGNAL(valueChanged(int)), this,
+                  SLOT(on_app_text_max_blocks_changed(int)));
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     this->ui->preferences_theme_mode->setToolTip(
@@ -82,6 +84,12 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->ui->preferences_theme_dark_alternate_enabled->blockSignals(true);
     this->ui->preferences_theme_dark_alternate_enabled->setChecked(configurator.theme_dark_alternate_enabled);
     this->ui->preferences_theme_dark_alternate_enabled->blockSignals(false);
+
+    this->ui->launch_log_text->document()->setMaximumBlockCount(configurator.app_log_max_blocks);
+    this->ui->preferences_app_log_max_blocks->blockSignals(true);
+    this->ui->preferences_app_log_max_blocks->setValue(configurator.app_log_max_blocks);
+    this->ui->preferences_app_log_max_blocks->blockSignals(false);
+
     this->on_theme_mode_changed(configurator.current_theme_mode);
 
     this->ui->preferences_progress->setVisible(false);
@@ -164,6 +172,11 @@ void TabPreferences::on_all_enabled_executables_changed(int index) {
     configurator.Override(OVERRIDE_AREA_ALL);
 }
 
+void TabPreferences::on_app_text_max_blocks_changed(int index) {
+    Configurator &configurator = Configurator::Get();
+    configurator.app_log_max_blocks = index;
+}
+
 void TabPreferences::on_theme_mode_changed(int index) {
     Configurator &configurator = Configurator::Get();
 
@@ -193,7 +206,6 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->launch_options_log_button->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
     this->ui->launch_options_log_open->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
 
-    this->ui->launch_export_file->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
     this->ui->launch_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
     this->ui->launch_search_next->setIcon(::Get(new_theme_mode, ::ICON_NEXT));
     this->ui->launch_search_prev->setIcon(::Get(new_theme_mode, ::ICON_PREV));

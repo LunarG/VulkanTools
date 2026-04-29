@@ -91,7 +91,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -2403,6 +2403,23 @@
               </spacer>
              </item>
              <item>
+              <widget class="QComboBox" name="launch_stdout_display">
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::AdjustToContents</enum>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Display output log on exit</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Stream output log while running</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="launch_button">
                <property name="minimumSize">
                 <size>
@@ -2439,34 +2456,6 @@
             <property name="topMargin">
              <number>0</number>
             </property>
-            <item>
-             <widget class="QPushButton" name="launch_export_file">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>24</width>
-                <height>24</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>24</width>
-                <height>24</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Export the application output log</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QLineEdit" name="launch_search_edit">
               <property name="minimumSize">
@@ -2684,7 +2673,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QTextEdit" name="launch_log_text">
+           <widget class="QPlainTextEdit" name="launch_log_text">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -2712,12 +2701,6 @@
             </property>
             <property name="sizeAdjustPolicy">
              <enum>QAbstractScrollArea::AdjustToContents</enum>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="tabStopDistance">
-             <double>10.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -3549,7 +3532,7 @@
             </layout>
            </item>
            <item>
-            <widget class="QTextEdit" name="diagnostic_status_text">
+            <widget class="QPlainTextEdit" name="diagnostic_status_text">
              <property name="font">
               <font>
                <family>Consolas</family>
@@ -3571,12 +3554,6 @@
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QAbstractScrollArea::AdjustToContents</enum>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="tabStopDistance">
-              <double>10.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -3965,6 +3942,72 @@
                 </spacer>
                </item>
               </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_16">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>The maximum number of text blocks the UI will display, too high will significantly reduce UI performance</string>
+               </property>
+               <property name="text">
+                <string>Application launcher log maximum text block size: </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="preferences_app_log_max_blocks">
+               <property name="minimumSize">
+                <size>
+                 <width>128</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>The maximum number of text blocks the UI will display, too high will significantly reduce UI performance</string>
+               </property>
+               <property name="minimum">
+                <number>512</number>
+               </property>
+               <property name="maximum">
+                <number>32768</number>
+               </property>
+               <property name="singleStep">
+                <number>512</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </item>

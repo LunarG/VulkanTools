@@ -58,6 +58,7 @@ class TabPreferences : public Tab {
     void on_theme_dark_alternate_enabled(bool checked);
     void on_theme_light_alternate_pressed();
     void on_theme_dark_alternate_pressed();
+    void on_app_text_max_blocks_changed(int index);
 
    private:
     QNetworkAccessManager network_manager;

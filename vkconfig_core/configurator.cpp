@@ -1270,6 +1270,10 @@ bool Configurator::Load() {
                 this->theme_dark_alternate_color = json_object.value("theme_dark_alternate_color").toString();
             }
 
+            if (json_object.value("app_log_max_blocks") != QJsonValue::Undefined) {
+                this->app_log_max_blocks = json_object.value("app_log_max_blocks").toInteger();
+            }
+
             if (json_object.value("latest_sdk_version") != QJsonValue::Undefined) {
                 this->latest_sdk_version = Version(json_object.value("latest_sdk_version").toString().toStdString().c_str());
             }
@@ -1457,6 +1461,7 @@ bool Configurator::Save() const {
     // TAB_APPLICATIONS
     {
         QJsonObject json_object;
+        json_object.insert("stdout_display", ::GetToken(this->stdout_display));
         json_interface_object.insert(GetToken(TAB_APPLICATIONS), json_object);
     }
 
@@ -1478,6 +1483,7 @@ bool Configurator::Save() const {
         json_object.insert("theme_dark_alternate_enabled", this->theme_dark_alternate_enabled);
         json_object.insert("theme_light_alternate_color", this->theme_light_alternate_color.name());
         json_object.insert("theme_dark_alternate_color", this->theme_dark_alternate_color.name());
+        json_object.insert("app_log_max_blocks", this->app_log_max_blocks);
         json_object.insert("use_notify_releases", this->use_notify_releases);
         json_object.insert("latest_sdk_version", this->latest_sdk_version.str().c_str());
         json_object.insert("show_external_layers_settings", this->show_external_layers_settings);
