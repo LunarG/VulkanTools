@@ -83,6 +83,8 @@ class LayerManager : public Serialize {
     }
 
    private:
+    bool Validate(const Path& layer_path, QString json_text, ConfiguratorMode configurator_mode) const;
+
     LayerLoadStatus LoadLayer(const QJsonObject& json_layer_object, const Path& layer_path, LayerType type,
                               const std::string& last_modified, Version file_format_version, LayerDescriptor descriptor);
 

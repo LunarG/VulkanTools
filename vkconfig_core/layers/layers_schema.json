@@ -5,8 +5,7 @@
     "description": "JSON Schema for validating the Vulkan Layer Manifest Files",
     "additionalProperties": true,
     "required": [
-        "file_format_version",
-        "layer"
+        "file_format_version"
     ],
     "definitions": {
         "version": {
@@ -1717,8 +1716,110 @@
         "file_format_version": {
             "$ref": "#/definitions/version"
         },
+        "ICD": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+            }
+        },
         "layer": {
             "type": "object",
+            "additionalProperties": true,
+            "required": [
+                "name",
+                "api_version",
+                "implementation_version",
+                "description"
+            ],
+            "properties": {
+                "name": {
+                    "description": "The string used to uniquely identify this layer to applications.",
+                    "type": "string",
+                    "pattern": "^VK_LAYER_[A-Z0-9]+_[A-Za-z0-9_]+"
+                },
+                "shortcut": {
+                    "description": "Short name used to reference a layer variable. Eg on Android: debug.vvl.validate_core instead of debug.vulkan.khronos_validation.validate_core",
+                    "type": "string"
+                },
+                "library_path": {
+                    "description": "The library_path specifies either a filename, a relative pathname, or a full pathname to a layer shared library file. If library_path specifies a relative pathname, it is relative to the path of the JSON manifest file (e.g. for cases when an application provides a layer that is in the same folder hierarchy as the rest of the application files). If library_path specifies a filename, the library must live in the system's shared object search path. There are no rules about the name of the layer shared library files other than it should end with the appropriate suffix (.DLL on Windows, .so on Linux, and .dylib on macOS). This field must not be present if component_layers is defined.",
+                    "type": "string"
+                },
+                "api_version": {
+                    "description": "The major.minor.patch version number of the Vulkan API that the shared library file for the library was built against.",
+                    "$ref": "#/definitions/version"
+                },
+                "implementation_version": {
+                    "description": "The version of the layer implemented. If the layer itself has any major changes, this number should change so the loader and/or application can identify it properly.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "A high-level description of the layer and its intended use.",
+                    "type": "string"
+                },
+                "introduction": {
+                    "description": "A detailed description of the layer and its intended use. Introduced with version 1.2.0.",
+                    "type": "string"
+                },
+                "url": {
+                    "description": "A link to the layer home page. Introduced with version 1.2.0.",
+                    "type": "string"
+                },
+                "platforms": {
+                    "description": "The list of platforms supported by the layer. Introduced with version 1.2.0.",
+                    "$ref": "#/definitions/platforms"
+                },
+                "status": {
+                    "description": "The development status of the layer. When the node is missing, the value is gathered from a parent node or set to STABLE when no parent node has defined the node. Introduced with version 1.2.0.",
+                    "$ref": "#/definitions/status"
+                },
+                "features": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "settings": {
+                            "$ref": "#/definitions/settings_meta"
+                        },
+                        "presets": {
+                            "type": "array",
+                            "items": {
+                                "required": [
+                                    "label",
+                                    "description",
+                                    "settings"
+                                ],
+                                "additionalProperties": true,
+                                "properties": {
+                                    "label": {
+                                        "description": "The label used to identify the preset to the user eyes.",
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "description": "The description of the preset to example it's purpose.",
+                                        "type": "string"
+                                    },
+                                    "url": {
+                                        "description": "A url for more documentation about the preset.",
+                                        "type": "string"
+                                    },
+                                    "platforms": {
+                                        "$ref": "#/definitions/platforms"
+                                    },
+                                    "status": {
+                                        "$ref": "#/definitions/status"
+                                    },
+                                    "settings": {
+                                        "$ref": "#/definitions/settings_data"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "layers": {
+            "type": "array",
             "additionalProperties": true,
             "required": [
                 "name",
