@@ -185,7 +185,7 @@ TEST(test_layer_manager, FindLastModified) {
     const std::size_t initial_count = layer_manager.Size();
 
     Layer* layer204_modified = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
-    layer204_modified->last_modified = "1";
+    layer204_modified->descriptor.last_modified = "1";
     Path modified_path = layer204_modified->manifest_path;
     layer204_modified->manifest_path = ":/layers/VK_LAYER_LUNARG_version_204_copy.json";
 
@@ -194,7 +194,7 @@ TEST(test_layer_manager, FindLastModified) {
     EXPECT_EQ(initial_count + 1, reloaded_count);
 
     Layer* layer204 = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
-    layer204->last_modified = "0";
+    layer204->descriptor.last_modified = "0";
 
     Layer* layer204_first = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204_copy.json", false);
     Layer* layer204_copy = layer_manager.FindFromManifest(":/layers/VK_LAYER_LUNARG_version_204.json", false);
@@ -202,7 +202,7 @@ TEST(test_layer_manager, FindLastModified) {
     const Layer* last0 = layer_manager.FindLastModified("VK_LAYER_LUNARG_version", Version(1, 3, 204));
     EXPECT_EQ(layer204_first, last0);
 
-    layer204_copy->last_modified = "2";
+    layer204_copy->descriptor.last_modified = "2";
     const Layer* last1 = layer_manager.FindLastModified("VK_LAYER_LUNARG_version", Version(1, 3, 204));
     EXPECT_EQ(layer204_copy, last1);
 }

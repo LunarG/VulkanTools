@@ -69,6 +69,7 @@ class LayerManager : public Serialize {
     std::set<LayerDisplay> BuildLayerDisplayList() const;
     std::map<Path, std::map<std::string, LayerDisplay>> BuildLayerStoreList() const;
     std::vector<Path> BuildLayerPaths() const;
+    LayerDescriptor GetDescriptor(const Path& layer_path, const std::string& layer_key) const;
 
     std::vector<std::string> GatherLayerNames() const;
 
@@ -83,10 +84,10 @@ class LayerManager : public Serialize {
     }
 
    private:
-    bool Validate(const Path& layer_path, QString json_text, ConfiguratorMode configurator_mode) const;
+    LayerValidated Validate(const Path& layer_path, QString json_text, ConfiguratorMode configurator_mode) const;
 
     LayerLoadStatus LoadLayer(const QJsonObject& json_layer_object, const Path& layer_path, LayerType type,
-                              const std::string& last_modified, Version file_format_version, LayerDescriptor descriptor);
+                              Version file_format_version, LayerDescriptor descriptor);
 
     void ApplyLayerDescriptor();
 

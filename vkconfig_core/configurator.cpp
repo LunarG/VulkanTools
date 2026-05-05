@@ -1143,11 +1143,21 @@ bool Configurator::Load() {
                         display.id.api_version = Version::NONE;
                         display.descriptor.enabled = json_descriptor_object.value("enabled").toBool();
                         display.descriptor.removed = json_descriptor_object.value("removed").toBool();
-                        display.descriptor.validated = json_descriptor_object.value("validated").toBool();
+                        display.descriptor.validated =
+                            ::GetLayerValidated(json_descriptor_object.value("validated").toString().toStdString().c_str());
+                        if (json_descriptor_object.value("last_modified") != QJsonValue::Undefined) {
+                            display.descriptor.last_modified =
+                                json_descriptor_object.value("last_modified").toString().toStdString();
+                        }
                         descriptors.push_back(display);
                     }
 
-                    this->layers.AppendInit(Path(keys[i].toStdString()), descriptors);
+                    Path path(keys[i].toStdString());
+                    if (!path.Exists()) {
+                        continue;
+                    }
+
+                    this->layers.AppendInit(path, descriptors);
                 }
             }
             if (json_object.value("paths") != QJsonValue::Undefined) {
@@ -1379,10 +1389,10 @@ bool Configurator::Save() const {
 
                 QJsonObject json_descriptor;
                 json_descriptor.insert("key", jt->first.c_str());
-                json_descriptor.insert("validated", jt->second.descriptor.validated);
+                json_descriptor.insert("validated", ::GetToken(jt->second.descriptor.validated));
                 json_descriptor.insert("enabled", jt->second.descriptor.enabled);
                 json_descriptor.insert("removed", jt->second.descriptor.removed);
-
+                json_descriptor.insert("last_modified", jt->second.descriptor.last_modified.c_str());
                 json_layer_descriptors.append(json_descriptor);
             }
 

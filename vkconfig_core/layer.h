@@ -49,6 +49,21 @@ enum LayerLoadStatus {
 
 enum { LAYER_LOAD_COUNT = LAYER_LOAD_LAST - LAYER_LOAD_FIRST + 1 };
 
+enum LayerValidated {
+    LAYER_VALIDATE_NONE = 0,
+    LAYER_VALIDATE_PASS,
+    LAYER_VALIDATE_FAIL,
+
+    LAYER_VALIDATE_FIRST = LAYER_VALIDATE_NONE,
+    LAYER_VALIDATE_LAST = LAYER_VALIDATE_FAIL,
+};
+
+enum { LAYER_VALIDATE_COUNT = LAYER_VALIDATE_LAST - LAYER_VALIDATE_FIRST + 1 };
+
+const char* GetToken(LayerValidated status);
+
+LayerValidated GetLayerValidated(const char* token);
+
 struct LayerId {
     Path manifest_path;
     std::string key;
@@ -56,7 +71,8 @@ struct LayerId {
 };
 
 struct LayerDescriptor {
-    bool validated = false;
+    std::string last_modified;
+    LayerValidated validated = LAYER_VALIDATE_NONE;
     bool enabled = true;
     bool removed = false;
     bool recent = false;
@@ -94,7 +110,7 @@ class Layer {
     Path binary_path;
     Version api_version;
     std::string implementation_version;
-    std::string last_modified;
+    // std::string last_modified;
     StatusType status;
     std::string description;
     std::string introduction;

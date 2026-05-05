@@ -46,6 +46,31 @@
 #include <string>
 #include <algorithm>
 
+#include <array>
+#include <cstring>
+
+const char* GetToken(LayerValidated status) {
+    static const char* TOKENS[] = {
+        "NONE",  // LAYER_VALIDATE_NONE
+        "PASS",  // LAYER_VALIDATE_PASS
+        "FAIL",  // LAYER_VALIDATE_FAIL
+    };
+    static_assert(std::size(TOKENS) == LAYER_VALIDATE_COUNT);
+
+    return TOKENS[status];
+}
+
+LayerValidated GetLayerValidated(const char* token) {
+    for (int i = LAYER_VALIDATE_FIRST, l = LAYER_VALIDATE_LAST; i <= l; ++i) {
+        const LayerValidated status = static_cast<LayerValidated>(i);
+        if (std::strcmp(::GetToken(status), token) == 0) {
+            return status;
+        }
+    }
+
+    return LAYER_VALIDATE_FIRST;
+}
+
 Layer::Layer() : status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT) {}
 
 Layer::Layer(const std::string& key) : key(key), status(STATUS_STABLE), platforms(PLATFORM_DESKTOP_BIT) {}
