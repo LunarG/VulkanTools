@@ -91,7 +91,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_configurations">
        <property name="autoFillBackground">
@@ -129,7 +129,7 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>Check to control the Vulkan Layers used by running Vulkan Executables (Ctrl+Space)</string>
+           <string>Toggle to control the Vulkan Layers used by running Vulkan Executables (Ctrl+Space)</string>
           </property>
           <property name="statusTip">
            <string/>
@@ -1272,7 +1272,7 @@
            </font>
           </property>
           <property name="toolTip">
-           <string>Check to control Vulkan Physical Device used by all running Vulkan executables (Ctrl+Space)</string>
+           <string>Toggle to control Vulkan Physical Device used by all running Vulkan executables (Ctrl+Space)</string>
           </property>
           <property name="statusTip">
            <string/>
@@ -2764,7 +2764,7 @@
              </font>
             </property>
             <property name="toolTip">
-             <string>Check to produce Vulkan Loader Log to all running Vulkan executables (Ctrl+Space)</string>
+             <string>Toggle to produce Vulkan Loader Log to all running Vulkan executables (Ctrl+Space)</string>
             </property>
             <property name="statusTip">
              <string/>
