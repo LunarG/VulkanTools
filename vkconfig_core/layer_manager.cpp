@@ -175,7 +175,7 @@ bool LayerManager::Load(const QJsonObject &json_root_object, ConfiguratorMode co
                 LayerDisplay layer;
                 layer.id.manifest_path = json_layers_found_keys[i].toStdString();
                 layer.descriptor.enabled = !json_status_object.value("disabled").toBool();
-                layer.descriptor.validated = json_status_object.value("validated").toBool();
+                layer.descriptor.validated = LAYER_VALIDATE_NONE;
 
                 std::vector<LayerDisplay> layers;
                 layers.push_back(layer);
@@ -391,7 +391,7 @@ const Layer *LayerManager::FindLastModified(const std::string &layer_name, const
         }
 
         if (result != nullptr) {
-            if (result->last_modified > this->available_layers[i].last_modified) {
+            if (result->descriptor.last_modified > this->available_layers[i].descriptor.last_modified) {
                 continue;
             }
         }
@@ -450,7 +450,7 @@ void LayerManager::ApplyLayerDescriptor() {
                 }
             }
 
-            layer.descriptor = init.descriptor;
+            layer.descriptor.removed = init.descriptor.removed;
         }
     }
 }
@@ -497,10 +497,10 @@ void LayerManager::LoadAllInstalledLayers(ConfiguratorMode configurator_mode) {
         }
     }
 
-    this->ApplyLayerDescriptor();
+    // this->ApplyLayerDescriptor();
 }
 
-bool LayerManager::Validate(const Path &layer_path, QString json_text, ConfiguratorMode configurator_mode) const {
+LayerValidated LayerManager::Validate(const Path &layer_path, QString json_text, ConfiguratorMode configurator_mode) const {
     JsonValidator validator;
     bool result = validator.Check(json_text);
 
@@ -543,13 +543,25 @@ bool LayerManager::Validate(const Path &layer_path, QString json_text, Configura
         }
     }
 
-    return result;
+    return result ? LAYER_VALIDATE_PASS : LAYER_VALIDATE_FAIL;
+}
+
+LayerDescriptor LayerManager::GetDescriptor(const Path &layer_path, const std::string &layer_key) const {
+    auto it = layer_init.find(layer_path);
+    if (it != layer_init.end()) {
+        const std::vector<LayerDisplay> &data = it->second;
+        for (std::size_t i = 0, n = data.size(); i < n; ++i) {
+            const LayerDisplay &display = data[i];
+            if (display.id.key == layer_key) {
+                return display.descriptor;
+            }
+        }
+    }
+
+    return LayerDescriptor();
 }
 
 LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type, ConfiguratorMode configurator_mode) {
-    const std::string &last_modified = layer_path.LastModified();
-    LayerDescriptor descriptor;
-
     QFile file(layer_path.AbsolutePath().c_str());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         assert(0);
@@ -579,6 +591,7 @@ LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type,
     }
 
     LayerLoadStatus status = LAYER_LOAD_ADDED;
+    const std::string &last_modified = layer_path.LastModified();
 
     if (json_root_object.value("layers") != QJsonValue::Undefined) {
         const QJsonArray &json_layers_array = json_root_object.value("layers").toArray();
@@ -589,32 +602,37 @@ LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type,
             std::string key = ReadStringValue(json_layer_object, "name");
 
             if (key == "VK_LAYER_LUNARG_override" || !(key.rfind("VK_", 0) == 0)) {
-                return LAYER_LOAD_IGNORED;
+                status = LAYER_LOAD_IGNORED;
+                continue;
             }
-        }
 
-        if (this->validate_manifests) {
-            descriptor.validated = this->Validate(layer_path, json_text, configurator_mode);
-        }
+            LayerDescriptor descriptor = this->GetDescriptor(layer_path, key);
 
-        for (int i = 0, n = json_layers_array.size(); i < n; ++i) {
-            const QJsonObject &json_layer_object = json_layers_array[i].toObject();
-            status = this->LoadLayer(json_layer_object, layer_path, type, last_modified, file_format_version, descriptor);
+            if (this->validate_manifests && (descriptor.last_modified != last_modified) || !descriptor.validated) {
+                descriptor.validated = this->Validate(layer_path, json_text, configurator_mode);
+                descriptor.last_modified = last_modified;
+            }
+
+            status = this->LoadLayer(json_layer_object, layer_path, type, file_format_version, descriptor);
         }
     } else if (json_root_object.value("layer") != QJsonValue::Undefined) {
         const QJsonObject &json_layer_object = json_root_object.value("layer").toObject();
 
-        std::string key = ReadStringValue(json_layer_object, "name");
+        std::string layer_key = ReadStringValue(json_layer_object, "name");
 
-        if (key == "VK_LAYER_LUNARG_override" || !(key.rfind("VK_", 0) == 0)) {
+        if (layer_key == "VK_LAYER_LUNARG_override" || !(layer_key.rfind("VK_", 0) == 0)) {
             return LAYER_LOAD_IGNORED;
         }
 
-        if (this->validate_manifests) {
+        LayerDescriptor descriptor = this->GetDescriptor(layer_path, layer_key);
+
+        if (this->validate_manifests &&
+            (descriptor.last_modified != last_modified || descriptor.validated == LAYER_VALIDATE_NONE)) {
             descriptor.validated = this->Validate(layer_path, json_text, configurator_mode);
+            descriptor.last_modified = last_modified;
         }
 
-        status = this->LoadLayer(json_layer_object, layer_path, type, last_modified, file_format_version, descriptor);
+        status = this->LoadLayer(json_layer_object, layer_path, type, file_format_version, descriptor);
     } else {
         assert(0);
     }
@@ -623,11 +641,10 @@ LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type,
 }
 
 LayerLoadStatus LayerManager::LoadLayer(const QJsonObject &json_layer_object, const Path &layer_path, LayerType type,
-                                        const std::string &last_modified, Version file_format_version, LayerDescriptor descriptor) {
+                                        Version file_format_version, LayerDescriptor descriptor) {
     Layer layer;
     layer.type = type;
     layer.manifest_path = layer_path;
-    layer.last_modified = last_modified;
     layer.file_format_version = file_format_version;
     layer.descriptor = descriptor;
 
@@ -641,7 +658,7 @@ LayerLoadStatus LayerManager::LoadLayer(const QJsonObject &json_layer_object, co
         if (duplicated_layer->descriptor.removed) {
             duplicated_layer->descriptor.removed = false;
             duplicated_layer->descriptor.enabled = true;
-        } else if (duplicated_layer->last_modified != layer.last_modified) {
+        } else if (duplicated_layer->descriptor.last_modified != layer.descriptor.last_modified) {
             // Reload when the manifest was updated
             LayerLoadStatus reloaded_status = duplicated_layer->Load(json_layer_object);
             status = reloaded_status == LAYER_LOAD_ADDED ? LAYER_LOAD_RELOADED : reloaded_status;
@@ -704,10 +721,11 @@ std::map<Path, std::map<std::string, LayerDisplay>> LayerManager::BuildLayerStor
         if (layer == nullptr) {
             continue;
         }
+        /*
         if (layer->descriptor.removed) {
             continue;
         }
-
+        */
         LayerDisplay layer_display;
         layer_display.id.manifest_path = layer->manifest_path;
         layer_display.id.key = layer->key;
@@ -726,6 +744,20 @@ std::map<Path, std::map<std::string, LayerDisplay>> LayerManager::BuildLayerStor
             } else {
                 assert(0);
             }
+        }
+    }
+
+    for (auto it = this->layer_init.begin(), end = this->layer_init.end(); it != end; ++it) {
+        auto jt = result.find(it->first);
+        if (jt == result.end()) {
+            const std::vector<LayerDisplay> &display = it->second;
+            std::map<std::string, LayerDisplay> entry;
+
+            for (std::size_t i = 0, n = display.size(); i < n; ++i) {
+                entry.insert(std::make_pair(display[i].id.key, display[i]));
+            }
+
+            result.insert(std::make_pair(it->first, entry));
         }
     }
 
@@ -759,7 +791,18 @@ std::vector<Path> LayerManager::BuildLayerPaths() const {
     std::vector<Path> result;
 
     for (auto it = this->layer_init.begin(); it != this->layer_init.end(); ++it) {
-        result.push_back(it->first);
+        bool keep = false;
+
+        for (auto jt = it->second.begin(); jt != it->second.end(); ++jt) {
+            if (!jt->descriptor.removed) {
+                keep = true;
+                break;
+            }
+        }
+
+        if (keep) {
+            result.push_back(it->first);
+        }
     }
 
     return result;
