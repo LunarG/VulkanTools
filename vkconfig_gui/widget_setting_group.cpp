@@ -25,7 +25,7 @@
 WidgetSettingGroup::WidgetSettingGroup(QTreeWidget* tree, QTreeWidgetItem* item, const SettingMetaGroup& meta,
                                        SettingDataSet& data_set)
     : WidgetSettingBase(tree, item), meta(meta), data_set(data_set) {
-    this->item->setText(0, meta.label.c_str());
+    this->item->setText(0, GetLabel(meta).c_str());
     this->item->setToolTip(0, meta.description.c_str());
     this->item->setFont(0, tree->font());
 

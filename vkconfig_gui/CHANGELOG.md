@@ -39,6 +39,7 @@
 - Fix key binding shortcuts (Eg: CTRL+F to search things on various tabs)
 - Fix `VK_LAYER_NV_present` or `VK_LAYER_NV_optimus` not found #2597
 - Fix per-layer settings checkbox to prevent writing the settings being ignored
+- Fix missing layer setting status to setting group type
 
 ## Vulkan Configurator 3.4.2 - Febuary 2026
 [Vulkan SDK 1.4.341.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.341)
