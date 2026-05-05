@@ -114,21 +114,18 @@ void MainWindow::UpdateUI_Status() {
         {
             QAction *tray_restore_action = new QAction("&Show Vulkan Configurator UI", this);
             tray_restore_action->setIcon(QIcon(":/resourcefiles/vkconfig-on.png"));
+            QFont font = tray_restore_action->font();
+            font.setBold(true);
+            tray_restore_action->setFont(font);
             this->connect(tray_restore_action, &QAction::triggered, this, &MainWindow::OnTrayActionShow);
             menu->addAction(tray_restore_action);
-
-            QAction *tray_quit_action = new QAction("&Quit Vulkan Configurator", this);
-            tray_quit_action->setIcon(::Get(configurator.current_theme_mode, ::ICON_EXIT));
-            this->connect(tray_quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
-            menu->addAction(tray_quit_action);
         }
 
         {
             menu->addSeparator();
-
             const bool enabled_layers = configurator.layers_override_enabled && configurator.GetExecutableScope() != EXECUTABLE_PER;
 
-            QAction *tray_override_layers = new QAction("Override System Vulkan &Layers Configurations:", this);
+            QAction *tray_override_layers = new QAction("Override System Vulkan &Layers Configuration:", this);
             tray_override_layers->setCheckable(true);
             tray_override_layers->setChecked(enabled_layers);
 
@@ -159,7 +156,6 @@ void MainWindow::UpdateUI_Status() {
 
         {
             menu->addSeparator();
-
             const bool enabled_physical_devices =
                 configurator.driver_override_enabled && configurator.driver_override_mode == DRIVER_MODE_SINGLE;
 
@@ -202,6 +198,19 @@ void MainWindow::UpdateUI_Status() {
 
             this->connect(tray_override_loader_log, &QAction::toggled, this, &MainWindow::OnTrayActionOverrideLog);
             menu->addAction(tray_override_loader_log);
+        }
+
+        {
+            menu->addSeparator();
+            menu->addSeparator();
+
+            QAction *tray_quit_action = new QAction("&Quit Vulkan Configurator", this);
+            tray_quit_action->setIcon(::Get(configurator.current_theme_mode, ::ICON_EXIT));
+            QFont font = tray_quit_action->font();
+            font.setBold(true);
+            tray_quit_action->setFont(font);
+            this->connect(tray_quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
+            menu->addAction(tray_quit_action);
         }
 
         if (this->_tray_icon != nullptr) {
