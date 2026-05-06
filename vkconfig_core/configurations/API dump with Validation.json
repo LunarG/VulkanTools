@@ -1,7 +1,7 @@
 {
     "file_format_version": "3.0.0",
     "configuration": {
-        "name": "Validation with API Dump Log",
+        "name": "API dump with Validation",
         "version": 1,
         "platforms": [
             "WINDOWS",
