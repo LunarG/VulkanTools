@@ -1208,7 +1208,7 @@ void TabConfigurations::on_configurations_override_toggled() {
 void TabConfigurations::on_configurations_override_toggled(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.layers_override_enabled = checked;
-    configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
+    configurator.Override(OVERRIDE_AREA_ALL);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
