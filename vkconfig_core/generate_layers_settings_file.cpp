@@ -22,7 +22,8 @@
 
 // Create and write vk_layer_settings.txt file
 bool GenerateSettingsTXT(Configurator& configurator, OverrideArea override_area, const Path& layers_settings_path) {
-    if (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT) {
+    if (configurator.mode == CONFIGURATOR_MODE_CMD ||
+        (configurator.layers_override_enabled && (override_area & OVERRIDE_AREA_LAYERS_SETTINGS_BIT))) {
         std::vector<LayersSettings> layers_settings_array;
 
         switch (configurator.GetExecutableScope()) {
