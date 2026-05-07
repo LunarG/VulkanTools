@@ -125,7 +125,7 @@ void MainWindow::UpdateUI_Status() {
             menu->addSeparator();
             const bool enabled_layers = configurator.layers_override_enabled && configurator.GetExecutableScope() != EXECUTABLE_PER;
 
-            QAction *tray_override_layers = new QAction("Override System Vulkan &Layers Configuration:", this);
+            QAction *tray_override_layers = new QAction("Override System Vulkan &Layers Configuration", this);
             tray_override_layers->setCheckable(true);
             tray_override_layers->setChecked(enabled_layers);
 
@@ -151,7 +151,9 @@ void MainWindow::UpdateUI_Status() {
             QWidgetAction *action = new QWidgetAction(menu);
             action->setDefaultWidget(widget);
             action->setEnabled(enabled_layers);
-            menu->addAction(action);
+            if (VKC_PLATFORM != PLATFORM_LINUX) {
+                menu->addAction(action);
+            }
         }
 
         {
@@ -159,7 +161,7 @@ void MainWindow::UpdateUI_Status() {
             const bool enabled_physical_devices =
                 configurator.driver_override_enabled && configurator.driver_override_mode == DRIVER_MODE_SINGLE;
 
-            QAction *tray_override_device = new QAction("Override System Vulkan &Physcial Devices:", this);
+            QAction *tray_override_device = new QAction("Override System Vulkan &Physcial Devices", this);
             tray_override_device->setCheckable(true);
             tray_override_device->setChecked(enabled_physical_devices);
 
@@ -186,7 +188,9 @@ void MainWindow::UpdateUI_Status() {
             QWidgetAction *action = new QWidgetAction(menu);
             action->setDefaultWidget(widget);
             action->setEnabled(enabled_physical_devices);
-            menu->addAction(action);
+            if (VKC_PLATFORM != PLATFORM_LINUX) {
+                menu->addAction(action);
+            }
         }
 
         {
