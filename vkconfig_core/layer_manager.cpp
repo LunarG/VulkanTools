@@ -59,7 +59,6 @@ static std::vector<Path> GetImplicitLayerPaths() {
         LoadRegistrySystemLayers("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanImplicitLayers");
     result.insert(result.begin(), drivers_registry_paths.begin(), drivers_registry_paths.end());
 #else
-    std::vector<std::string> paths;
     if (VKC_PLATFORM == PLATFORM_MACOS) {
         static const char *LAYERS_PATHS[] = {
             "/usr/local/share/vulkan/implicit_layer.d",
@@ -67,7 +66,7 @@ static std::vector<Path> GetImplicitLayerPaths() {
         };
 
         for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
-            paths.push_back(LAYERS_PATHS[i]);
+            result.push_back(LAYERS_PATHS[i]);
         }
     } else {
         static const char *LAYERS_PATHS[] = {
@@ -87,7 +86,7 @@ static std::vector<Path> GetImplicitLayerPaths() {
         };
 
         for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
-            paths.push_back(LAYERS_PATHS[i]);
+            result.push_back(LAYERS_PATHS[i]);
         }
     }
 #endif
@@ -112,7 +111,6 @@ std::vector<Path> GetExplicitLayerPaths() {
         LoadRegistrySystemLayers("HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Class\\...\\VulkanExplicitLayers");
     result.insert(result.begin(), drivers_registry_paths.begin(), drivers_registry_paths.end());
 #else
-    std::vector<std::string> paths;
     if (VKC_PLATFORM == PLATFORM_MACOS) {
         static const char *LAYERS_PATHS[] = {
             "/usr/local/share/vulkan/explicit_layer.d",
@@ -120,7 +118,7 @@ std::vector<Path> GetExplicitLayerPaths() {
         };
 
         for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
-            paths.push_back(LAYERS_PATHS[i]);
+            result.push_back(LAYERS_PATHS[i]);
         }
     } else {
         static const char *LAYERS_PATHS[] = {
@@ -140,7 +138,7 @@ std::vector<Path> GetExplicitLayerPaths() {
         };
 
         for (std::size_t i = 0, n = std::size(LAYERS_PATHS); i < n; ++i) {
-            paths.push_back(LAYERS_PATHS[i]);
+            result.push_back(LAYERS_PATHS[i]);
         }
     }
 #endif
