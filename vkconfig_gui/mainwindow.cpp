@@ -387,7 +387,6 @@ void MainWindow::OnTrayActionOverrideLayers(bool toggled) {
     configurator.Override(OVERRIDE_AREA_ALL);
 
     this->tabs[TAB_CONFIGURATIONS]->UpdateUI(UPDATE_REBUILD_UI);
-    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void MainWindow::OnLayersChanged(int index) {
@@ -396,7 +395,6 @@ void MainWindow::OnLayersChanged(int index) {
     configurator.Override(OVERRIDE_AREA_ALL);
 
     this->tabs[TAB_CONFIGURATIONS]->UpdateUI(UPDATE_REBUILD_UI);
-    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void MainWindow::OnTrayActionOverrideDevice(bool toggled) {
@@ -406,7 +404,6 @@ void MainWindow::OnTrayActionOverrideDevice(bool toggled) {
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     this->tabs[TAB_DRIVERS]->UpdateUI(UPDATE_REBUILD_UI);
-    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void MainWindow::OnDeviceChanged(int index) {
@@ -415,7 +412,6 @@ void MainWindow::OnDeviceChanged(int index) {
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     this->tabs[TAB_DRIVERS]->UpdateUI(UPDATE_REBUILD_UI);
-    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 void MainWindow::OnTrayActionOverrideLog(bool toggled) {
@@ -424,7 +420,6 @@ void MainWindow::OnTrayActionOverrideLog(bool toggled) {
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     this->tabs[TAB_DIAGNOSTIC]->UpdateUI(UPDATE_REBUILD_UI);
-    this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
 /// The only thing we need to do here is clear the configuration if
