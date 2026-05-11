@@ -132,7 +132,8 @@ bool Configurator::Init(ConfiguratorMode configurator_mode) {
     this->has_crashed = true;  // This is set to `false` when saving on exit.
     this->Save();
 
-    if (::RequireLoading(this->mode)) {
+    // if (::RequireLoading(this->mode)) {
+    if (this->mode == CONFIGURATOR_MODE_GUI) {
         this->UpdateVulkanSystemInfo();
     }
 
