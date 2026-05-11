@@ -48,7 +48,7 @@
 #include <cassert>
 
 MainWindow::MainWindow(QApplication &app, QWidget *parent)
-    : QMainWindow(parent), _tray_icon(nullptr), app(app), ui(new Ui::MainWindow) {
+    : QMainWindow(parent), _tray_icon(new QSystemTrayIcon(this)), app(app), ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
     this->tabs[TAB_DIAGNOSTIC].reset(new TabDiagnostics(*this, ui));
@@ -194,13 +194,14 @@ void MainWindow::UpdateUI_Status() {
             this->connect(tray_quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
             menu->addAction(tray_quit_action);
 
-            if (this->_tray_icon != nullptr) {
-                delete this->_tray_icon;
+            if (VKC_ENV != VKC_ENV_WIN32) {
+                if (this->_tray_icon != nullptr) {
+                    delete this->_tray_icon;
+                }
+                this->_tray_icon = new QSystemTrayIcon(this);
             }
 
-            this->_tray_icon = new QSystemTrayIcon(this);
             this->_tray_icon->setContextMenu(menu);
-            this->_tray_icon->show();
             this->connect(this->_tray_icon, &QSystemTrayIcon::activated, this, &MainWindow::OnIconActivated);
 
             if (configurator.layers_override_enabled || configurator.driver_override_enabled || configurator.loader_log_enabled) {
@@ -208,6 +209,8 @@ void MainWindow::UpdateUI_Status() {
             } else {
                 this->_tray_icon->setIcon(QIcon(":/resourcefiles/vkconfig-off.png"));
             }
+
+            this->_tray_icon->show();
         }
     }
 
