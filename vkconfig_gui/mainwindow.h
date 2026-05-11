@@ -57,7 +57,6 @@ class MainWindow : public QMainWindow {
     void changeEvent(QEvent *event) override;
 
     QSystemTrayIcon *_tray_icon = nullptr;
-    QMenu *_tray_icon_menu = nullptr;
 
    public Q_SLOTS:
     void commitDataRequest(QSessionManager &manager);
