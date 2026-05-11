@@ -45,6 +45,11 @@
         <file>resourcefiles/dark/settings_advanced.png</file>
         <file>resourcefiles/dark/settings_basic.png</file>
 
+        <file>resourcefiles/dark/layers-off.png</file>
+        <file>resourcefiles/dark/layers-on.png</file>
+        <file>resourcefiles/dark/device-off.png</file>
+        <file>resourcefiles/dark/device-on.png</file>
+
         <file>resourcefiles/dark/system-invalid.png</file>
         <file>resourcefiles/dark/system-off.png</file>
         <file>resourcefiles/dark/system-on.png</file>
@@ -86,6 +91,11 @@
 
         <file>resourcefiles/light/settings_advanced.png</file>
         <file>resourcefiles/light/settings_basic.png</file>
+
+        <file>resourcefiles/light/layers-off.png</file>
+        <file>resourcefiles/light/layers-on.png</file>
+        <file>resourcefiles/light/device-off.png</file>
+        <file>resourcefiles/light/device-on.png</file>
 
         <file>resourcefiles/light/system-invalid.png</file>
         <file>resourcefiles/light/system-off.png</file>

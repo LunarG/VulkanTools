@@ -2,11 +2,9 @@
 [Vulkan SDK 1.4.350.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.350)
 
 ### Features:
-- Add enabling Vulkan Layers configuration from system tray
-  - Selection of the layers configuration on Windows
-- Add enabling Vullan physical device from system tray
-  - Selection of the physical device on Windows
-- Add enabling Vulkan Loader log from system tray
+- Add selecting Vulkan Layers configuration from system tray
+- Add selecting Vullan physical device from system tray
+- Add enabling Vullan loader log from system tray
 - Add Vulkan Drivers override mode for no physical device
 
 ### Improvements:
