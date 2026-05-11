@@ -110,9 +110,13 @@ void MainWindow::UpdateUI_Status() {
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         // Device
         {
-            QMenu *menu = new QMenu(this);
-            QSignalMapper *mapper_device = new QSignalMapper(menu);
-            QSignalMapper *mapper_layers = new QSignalMapper(menu);
+            if (this->_tray_icon_menu != nullptr) {
+                delete this->_tray_icon_menu;
+            }
+            this->_tray_icon_menu = new QMenu(this);
+
+            QSignalMapper *mapper_device = new QSignalMapper(this);
+            QSignalMapper *mapper_layers = new QSignalMapper(this);
 
             QAction *tray_restore_action = new QAction("&Show Vulkan Configurator UI", this);
             tray_restore_action->setIcon(QIcon(":/resourcefiles/vkconfig-on.png"));
@@ -120,9 +124,9 @@ void MainWindow::UpdateUI_Status() {
             font.setBold(true);
             tray_restore_action->setFont(font);
             this->connect(tray_restore_action, &QAction::triggered, this, &MainWindow::OnTrayActionShow);
-            menu->addAction(tray_restore_action);
+            this->_tray_icon_menu->addAction(tray_restore_action);
 
-            menu->addSeparator();
+            this->_tray_icon_menu->addSeparator();
             const bool enabled_device = configurator.driver_override_enabled;
 
             QAction *tray_override = new QAction("Override System Vulkan &Device with:", this);
@@ -131,7 +135,7 @@ void MainWindow::UpdateUI_Status() {
             tray_override->setChecked(enabled_device);
 
             this->connect(tray_override, &QAction::toggled, this, &MainWindow::OnTrayActionOverrideDevice);
-            menu->addAction(tray_override);
+            this->_tray_icon_menu->addAction(tray_override);
 
             for (std::size_t i = 0, n = configurator.vulkan_system_info.physicalDevices.size(); i < n; ++i) {
                 const VulkanPhysicalDeviceInfo &info = configurator.vulkan_system_info.physicalDevices[i];
@@ -142,7 +146,7 @@ void MainWindow::UpdateUI_Status() {
                 action->setChecked(device_info == configurator.driver_override_info);
                 action->setEnabled(enabled_device);
 
-                menu->addAction(action);
+                this->_tray_icon_menu->addAction(action);
 
                 this->connect(action, SIGNAL(triggered()), mapper_device, SLOT(map()));
                 mapper_device->setMapping(action, i);
@@ -150,7 +154,7 @@ void MainWindow::UpdateUI_Status() {
 
             this->connect(mapper_device, &QSignalMapper::mappedInt, this, &MainWindow::OnDeviceChanged);
 
-            menu->addSeparator();
+            this->_tray_icon_menu->addSeparator();
             const bool enabled_layers = configurator.layers_override_enabled && configurator.GetExecutableScope() != EXECUTABLE_PER;
 
             QAction *tray_override_layers = new QAction("Override System Vulkan &Layers Configuration with:", this);
@@ -159,7 +163,7 @@ void MainWindow::UpdateUI_Status() {
             tray_override_layers->setChecked(enabled_layers);
 
             this->connect(tray_override_layers, &QAction::toggled, this, &MainWindow::OnTrayActionOverrideLayers);
-            menu->addAction(tray_override_layers);
+            this->_tray_icon_menu->addAction(tray_override_layers);
 
             for (std::size_t i = 0, n = configurator.configurations.available_configurations.size(); i < n; ++i) {
                 const Configuration &configuration = configurator.configurations.available_configurations[i];
@@ -169,7 +173,7 @@ void MainWindow::UpdateUI_Status() {
                 action->setChecked(configuration.key == configurator.GetSelectedGlobalConfiguration());
                 action->setEnabled(enabled_layers);
 
-                menu->addAction(action);
+                this->_tray_icon_menu->addAction(action);
 
                 this->connect(action, SIGNAL(triggered()), mapper_layers, SLOT(map()));
                 mapper_layers->setMapping(action, i);
@@ -177,31 +181,33 @@ void MainWindow::UpdateUI_Status() {
 
             this->connect(mapper_layers, &QSignalMapper::mappedInt, this, &MainWindow::OnLayersChanged);
 
-            menu->addSeparator();
+            this->_tray_icon_menu->addSeparator();
 
             QAction *tray_override_loader = new QAction("Override System Vulkan Loader Log", this);
             tray_override_loader->setFont(font);
             tray_override_loader->setCheckable(true);
             tray_override_loader->setChecked(configurator.loader_log_enabled);
             this->connect(tray_override_loader, &QAction::toggled, this, &MainWindow::OnTrayActionOverrideLog);
-            menu->addAction(tray_override_loader);
+            this->_tray_icon_menu->addAction(tray_override_loader);
 
-            menu->addSeparator();
+            this->_tray_icon_menu->addSeparator();
 
             QAction *tray_quit_action = new QAction("&Quit Vulkan Configurator", this);
             tray_quit_action->setIcon(::Get(configurator.current_theme_mode, ::ICON_EXIT));
             tray_quit_action->setFont(font);
             this->connect(tray_quit_action, &QAction::triggered, qApp, &QCoreApplication::quit);
-            menu->addAction(tray_quit_action);
+            this->_tray_icon_menu->addAction(tray_quit_action);
 
-            if (VKC_ENV != VKC_ENV_WIN32) {
-                if (this->_tray_icon != nullptr) {
-                    delete this->_tray_icon;
-                }
-                this->_tray_icon = new QSystemTrayIcon(this);
-            }
+            /*
+                        if (VKC_ENV != VKC_ENV_WIN32) {
+                            if (this->_tray_icon != nullptr) {
+                                delete this->_tray_icon;
+                            }
+                            this->_tray_icon = new QSystemTrayIcon(this);
+                        }
+            */
 
-            this->_tray_icon->setContextMenu(menu);
+            this->_tray_icon->setContextMenu(this->_tray_icon_menu);
             this->connect(this->_tray_icon, &QSystemTrayIcon::activated, this, &MainWindow::OnIconActivated);
 
             if (configurator.layers_override_enabled || configurator.driver_override_enabled || configurator.loader_log_enabled) {
