@@ -151,7 +151,7 @@ void MainWindow::UpdateUI_Status() {
             QWidgetAction *action = new QWidgetAction(menu);
             action->setDefaultWidget(widget);
             action->setEnabled(enabled_layers);
-            if (VKC_PLATFORM != PLATFORM_LINUX) {
+            if (VKC_ENV == VKC_ENV_WIN32) {
                 menu->addAction(action);
             }
         }
