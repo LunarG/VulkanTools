@@ -61,6 +61,8 @@ class TabPreferences : public Tab {
     void on_app_text_max_blocks_changed(int index);
 
    private:
+    void UpdatePreferences(ThemeMode new_theme_mode);
+
     QNetworkAccessManager network_manager;
     QByteArray downloaded_data;
     bool initialized = false;

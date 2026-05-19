@@ -71,7 +71,7 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
 
     this->ui->preferences_keep_running->setEnabled(QSystemTrayIcon::isSystemTrayAvailable());
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-        this->ui->preferences_keep_running->setToolTip("I couldn't detect any system tray on this system.");
+        this->ui->preferences_keep_running->setToolTip("No system tray on this system.");
     }
 
     this->ui->preferences_theme_mode->setEnabled(QT_VERSION >= QT_VERSION_CHECK(6, 8, 0));
@@ -89,8 +89,6 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     this->ui->preferences_app_log_max_blocks->blockSignals(true);
     this->ui->preferences_app_log_max_blocks->setValue(configurator.app_log_max_blocks);
     this->ui->preferences_app_log_max_blocks->blockSignals(false);
-
-    this->on_theme_mode_changed(configurator.current_theme_mode);
 
     this->ui->preferences_progress->setVisible(false);
     this->ui->preferences_notify_releases->setChecked(configurator.GetUseNotifyReleases());
@@ -111,6 +109,8 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
 #if WORKAROUND_WINARM_RELEASE_NOTIFICATION_BUG
     }
 #endif
+
+    this->UpdatePreferences(configurator.current_theme_mode);
 }
 
 TabPreferences::~TabPreferences() {}
@@ -147,56 +147,24 @@ void TabPreferences::UpdateUI(UpdateUIMode mode) {
 
 void TabPreferences::CleanUI() {}
 
-bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
-    (void)target;
-    (void)event;
-
-    return false;
-}
-
-void TabPreferences::on_show_executables_scope_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
-    configurator.configuration_show_scope = checked;
-
-    this->UpdateUI(UPDATE_REFRESH_UI);
-}
-
-void TabPreferences::on_all_enabled_executables_changed(int index) {
+void TabPreferences::UpdatePreferences(ThemeMode new_theme_mode) {
     Configurator &configurator = Configurator::Get();
 
-    configurator.Surrender(OVERRIDE_AREA_ALL);
-
-    const ExecutableAllEnabledBehavior behavior = static_cast<ExecutableAllEnabledBehavior>(index);
-    configurator.SetAllEnabledExecutableBehavior(behavior);
-
-    configurator.Override(OVERRIDE_AREA_ALL);
-}
-
-void TabPreferences::on_app_text_max_blocks_changed(int index) {
-    Configurator &configurator = Configurator::Get();
-    configurator.app_log_max_blocks = index;
-}
-
-void TabPreferences::on_theme_mode_changed(int index) {
-    Configurator &configurator = Configurator::Get();
-
-    const ThemeMode new_theme_mode = static_cast<ThemeMode>(index);
-
-    // Configurations
+            // Configurations
     this->ui->configurations_executable_append->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
     this->ui->configurations_executable_remove->setIcon(::Get(new_theme_mode, ::ICON_FILE_REMOVE));
     this->ui->configurations_settings_reset->setIcon(::Get(new_theme_mode, ::ICON_RELOAD));
 
-    // Drivers
+            // Drivers
     this->ui->driver_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
     this->ui->driver_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
 
-    // Layers
+            // Layers
     this->ui->layers_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
     this->ui->layers_reload_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_RELOAD));
     this->ui->layers_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
 
-    // Applications
+            // Applications
     this->ui->launch_executable_search->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
     this->ui->launch_executable_append->setIcon(::Get(new_theme_mode, ::ICON_FILE_APPEND));
     this->ui->launch_executable_remove->setIcon(::Get(new_theme_mode, ::ICON_FILE_REMOVE));
@@ -213,7 +181,7 @@ void TabPreferences::on_theme_mode_changed(int index) {
     this->ui->launch_search_whole->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_WHOLE));
     this->ui->launch_search_regex->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_REGEX));
 
-    // Diagnostics
+            // Diagnostics
     this->ui->diagnostic_export_folder->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_EXPORT));
     this->ui->diagnostic_export_file->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
     this->ui->diagnostic_refresh->setIcon(::Get(new_theme_mode, ::ICON_RELOAD));
@@ -279,63 +247,88 @@ void TabPreferences::on_theme_mode_changed(int index) {
     }
 
     {
-        if (VKC_PLATFORM == PLATFORM_LINUX && this->initialized) {
-            if (!(configurator.Get(HIDE_MESSAGE_WARN_DARK_THEME_LINUX))) {
-                QMessageBox alert;
-                alert.setWindowTitle("Dark Mode on Linux system");
-                alert.setText(
-                    "The support of Dark Mode depends on the Linux desktop support so this option may have limited effects...");
-                alert.setInformativeText("Only Vulkan Configurator icons may change color when dark mode is not supported.");
-                alert.setStandardButtons(QMessageBox::Ok);
-                alert.setDefaultButton(QMessageBox::Ok);
-                alert.setIcon(QMessageBox::Warning);
-                alert.setCheckBox(new QCheckBox("Do not show again."));
-                alert.exec();
-                if (alert.checkBox()->isChecked()) {
-                    configurator.Set(HIDE_MESSAGE_WARN_DARK_THEME_LINUX);
-                }
-            }
-        }
-
         if (configurator.current_theme_mode == new_theme_mode && this->initialized) {
             return;  // Prevent Qt 6.8 crash
         }
 
         configurator.current_theme_mode = new_theme_mode;
-
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 8, 0))
-        switch (new_theme_mode) {
-            default:
-            case THEME_MODE_AUTO:
-                this->window.app.styleHints()->unsetColorScheme();
-                break;
-            case THEME_MODE_FORCE_LIGHT: {
-                this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
-                break;
-            }
-            case THEME_MODE_FORCE_DARK: {
-                this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
-                break;
-            }
-        }
-#endif
     }
 
     this->initialized = true;
+}
+
+bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
+    (void)target;
+    (void)event;
+
+    return false;
+}
+
+void TabPreferences::on_show_executables_scope_toggled(bool checked) {
+    Configurator &configurator = Configurator::Get();
+    configurator.configuration_show_scope = checked;
+
+    this->UpdateUI(UPDATE_REFRESH_UI);
+}
+
+void TabPreferences::on_all_enabled_executables_changed(int index) {
+    Configurator &configurator = Configurator::Get();
+
+    configurator.Surrender(OVERRIDE_AREA_ALL);
+
+    const ExecutableAllEnabledBehavior behavior = static_cast<ExecutableAllEnabledBehavior>(index);
+    configurator.SetAllEnabledExecutableBehavior(behavior);
+
+    configurator.Override(OVERRIDE_AREA_ALL);
+}
+
+void TabPreferences::on_app_text_max_blocks_changed(int index) {
+    Configurator &configurator = Configurator::Get();
+    configurator.app_log_max_blocks = index;
+}
+
+void TabPreferences::on_theme_mode_changed(int index) {
+    static bool only_once = true;
+
+    if (VKC_PLATFORM == PLATFORM_LINUX) {
+        Configurator &configurator = Configurator::Get();
+
+        if (only_once && !(configurator.Get(HIDE_MESSAGE_WARN_DARK_THEME_LINUX))) {
+            QMessageBox alert;
+            alert.setWindowTitle("Dark Mode on Linux system");
+            alert.setText(
+                "The support of Dark Mode depends on the Linux desktop support so this option may have limited effects...");
+            alert.setInformativeText("Only Vulkan Configurator icons may change color when dark mode is not supported.");
+            alert.setStandardButtons(QMessageBox::Ok);
+            alert.setDefaultButton(QMessageBox::Ok);
+            alert.setIcon(QMessageBox::Warning);
+            alert.setCheckBox(new QCheckBox("Do not show again."));
+            alert.exec();
+            if (alert.checkBox()->isChecked()) {
+                configurator.Set(HIDE_MESSAGE_WARN_DARK_THEME_LINUX);
+            }
+
+            only_once = false;
+        }
+    }
+
+    const ThemeMode new_theme_mode = static_cast<ThemeMode>(index);
+
+    this->UpdatePreferences(new_theme_mode);
 }
 
 void TabPreferences::on_theme_light_alternate_enabled(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.theme_light_alternate_enabled = checked;
 
-    this->on_theme_mode_changed(configurator.current_theme_mode);
+    this->UpdatePreferences(configurator.current_theme_mode);
 }
 
 void TabPreferences::on_theme_dark_alternate_enabled(bool checked) {
     Configurator &configurator = Configurator::Get();
     configurator.theme_dark_alternate_enabled = checked;
 
-    this->on_theme_mode_changed(configurator.current_theme_mode);
+    this->UpdatePreferences(configurator.current_theme_mode);
 }
 
 void TabPreferences::on_theme_light_alternate_pressed() {
@@ -351,7 +344,7 @@ void TabPreferences::on_theme_light_alternate_pressed() {
         configurator.theme_light_alternate_color = color;
     }
 
-    this->on_theme_mode_changed(configurator.current_theme_mode);
+    this->UpdatePreferences(configurator.current_theme_mode);
 }
 
 void TabPreferences::on_theme_dark_alternate_pressed() {
@@ -366,7 +359,7 @@ void TabPreferences::on_theme_dark_alternate_pressed() {
         configurator.theme_dark_alternate_color = color;
     }
 
-    this->on_theme_mode_changed(configurator.current_theme_mode);
+    this->UpdatePreferences(configurator.current_theme_mode);
 }
 
 void TabPreferences::on_keep_running_toggled(bool checked) {
