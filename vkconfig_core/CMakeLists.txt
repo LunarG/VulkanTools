@@ -17,6 +17,8 @@
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+find_package(valijson REQUIRED CONFIG)
+
 file(GLOB FILES_SOURCE ./*.cpp)
 file(GLOB FILES_HEADER ./*.h)
 

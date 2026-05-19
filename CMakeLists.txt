@@ -24,7 +24,6 @@ add_subdirectory(scripts)
 find_package(VulkanHeaders ${PROJECT_VERSION} REQUIRED CONFIG)
 find_package(VulkanLoader CONFIG)
 find_package(VulkanUtilityLibraries REQUIRED CONFIG)
-find_package(valijson REQUIRED CONFIG)
 
 find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
 if(Qt6_FOUND)
