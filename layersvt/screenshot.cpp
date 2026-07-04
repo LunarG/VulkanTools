@@ -1214,9 +1214,21 @@ static bool writeScreenshot(ScreenshotQueueData &data) {
         data.pTableDevice->GetImageSubresourceLayout(data.device, data.image2, &sr, &srLayout);
         VkResult err = data.pTableDevice->MapMemory(data.device, data.mem2, 0, VK_WHOLE_SIZE, 0, (void **)&pixels);
         if (VK_SUCCESS != err) return false;
+        VkMappedMemoryRange memoryRange = {};
+        memoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+        memoryRange.memory = data.mem2;
+        memoryRange.size = VK_WHOLE_SIZE;
+        err = data.pTableDevice->InvalidateMappedMemoryRanges(data.device, 1, &memoryRange);
+        if (VK_SUCCESS != err) return false;
     } else {
         data.pTableDevice->GetImageSubresourceLayout(data.device, data.image3, &sr, &srLayout);
         VkResult err = data.pTableDevice->MapMemory(data.device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&pixels);
+        if (VK_SUCCESS != err) return false;
+        VkMappedMemoryRange memoryRange = {};
+        memoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+        memoryRange.memory = data.mem3;
+        memoryRange.size = VK_WHOLE_SIZE;
+        err = data.pTableDevice->InvalidateMappedMemoryRanges(data.device, 1, &memoryRange);
         if (VK_SUCCESS != err) return false;
     }
 
