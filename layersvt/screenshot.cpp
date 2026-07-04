@@ -939,9 +939,19 @@ bool prepareScreenshotData(ScreenshotQueueData &data, VkImage image1) {
     pTableDevice->GetImageMemoryRequirements(device, data.image2, &memRequirements);
     memAllocInfo.allocationSize = memRequirements.size;
     pInstanceTable->GetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
-    pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits,
-                                       need2steps ? VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT : VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                                       &memAllocInfo.memoryTypeIndex);
+    if (need2steps) {
+        pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                           &memAllocInfo.memoryTypeIndex);
+    } else {
+        pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits,
+                                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
+                                           &memAllocInfo.memoryTypeIndex);
+        if (!pass) {
+            // Perhaps VK_MEMORY_PROPERTY_HOST_CACHED_BIT is not supported. Fallback on a memory type without it.
+            pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits,
+                                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &memAllocInfo.memoryTypeIndex);
+        }
+    }
     assert(pass);
     (void)pass;
     err = pTableDevice->AllocateMemory(device, &memAllocInfo, NULL, &data.mem2);
@@ -959,8 +969,14 @@ bool prepareScreenshotData(ScreenshotQueueData &data, VkImage image1) {
         pTableDevice->GetImageMemoryRequirements(device, data.image3, &memRequirements);
         memAllocInfo.allocationSize = memRequirements.size;
         pInstanceTable->GetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
-        pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits,
+                                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
                                            &memAllocInfo.memoryTypeIndex);
+        if (!pass) {
+            // Perhaps VK_MEMORY_PROPERTY_HOST_CACHED_BIT is not supported. Fallback on a memory type without it.
+            pass = memory_type_from_properties(&memoryProperties, memRequirements.memoryTypeBits,
+                                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &memAllocInfo.memoryTypeIndex);
+        }
         assert(pass);
         (void)pass;
         err = pTableDevice->AllocateMemory(device, &memAllocInfo, NULL, &data.mem3);
