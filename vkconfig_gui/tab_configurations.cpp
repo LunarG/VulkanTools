@@ -1019,6 +1019,8 @@ void TabConfigurations::OnContextMenuDuplicateClicked(ListItem *item) {
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 
     this->UpdateUI_Configurations(UPDATE_REBUILD_UI);
+    this->UpdateUI_Layers(UPDATE_REBUILD_UI);
+    this->UpdateUI_Settings(UPDATE_REBUILD_UI);
 }
 
 void TabConfigurations::OnContextMenuDeleteClicked(ListItem *item) {
