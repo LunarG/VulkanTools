@@ -10068,6 +10068,252 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(VkDevice 
     return result;
 }
 #endif  // VK_USE_PLATFORM_ANDROID_KHR
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateGpaSessionAMD(VkDevice device, const VkGpaSessionCreateInfoAMD* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkGpaSessionAMD* pGpaSession) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCreateGpaSessionAMD", "device, pCreateInfo, pAllocator, pGpaSession", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCreateGpaSessionAMD<Format>(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pGpaSession);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->CreateGpaSessionAMD(device, pCreateInfo, pAllocator, pGpaSession);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCreateGpaSessionAMD<Format>(ApiDumpInstance::current(), device, pCreateInfo, pAllocator, pGpaSession);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkDestroyGpaSessionAMD(VkDevice device, VkGpaSessionAMD gpaSession, const VkAllocationCallbacks* pAllocator) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkDestroyGpaSessionAMD", "device, gpaSession, pAllocator", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkDestroyGpaSessionAMD<Format>(ApiDumpInstance::current(), device, gpaSession, pAllocator);
+        }
+    }
+    device_dispatch_table(device)->DestroyGpaSessionAMD(device, gpaSession, pAllocator);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkDestroyGpaSessionAMD<Format>(ApiDumpInstance::current(), device, gpaSession, pAllocator);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkSetGpaDeviceClockModeAMD(VkDevice device, VkGpaDeviceClockModeInfoAMD* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkSetGpaDeviceClockModeAMD", "device, pInfo", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkSetGpaDeviceClockModeAMD<Format>(ApiDumpInstance::current(), device, pInfo);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->SetGpaDeviceClockModeAMD(device, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkSetGpaDeviceClockModeAMD<Format>(ApiDumpInstance::current(), device, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaDeviceClockInfoAMD(VkDevice device, VkGpaDeviceGetClockInfoAMD* pInfo) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetGpaDeviceClockInfoAMD", "device, pInfo", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetGpaDeviceClockInfoAMD<Format>(ApiDumpInstance::current(), device, pInfo);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetGpaDeviceClockInfoAMD(device, pInfo);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetGpaDeviceClockInfoAMD<Format>(ApiDumpInstance::current(), device, pInfo);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkCmdBeginGpaSessionAMD(VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBeginGpaSessionAMD", "commandBuffer, gpaSession", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBeginGpaSessionAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession);
+        }
+    }
+    VkResult result = device_dispatch_table(commandBuffer)->CmdBeginGpaSessionAMD(commandBuffer, gpaSession);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBeginGpaSessionAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkCmdEndGpaSessionAMD(VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdEndGpaSessionAMD", "commandBuffer, gpaSession", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdEndGpaSessionAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession);
+        }
+    }
+    VkResult result = device_dispatch_table(commandBuffer)->CmdEndGpaSessionAMD(commandBuffer, gpaSession);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdEndGpaSessionAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkCmdBeginGpaSampleAMD(VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession, const VkGpaSampleBeginInfoAMD* pGpaSampleBeginInfo, uint32_t* pSampleID) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdBeginGpaSampleAMD", "commandBuffer, gpaSession, pGpaSampleBeginInfo, pSampleID", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdBeginGpaSampleAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession, pGpaSampleBeginInfo, pSampleID);
+        }
+    }
+    VkResult result = device_dispatch_table(commandBuffer)->CmdBeginGpaSampleAMD(commandBuffer, gpaSession, pGpaSampleBeginInfo, pSampleID);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdBeginGpaSampleAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession, pGpaSampleBeginInfo, pSampleID);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdEndGpaSampleAMD(VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession, uint32_t sampleID) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdEndGpaSampleAMD", "commandBuffer, gpaSession, sampleID", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdEndGpaSampleAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession, sampleID);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdEndGpaSampleAMD(commandBuffer, gpaSession, sampleID);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdEndGpaSampleAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession, sampleID);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaSessionStatusAMD(VkDevice device, VkGpaSessionAMD gpaSession) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetGpaSessionStatusAMD", "device, gpaSession", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetGpaSessionStatusAMD<Format>(ApiDumpInstance::current(), device, gpaSession);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetGpaSessionStatusAMD(device, gpaSession);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetGpaSessionStatusAMD<Format>(ApiDumpInstance::current(), device, gpaSession);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetGpaSessionResultsAMD(VkDevice device, VkGpaSessionAMD gpaSession, uint32_t sampleID, size_t* pSizeInBytes, void* pData) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetGpaSessionResultsAMD", "device, gpaSession, sampleID, pSizeInBytes, pData", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetGpaSessionResultsAMD<Format>(ApiDumpInstance::current(), device, gpaSession, sampleID, pSizeInBytes, pData);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->GetGpaSessionResultsAMD(device, gpaSession, sampleID, pSizeInBytes, pData);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetGpaSessionResultsAMD<Format>(ApiDumpInstance::current(), device, gpaSession, sampleID, pSizeInBytes, pData);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkResetGpaSessionAMD(VkDevice device, VkGpaSessionAMD gpaSession) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkResetGpaSessionAMD", "device, gpaSession", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkResetGpaSessionAMD<Format>(ApiDumpInstance::current(), device, gpaSession);
+        }
+    }
+    VkResult result = device_dispatch_table(device)->ResetGpaSessionAMD(device, gpaSession);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkResetGpaSessionAMD<Format>(ApiDumpInstance::current(), device, gpaSession);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyGpaSessionResultsAMD(VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkCmdCopyGpaSessionResultsAMD", "commandBuffer, gpaSession", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkCmdCopyGpaSessionResultsAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession);
+        }
+    }
+    device_dispatch_table(commandBuffer)->CmdCopyGpaSessionResultsAMD(commandBuffer, gpaSession);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkCmdCopyGpaSessionResultsAMD<Format>(ApiDumpInstance::current(), commandBuffer, gpaSession);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 template <ApiDumpFormat Format>
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateExecutionGraphPipelinesAMDX(VkDevice device, VkPipelineCache pipelineCache, uint32_t createInfoCount, const VkExecutionGraphPipelineCreateInfoAMDX* pCreateInfos, const VkAllocationCallbacks* pAllocator, VkPipeline* pPipelines) {
@@ -17189,6 +17435,30 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
     if (strcmp(pName, "vkGetMemoryAndroidHardwareBufferANDROID") == 0 && (!device || device_dispatch_table(device)->GetMemoryAndroidHardwareBufferANDROID))
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryAndroidHardwareBufferANDROID<Format>);
 #endif  // VK_USE_PLATFORM_ANDROID_KHR
+    if (strcmp(pName, "vkCreateGpaSessionAMD") == 0 && (!device || device_dispatch_table(device)->CreateGpaSessionAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCreateGpaSessionAMD<Format>);
+    if (strcmp(pName, "vkDestroyGpaSessionAMD") == 0 && (!device || device_dispatch_table(device)->DestroyGpaSessionAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkDestroyGpaSessionAMD<Format>);
+    if (strcmp(pName, "vkSetGpaDeviceClockModeAMD") == 0 && (!device || device_dispatch_table(device)->SetGpaDeviceClockModeAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkSetGpaDeviceClockModeAMD<Format>);
+    if (strcmp(pName, "vkGetGpaDeviceClockInfoAMD") == 0 && (!device || device_dispatch_table(device)->GetGpaDeviceClockInfoAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetGpaDeviceClockInfoAMD<Format>);
+    if (strcmp(pName, "vkCmdBeginGpaSessionAMD") == 0 && (!device || device_dispatch_table(device)->CmdBeginGpaSessionAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginGpaSessionAMD<Format>);
+    if (strcmp(pName, "vkCmdEndGpaSessionAMD") == 0 && (!device || device_dispatch_table(device)->CmdEndGpaSessionAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndGpaSessionAMD<Format>);
+    if (strcmp(pName, "vkCmdBeginGpaSampleAMD") == 0 && (!device || device_dispatch_table(device)->CmdBeginGpaSampleAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginGpaSampleAMD<Format>);
+    if (strcmp(pName, "vkCmdEndGpaSampleAMD") == 0 && (!device || device_dispatch_table(device)->CmdEndGpaSampleAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndGpaSampleAMD<Format>);
+    if (strcmp(pName, "vkGetGpaSessionStatusAMD") == 0 && (!device || device_dispatch_table(device)->GetGpaSessionStatusAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetGpaSessionStatusAMD<Format>);
+    if (strcmp(pName, "vkGetGpaSessionResultsAMD") == 0 && (!device || device_dispatch_table(device)->GetGpaSessionResultsAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetGpaSessionResultsAMD<Format>);
+    if (strcmp(pName, "vkResetGpaSessionAMD") == 0 && (!device || device_dispatch_table(device)->ResetGpaSessionAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkResetGpaSessionAMD<Format>);
+    if (strcmp(pName, "vkCmdCopyGpaSessionResultsAMD") == 0 && (!device || device_dispatch_table(device)->CmdCopyGpaSessionResultsAMD))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyGpaSessionResultsAMD<Format>);
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
     if (strcmp(pName, "vkCreateExecutionGraphPipelinesAMDX") == 0 && (!device || device_dispatch_table(device)->CreateExecutionGraphPipelinesAMDX))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateExecutionGraphPipelinesAMDX<Format>);

@@ -233,6 +233,11 @@ void dump_VkDebugUtilsMessengerEXT(const VkDebugUtilsMessengerEXT& object, const
 }
 
 template <ApiDumpFormat Format>
+void dump_VkGpaSessionAMD(const VkGpaSessionAMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_handle<Format>(TYPE_ERASE_HANDLE(object), settings, type_name, var_name, indents, address);
+}
+
+template <ApiDumpFormat Format>
 void dump_VkTensorARM(const VkTensorARM& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_handle<Format>(TYPE_ERASE_HANDLE(object), settings, type_name, var_name, indents, address);
 }
@@ -3052,6 +3057,27 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID", static_cast<uint32_t>(object));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD", static_cast<uint32_t>(object));
+            break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX", static_cast<uint32_t>(object));
@@ -3310,6 +3336,9 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ELAPSED_TIMER_QUERY_FEATURES_QCOM:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ELAPSED_TIMER_QUERY_FEATURES_QCOM", static_cast<uint32_t>(object));
             break;
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT", static_cast<uint32_t>(object));
@@ -3745,6 +3774,21 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_PERF_HINT_PROPERTIES_QCOM:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_PERF_HINT_PROPERTIES_QCOM", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_3_FEATURES_QCOM:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_3_FEATURES_QCOM", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_FEATURES_QCOM:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_FEATURES_QCOM", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_PROPERTIES_QCOM:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_PROPERTIES_QCOM", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_FEATURES_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_FEATURES_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_PROPERTIES_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_PROPERTIES_EXT", static_cast<uint32_t>(object));
             break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
         case VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV:
@@ -5030,6 +5074,12 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT", static_cast<uint32_t>(object));
             break;
+        case VK_STRUCTURE_TYPE_TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_ROLLING_BACKING_CREATE_INFO_ARM:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_TENSOR_ROLLING_BACKING_CREATE_INFO_ARM", static_cast<uint32_t>(object));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT", static_cast<uint32_t>(object));
             break;
@@ -5213,6 +5263,15 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_OPACITY_MICROMAP_FEATURES_ARM:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_OPACITY_MICROMAP_FEATURES_ARM", static_cast<uint32_t>(object));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_CREATE_INFO_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_CREATE_INFO_KHR", static_cast<uint32_t>(object));
+            break;
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_METAL_HANDLE_INFO_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_IMPORT_MEMORY_METAL_HANDLE_INFO_EXT", static_cast<uint32_t>(object));
             break;
@@ -5279,6 +5338,12 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_METERING_FEATURES_NV:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_METERING_FEATURES_NV", static_cast<uint32_t>(object));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SWAPCHAIN_FEATURES_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SWAPCHAIN_FEATURES_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_FLAGS_SURFACE_CAPABILITIES_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_SWAPCHAIN_FLAGS_SURFACE_CAPABILITIES_EXT", static_cast<uint32_t>(object));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT", static_cast<uint32_t>(object));
             break;
@@ -5293,6 +5358,18 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MICROMAP_DATA_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MICROMAP_DATA_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_KHR", static_cast<uint32_t>(object));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_64_BIT_INDEXING_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_64_BIT_INDEXING_FEATURES_EXT", static_cast<uint32_t>(object));
@@ -5384,6 +5461,30 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_UBM_SURFACE_CREATE_INFO_SEC:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_UBM_SURFACE_CREATE_INFO_SEC", static_cast<uint32_t>(object));
             break;
+        case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_4_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_4_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_CREATE_FLAGS_2_CREATE_INFO_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_IMAGE_CREATE_FLAGS_2_CREATE_INFO_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_2_CREATE_INFO_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_2_CREATE_INFO_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_FLAGS_FEATURES_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_FLAGS_FEATURES_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_2_CREATE_INFO_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_2_CREATE_INFO_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT", static_cast<uint32_t>(object));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE", static_cast<uint32_t>(object));
             break;
@@ -5404,6 +5505,9 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -5531,6 +5635,9 @@ void dump_VkObjectType(const VkObjectType object, const ApiDumpSettings& setting
         case VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT:
             dump_enum<Format>(settings, "VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT", static_cast<uint32_t>(object));
             break;
+        case VK_OBJECT_TYPE_GPA_SESSION_AMD:
+            dump_enum<Format>(settings, "VK_OBJECT_TYPE_GPA_SESSION_AMD", static_cast<uint32_t>(object));
+            break;
         case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
             dump_enum<Format>(settings, "VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR", static_cast<uint32_t>(object));
             break;
@@ -5625,6 +5732,9 @@ void dump_VkVendorId(const VkVendorId object, const ApiDumpSettings& settings, c
             break;
         case VK_VENDOR_ID_MOBILEYE:
             dump_enum<Format>(settings, "VK_VENDOR_ID_MOBILEYE", static_cast<uint32_t>(object));
+            break;
+        case VK_VENDOR_ID_APE:
+            dump_enum<Format>(settings, "VK_VENDOR_ID_APE", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -6660,6 +6770,9 @@ void dump_VkQueryType(const VkQueryType object, const ApiDumpSettings& settings,
             break;
         case VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV:
             dump_enum<Format>(settings, "VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV", static_cast<uint32_t>(object));
+            break;
+        case VK_QUERY_TYPE_TIME_ELAPSED_QCOM:
+            dump_enum<Format>(settings, "VK_QUERY_TYPE_TIME_ELAPSED_QCOM", static_cast<uint32_t>(object));
             break;
         case VK_QUERY_TYPE_PERFORMANCE_QUERY_INTEL:
             dump_enum<Format>(settings, "VK_QUERY_TYPE_PERFORMANCE_QUERY_INTEL", static_cast<uint32_t>(object));
@@ -8022,6 +8135,12 @@ void dump_VkDriverId(const VkDriverId object, const ApiDumpSettings& settings, c
         case VK_DRIVER_ID_MESA_KOSMICKRISP:
             dump_enum<Format>(settings, "VK_DRIVER_ID_MESA_KOSMICKRISP", static_cast<uint32_t>(object));
             break;
+        case VK_DRIVER_ID_MESA_GFXSTREAM:
+            dump_enum<Format>(settings, "VK_DRIVER_ID_MESA_GFXSTREAM", static_cast<uint32_t>(object));
+            break;
+        case VK_DRIVER_ID_APE_SOFT:
+            dump_enum<Format>(settings, "VK_DRIVER_ID_APE_SOFT", static_cast<uint32_t>(object));
+            break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
     }
@@ -8442,6 +8561,9 @@ void dump_VkAccelerationStructureTypeKHR(const VkAccelerationStructureTypeKHR ob
         case VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR:
             dump_enum<Format>(settings, "VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR", static_cast<uint32_t>(object));
             break;
+        case VK_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_KHR:
+            dump_enum<Format>(settings, "VK_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_KHR", static_cast<uint32_t>(object));
+            break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
     }
@@ -8498,6 +8620,21 @@ void dump_VkComponentTypeKHR(const VkComponentTypeKHR object, const ApiDumpSetti
             break;
         case VK_COMPONENT_TYPE_FLOAT8_E5M2_EXT:
             dump_enum<Format>(settings, "VK_COMPONENT_TYPE_FLOAT8_E5M2_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_COMPONENT_TYPE_FLOAT6_E2M3_EXT:
+            dump_enum<Format>(settings, "VK_COMPONENT_TYPE_FLOAT6_E2M3_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_COMPONENT_TYPE_FLOAT6_E3M2_EXT:
+            dump_enum<Format>(settings, "VK_COMPONENT_TYPE_FLOAT6_E3M2_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_COMPONENT_TYPE_FLOAT4_E2M1_EXT:
+            dump_enum<Format>(settings, "VK_COMPONENT_TYPE_FLOAT4_E2M1_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_COMPONENT_TYPE_FLOAT8_UNSIGNED_E8M0_EXT:
+            dump_enum<Format>(settings, "VK_COMPONENT_TYPE_FLOAT8_UNSIGNED_E8M0_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_COMPONENT_TYPE_MXINT8_EXT:
+            dump_enum<Format>(settings, "VK_COMPONENT_TYPE_MXINT8_EXT", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -8666,6 +8803,57 @@ void dump_VkDefaultVertexAttributeValueKHR(const VkDefaultVertexAttributeValueKH
             break;
         case VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ONE_KHR:
             dump_enum<Format>(settings, "VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ONE_KHR", static_cast<uint32_t>(object));
+            break;
+        default:
+            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkOpacityMicromapFormatKHR(const VkOpacityMicromapFormatKHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    switch ((int64_t)object) {
+        case VK_OPACITY_MICROMAP_FORMAT_2_STATE_KHR:
+            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_FORMAT_2_STATE_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_OPACITY_MICROMAP_FORMAT_4_STATE_KHR:
+            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_FORMAT_4_STATE_KHR", static_cast<uint32_t>(object));
+            break;
+        default:
+            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkOpacityMicromapSpecialIndexKHR(const VkOpacityMicromapSpecialIndexKHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    switch ((int64_t)object) {
+        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_KHR:
+            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_KHR:
+            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_KHR:
+            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_OPAQUE_KHR:
+            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_OPAQUE_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_CLUSTER_GEOMETRY_DISABLE_OPACITY_MICROMAP_NV:
+            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_CLUSTER_GEOMETRY_DISABLE_OPACITY_MICROMAP_NV", static_cast<uint32_t>(object));
+            break;
+        default:
+            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkAccelerationStructureSerializedBlockTypeKHR(const VkAccelerationStructureSerializedBlockTypeKHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    switch ((int64_t)object) {
+        case VK_ACCELERATION_STRUCTURE_SERIALIZED_BLOCK_TYPE_OPACITY_MICROMAP_KHR:
+            dump_enum<Format>(settings, "VK_ACCELERATION_STRUCTURE_SERIALIZED_BLOCK_TYPE_OPACITY_MICROMAP_KHR", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -8961,6 +9149,231 @@ void dump_VkConservativeRasterizationModeEXT(const VkConservativeRasterizationMo
     dump_end<Format>(settings, OutputConstruct::value, indents);
 }
 template <ApiDumpFormat Format>
+void dump_VkGpaPerfBlockAMD(const VkGpaPerfBlockAMD object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    switch ((int64_t)object) {
+        case VK_GPA_PERF_BLOCK_CPF_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_CPF_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_IA_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_IA_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_VGT_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_VGT_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_PA_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_PA_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_SC_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_SC_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_SPI_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_SPI_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_SQ_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_SQ_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_SX_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_SX_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_TA_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_TA_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_TD_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_TD_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_TCP_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_TCP_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_TCC_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_TCC_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_TCA_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_TCA_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_DB_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_DB_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_CB_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_CB_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GDS_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GDS_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_SRBM_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_SRBM_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GRBM_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GRBM_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GRBM_SE_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GRBM_SE_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_RLC_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_RLC_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_DMA_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_DMA_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_MC_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_MC_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_CPG_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_CPG_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_CPC_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_CPC_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_WD_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_WD_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_TCS_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_TCS_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_ATC_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_ATC_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_ATC_L2_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_ATC_L2_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_MC_VM_L2_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_MC_VM_L2_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_EA_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_EA_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_RPB_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_RPB_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_RMI_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_RMI_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_UMCCH_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_UMCCH_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GE_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GE_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GL1A_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GL1A_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GL1C_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GL1C_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GL1CG_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GL1CG_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GL2A_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GL2A_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GL2C_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GL2C_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_CHA_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_CHA_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_CHC_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_CHC_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_CHCG_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_CHCG_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GUS_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GUS_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GCR_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GCR_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_PH_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_PH_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_UTCL1_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_UTCL1_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GE_DIST_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GE_DIST_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GE_SE_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GE_SE_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_DF_MALL_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_DF_MALL_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_SQ_WGP_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_SQ_WGP_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_PC_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_PC_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GL1XA_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GL1XA_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_GL1XC_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_GL1XC_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_WGS_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_WGS_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_EACPWD_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_EACPWD_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_EASE_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_EASE_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_PERF_BLOCK_RLCUSER_AMD:
+            dump_enum<Format>(settings, "VK_GPA_PERF_BLOCK_RLCUSER_AMD", static_cast<uint32_t>(object));
+            break;
+        default:
+            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkGpaSampleTypeAMD(const VkGpaSampleTypeAMD object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    switch ((int64_t)object) {
+        case VK_GPA_SAMPLE_TYPE_CUMULATIVE_AMD:
+            dump_enum<Format>(settings, "VK_GPA_SAMPLE_TYPE_CUMULATIVE_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_SAMPLE_TYPE_TRACE_AMD:
+            dump_enum<Format>(settings, "VK_GPA_SAMPLE_TYPE_TRACE_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_SAMPLE_TYPE_TIMING_AMD:
+            dump_enum<Format>(settings, "VK_GPA_SAMPLE_TYPE_TIMING_AMD", static_cast<uint32_t>(object));
+            break;
+        default:
+            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkGpaDeviceClockModeAMD(const VkGpaDeviceClockModeAMD object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    switch ((int64_t)object) {
+        case VK_GPA_DEVICE_CLOCK_MODE_DEFAULT_AMD:
+            dump_enum<Format>(settings, "VK_GPA_DEVICE_CLOCK_MODE_DEFAULT_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_QUERY_AMD:
+            dump_enum<Format>(settings, "VK_GPA_DEVICE_CLOCK_MODE_QUERY_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_PROFILING_AMD:
+            dump_enum<Format>(settings, "VK_GPA_DEVICE_CLOCK_MODE_PROFILING_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_MIN_MEMORY_AMD:
+            dump_enum<Format>(settings, "VK_GPA_DEVICE_CLOCK_MODE_MIN_MEMORY_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_MIN_ENGINE_AMD:
+            dump_enum<Format>(settings, "VK_GPA_DEVICE_CLOCK_MODE_MIN_ENGINE_AMD", static_cast<uint32_t>(object));
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_PEAK_AMD:
+            dump_enum<Format>(settings, "VK_GPA_DEVICE_CLOCK_MODE_PEAK_AMD", static_cast<uint32_t>(object));
+            break;
+        default:
+            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkDescriptorMappingSourceEXT(const VkDescriptorMappingSourceEXT object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch ((int64_t)object) {
@@ -9161,6 +9574,9 @@ void dump_VkGeometryTypeKHR(const VkGeometryTypeKHR object, const ApiDumpSetting
             dump_enum<Format>(settings, "VK_GEOMETRY_TYPE_DENSE_GEOMETRY_FORMAT_TRIANGLES_AMDX", static_cast<uint32_t>(object));
             break;
 #endif  // VK_ENABLE_BETA_EXTENSIONS
+        case VK_GEOMETRY_TYPE_MICROMAP_KHR:
+            dump_enum<Format>(settings, "VK_GEOMETRY_TYPE_MICROMAP_KHR", static_cast<uint32_t>(object));
+            break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
     }
@@ -9663,45 +10079,6 @@ void dump_VkCopyMicromapModeEXT(const VkCopyMicromapModeEXT object, const ApiDum
     dump_end<Format>(settings, OutputConstruct::value, indents);
 }
 template <ApiDumpFormat Format>
-void dump_VkOpacityMicromapFormatEXT(const VkOpacityMicromapFormatEXT object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
-    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    switch ((int64_t)object) {
-        case VK_OPACITY_MICROMAP_FORMAT_2_STATE_EXT:
-            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_FORMAT_2_STATE_EXT", static_cast<uint32_t>(object));
-            break;
-        case VK_OPACITY_MICROMAP_FORMAT_4_STATE_EXT:
-            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_FORMAT_4_STATE_EXT", static_cast<uint32_t>(object));
-            break;
-        default:
-            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
-    }
-    dump_end<Format>(settings, OutputConstruct::value, indents);
-}
-template <ApiDumpFormat Format>
-void dump_VkOpacityMicromapSpecialIndexEXT(const VkOpacityMicromapSpecialIndexEXT object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
-    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    switch ((int64_t)object) {
-        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_EXT:
-            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_EXT", static_cast<uint32_t>(object));
-            break;
-        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_EXT:
-            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_OPAQUE_EXT", static_cast<uint32_t>(object));
-            break;
-        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_EXT:
-            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_TRANSPARENT_EXT", static_cast<uint32_t>(object));
-            break;
-        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_OPAQUE_EXT:
-            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_UNKNOWN_OPAQUE_EXT", static_cast<uint32_t>(object));
-            break;
-        case VK_OPACITY_MICROMAP_SPECIAL_INDEX_CLUSTER_GEOMETRY_DISABLE_OPACITY_MICROMAP_NV:
-            dump_enum<Format>(settings, "VK_OPACITY_MICROMAP_SPECIAL_INDEX_CLUSTER_GEOMETRY_DISABLE_OPACITY_MICROMAP_NV", static_cast<uint32_t>(object));
-            break;
-        default:
-            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
-    }
-    dump_end<Format>(settings, OutputConstruct::value, indents);
-}
-template <ApiDumpFormat Format>
 void dump_VkAccelerationStructureCompatibilityKHR(const VkAccelerationStructureCompatibilityKHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
     switch ((int64_t)object) {
@@ -9859,6 +10236,21 @@ void dump_VkTensorTilingARM(const VkTensorTilingARM object, const ApiDumpSetting
             break;
         case VK_TENSOR_TILING_LINEAR_ARM:
             dump_enum<Format>(settings, "VK_TENSOR_TILING_LINEAR_ARM", static_cast<uint32_t>(object));
+            break;
+        case VK_TENSOR_TILING_BRICK_16_WIDE_ARM:
+            dump_enum<Format>(settings, "VK_TENSOR_TILING_BRICK_16_WIDE_ARM", static_cast<uint32_t>(object));
+            break;
+        case VK_TENSOR_TILING_BRICK_8_WIDE_ARM:
+            dump_enum<Format>(settings, "VK_TENSOR_TILING_BRICK_8_WIDE_ARM", static_cast<uint32_t>(object));
+            break;
+        case VK_TENSOR_TILING_BRICK_4_WIDE_ARM:
+            dump_enum<Format>(settings, "VK_TENSOR_TILING_BRICK_4_WIDE_ARM", static_cast<uint32_t>(object));
+            break;
+        case VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_ARM:
+            dump_enum<Format>(settings, "VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_ARM", static_cast<uint32_t>(object));
+            break;
+        case VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_64K_ARM:
+            dump_enum<Format>(settings, "VK_TENSOR_TILING_BLOCK_U_INTERLEAVED_64K_ARM", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -12234,12 +12626,12 @@ void dump_VkPipelineCreateFlagBits(const VkPipelineCreateFlagBits object, const 
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT";
         is_first = false;
     }
-    if (object & VK_PIPELINE_CREATE_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT";
-        is_first = false;
-    }
     if (object & VK_PIPELINE_CREATE_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_RAY_TRACING_DISPLACEMENT_MICROMAP_BIT_NV";
+        is_first = false;
+    }
+    if (object & VK_PIPELINE_CREATE_RAY_TRACING_OPACITY_MICROMAP_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_RAY_TRACING_OPACITY_MICROMAP_BIT_KHR";
         is_first = false;
     }
 
@@ -13703,6 +14095,10 @@ void dump_VkFormatFeatureFlagBits2(const VkFormatFeatureFlagBits2 object, const 
         settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_DPB_BIT_KHR";
         is_first = false;
     }
+    if (object & VK_FORMAT_FEATURE_2_BLOCK_MATCHING_SXD_BIT_QCOM) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_BLOCK_MATCHING_SXD_BIT_QCOM";
+        is_first = false;
+    }
     if (object & VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_RADIUS_BUFFER_BIT_NV) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_ACCELERATION_STRUCTURE_RADIUS_BUFFER_BIT_NV";
         is_first = false;
@@ -13761,6 +14157,10 @@ void dump_VkFormatFeatureFlagBits2(const VkFormatFeatureFlagBits2 object, const 
     }
     if (object & VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_FILTER_LINEAR_2D_BIT_IMG";
         is_first = false;
     }
     if (object & VK_FORMAT_FEATURE_2_DEPTH_COPY_ON_COMPUTE_QUEUE_BIT_KHR) {
@@ -13943,6 +14343,14 @@ void dump_VkBufferUsageFlagBits2(const VkBufferUsageFlagBits2 object, const ApiD
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_DESCRIPTOR_HEAP_BIT_EXT";
         is_first = false;
     }
+    if (object & VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT";
+        is_first = false;
+    }
     if (object & VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_CONDITIONAL_RENDERING_BIT_EXT";
         is_first = false;
@@ -13993,14 +14401,6 @@ void dump_VkBufferUsageFlagBits2(const VkBufferUsageFlagBits2 object, const ApiD
     }
     if (object & VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT";
-        is_first = false;
-    }
-    if (object & VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT";
-        is_first = false;
-    }
-    if (object & VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT";
         is_first = false;
     }
     if (object & VK_BUFFER_USAGE_2_COMPRESSED_DATA_DGF1_BIT_AMDX) {
@@ -14173,10 +14573,6 @@ void dump_VkPipelineCreateFlagBits2(const VkPipelineCreateFlagBits2 object, cons
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT";
         is_first = false;
     }
-    if (object & VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_EXT";
-        is_first = false;
-    }
     if (object & VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT";
         is_first = false;
@@ -14211,6 +14607,14 @@ void dump_VkPipelineCreateFlagBits2(const VkPipelineCreateFlagBits2 object, cons
     }
     if (object & VK_PIPELINE_CREATE_2_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE";
+        is_first = false;
+    }
+    if (object & VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RAY_TRACING_OPACITY_MICROMAP_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_PIPELINE_CREATE_2_OPACITY_MICROMAP_DISALLOW_MIXED_SPECIAL_INDEX_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_OPACITY_MICROMAP_DISALLOW_MIXED_SPECIAL_INDEX_BIT_KHR";
         is_first = false;
     }
     if (object & VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT) {
@@ -14334,6 +14738,10 @@ void dump_VkSwapchainCreateFlagBitsKHR(const VkSwapchainCreateFlagBitsKHR object
     }
     if (object & VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_KHR) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_SWAPCHAIN_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SWAPCHAIN_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT";
         is_first = false;
     }
 
@@ -15246,6 +15654,34 @@ void dump_VkVideoEncodeFeedbackFlagBitsKHR(const VkVideoEncodeFeedbackFlagBitsKH
         settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_HAS_OVERRIDES_BIT_KHR";
         is_first = false;
     }
+    if (object & VK_VIDEO_ENCODE_FEEDBACK_AVERAGE_QUANTIZATION_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_FEEDBACK_AVERAGE_QUANTIZATION_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_VIDEO_ENCODE_FEEDBACK_MIN_QUANTIZATION_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_FEEDBACK_MIN_QUANTIZATION_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_VIDEO_ENCODE_FEEDBACK_MAX_QUANTIZATION_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_FEEDBACK_MAX_QUANTIZATION_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_VIDEO_ENCODE_FEEDBACK_INTRA_PIXELS_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_FEEDBACK_INTRA_PIXELS_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_VIDEO_ENCODE_FEEDBACK_INTER_PIXELS_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_FEEDBACK_INTER_PIXELS_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_VIDEO_ENCODE_FEEDBACK_SKIPPED_PIXELS_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_FEEDBACK_SKIPPED_PIXELS_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_VIDEO_ENCODE_FEEDBACK_PICTURE_PARTITION_COUNT_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_FEEDBACK_PICTURE_PARTITION_COUNT_BIT_KHR";
+        is_first = false;
+    }
 
     if (!is_first)
         settings.stream() << ")";
@@ -15673,6 +16109,31 @@ void dump_VkAccessFlagBits3KHR(const VkAccessFlagBits3KHR object, const ApiDumpS
 }
 
 template <ApiDumpFormat Format>
+void dump_VkVideoEncodePerPartitionFeedbackFlagBitsKHR(const VkVideoEncodePerPartitionFeedbackFlagBitsKHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_value_start<Format>(settings);
+    settings.stream() << object;
+    bool is_first = true;
+    if (object & VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_STATUS_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_STATUS_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_BITSTREAM_BYTES_WRITTEN_BIT_KHR";
+        is_first = false;
+    }
+
+    if (!is_first)
+        settings.stream() << ")";
+    dump_value_end<Format>(settings);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format>
 void dump_VkRenderingAttachmentFlagBitsKHR(const VkRenderingAttachmentFlagBitsKHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
     dump_value_start<Format>(settings);
@@ -15709,6 +16170,229 @@ void dump_VkResolveImageFlagBitsKHR(const VkResolveImageFlagBitsKHR object, cons
     }
     if (object & VK_RESOLVE_IMAGE_ENABLE_TRANSFER_FUNCTION_BIT_KHR) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_RESOLVE_IMAGE_ENABLE_TRANSFER_FUNCTION_BIT_KHR";
+        is_first = false;
+    }
+
+    if (!is_first)
+        settings.stream() << ")";
+    dump_value_end<Format>(settings);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format>
+void dump_VkFormatFeatureFlagBits4KHR(const VkFormatFeatureFlagBits4KHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_value_start<Format>(settings);
+    settings.stream() << object;
+    bool is_first = true;
+
+    if (!is_first)
+        settings.stream() << ")";
+    dump_value_end<Format>(settings);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format>
+void dump_VkImageUsageFlagBits2KHR(const VkImageUsageFlagBits2KHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_value_start<Format>(settings);
+    settings.stream() << object;
+    bool is_first = true;
+    if (object & VK_IMAGE_USAGE_2_TRANSFER_SRC_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_TRANSFER_SRC_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_TRANSFER_DST_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_TRANSFER_DST_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_SAMPLED_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_SAMPLED_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_STORAGE_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_STORAGE_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_COLOR_ATTACHMENT_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_COLOR_ATTACHMENT_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_DEPTH_STENCIL_ATTACHMENT_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_DEPTH_STENCIL_ATTACHMENT_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_TRANSIENT_ATTACHMENT_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_TRANSIENT_ATTACHMENT_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_INPUT_ATTACHMENT_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_INPUT_ATTACHMENT_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_FRAGMENT_DENSITY_MAP_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_FRAGMENT_DENSITY_MAP_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_VIDEO_DECODE_DST_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_VIDEO_DECODE_DST_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_VIDEO_DECODE_SRC_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_VIDEO_DECODE_DPB_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_VIDEO_DECODE_DPB_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_VIDEO_ENCODE_DST_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_VIDEO_ENCODE_SRC_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_VIDEO_ENCODE_DPB_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_VIDEO_ENCODE_DPB_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_INVOCATION_MASK_BIT_HUAWEI) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_INVOCATION_MASK_BIT_HUAWEI";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_SAMPLE_WEIGHT_BIT_QCOM) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_SAMPLE_WEIGHT_BIT_QCOM";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_SAMPLE_BLOCK_MATCH_BIT_QCOM) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_SAMPLE_BLOCK_MATCH_BIT_QCOM";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_HOST_TRANSFER_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_HOST_TRANSFER_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_TENSOR_ALIASING_BIT_ARM) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_TENSOR_ALIASING_BIT_ARM";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_USAGE_2_TILE_MEMORY_BIT_QCOM) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_USAGE_2_TILE_MEMORY_BIT_QCOM";
+        is_first = false;
+    }
+
+    if (!is_first)
+        settings.stream() << ")";
+    dump_value_end<Format>(settings);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format>
+void dump_VkImageCreateFlagBits2KHR(const VkImageCreateFlagBits2KHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_value_start<Format>(settings);
+    settings.stream() << object;
+    bool is_first = true;
+    if (object & VK_IMAGE_CREATE_2_SPARSE_BINDING_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_SPARSE_BINDING_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_SPARSE_RESIDENCY_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_SPARSE_RESIDENCY_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_SPARSE_ALIASED_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_SPARSE_ALIASED_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_MUTABLE_FORMAT_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_MUTABLE_FORMAT_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_CUBE_COMPATIBLE_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_CUBE_COMPATIBLE_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_ALIAS_SINGLE_LAYER_DESCRIPTOR_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_ALIAS_SINGLE_LAYER_DESCRIPTOR_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_2D_ARRAY_COMPATIBLE_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_2D_ARRAY_COMPATIBLE_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_EXTENDED_USAGE_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_EXTENDED_USAGE_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_DISJOINT_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_DISJOINT_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_ALIAS_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_ALIAS_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_PROTECTED_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_PROTECTED_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_CORNER_SAMPLED_BIT_NV) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_CORNER_SAMPLED_BIT_NV";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_SUBSAMPLED_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_SUBSAMPLED_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_FRAGMENT_DENSITY_MAP_OFFSET_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_FRAGMENT_DENSITY_MAP_OFFSET_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_2D_VIEW_COMPATIBLE_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_2D_VIEW_COMPATIBLE_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_IMAGE_CREATE_2_VIDEO_PROFILE_INDEPENDENT_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_IMAGE_CREATE_2_VIDEO_PROFILE_INDEPENDENT_BIT_KHR";
         is_first = false;
     }
 
@@ -15881,6 +16565,47 @@ void dump_VkDebugUtilsMessageTypeFlagBitsEXT(const VkDebugUtilsMessageTypeFlagBi
 }
 
 template <ApiDumpFormat Format>
+void dump_VkGpaSqShaderStageFlagBitsAMD(const VkGpaSqShaderStageFlagBitsAMD object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_value_start<Format>(settings);
+    settings.stream() << object;
+    bool is_first = true;
+    if (object & VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD";
+        is_first = false;
+    }
+    if (object & VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD";
+        is_first = false;
+    }
+    if (object & VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD";
+        is_first = false;
+    }
+    if (object & VK_GPA_SQ_SHADER_STAGE_ES_BIT_AMD) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_GPA_SQ_SHADER_STAGE_ES_BIT_AMD";
+        is_first = false;
+    }
+    if (object & VK_GPA_SQ_SHADER_STAGE_HS_BIT_AMD) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_GPA_SQ_SHADER_STAGE_HS_BIT_AMD";
+        is_first = false;
+    }
+    if (object & VK_GPA_SQ_SHADER_STAGE_LS_BIT_AMD) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_GPA_SQ_SHADER_STAGE_LS_BIT_AMD";
+        is_first = false;
+    }
+    if (object & VK_GPA_SQ_SHADER_STAGE_CS_BIT_AMD) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_GPA_SQ_SHADER_STAGE_CS_BIT_AMD";
+        is_first = false;
+    }
+
+    if (!is_first)
+        settings.stream() << ")";
+    dump_value_end<Format>(settings);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format>
 void dump_VkTensorViewCreateFlagBitsARM(const VkTensorViewCreateFlagBitsARM object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
     dump_value_start<Format>(settings);
@@ -15997,12 +16722,12 @@ void dump_VkGeometryInstanceFlagBitsKHR(const VkGeometryInstanceFlagBitsKHR obje
         settings.stream() << (is_first ? " (" : " | ") << "VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR";
         is_first = false;
     }
-    if (object & VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_BIT_EXT) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_BIT_EXT";
+    if (object & VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_BIT_KHR";
         is_first = false;
     }
-    if (object & VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_BIT_EXT) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_BIT_EXT";
+    if (object & VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_BIT_KHR";
         is_first = false;
     }
 
@@ -16042,14 +16767,6 @@ void dump_VkBuildAccelerationStructureFlagBitsKHR(const VkBuildAccelerationStruc
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV";
         is_first = false;
     }
-    if (object & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_BIT_EXT) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_BIT_EXT";
-        is_first = false;
-    }
-    if (object & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_BIT_EXT) {
-        settings.stream() << (is_first ? " (" : " | ") << "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_BIT_EXT";
-        is_first = false;
-    }
     if (object & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_BIT_EXT) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_BIT_EXT";
         is_first = false;
@@ -16064,6 +16781,18 @@ void dump_VkBuildAccelerationStructureFlagBitsKHR(const VkBuildAccelerationStruc
     }
     if (object & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_CLUSTER_OPACITY_MICROMAPS_BIT_NV) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_CLUSTER_OPACITY_MICROMAPS_BIT_NV";
+        is_first = false;
+    }
+    if (object & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_BIT_KHR";
+        is_first = false;
+    }
+    if (object & VK_BUILD_ACCELERATION_STRUCTURE_MICROMAP_LOSSY_BIT_KHR) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_BUILD_ACCELERATION_STRUCTURE_MICROMAP_LOSSY_BIT_KHR";
         is_first = false;
     }
 
@@ -16922,6 +17651,10 @@ void dump_VkShaderCreateFlagBitsEXT(const VkShaderCreateFlagBitsEXT object, cons
     }
     if (object & VK_SHADER_CREATE_INDIRECT_BINDABLE_BIT_EXT) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_INDIRECT_BINDABLE_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_SHADER_CREATE_OPACITY_MICROMAP_DISALLOW_MIXED_SPECIAL_INDEX_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_SHADER_CREATE_OPACITY_MICROMAP_DISALLOW_MIXED_SPECIAL_INDEX_BIT_EXT";
         is_first = false;
     }
     if (object & VK_SHADER_CREATE_64_BIT_INDEXING_BIT_EXT) {
@@ -17938,12 +18671,28 @@ void dump_VkAccessFlags3KHR(const VkAccessFlags3KHR object, const ApiDumpSetting
     dump_VkAccessFlagBits3KHR<Format>(static_cast<VkAccessFlagBits3KHR>(object), settings, type_name, var_name, indents, address);
 }
 template <ApiDumpFormat Format>
+void dump_VkVideoEncodePerPartitionFeedbackFlagsKHR(const VkVideoEncodePerPartitionFeedbackFlagsKHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_VkVideoEncodePerPartitionFeedbackFlagBitsKHR<Format>(static_cast<VkVideoEncodePerPartitionFeedbackFlagBitsKHR>(object), settings, type_name, var_name, indents, address);
+}
+template <ApiDumpFormat Format>
 void dump_VkRenderingAttachmentFlagsKHR(const VkRenderingAttachmentFlagsKHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_VkRenderingAttachmentFlagBitsKHR<Format>(static_cast<VkRenderingAttachmentFlagBitsKHR>(object), settings, type_name, var_name, indents, address);
 }
 template <ApiDumpFormat Format>
 void dump_VkResolveImageFlagsKHR(const VkResolveImageFlagsKHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_VkResolveImageFlagBitsKHR<Format>(static_cast<VkResolveImageFlagBitsKHR>(object), settings, type_name, var_name, indents, address);
+}
+template <ApiDumpFormat Format>
+void dump_VkFormatFeatureFlags4KHR(const VkFormatFeatureFlags4KHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_VkFormatFeatureFlagBits4KHR<Format>(static_cast<VkFormatFeatureFlagBits4KHR>(object), settings, type_name, var_name, indents, address);
+}
+template <ApiDumpFormat Format>
+void dump_VkImageUsageFlags2KHR(const VkImageUsageFlags2KHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_VkImageUsageFlagBits2KHR<Format>(static_cast<VkImageUsageFlagBits2KHR>(object), settings, type_name, var_name, indents, address);
+}
+template <ApiDumpFormat Format>
+void dump_VkImageCreateFlags2KHR(const VkImageCreateFlags2KHR object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_VkImageCreateFlagBits2KHR<Format>(static_cast<VkImageCreateFlagBits2KHR>(object), settings, type_name, var_name, indents, address);
 }
 template <ApiDumpFormat Format>
 void dump_VkDebugReportFlagsEXT(const VkDebugReportFlagsEXT object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
@@ -18039,6 +18788,22 @@ void dump_VkDebugUtilsMessageSeverityFlagsEXT(const VkDebugUtilsMessageSeverityF
 }
 template <ApiDumpFormat Format>
 void dump_VkDebugUtilsMessengerCreateFlagsEXT(const VkDebugUtilsMessengerCreateFlagsEXT object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_value<Format>(settings, object);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkGpaSqShaderStageFlagsAMD(const VkGpaSqShaderStageFlagsAMD object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_VkGpaSqShaderStageFlagBitsAMD<Format>(static_cast<VkGpaSqShaderStageFlagBitsAMD>(object), settings, type_name, var_name, indents, address);
+}
+template <ApiDumpFormat Format>
+void dump_VkGpaPerfBlockPropertiesFlagsAMD(const VkGpaPerfBlockPropertiesFlagsAMD object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_value<Format>(settings, object);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceGpaPropertiesFlagsAMD(const VkPhysicalDeviceGpaPropertiesFlagsAMD object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
     dump_value<Format>(settings, object);
     dump_end<Format>(settings, OutputConstruct::value, indents);
@@ -32044,6 +32809,49 @@ void dump_VkVideoDecodeAV1InlineSessionParametersInfoKHR(const VkVideoDecodeAV1I
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR(const VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.videoEncodeFeedback2, settings, "VkBool32", "videoEncodeFeedback2", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkVideoEncodeFeedback2CapabilitiesKHR(const VkVideoEncodeFeedback2CapabilitiesKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxPerPartitionFeedbackEntries, settings, "uint32_t", "maxPerPartitionFeedbackEntries", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkVideoEncodePerPartitionFeedbackFlagsKHR<Format>(object.supportedPerPartitionEncodeFeedbackFlags, settings, "VkVideoEncodePerPartitionFeedbackFlagsKHR", "supportedPerPartitionEncodeFeedbackFlags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR(const VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "const void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxPerPartitionFeedbackEntries, settings, "uint32_t", "maxPerPartitionFeedbackEntries", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkVideoEncodePerPartitionFeedbackFlagsKHR<Format>(object.perPartitionEncodeFeedbackFlags, settings, "VkVideoEncodePerPartitionFeedbackFlagsKHR", "perPartitionEncodeFeedbackFlags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR(const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -32096,6 +32904,102 @@ void dump_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR(const VkPhysical
     dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
     dump_type<Format, VkBool32>(object.presentModeFifoLatestReady, settings, "VkBool32", "presentModeFifoLatestReady", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkMicromapUsageKHR(const VkMicromapUsageKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_type<Format, uint32_t>(object.count, settings, "uint32_t", "count", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.subdivisionLevel, settings, "uint32_t", "subdivisionLevel", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkOpacityMicromapFormatKHR<Format>(object.format, settings, "VkOpacityMicromapFormatKHR", "format", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkAccelerationStructureGeometryMicromapDataKHR(const VkAccelerationStructureGeometryMicromapDataKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "const void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.usageCountsCount, settings, "uint32_t", "usageCountsCount", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pointer_array<Format>(object.pUsageCounts, object.usageCountsCount, settings, "const VkMicromapUsageKHR*", "pUsageCounts", "const VkMicromapUsageKHR", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_VkMicromapUsageKHR<Format>);
+    dump_separate_members<Format>(settings);
+    dump_double_pointer_array<Format>(object.ppUsageCounts, object.usageCountsCount * 1, settings, "const VkMicromapUsageKHR* const*", "ppUsageCounts", "const VkMicromapUsageKHR*", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_VkMicromapUsageKHR<Format>);
+    dump_separate_members<Format>(settings);
+    dump_type_hex<Format, VkDeviceAddress>(object.data, settings, "VkDeviceAddress", "data", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type_hex<Format, VkDeviceAddress>(object.triangleArray, settings, "VkDeviceAddress", "triangleArray", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkDeviceSize>(object.triangleArrayStride, settings, "VkDeviceSize", "triangleArrayStride", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceOpacityMicromapFeaturesKHR(const VkPhysicalDeviceOpacityMicromapFeaturesKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.micromap, settings, "VkBool32", "micromap", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceOpacityMicromapPropertiesKHR(const VkPhysicalDeviceOpacityMicromapPropertiesKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxOpacity2StateSubdivisionLevel, settings, "uint32_t", "maxOpacity2StateSubdivisionLevel", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxOpacity4StateSubdivisionLevel, settings, "uint32_t", "maxOpacity4StateSubdivisionLevel", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxOpacityLossy4StateSubdivisionLevel, settings, "uint32_t", "maxOpacityLossy4StateSubdivisionLevel", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint64_t>(object.maxMicromapTriangles, settings, "uint64_t", "maxMicromapTriangles", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkMicromapTriangleKHR(const VkMicromapTriangleKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_type<Format, uint32_t>(object.dataOffset, settings, "uint32_t", "dataOffset", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint16_t>(object.subdivisionLevel, settings, "uint16_t", "subdivisionLevel", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint16_t>(object.format, settings, "uint16_t", "format", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkAccelerationStructureTrianglesOpacityMicromapKHR(const VkAccelerationStructureTrianglesOpacityMicromapKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkIndexType<Format>(object.indexType, settings, "VkIndexType", "indexType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type_hex<Format, VkDeviceAddress>(object.indexBuffer, settings, "VkDeviceAddress", "indexBuffer", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkDeviceSize>(object.indexStride, settings, "VkDeviceSize", "indexStride", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.baseTriangle, settings, "uint32_t", "baseTriangle", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkAccelerationStructureKHR<Format>(object.micromap, settings, "VkAccelerationStructureKHR", "micromap", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
     }
@@ -32193,6 +33097,101 @@ void dump_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR(const VkQueu
     dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
     dump_VkExtent3D<Format>(object.optimalImageTransferGranularity, settings, "VkExtent3D", "optimalImageTransferGranularity", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkFormatProperties4KHR(const VkFormatProperties4KHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkFormatFeatureFlags4KHR<Format>(object.linearTilingFeatures, settings, "VkFormatFeatureFlags4KHR", "linearTilingFeatures", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkFormatFeatureFlags4KHR<Format>(object.optimalTilingFeatures, settings, "VkFormatFeatureFlags4KHR", "optimalTilingFeatures", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkFormatFeatureFlags4KHR<Format>(object.bufferFeatures, settings, "VkFormatFeatureFlags4KHR", "bufferFeatures", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkImageUsageFlags2CreateInfoKHR(const VkImageUsageFlags2CreateInfoKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkImageUsageFlags2KHR<Format>(object.usage, settings, "VkImageUsageFlags2KHR", "usage", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkImageCreateFlags2CreateInfoKHR(const VkImageCreateFlags2CreateInfoKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkImageCreateFlags2KHR<Format>(object.flags, settings, "VkImageCreateFlags2KHR", "flags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkImageViewUsage2CreateInfoKHR(const VkImageViewUsage2CreateInfoKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkImageUsageFlags2KHR<Format>(object.usage, settings, "VkImageUsageFlags2KHR", "usage", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceExtendedFlagsFeaturesKHR(const VkPhysicalDeviceExtendedFlagsFeaturesKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.extendedFlags, settings, "VkBool32", "extendedFlags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkImageStencilUsage2CreateInfoKHR(const VkImageStencilUsage2CreateInfoKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkImageUsageFlags2KHR<Format>(object.stencilUsage, settings, "VkImageUsageFlags2KHR", "stencilUsage", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkSharedPresentSurfaceCapabilities2KHR(const VkSharedPresentSurfaceCapabilities2KHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkImageUsageFlags2KHR<Format>(object.sharedPresentSupportedUsageFlags, settings, "VkImageUsageFlags2KHR", "sharedPresentSupportedUsageFlags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
     }
@@ -33392,6 +34391,175 @@ void dump_VkAndroidHardwareBufferFormatProperties2ANDROID(const VkAndroidHardwar
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 #endif  // VK_USE_PLATFORM_ANDROID_KHR
+template <ApiDumpFormat Format>
+void dump_VkGpaPerfBlockPropertiesAMD(const VkGpaPerfBlockPropertiesAMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkGpaPerfBlockAMD<Format>(object.blockType, settings, "VkGpaPerfBlockAMD", "blockType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkGpaPerfBlockPropertiesFlagsAMD<Format>(object.flags, settings, "VkGpaPerfBlockPropertiesFlagsAMD", "flags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.instanceCount, settings, "uint32_t", "instanceCount", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxEventID, settings, "uint32_t", "maxEventID", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxGlobalOnlyCounters, settings, "uint32_t", "maxGlobalOnlyCounters", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxGlobalSharedCounters, settings, "uint32_t", "maxGlobalSharedCounters", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxStreamingCounters, settings, "uint32_t", "maxStreamingCounters", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceGpaFeaturesAMD(const VkPhysicalDeviceGpaFeaturesAMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.perfCounters, settings, "VkBool32", "perfCounters", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.streamingPerfCounters, settings, "VkBool32", "streamingPerfCounters", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.sqThreadTracing, settings, "VkBool32", "sqThreadTracing", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.clockModes, settings, "VkBool32", "clockModes", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceGpaPropertiesAMD(const VkPhysicalDeviceGpaPropertiesAMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkPhysicalDeviceGpaPropertiesFlagsAMD<Format>(object.flags, settings, "VkPhysicalDeviceGpaPropertiesFlagsAMD", "flags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkDeviceSize>(object.maxSqttSeBufferSize, settings, "VkDeviceSize", "maxSqttSeBufferSize", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.shaderEngineCount, settings, "uint32_t", "shaderEngineCount", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.perfBlockCount, settings, "uint32_t", "perfBlockCount", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pointer_array<Format>(object.pPerfBlocks, object.perfBlockCount, settings, "VkGpaPerfBlockPropertiesAMD*", "pPerfBlocks", "VkGpaPerfBlockPropertiesAMD", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_VkGpaPerfBlockPropertiesAMD<Format>);
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceGpaProperties2AMD(const VkPhysicalDeviceGpaProperties2AMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.revisionId, settings, "uint32_t", "revisionId", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkGpaPerfCounterAMD(const VkGpaPerfCounterAMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkGpaPerfBlockAMD<Format>(object.blockType, settings, "VkGpaPerfBlockAMD", "blockType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.blockInstance, settings, "uint32_t", "blockInstance", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.eventID, settings, "uint32_t", "eventID", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkGpaSampleBeginInfoAMD(const VkGpaSampleBeginInfoAMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "const void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkGpaSampleTypeAMD<Format>(object.sampleType, settings, "VkGpaSampleTypeAMD", "sampleType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.sampleInternalOperations, settings, "VkBool32", "sampleInternalOperations", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.cacheFlushOnCounterCollection, settings, "VkBool32", "cacheFlushOnCounterCollection", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.sqShaderMaskEnable, settings, "VkBool32", "sqShaderMaskEnable", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkGpaSqShaderStageFlagsAMD<Format>(object.sqShaderMask, settings, "VkGpaSqShaderStageFlagsAMD", "sqShaderMask", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.perfCounterCount, settings, "uint32_t", "perfCounterCount", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pointer_array<Format>(object.pPerfCounters, object.perfCounterCount, settings, "const VkGpaPerfCounterAMD*", "pPerfCounters", "const VkGpaPerfCounterAMD", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_VkGpaPerfCounterAMD<Format>);
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.streamingPerfTraceSampleInterval, settings, "uint32_t", "streamingPerfTraceSampleInterval", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkDeviceSize>(object.perfCounterDeviceMemoryLimit, settings, "VkDeviceSize", "perfCounterDeviceMemoryLimit", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.sqThreadTraceEnable, settings, "VkBool32", "sqThreadTraceEnable", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.sqThreadTraceSuppressInstructionTokens, settings, "VkBool32", "sqThreadTraceSuppressInstructionTokens", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkDeviceSize>(object.sqThreadTraceDeviceMemoryLimit, settings, "VkDeviceSize", "sqThreadTraceDeviceMemoryLimit", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkPipelineStageFlags<Format>(object.timingPreSample, settings, "VkPipelineStageFlags", "timingPreSample", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkPipelineStageFlags<Format>(object.timingPostSample, settings, "VkPipelineStageFlags", "timingPostSample", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkGpaDeviceClockModeInfoAMD(const VkGpaDeviceClockModeInfoAMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "const void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkGpaDeviceClockModeAMD<Format>(object.clockMode, settings, "VkGpaDeviceClockModeAMD", "clockMode", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, float>(object.memoryClockRatioToPeak, settings, "float", "memoryClockRatioToPeak", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, float>(object.engineClockRatioToPeak, settings, "float", "engineClockRatioToPeak", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkGpaDeviceGetClockInfoAMD(const VkGpaDeviceGetClockInfoAMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, float>(object.memoryClockRatioToPeak, settings, "float", "memoryClockRatioToPeak", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, float>(object.engineClockRatioToPeak, settings, "float", "engineClockRatioToPeak", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.memoryClockFrequency, settings, "uint32_t", "memoryClockFrequency", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.engineClockFrequency, settings, "uint32_t", "engineClockFrequency", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkGpaSessionCreateInfoAMD(const VkGpaSessionCreateInfoAMD& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "const void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkGpaSessionAMD<Format>(object.secondaryCopySource, settings, "VkGpaSessionAMD", "secondaryCopySource", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 template <ApiDumpFormat Format>
 void dump_VkPhysicalDeviceShaderEnqueueFeaturesAMDX(const VkPhysicalDeviceShaderEnqueueFeaturesAMDX& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
@@ -34862,6 +36030,19 @@ void dump_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM(const VkPhysic
     dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
     dump_type<Format, VkBool32>(object.cooperativeMatrixConversion, settings, "VkBool32", "cooperativeMatrixConversion", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM(const VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.elapsedTimerQuery, settings, "VkBool32", "elapsedTimerQuery", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
     }
@@ -36660,6 +37841,75 @@ void dump_VkPhysicalDeviceQueuePerfHintPropertiesQCOM(const VkPhysicalDeviceQueu
     dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
     dump_VkQueueFlags<Format>(object.supportedQueues, settings, "VkQueueFlags", "supportedQueues", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceImageProcessing3FeaturesQCOM(const VkPhysicalDeviceImageProcessing3FeaturesQCOM& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.imageGatherLinear, settings, "VkBool32", "imageGatherLinear", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.imageGatherExtendedModes, settings, "VkBool32", "imageGatherExtendedModes", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.blockMatchExtendedClampToEdge, settings, "VkBool32", "blockMatchExtendedClampToEdge", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM(const VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.shaderMultipleWaitQueues, settings, "VkBool32", "shaderMultipleWaitQueues", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM(const VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxShaderWaitQueues, settings, "uint32_t", "maxShaderWaitQueues", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceShaderSplitBarrierFeaturesEXT(const VkPhysicalDeviceShaderSplitBarrierFeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.shaderSplitBarrier, settings, "VkBool32", "shaderSplitBarrier", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceShaderSplitBarrierPropertiesEXT(const VkPhysicalDeviceShaderSplitBarrierPropertiesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.splitBarrierReservedSharedMemory, settings, "uint32_t", "splitBarrierReservedSharedMemory", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
     }
@@ -38937,16 +40187,6 @@ void dump_VkAccelerationStructureTrianglesOpacityMicromapEXT(const VkAcceleratio
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
     }
-    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
-}
-template <ApiDumpFormat Format>
-void dump_VkMicromapTriangleEXT(const VkMicromapTriangleEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
-    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
-    dump_type<Format, uint32_t>(object.dataOffset, settings, "uint32_t", "dataOffset", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
-    dump_separate_members<Format>(settings);
-    dump_type<Format, uint16_t>(object.subdivisionLevel, settings, "uint16_t", "subdivisionLevel", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
-    dump_separate_members<Format>(settings);
-    dump_type<Format, uint16_t>(object.format, settings, "uint16_t", "format", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
@@ -42199,6 +43439,40 @@ void dump_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT(const VkPhysical
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
+void dump_VkTensorRollingBackingCreateInfoARM(const VkTensorRollingBackingCreateInfoARM& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "const void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_single_array<Format>(object.wraps, VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM, settings, "uint32_t[VK_MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM]", "wraps", "uint32_t", indents + (Format == ApiDumpFormat::Json ? 2 : 1), dump_type<Format, uint32_t>);
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkTensorExplicitTilingFormatPropertiesARM(const VkTensorExplicitTilingFormatPropertiesARM& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkFormatFeatureFlags2<Format>(object.brick16TilingTensorFeatures, settings, "VkFormatFeatureFlags2", "brick16TilingTensorFeatures", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkFormatFeatureFlags2<Format>(object.brick8TilingTensorFeatures, settings, "VkFormatFeatureFlags2", "brick8TilingTensorFeatures", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkFormatFeatureFlags2<Format>(object.brick4TilingTensorFeatures, settings, "VkFormatFeatureFlags2", "brick4TilingTensorFeatures", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkFormatFeatureFlags2<Format>(object.blockUTilingTensorFeatures, settings, "VkFormatFeatureFlags2", "blockUTilingTensorFeatures", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkFormatFeatureFlags2<Format>(object.blockU64kTilingTensorFeatures, settings, "VkFormatFeatureFlags2", "blockU64kTilingTensorFeatures", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkPhysicalDeviceShaderFloat8FeaturesEXT(const VkPhysicalDeviceShaderFloat8FeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -43618,6 +44892,32 @@ void dump_VkPhysicalDevicePresentMeteringFeaturesNV(const VkPhysicalDevicePresen
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT(const VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.multisampledRenderToSwapchain, settings, "VkBool32", "multisampledRenderToSwapchain", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkSwapchainFlagsSurfaceCapabilitiesEXT(const VkSwapchainFlagsSurfaceCapabilitiesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkSwapchainCreateFlagsKHR<Format>(object.swapchainSupportedFlags, settings, "VkSwapchainCreateFlagsKHR", "swapchainSupportedFlags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT(const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -43998,6 +45298,25 @@ void dump_VkUbmSurfaceCreateInfoSEC(const VkUbmSurfaceCreateInfoSEC& object, con
 }
 #endif  // VK_USE_PLATFORM_UBM_SEC
 template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT(const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.shaderFloat4, settings, "VkBool32", "shaderFloat4", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.shaderFloat6, settings, "VkBool32", "shaderFloat6", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.shaderFloat8UnsignedE8M0, settings, "VkBool32", "shaderFloat8UnsignedE8M0", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.shaderMXInt8, settings, "VkBool32", "shaderMXInt8", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE(const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -44089,6 +45408,19 @@ void dump_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT(const VkPhysicalDevic
     dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
     dump_type<Format, VkBool32>(object.primitiveRestartIndex, settings, "VkBool32", "primitiveRestartIndex", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV(const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.cooperativeMatrixDecodeVector, settings, "VkBool32", "cooperativeMatrixDecodeVector", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
     }
@@ -46797,6 +48129,18 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             dump_string<Format>(settings, "VkVideoDecodeAV1InlineSessionParametersInfoKHR");
             break;
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR:
+            dump_string<Format>(settings, "VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR:
+            dump_string<Format>(settings, "VkVideoEncodeFeedback2CapabilitiesKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_CREATE_INFO_KHR:
+            dump_string<Format>(settings, "VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR");
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR:
             dump_string<Format>(settings, "VkPhysicalDeviceDepthClampZeroOneFeaturesKHR");
             break;
@@ -46811,6 +48155,22 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR:
             dump_string<Format>(settings, "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MICROMAP_DATA_KHR:
+            dump_string<Format>(settings, "VkAccelerationStructureGeometryMicromapDataKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_KHR:
+            dump_string<Format>(settings, "VkPhysicalDeviceOpacityMicromapFeaturesKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_KHR:
+            dump_string<Format>(settings, "VkPhysicalDeviceOpacityMicromapPropertiesKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_KHR:
+            dump_string<Format>(settings, "VkAccelerationStructureTrianglesOpacityMicromapKHR");
             break;
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR:
@@ -46839,6 +48199,34 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
 
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR:
             dump_string<Format>(settings, "VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_4_KHR:
+            dump_string<Format>(settings, "VkFormatProperties4KHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR:
+            dump_string<Format>(settings, "VkImageUsageFlags2CreateInfoKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_CREATE_FLAGS_2_CREATE_INFO_KHR:
+            dump_string<Format>(settings, "VkImageCreateFlags2CreateInfoKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_2_CREATE_INFO_KHR:
+            dump_string<Format>(settings, "VkImageViewUsage2CreateInfoKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_FLAGS_FEATURES_KHR:
+            dump_string<Format>(settings, "VkPhysicalDeviceExtendedFlagsFeaturesKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_2_CREATE_INFO_KHR:
+            dump_string<Format>(settings, "VkImageStencilUsage2CreateInfoKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR:
+            dump_string<Format>(settings, "VkSharedPresentSurfaceCapabilities2KHR");
             break;
 
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
@@ -47108,6 +48496,34 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             dump_string<Format>(settings, "VkAndroidHardwareBufferFormatProperties2ANDROID");
             break;
 #endif  // VK_USE_PLATFORM_ANDROID_KHR
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
+            dump_string<Format>(settings, "VkPhysicalDeviceGpaFeaturesAMD");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD:
+            dump_string<Format>(settings, "VkPhysicalDeviceGpaPropertiesAMD");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD:
+            dump_string<Format>(settings, "VkPhysicalDeviceGpaProperties2AMD");
+            break;
+
+        case VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD:
+            dump_string<Format>(settings, "VkGpaSampleBeginInfoAMD");
+            break;
+
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD:
+            dump_string<Format>(settings, "VkGpaDeviceClockModeInfoAMD");
+            break;
+
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD:
+            dump_string<Format>(settings, "VkGpaDeviceGetClockInfoAMD");
+            break;
+
+        case VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD:
+            dump_string<Format>(settings, "VkGpaSessionCreateInfoAMD");
+            break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX:
@@ -47361,6 +48777,10 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM:
             dump_string<Format>(settings, "VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ELAPSED_TIMER_QUERY_FEATURES_QCOM:
+            dump_string<Format>(settings, "VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM");
             break;
 
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
@@ -47785,6 +49205,26 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_PERF_HINT_PROPERTIES_QCOM:
             dump_string<Format>(settings, "VkPhysicalDeviceQueuePerfHintPropertiesQCOM");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_3_FEATURES_QCOM:
+            dump_string<Format>(settings, "VkPhysicalDeviceImageProcessing3FeaturesQCOM");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_FEATURES_QCOM:
+            dump_string<Format>(settings, "VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_PROPERTIES_QCOM:
+            dump_string<Format>(settings, "VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_FEATURES_EXT:
+            dump_string<Format>(settings, "VkPhysicalDeviceShaderSplitBarrierFeaturesEXT");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_PROPERTIES_EXT:
+            dump_string<Format>(settings, "VkPhysicalDeviceShaderSplitBarrierPropertiesEXT");
             break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 
@@ -49083,6 +50523,14 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             dump_string<Format>(settings, "VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT");
             break;
 
+        case VK_STRUCTURE_TYPE_TENSOR_ROLLING_BACKING_CREATE_INFO_ARM:
+            dump_string<Format>(settings, "VkTensorRollingBackingCreateInfoARM");
+            break;
+
+        case VK_STRUCTURE_TYPE_TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM:
+            dump_string<Format>(settings, "VkTensorExplicitTilingFormatPropertiesARM");
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT:
             dump_string<Format>(settings, "VkPhysicalDeviceShaderFloat8FeaturesEXT");
             break;
@@ -49355,6 +50803,14 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             dump_string<Format>(settings, "VkPhysicalDevicePresentMeteringFeaturesNV");
             break;
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SWAPCHAIN_FEATURES_EXT:
+            dump_string<Format>(settings, "VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT");
+            break;
+
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_FLAGS_SURFACE_CAPABILITIES_EXT:
+            dump_string<Format>(settings, "VkSwapchainFlagsSurfaceCapabilitiesEXT");
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT:
             dump_string<Format>(settings, "VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT");
             break;
@@ -49453,6 +50909,10 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             break;
 #endif  // VK_USE_PLATFORM_UBM_SEC
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT:
+            dump_string<Format>(settings, "VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT");
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE:
             dump_string<Format>(settings, "VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE");
             break;
@@ -49479,6 +50939,10 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             dump_string<Format>(settings, "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
+            dump_string<Format>(settings, "VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV");
             break;
 
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
@@ -51741,6 +53205,18 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
             dump_VkVideoDecodeAV1InlineSessionParametersInfoKHR<Format>(*reinterpret_cast<const VkVideoDecodeAV1InlineSessionParametersInfoKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkVideoDecodeAV1InlineSessionParametersInfoKHR*" : "VkVideoDecodeAV1InlineSessionParametersInfoKHR"), "pNext", indents, reinterpret_cast<const VkVideoDecodeAV1InlineSessionParametersInfoKHR*>(object));
             break;
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_FEEDBACK_2_FEATURES_KHR:
+            dump_VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR<Format>(*reinterpret_cast<const VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR*" : "VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceVideoEncodeFeedback2FeaturesKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_FEEDBACK_2_CAPABILITIES_KHR:
+            dump_VkVideoEncodeFeedback2CapabilitiesKHR<Format>(*reinterpret_cast<const VkVideoEncodeFeedback2CapabilitiesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkVideoEncodeFeedback2CapabilitiesKHR*" : "VkVideoEncodeFeedback2CapabilitiesKHR"), "pNext", indents, reinterpret_cast<const VkVideoEncodeFeedback2CapabilitiesKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_PER_PARTITION_FEEDBACK_CREATE_INFO_KHR:
+            dump_VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR<Format>(*reinterpret_cast<const VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR*" : "VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR"), "pNext", indents, reinterpret_cast<const VkQueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR*>(object));
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR:
             dump_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR<Format>(*reinterpret_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceDepthClampZeroOneFeaturesKHR*" : "VkPhysicalDeviceDepthClampZeroOneFeaturesKHR"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceDepthClampZeroOneFeaturesKHR*>(object));
             break;
@@ -51755,6 +53231,22 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR:
             dump_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR<Format>(*reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR*" : "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR"), "pNext", indents, reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MICROMAP_DATA_KHR:
+            dump_VkAccelerationStructureGeometryMicromapDataKHR<Format>(*reinterpret_cast<const VkAccelerationStructureGeometryMicromapDataKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkAccelerationStructureGeometryMicromapDataKHR*" : "VkAccelerationStructureGeometryMicromapDataKHR"), "pNext", indents, reinterpret_cast<const VkAccelerationStructureGeometryMicromapDataKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_FEATURES_KHR:
+            dump_VkPhysicalDeviceOpacityMicromapFeaturesKHR<Format>(*reinterpret_cast<const VkPhysicalDeviceOpacityMicromapFeaturesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceOpacityMicromapFeaturesKHR*" : "VkPhysicalDeviceOpacityMicromapFeaturesKHR"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceOpacityMicromapFeaturesKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_OPACITY_MICROMAP_PROPERTIES_KHR:
+            dump_VkPhysicalDeviceOpacityMicromapPropertiesKHR<Format>(*reinterpret_cast<const VkPhysicalDeviceOpacityMicromapPropertiesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceOpacityMicromapPropertiesKHR*" : "VkPhysicalDeviceOpacityMicromapPropertiesKHR"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceOpacityMicromapPropertiesKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_KHR:
+            dump_VkAccelerationStructureTrianglesOpacityMicromapKHR<Format>(*reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkAccelerationStructureTrianglesOpacityMicromapKHR*" : "VkAccelerationStructureTrianglesOpacityMicromapKHR"), "pNext", indents, reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapKHR*>(object));
             break;
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR:
@@ -51783,6 +53275,34 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
 
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR:
             dump_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR<Format>(*reinterpret_cast<const VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR*" : "VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR"), "pNext", indents, reinterpret_cast<const VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_4_KHR:
+            dump_VkFormatProperties4KHR<Format>(*reinterpret_cast<const VkFormatProperties4KHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkFormatProperties4KHR*" : "VkFormatProperties4KHR"), "pNext", indents, reinterpret_cast<const VkFormatProperties4KHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_USAGE_FLAGS_2_CREATE_INFO_KHR:
+            dump_VkImageUsageFlags2CreateInfoKHR<Format>(*reinterpret_cast<const VkImageUsageFlags2CreateInfoKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkImageUsageFlags2CreateInfoKHR*" : "VkImageUsageFlags2CreateInfoKHR"), "pNext", indents, reinterpret_cast<const VkImageUsageFlags2CreateInfoKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_CREATE_FLAGS_2_CREATE_INFO_KHR:
+            dump_VkImageCreateFlags2CreateInfoKHR<Format>(*reinterpret_cast<const VkImageCreateFlags2CreateInfoKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkImageCreateFlags2CreateInfoKHR*" : "VkImageCreateFlags2CreateInfoKHR"), "pNext", indents, reinterpret_cast<const VkImageCreateFlags2CreateInfoKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_2_CREATE_INFO_KHR:
+            dump_VkImageViewUsage2CreateInfoKHR<Format>(*reinterpret_cast<const VkImageViewUsage2CreateInfoKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkImageViewUsage2CreateInfoKHR*" : "VkImageViewUsage2CreateInfoKHR"), "pNext", indents, reinterpret_cast<const VkImageViewUsage2CreateInfoKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_FLAGS_FEATURES_KHR:
+            dump_VkPhysicalDeviceExtendedFlagsFeaturesKHR<Format>(*reinterpret_cast<const VkPhysicalDeviceExtendedFlagsFeaturesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceExtendedFlagsFeaturesKHR*" : "VkPhysicalDeviceExtendedFlagsFeaturesKHR"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceExtendedFlagsFeaturesKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_2_CREATE_INFO_KHR:
+            dump_VkImageStencilUsage2CreateInfoKHR<Format>(*reinterpret_cast<const VkImageStencilUsage2CreateInfoKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkImageStencilUsage2CreateInfoKHR*" : "VkImageStencilUsage2CreateInfoKHR"), "pNext", indents, reinterpret_cast<const VkImageStencilUsage2CreateInfoKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR:
+            dump_VkSharedPresentSurfaceCapabilities2KHR<Format>(*reinterpret_cast<const VkSharedPresentSurfaceCapabilities2KHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkSharedPresentSurfaceCapabilities2KHR*" : "VkSharedPresentSurfaceCapabilities2KHR"), "pNext", indents, reinterpret_cast<const VkSharedPresentSurfaceCapabilities2KHR*>(object));
             break;
 
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
@@ -52052,6 +53572,34 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
             dump_VkAndroidHardwareBufferFormatProperties2ANDROID<Format>(*reinterpret_cast<const VkAndroidHardwareBufferFormatProperties2ANDROID*>(object), settings, (Format == ApiDumpFormat::Json ? "VkAndroidHardwareBufferFormatProperties2ANDROID*" : "VkAndroidHardwareBufferFormatProperties2ANDROID"), "pNext", indents, reinterpret_cast<const VkAndroidHardwareBufferFormatProperties2ANDROID*>(object));
             break;
 #endif  // VK_USE_PLATFORM_ANDROID_KHR
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
+            dump_VkPhysicalDeviceGpaFeaturesAMD<Format>(*reinterpret_cast<const VkPhysicalDeviceGpaFeaturesAMD*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceGpaFeaturesAMD*" : "VkPhysicalDeviceGpaFeaturesAMD"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceGpaFeaturesAMD*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD:
+            dump_VkPhysicalDeviceGpaPropertiesAMD<Format>(*reinterpret_cast<const VkPhysicalDeviceGpaPropertiesAMD*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceGpaPropertiesAMD*" : "VkPhysicalDeviceGpaPropertiesAMD"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceGpaPropertiesAMD*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD:
+            dump_VkPhysicalDeviceGpaProperties2AMD<Format>(*reinterpret_cast<const VkPhysicalDeviceGpaProperties2AMD*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceGpaProperties2AMD*" : "VkPhysicalDeviceGpaProperties2AMD"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceGpaProperties2AMD*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD:
+            dump_VkGpaSampleBeginInfoAMD<Format>(*reinterpret_cast<const VkGpaSampleBeginInfoAMD*>(object), settings, (Format == ApiDumpFormat::Json ? "VkGpaSampleBeginInfoAMD*" : "VkGpaSampleBeginInfoAMD"), "pNext", indents, reinterpret_cast<const VkGpaSampleBeginInfoAMD*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD:
+            dump_VkGpaDeviceClockModeInfoAMD<Format>(*reinterpret_cast<const VkGpaDeviceClockModeInfoAMD*>(object), settings, (Format == ApiDumpFormat::Json ? "VkGpaDeviceClockModeInfoAMD*" : "VkGpaDeviceClockModeInfoAMD"), "pNext", indents, reinterpret_cast<const VkGpaDeviceClockModeInfoAMD*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD:
+            dump_VkGpaDeviceGetClockInfoAMD<Format>(*reinterpret_cast<const VkGpaDeviceGetClockInfoAMD*>(object), settings, (Format == ApiDumpFormat::Json ? "VkGpaDeviceGetClockInfoAMD*" : "VkGpaDeviceGetClockInfoAMD"), "pNext", indents, reinterpret_cast<const VkGpaDeviceGetClockInfoAMD*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD:
+            dump_VkGpaSessionCreateInfoAMD<Format>(*reinterpret_cast<const VkGpaSessionCreateInfoAMD*>(object), settings, (Format == ApiDumpFormat::Json ? "VkGpaSessionCreateInfoAMD*" : "VkGpaSessionCreateInfoAMD"), "pNext", indents, reinterpret_cast<const VkGpaSessionCreateInfoAMD*>(object));
+            break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_FEATURES_AMDX:
@@ -52305,6 +53853,10 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM:
             dump_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM<Format>(*reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM*" : "VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ELAPSED_TIMER_QUERY_FEATURES_QCOM:
+            dump_VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM<Format>(*reinterpret_cast<const VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM*" : "VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceElapsedTimerQueryFeaturesQCOM*>(object));
             break;
 
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
@@ -52729,6 +54281,26 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_PERF_HINT_PROPERTIES_QCOM:
             dump_VkPhysicalDeviceQueuePerfHintPropertiesQCOM<Format>(*reinterpret_cast<const VkPhysicalDeviceQueuePerfHintPropertiesQCOM*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceQueuePerfHintPropertiesQCOM*" : "VkPhysicalDeviceQueuePerfHintPropertiesQCOM"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceQueuePerfHintPropertiesQCOM*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_3_FEATURES_QCOM:
+            dump_VkPhysicalDeviceImageProcessing3FeaturesQCOM<Format>(*reinterpret_cast<const VkPhysicalDeviceImageProcessing3FeaturesQCOM*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceImageProcessing3FeaturesQCOM*" : "VkPhysicalDeviceImageProcessing3FeaturesQCOM"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceImageProcessing3FeaturesQCOM*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_FEATURES_QCOM:
+            dump_VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM*" : "VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MULTIPLE_WAIT_QUEUES_PROPERTIES_QCOM:
+            dump_VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM*" : "VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_FEATURES_EXT:
+            dump_VkPhysicalDeviceShaderSplitBarrierFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderSplitBarrierFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderSplitBarrierFeaturesEXT*" : "VkPhysicalDeviceShaderSplitBarrierFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderSplitBarrierFeaturesEXT*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SPLIT_BARRIER_PROPERTIES_EXT:
+            dump_VkPhysicalDeviceShaderSplitBarrierPropertiesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderSplitBarrierPropertiesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderSplitBarrierPropertiesEXT*" : "VkPhysicalDeviceShaderSplitBarrierPropertiesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderSplitBarrierPropertiesEXT*>(object));
             break;
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 
@@ -54027,6 +55599,14 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
             dump_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT*" : "VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT*>(object));
             break;
 
+        case VK_STRUCTURE_TYPE_TENSOR_ROLLING_BACKING_CREATE_INFO_ARM:
+            dump_VkTensorRollingBackingCreateInfoARM<Format>(*reinterpret_cast<const VkTensorRollingBackingCreateInfoARM*>(object), settings, (Format == ApiDumpFormat::Json ? "VkTensorRollingBackingCreateInfoARM*" : "VkTensorRollingBackingCreateInfoARM"), "pNext", indents, reinterpret_cast<const VkTensorRollingBackingCreateInfoARM*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_TENSOR_EXPLICIT_TILING_FORMAT_PROPERTIES_ARM:
+            dump_VkTensorExplicitTilingFormatPropertiesARM<Format>(*reinterpret_cast<const VkTensorExplicitTilingFormatPropertiesARM*>(object), settings, (Format == ApiDumpFormat::Json ? "VkTensorExplicitTilingFormatPropertiesARM*" : "VkTensorExplicitTilingFormatPropertiesARM"), "pNext", indents, reinterpret_cast<const VkTensorExplicitTilingFormatPropertiesARM*>(object));
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT:
             dump_VkPhysicalDeviceShaderFloat8FeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderFloat8FeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderFloat8FeaturesEXT*" : "VkPhysicalDeviceShaderFloat8FeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderFloat8FeaturesEXT*>(object));
             break;
@@ -54299,6 +55879,14 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
             dump_VkPhysicalDevicePresentMeteringFeaturesNV<Format>(*reinterpret_cast<const VkPhysicalDevicePresentMeteringFeaturesNV*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDevicePresentMeteringFeaturesNV*" : "VkPhysicalDevicePresentMeteringFeaturesNV"), "pNext", indents, reinterpret_cast<const VkPhysicalDevicePresentMeteringFeaturesNV*>(object));
             break;
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SWAPCHAIN_FEATURES_EXT:
+            dump_VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT*" : "VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_FLAGS_SURFACE_CAPABILITIES_EXT:
+            dump_VkSwapchainFlagsSurfaceCapabilitiesEXT<Format>(*reinterpret_cast<const VkSwapchainFlagsSurfaceCapabilitiesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkSwapchainFlagsSurfaceCapabilitiesEXT*" : "VkSwapchainFlagsSurfaceCapabilitiesEXT"), "pNext", indents, reinterpret_cast<const VkSwapchainFlagsSurfaceCapabilitiesEXT*>(object));
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT:
             dump_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT*" : "VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT*>(object));
             break;
@@ -54397,6 +55985,10 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
             break;
 #endif  // VK_USE_PLATFORM_UBM_SEC
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT:
+            dump_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT*" : "VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT*>(object));
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE:
             dump_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*" : "VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(object));
             break;
@@ -54423,6 +56015,10 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             dump_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT*" : "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
+            dump_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV<Format>(*reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*" : "VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(object));
             break;
 
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
@@ -62172,6 +63768,180 @@ void dump_params_vkGetMemoryAndroidHardwareBufferANDROID(ApiDumpInstance& dump_i
     }
 }
 #endif  // VK_USE_PLATFORM_ANDROID_KHR
+
+template <ApiDumpFormat Format>
+void dump_params_vkCreateGpaSessionAMD(ApiDumpInstance& dump_inst, VkDevice device, const VkGpaSessionCreateInfoAMD* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkGpaSessionAMD* pGpaSession) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pCreateInfo, settings, "const VkGpaSessionCreateInfoAMD*", "pCreateInfo", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkGpaSessionCreateInfoAMD<Format>);
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkAllocationCallbacks<Format>);
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pGpaSession, settings, "VkGpaSessionAMD*", "pGpaSession", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkGpaSessionAMD<Format>);
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkDestroyGpaSessionAMD(ApiDumpInstance& dump_inst, VkDevice device, VkGpaSessionAMD gpaSession, const VkAllocationCallbacks* pAllocator) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkGpaSessionAMD<Format>(gpaSession, settings, "VkGpaSessionAMD", "gpaSession", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pAllocator, settings, "const VkAllocationCallbacks*", "pAllocator", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkAllocationCallbacks<Format>);
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkSetGpaDeviceClockModeAMD(ApiDumpInstance& dump_inst, VkDevice device, VkGpaDeviceClockModeInfoAMD* pInfo) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pInfo, settings, "VkGpaDeviceClockModeInfoAMD*", "pInfo", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkGpaDeviceClockModeInfoAMD<Format>);
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetGpaDeviceClockInfoAMD(ApiDumpInstance& dump_inst, VkDevice device, VkGpaDeviceGetClockInfoAMD* pInfo) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pInfo, settings, "VkGpaDeviceGetClockInfoAMD*", "pInfo", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkGpaDeviceGetClockInfoAMD<Format>);
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkCmdBeginGpaSessionAMD(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkCommandBuffer<Format>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkGpaSessionAMD<Format>(gpaSession, settings, "VkGpaSessionAMD", "gpaSession", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkCmdEndGpaSessionAMD(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkCommandBuffer<Format>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkGpaSessionAMD<Format>(gpaSession, settings, "VkGpaSessionAMD", "gpaSession", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkCmdBeginGpaSampleAMD(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession, const VkGpaSampleBeginInfoAMD* pGpaSampleBeginInfo, uint32_t* pSampleID) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkCommandBuffer<Format>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkGpaSessionAMD<Format>(gpaSession, settings, "VkGpaSessionAMD", "gpaSession", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pGpaSampleBeginInfo, settings, "const VkGpaSampleBeginInfoAMD*", "pGpaSampleBeginInfo", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkGpaSampleBeginInfoAMD<Format>);
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pSampleID, settings, "uint32_t*", "pSampleID", (Format == ApiDumpFormat::Json ? 4 : 1), dump_type<Format, uint32_t>);
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkCmdEndGpaSampleAMD(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession, uint32_t sampleID) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkCommandBuffer<Format>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkGpaSessionAMD<Format>(gpaSession, settings, "VkGpaSessionAMD", "gpaSession", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, uint32_t>(sampleID, settings, "uint32_t", "sampleID", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetGpaSessionStatusAMD(ApiDumpInstance& dump_inst, VkDevice device, VkGpaSessionAMD gpaSession) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkGpaSessionAMD<Format>(gpaSession, settings, "VkGpaSessionAMD", "gpaSession", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetGpaSessionResultsAMD(ApiDumpInstance& dump_inst, VkDevice device, VkGpaSessionAMD gpaSession, uint32_t sampleID, size_t* pSizeInBytes, void* pData) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkGpaSessionAMD<Format>(gpaSession, settings, "VkGpaSessionAMD", "gpaSession", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, uint32_t>(sampleID, settings, "uint32_t", "sampleID", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pSizeInBytes, settings, "size_t*", "pSizeInBytes", (Format == ApiDumpFormat::Json ? 4 : 1), dump_type<Format, size_t>);
+        dump_separate_members<Format>(settings);
+        dump_type<Format, void*>(pData, settings, "void*", "pData", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkResetGpaSessionAMD(ApiDumpInstance& dump_inst, VkDevice device, VkGpaSessionAMD gpaSession) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkGpaSessionAMD<Format>(gpaSession, settings, "VkGpaSessionAMD", "gpaSession", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkCmdCopyGpaSessionResultsAMD(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, VkGpaSessionAMD gpaSession) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkCommandBuffer<Format>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkGpaSessionAMD<Format>(gpaSession, settings, "VkGpaSessionAMD", "gpaSession", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
 #if defined(VK_ENABLE_BETA_EXTENSIONS)
 
 template <ApiDumpFormat Format>
