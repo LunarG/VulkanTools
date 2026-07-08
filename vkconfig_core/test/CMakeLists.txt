@@ -32,12 +32,11 @@ function(vkConfigTest NAME)
     file(GLOB FILES_TEXT ./*.txt)
     source_group("Test Files" FILES ${FILES_JSON} ${FILES_TEXT} ${FILES_LAYER_JSON})
 
-    # Link the pre-compiled resource object instead of passing the raw .qrc file
-    add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT} $<TARGET_OBJECTS:vkconfig_test_resources>)
+    add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT})
     set_target_properties(${TEST_NAME} PROPERTIES FOLDER "vkconfig/tests")
 
     if(Qt6_FOUND)
-      target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest_main Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
+      target_link_libraries(${TEST_NAME} vkconfig_test_resources vkconfig-core Vulkan::LayerSettings GTest::gtest_main Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
     endif()
 
     target_compile_definitions(${TEST_NAME} PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
