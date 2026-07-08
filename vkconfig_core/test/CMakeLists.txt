@@ -34,6 +34,7 @@ function(vkConfigTest NAME)
 
     add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT})
     set_target_properties(${TEST_NAME} PROPERTIES FOLDER "vkconfig/tests")
+    add_dependencies(${TEST_NAME} vkconfig_test_resources)
 
     if(Qt6_FOUND)
       target_link_libraries(${TEST_NAME} vkconfig_test_resources vkconfig-core Vulkan::LayerSettings GTest::gtest_main Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
