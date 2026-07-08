@@ -703,9 +703,10 @@ void TabApplications::processClosed(int exit_code, QProcess::ExitStatus status) 
 
         Configurator& configurator = Configurator::Get();
         if (configurator.stdout_display == STDOUT_DISPLAY_ON_EXIT) {
-            this->_log_file.open(QIODevice::ReadOnly | QIODevice::Text);
-            this->ui->launch_log_text->setPlainText(this->_log_file.readAll());
-            this->_log_file.close();
+            if (this->_log_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                this->ui->launch_log_text->setPlainText(this->_log_file.readAll());
+                this->_log_file.close();
+            }
         }
     }
 
