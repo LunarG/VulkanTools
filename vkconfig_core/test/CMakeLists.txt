@@ -20,6 +20,9 @@ if (NOT DEFINED CMAKE_INSTALL_BINDIR)
     include(GNUInstallDirs)
 endif()
 
+# Compile the Qt resources exactly once to prevent rcc contention across parallel builds
+add_library(vkconfig_test_resources OBJECT resources.qrc)
+
 function(vkConfigTest NAME)
     set(TEST_FILE ./${NAME}.cpp)
     set(TEST_NAME vkconfig_${NAME})
@@ -29,10 +32,12 @@ function(vkConfigTest NAME)
     file(GLOB FILES_TEXT ./*.txt)
     source_group("Test Files" FILES ${FILES_JSON} ${FILES_TEXT} ${FILES_LAYER_JSON})
 
-    add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT} resources.qrc)
+    # Link the pre-compiled resource object instead of passing the raw .qrc file
+    add_executable(${TEST_NAME} ${TEST_FILE} ${FILES_JSON} ${FILES_TEXT} $<TARGET_OBJECTS:vkconfig_test_resources>)
     set_target_properties(${TEST_NAME} PROPERTIES FOLDER "vkconfig/tests")
+
     if(Qt6_FOUND)
-      target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest GTest::gtest_main Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
+      target_link_libraries(${TEST_NAME} vkconfig-core Vulkan::LayerSettings GTest::gtest_main Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
     endif()
 
     target_compile_definitions(${TEST_NAME} PRIVATE CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
@@ -92,6 +97,3 @@ vkConfigTest(test_type_status)
 vkConfigTest(test_type_tab)
 vkConfigTest(test_ui)
 vkConfigTest(test_vulkan)
-
-
-
