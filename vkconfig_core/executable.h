@@ -44,7 +44,7 @@ struct DefaultPath {
 struct ExecutableOptions {
     std::string label = "Default Options";
     Path working_folder;
-    std::vector<std::string> args;
+    std::string args;
     std::vector<std::string> envs;
     Path log_file;
 };
