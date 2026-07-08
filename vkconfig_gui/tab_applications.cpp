@@ -344,7 +344,7 @@ void TabApplications::on_launch_options_list_activated(int index) {
 
     ui->launch_options_dir_edit->setText(options->working_folder.AbsolutePath().c_str());
     ui->launch_options_dir_edit->setToolTip(options->working_folder.AbsolutePath().c_str());
-    ui->launch_options_args_edit->setText(Merge(options->args, " ").c_str());
+    ui->launch_options_args_edit->setText(options->args.c_str());
     ui->launch_options_envs_edit->setText(Merge(options->envs, " ").c_str());
     ui->launch_options_log_edit->setText(options->log_file.AbsolutePath().c_str());
     ui->launch_options_log_edit->setToolTip(options->log_file.AbsolutePath().c_str());
@@ -441,7 +441,7 @@ void TabApplications::on_launch_options_args_textEdited(const QString& text) {
     Executable* executable = configurator.executables.GetActiveExecutable();
     ExecutableOptions* options = executable->GetActiveOptions();
 
-    options->args = SplitArgs(text.toStdString());
+    options->args = text.toStdString();
 }
 
 void TabApplications::on_launch_options_envs_textEdited(const QString& text) {
@@ -547,10 +547,7 @@ void TabApplications::on_launch_button_pressed() {
     }
 
     if (!options->args.empty()) {
-        launch_log += "- Command-line Arguments:\n";
-        for (std::size_t i = 0, n = options->args.size(); i < n; ++i) {
-            launch_log += format("  - %s\n", TrimSurroundingWhitespace(options->args[i]).c_str());
-        }
+        launch_log += format("- Command-line Arguments: %s\n", options->args.c_str());
     }
 
     if (!options->envs.empty()) {
@@ -602,13 +599,7 @@ void TabApplications::on_launch_button_pressed() {
         envs.append(env.c_str());
     }
     this->_launch_application->setEnvironment(envs);
-
-    QStringList args;
-    for (std::size_t i = 0, n = options->args.size(); i < n; ++i) {
-        std::string arg = TrimSurroundingWhitespace(options->args[i]);
-        args.append(arg.c_str());
-    }
-    this->_launch_application->setArguments(args);
+    this->_launch_application->setArguments(QProcess::splitCommand(QString(options->args.c_str())));
 
     this->ui->launch_button->setText("Terminate");
     this->_launch_application->start(QIODevice::ReadOnly | QIODevice::Unbuffered);

@@ -169,7 +169,7 @@ Executable::Executable(const DefaultExecutable& default_executable) {
             } else {
                 options.working_folder = default_executable.options[i].working_folder;
             }
-            options.args = SplitSpace(default_executable.options[i].args);
+            options.args = default_executable.options[i].args;
             options.envs = SplitSpace(default_executable.options[i].envs);
 
             // On all operating systems, but Windows we keep running into problems with this ending up

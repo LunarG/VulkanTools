@@ -123,12 +123,16 @@ static const DefaultExecutable defaults_executables[] = {
      "vkcube",
      true,
      {{"Simple Launch", "", "--suppress_popups", ""},
+      {"Help", "", "--help", ""},
+      {"Frame count", "", "--suppress_popups --c 100", ""},
       {"API Validated Launch", "", "--suppress_popups --validate", ""},
       {"Env Validated Launch", "", "--suppress_popups", "VK_LOADER_LAYERS_ENABLE=*validation"}}},
     {GetExecutable(EXECUTABLE_VKCUBEPP),
      "vkcubepp",
      true,
      {{"Simple Launch", "", "--suppress_popups", ""},
+      {"Help", "", "--help", ""},
+      {"Frame count", "", "--suppress_popups --c 100", ""},
       {"API Validated Launch", "", "--suppress_popups --validate", ""},
       {"Env Validated Launch", "", "--suppress_popups", "VK_LOADER_LAYERS_ENABLE=*validation"}}},
     {GetExecutable(EXECUTABLE_VKINFO),
@@ -195,14 +199,20 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object, ConfiguratorMo
             executable_options.label = json_options_object.value("label").toString().toStdString();
             executable_options.working_folder = json_options_object.value("working_folder").toString().toStdString();
 
-            std::vector<std::string> args;
-            const QJsonArray& json_command_lines_array = json_options_object.value("arguments").toArray();
-            for (int k = 0, p = json_command_lines_array.size(); k < p; ++k) {
-                args.push_back(json_command_lines_array[k].toString().toStdString());
+            std::string args;
+            if (json_options_object.value("arguments").isArray()) {
+                std::vector<std::string> tmp;
+
+                const QJsonArray& json_command_lines_array = json_options_object.value("arguments").toArray();
+                for (int k = 0, p = json_command_lines_array.size(); k < p; ++k) {
+                    tmp.push_back(json_command_lines_array[k].toString().toStdString());
+                }
+
+                args = Merge(tmp, " ");
+            } else {
             }
-            // Workaround to resolved badly stored arguments when we were using SplitSpace instead of SplitArgs to fill the
-            // executable arguments option in the UI
-            executable_options.args = SplitArgs(Merge(args, " "));
+
+            executable_options.args = args;
 
             const QJsonArray& json_environment_variables_array = json_options_object.value("environment_variables").toArray();
             for (int k = 0, p = json_environment_variables_array.size(); k < p; ++k) {
@@ -254,11 +264,6 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
         for (std::size_t j = 0, o = options_list.size(); j < o; ++j) {
             const ExecutableOptions& options = options_list[j];
 
-            QJsonArray json_arg_array;
-            for (std::size_t k = 0, p = options.args.size(); k < p; ++k) {
-                json_arg_array.append(options.args[k].c_str());
-            }
-
             QJsonArray json_env_array;
             for (std::size_t k = 0, p = options.envs.size(); k < p; ++k) {
                 json_env_array.append(TrimSurroundingWhitespace(options.envs[k], " \t\n\r").c_str());
@@ -267,7 +272,7 @@ bool ExecutableManager::Save(QJsonObject& json_root_object) const {
             QJsonObject json_option_object;
             json_option_object.insert("label", options.label.c_str());
             json_option_object.insert("working_folder", options.working_folder.RelativePath().c_str());
-            json_option_object.insert("arguments", json_arg_array);
+            json_option_object.insert("arguments", options.args.c_str());
             json_option_object.insert("environment_variables", json_env_array);
             json_option_object.insert("log_file", options.log_file.RelativePath().c_str());
 
