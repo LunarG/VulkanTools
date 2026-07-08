@@ -185,7 +185,7 @@ TEST(test_executable, DefaultExecutable) {
     EXPECT_STREQ(options->working_folder.RelativePath().c_str(),
                  Path("/Applications/vkcube.app/Contents/MacOS").RelativePath().c_str());
 #endif
-    EXPECT_STREQ(options->args[0].c_str(), "--suppress_popups");
+    EXPECT_STREQ(options->args.c_str(), "--suppress_popups");
     EXPECT_TRUE(options->envs.empty());
     EXPECT_STREQ(options->log_file.RelativePath().c_str(), Path("${VULKAN_HOME}/vkcube.txt").RelativePath().c_str());
 
