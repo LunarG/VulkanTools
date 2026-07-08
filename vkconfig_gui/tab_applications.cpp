@@ -30,7 +30,7 @@
 #include <QDesktopServices>
 #include <QShortcut>
 
-static void PathInvalid(const Path &path, const char *message) {
+static void PathInvalid(const Path& path, const char* message) {
     const std::string text = format("'%s' is not a valid path.", path.AbsolutePath().c_str());
 
     QMessageBox alert;
@@ -41,7 +41,7 @@ static void PathInvalid(const Path &path, const char *message) {
     alert.exec();
 }
 
-TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
+TabApplications::TabApplications(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui)
     : Tab(TAB_APPLICATIONS, window, ui),
       _launch_application(new QProcess(this)),
       timer_search(new QTimer(this)),
@@ -85,18 +85,18 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     this->connect(this->ui->launch_search_next, SIGNAL(clicked()), this, SLOT(on_search_next_pressed()));
     this->connect(this->ui->launch_search_prev, SIGNAL(clicked()), this, SLOT(on_search_prev_pressed()));
     this->connect(this->ui->launch_log_text, SIGNAL(customContextMenuRequested(QPoint)), this,
-                  SLOT(on_context_menu(const QPoint &)));
+                  SLOT(on_context_menu(const QPoint&)));
     this->connect(this->ui->launch_search_case, SIGNAL(toggled(bool)), this, SLOT(on_search_case_toggled(bool)));
     this->connect(this->ui->launch_search_whole, SIGNAL(toggled(bool)), this, SLOT(on_search_whole_toggled(bool)));
     this->connect(this->ui->launch_search_regex, SIGNAL(toggled(bool)), this, SLOT(on_search_regex_toggled(bool)));
     this->connect(this->timer_search, &QTimer::timeout, this, &TabApplications::on_timer_search);
     this->connect(this->timer_stream, &QTimer::timeout, this, &TabApplications::on_timer_stream);
 
-    QShortcut *shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->launch_log_text);
+    QShortcut* shortcut_search = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F), this->ui->launch_log_text);
     this->connect(shortcut_search, SIGNAL(activated()), this, SLOT(on_focus_search()));
-    QShortcut *shortcut_next = new QShortcut(QKeySequence(Qt::Key_F3), this->ui->launch_log_text);
+    QShortcut* shortcut_next = new QShortcut(QKeySequence(Qt::Key_F3), this->ui->launch_log_text);
     this->connect(shortcut_next, SIGNAL(activated()), this, SLOT(on_search_next_pressed()));
-    QShortcut *shortcut_prev = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3), this->ui->launch_log_text);
+    QShortcut* shortcut_prev = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3), this->ui->launch_log_text);
     this->connect(shortcut_prev, SIGNAL(activated()), this, SLOT(on_search_prev_pressed()));
     /*
         QShortcut *shortcut_case = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_C), this->ui->launch_search_case);
@@ -127,7 +127,8 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
     // this->ui->launch_log_text->document()->setMaximumBlockCount(1024);
     this->ui->launch_log_text->moveCursor(QTextCursor::End);
 
-    this->ui->launch_options_args_edit->setToolTip("Eg: '--argA --argB=valueB \"--argC=value C\" --argD=\"value D\"'");
+    this->ui->launch_options_args_edit->setToolTip(
+        "Eg: '--argA --argB=valueB \"--argC=value C\" --argD=\"value D\"' --argE valueE \"--argF\" argG");
     this->ui->launch_options_envs_edit->setToolTip("Eg: 'ENV_A= ENV_B=ValueB \"ENV_C=Value C\" ENV_D=\"Value D\"'");
 
     this->connect(this->_launch_application.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(standardOutputAvailable()));
@@ -136,7 +137,7 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
                   SLOT(processClosed(int, QProcess::ExitStatus)));
 
     // Dummy first launch so that following Vulkan Loader logging work...
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     int active_index = configurator.executables.GetActiveExecutableIndex();
 
     int vulkan_info = configurator.executables.GetVulkanInfoIndex();
@@ -153,9 +154,9 @@ TabApplications::TabApplications(MainWindow &window, std::shared_ptr<Ui::MainWin
 TabApplications::~TabApplications() { this->ResetLaunchApplication(); }
 
 void TabApplications::UpdateUI(UpdateUIMode mode) {
-    const Configurator &configurator = Configurator::Get();
+    const Configurator& configurator = Configurator::Get();
 
-    const std::vector<Executable> &executables = configurator.executables.GetExecutables();
+    const std::vector<Executable>& executables = configurator.executables.GetExecutables();
 
     this->ui->launch_executable_search->setEnabled(!configurator.executables.Empty());
     this->ui->launch_executable_remove->setEnabled(!configurator.executables.Empty());
@@ -186,7 +187,7 @@ void TabApplications::UpdateUI(UpdateUIMode mode) {
 
 void TabApplications::CleanUI() { this->ResetLaunchApplication(); }
 
-bool TabApplications::EventFilter(QObject *target, QEvent *event) {
+bool TabApplications::EventFilter(QObject* target, QEvent* event) {
     (void)target;
     /*
     if (event->type() == QEvent::KeyPress) {
@@ -204,11 +205,11 @@ bool TabApplications::EventFilter(QObject *target, QEvent *event) {
 }
 
 void TabApplications::on_launch_executable_search_pressed() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    const std::string &path = configurator.executables.GetActiveExecutable()->path.AbsolutePath();
+    const std::string& path = configurator.executables.GetActiveExecutable()->path.AbsolutePath();
 
-    const QString &selected_path =
+    const QString& selected_path =
         QFileDialog::getOpenFileName(&this->window, "Executable Path", path.c_str(), ::GetExecutableFilter());
 
     if (selected_path.isEmpty()) {
@@ -224,10 +225,10 @@ void TabApplications::on_launch_executable_search_pressed() {
 }
 
 void TabApplications::on_launch_executable_append_pressed() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    const Path &path = configurator.executables.last_path_executable;
-    const Path &selected_path =
+    const Path& path = configurator.executables.last_path_executable;
+    const Path& selected_path =
         QFileDialog::getOpenFileName(&this->window, "Executable Path", path.AbsolutePath().c_str(), ::GetExecutableFilter())
             .toStdString();
 
@@ -243,8 +244,8 @@ void TabApplications::on_launch_executable_append_pressed() {
 }
 
 void TabApplications::on_launch_executable_remove_pressed() {
-    Configurator &configurator = Configurator::Get();
-    const Executable *executable = configurator.executables.GetActiveExecutable();
+    Configurator& configurator = Configurator::Get();
+    const Executable* executable = configurator.executables.GetActiveExecutable();
     assert(executable != nullptr);
 
     if (!(configurator.Get(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE))) {
@@ -278,10 +279,10 @@ void TabApplications::on_launch_executable_remove_pressed() {
 }
 
 void TabApplications::on_launch_executable_list_activated(int index) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.executables.SetActiveExecutable(index);
 
-    const Executable *executable = configurator.executables.GetActiveExecutable();
+    const Executable* executable = configurator.executables.GetActiveExecutable();
 
     if (executable != nullptr) {
         this->ui->launch_executable_list->setToolTip(executable->path.AbsolutePath().c_str());
@@ -309,12 +310,12 @@ void TabApplications::on_launch_executable_list_activated(int index) {
     this->RebuildOptions();
 }
 
-void TabApplications::on_launch_executable_list_textEdited(const QString &text) {
-    Configurator &configurator = Configurator::Get();
+void TabApplications::on_launch_executable_list_textEdited(const QString& text) {
+    Configurator& configurator = Configurator::Get();
 
     int index = configurator.executables.GetActiveExecutableIndex();
 
-    Executable *executable = configurator.executables.GetActiveExecutable();
+    Executable* executable = configurator.executables.GetActiveExecutable();
     if (executable != nullptr) {
         executable->path = text.toStdString();
     }
@@ -329,17 +330,17 @@ void TabApplications::on_launch_executable_list_textEdited(const QString &text) 
 }
 
 void TabApplications::on_launch_options_list_activated(int index) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.Surrender(OVERRIDE_AREA_ALL);
 
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    const std::vector<ExecutableOptions> &options_list = executable->GetOptions();
+    Executable* executable = configurator.executables.GetActiveExecutable();
+    const std::vector<ExecutableOptions>& options_list = executable->GetOptions();
 
     executable->SetActiveOptions(options_list[index].label);
 
     configurator.Override(OVERRIDE_AREA_ALL);
 
-    const ExecutableOptions *options = executable->GetActiveOptions();
+    const ExecutableOptions* options = executable->GetActiveOptions();
 
     ui->launch_options_dir_edit->setText(options->working_folder.AbsolutePath().c_str());
     ui->launch_options_dir_edit->setToolTip(options->working_folder.AbsolutePath().c_str());
@@ -352,8 +353,8 @@ void TabApplications::on_launch_options_list_activated(int index) {
 void TabApplications::on_launch_options_list_finished() {
     std::string new_text = this->ui->launch_options_list->lineEdit()->text().toStdString();
 
-    Configurator &configurator = Configurator::Get();
-    Executable *executable = configurator.executables.GetActiveExecutable();
+    Configurator& configurator = Configurator::Get();
+    Executable* executable = configurator.executables.GetActiveExecutable();
     executable->RenameActiveOptions(new_text);
 
     this->RebuildOptions();
@@ -361,8 +362,8 @@ void TabApplications::on_launch_options_list_finished() {
 }
 
 void TabApplications::on_launch_options_append_pressed() {
-    Configurator &configurator = Configurator::Get();
-    Executable *executable = configurator.executables.GetActiveExecutable();
+    Configurator& configurator = Configurator::Get();
+    Executable* executable = configurator.executables.GetActiveExecutable();
 
     executable->DuplicateActiveOptions();
 
@@ -371,8 +372,8 @@ void TabApplications::on_launch_options_append_pressed() {
 }
 
 void TabApplications::on_launch_options_remove_pressed() {
-    Configurator &configurator = Configurator::Get();
-    Executable *executable = configurator.executables.GetActiveExecutable();
+    Configurator& configurator = Configurator::Get();
+    Executable* executable = configurator.executables.GetActiveExecutable();
     assert(executable != nullptr);
 
     if (!(configurator.Get(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE_OPTIONS))) {
@@ -406,11 +407,11 @@ void TabApplications::on_launch_options_remove_pressed() {
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabApplications::on_launch_options_dir_textEdited(const QString &text) {
-    Configurator &configurator = Configurator::Get();
+void TabApplications::on_launch_options_dir_textEdited(const QString& text) {
+    Configurator& configurator = Configurator::Get();
 
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    ExecutableOptions *options = executable->GetActiveOptions();
+    Executable* executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions* options = executable->GetActiveOptions();
 
     options->working_folder = text.toStdString();
 
@@ -418,10 +419,10 @@ void TabApplications::on_launch_options_dir_textEdited(const QString &text) {
 }
 
 void TabApplications::on_launch_options_dir_pressed() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    ExecutableOptions *options = executable->GetActiveOptions();
+    Executable* executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions* options = executable->GetActiveOptions();
 
     const QString selected_path = QFileDialog::getExistingDirectory(
         this->ui->launch_options_dir_button, "Select Working Directory...", options->working_folder.AbsolutePath().c_str());
@@ -434,39 +435,39 @@ void TabApplications::on_launch_options_dir_pressed() {
     configurator.Override(OVERRIDE_AREA_ALL);
 }
 
-void TabApplications::on_launch_options_args_textEdited(const QString &text) {
-    Configurator &configurator = Configurator::Get();
+void TabApplications::on_launch_options_args_textEdited(const QString& text) {
+    Configurator& configurator = Configurator::Get();
 
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    ExecutableOptions *options = executable->GetActiveOptions();
+    Executable* executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions* options = executable->GetActiveOptions();
 
     options->args = SplitArgs(text.toStdString());
 }
 
-void TabApplications::on_launch_options_envs_textEdited(const QString &text) {
-    Configurator &configurator = Configurator::Get();
+void TabApplications::on_launch_options_envs_textEdited(const QString& text) {
+    Configurator& configurator = Configurator::Get();
 
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    ExecutableOptions *options = executable->GetActiveOptions();
+    Executable* executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions* options = executable->GetActiveOptions();
 
     options->envs = SplitSpace(text.toStdString());
 }
 
-void TabApplications::on_launch_options_log_textEdited(const QString &text) {
-    Configurator &configurator = Configurator::Get();
+void TabApplications::on_launch_options_log_textEdited(const QString& text) {
+    Configurator& configurator = Configurator::Get();
 
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    ExecutableOptions *options = executable->GetActiveOptions();
+    Executable* executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions* options = executable->GetActiveOptions();
 
     options->log_file = text.toStdString();
 }
 
 void TabApplications::on_launch_options_log_pressed() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    ExecutableOptions *options = executable->GetActiveOptions();
-    const std::string &log = options->log_file.AbsolutePath();
+    Executable* executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions* options = executable->GetActiveOptions();
+    const std::string& log = options->log_file.AbsolutePath();
 
     const QString selected_path =
         QFileDialog::getSaveFileName(this->ui->launch_options_log_button, "Select Log file...", log.c_str(), "Log (*.txt)");
@@ -478,10 +479,10 @@ void TabApplications::on_launch_options_log_pressed() {
 }
 
 void TabApplications::on_launch_options_log_open_pressed() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    Executable *executable = configurator.executables.GetActiveExecutable();
-    ExecutableOptions *options = executable->GetActiveOptions();
+    Executable* executable = configurator.executables.GetActiveExecutable();
+    ExecutableOptions* options = executable->GetActiveOptions();
 
     if (!options->log_file.Exists()) {
         options->log_file.Create(true);
@@ -502,7 +503,7 @@ void TabApplications::on_launch_clear_log_pressed() {
 }
 
 void TabApplications::on_launch_stdout_display_changed(int index) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.stdout_display = static_cast<StdoutDisplay>(index);
 }
 
@@ -515,7 +516,7 @@ void TabApplications::on_launch_button_pressed() {
         }
     }
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     if (configurator.stdout_display == STDOUT_DISPLAY_ON_EXIT) {
         this->ui->launch_log_text->document()->setMaximumBlockCount(32768);
@@ -528,7 +529,7 @@ void TabApplications::on_launch_button_pressed() {
     // We are logging, let's add that we've launched a new application
     std::string launch_log = "Launching Vulkan Application:\n";
 
-    const Executable *active_executable = configurator.executables.GetActiveExecutable();
+    const Executable* active_executable = configurator.executables.GetActiveExecutable();
 
     assert(!active_executable->path.Empty());
     launch_log += format("- Executable: %s\n", active_executable->path.AbsolutePath().c_str());
@@ -537,7 +538,7 @@ void TabApplications::on_launch_button_pressed() {
                       format("The '%s' application will fail to launch.", active_executable->path.AbsolutePath().c_str()).c_str());
     }
 
-    const ExecutableOptions *options = active_executable->GetActiveOptions();
+    const ExecutableOptions* options = active_executable->GetActiveOptions();
 
     launch_log += format("- Working Directory: %s\n", options->working_folder.AbsolutePath().c_str());
     if (!options->working_folder.Empty() && !options->working_folder.Exists()) {
@@ -624,10 +625,10 @@ void TabApplications::on_launch_button_pressed() {
 }
 
 void TabApplications::EnableOptions() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     const bool executable_enabled = !configurator.executables.Empty();
 
-    const Executable *executable = configurator.executables.GetActiveExecutable();
+    const Executable* executable = configurator.executables.GetActiveExecutable();
     const bool options_enabled = executable_enabled && (executable == nullptr ? false : !executable->GetOptions().empty());
 
     this->ui->launch_button->setEnabled(executable_enabled);
@@ -655,8 +656,8 @@ void TabApplications::EnableOptions() {
 }
 
 void TabApplications::RebuildOptions() {
-    Configurator &configurator = Configurator::Get();
-    const Executable *executable = configurator.executables.GetActiveExecutable();
+    Configurator& configurator = Configurator::Get();
+    const Executable* executable = configurator.executables.GetActiveExecutable();
 
     this->ui->launch_options_list->blockSignals(true);
     this->ui->launch_options_list->clear();
@@ -700,7 +701,7 @@ void TabApplications::processClosed(int exit_code, QProcess::ExitStatus status) 
     if (this->_log_file.isOpen()) {
         this->_log_file.close();
 
-        Configurator &configurator = Configurator::Get();
+        Configurator& configurator = Configurator::Get();
         if (configurator.stdout_display == STDOUT_DISPLAY_ON_EXIT) {
             this->_log_file.open(QIODevice::ReadOnly | QIODevice::Text);
             this->ui->launch_log_text->setPlainText(this->_log_file.readAll());
@@ -740,11 +741,11 @@ void TabApplications::on_timer_stream() {
     this->stream_text.clear();
 }
 
-void TabApplications::Log(const QString &log, bool flush) {
+void TabApplications::Log(const QString& log, bool flush) {
     this->ui->launch_search_edit->setEnabled(true);
     this->ui->launch_clear_log->setEnabled(true);
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     if (configurator.stdout_display == STDOUT_DISPLAY_STREAM || flush) {
         this->ui->launch_log_text->insertPlainText(log);
         this->ui->launch_log_text->moveCursor(QTextCursor::End);
@@ -774,7 +775,7 @@ void TabApplications::on_timer_search() {
     }
 }
 
-void TabApplications::on_search_textEdited(const QString &text) {
+void TabApplications::on_search_textEdited(const QString& text) {
     this->timer_search->start(200);
 
     this->search_text = text.toStdString();
@@ -904,22 +905,22 @@ void TabApplications::on_search_regex_toggled(bool checked) {
     this->ui->launch_log_text->setFocus();
 }
 
-void TabApplications::on_context_menu(const QPoint &pos) {
-    QMenu *menu = this->ui->launch_log_text->createStandardContextMenu();
+void TabApplications::on_context_menu(const QPoint& pos) {
+    QMenu* menu = this->ui->launch_log_text->createStandardContextMenu();
     menu->addSeparator();
 
-    QAction *action_clear = new QAction("Clear", nullptr);
+    QAction* action_clear = new QAction("Clear", nullptr);
     action_clear->setEnabled(true);
     menu->addAction(action_clear);
 
     menu->addSeparator();
 
-    QAction *action_search = new QAction("Search...", nullptr);
+    QAction* action_search = new QAction("Search...", nullptr);
     action_search->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
     action_search->setEnabled(true);
     menu->addAction(action_search);
 
-    QAction *action = menu->exec(this->ui->launch_log_text->mapToGlobal(pos));
+    QAction* action = menu->exec(this->ui->launch_log_text->mapToGlobal(pos));
 
     if (action == action_clear) {
         this->on_launch_clear_log_pressed();

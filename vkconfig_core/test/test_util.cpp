@@ -232,6 +232,22 @@ TEST(test_util, split_args_multiple_mix) {
     EXPECT_STREQ("--features=\"bevy_solari https free_camera\"", split_arg[3].c_str());
 }
 
+TEST(test_util, split_args_multiple_mix_equal_space) {
+    const std::string source_arg =
+        "cargo run --argA --argB=valueB \"--argC=value C\" --argD=\"value D\" --argE valueE \"--argF\" argG";
+    const std::vector<std::string> split_arg = SplitArgs(source_arg);
+    EXPECT_EQ(9, split_arg.size());
+    EXPECT_STREQ("cargo", split_arg[0].c_str());
+    EXPECT_STREQ("run", split_arg[1].c_str());
+    EXPECT_STREQ("--argA", split_arg[2].c_str());
+    EXPECT_STREQ("--argB=valueB", split_arg[3].c_str());
+    EXPECT_STREQ("--argC=value C", split_arg[4].c_str());
+    EXPECT_STREQ("--argD=\"value D\"", split_arg[5].c_str());
+    EXPECT_STREQ("--argE valueE", split_arg[6].c_str());
+    EXPECT_STREQ("--argF", split_arg[7].c_str());
+    EXPECT_STREQ("argG", split_arg[8].c_str());
+}
+
 TEST(test_util, split_arg_default) {
     const std::string source_arg = "--argA --argB=valueB \"--argC=value C\" --argD=\"value D\"";
     const std::vector<std::string> split_arg = SplitSpace(source_arg);
