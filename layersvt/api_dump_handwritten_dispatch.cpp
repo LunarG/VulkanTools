@@ -60,6 +60,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
     if (device_func) return device_func;
 
     // Haven't created an instance yet, exit now since there is no instance_dispatch_table
+    if (instance == VK_NULL_HANDLE) return nullptr;
     if (instance_dispatch_table(instance)->GetInstanceProcAddr == NULL) return nullptr;
     return instance_dispatch_table(instance)->GetInstanceProcAddr(instance, pName);
 }
@@ -80,6 +81,7 @@ EXPORT_FUNCTION VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkD
     if (device_func) return device_func;
 
     // Haven't created a device yet, exit now since there is no device_dispatch_table
+    if (device == VK_NULL_HANDLE) return nullptr;
     if (device_dispatch_table(device)->GetDeviceProcAddr == NULL) return nullptr;
     return device_dispatch_table(device)->GetDeviceProcAddr(device, pName);
 }
