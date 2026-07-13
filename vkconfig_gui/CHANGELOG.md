@@ -4,6 +4,7 @@
 - Fix dark mode message on Linux showing when not expected
 - Fix configuration duplication and directly changing setting crash #2687
 - Fix launcher arg parsing
+- Fix implicit layers right click crash
 
 ## Vulkan Configurator 3.5.0 - May 2026
 [Vulkan SDK 1.4.350.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.350)
