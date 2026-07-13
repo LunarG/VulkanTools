@@ -1,4 +1,5 @@
 ## Vulkan Configurator 3.5.1 - July 2026
+[Vulkan SDK 1.4.357.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.357)
 
 ### Fixes:
 - Fix dark mode message on Linux showing when not expected
