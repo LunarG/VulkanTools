@@ -43,7 +43,7 @@ static std::string BuildPlatformsLog(int platforms) {
     if (platforms != 0) {
         log += "Platforms: ";
 
-        const std::vector<std::string> &list = GetPlatformTokens(platforms);
+        const std::vector<std::string>& list = GetPlatformTokens(platforms);
         for (std::size_t i = 0, n = list.size(); i < n; ++i) {
             log += list[i];
             if (i < n - 1) {
@@ -57,7 +57,7 @@ static std::string BuildPlatformsLog(int platforms) {
     return log;
 }
 
-static std::string BuildPropertiesLog(const Layer &layer) {
+static std::string BuildPropertiesLog(const Layer& layer) {
     std::string description;
     if (!layer.description.empty()) {
         description += layer.description + "\n";
@@ -76,7 +76,7 @@ static std::string BuildPropertiesLog(const Layer &layer) {
     return description;
 }
 
-TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui)
+TabConfigurations::TabConfigurations(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui)
     : Tab(TAB_CONFIGURATIONS, window, ui), _settings_tree_manager(ui) {
     this->ui->configurations_list->installEventFilter(&window);
     this->ui->configurations_layers_list->installEventFilter(&window);
@@ -100,10 +100,10 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->connect(this->ui->configurations_group_box_settings, SIGNAL(toggled(bool)), this,
                   SLOT(on_configurations_layers_settings_toggled(bool)));
 
-    this->connect(this->ui->configurations_list, SIGNAL(itemChanged(QListWidgetItem *)), this,
-                  SLOT(on_configurations_list_itemChanged(QListWidgetItem *)));
-    this->connect(this->ui->configurations_list, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this,
-                  SLOT(on_configurations_list_itemDoubleClicked(QListWidgetItem *)));
+    this->connect(this->ui->configurations_list, SIGNAL(itemChanged(QListWidgetItem*)), this,
+                  SLOT(on_configurations_list_itemChanged(QListWidgetItem*)));
+    this->connect(this->ui->configurations_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this,
+                  SLOT(on_configurations_list_itemDoubleClicked(QListWidgetItem*)));
     this->connect(this->ui->configurations_list, SIGNAL(currentRowChanged(int)), this,
                   SLOT(on_configurations_list_currentRowChanged(int)));
 
@@ -119,7 +119,7 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
         settings.value("vkconfig3/mainwindow/splitter_configurations_state").toByteArray());
     this->ui->splitter_settings->restoreState(settings.value("vkconfig3/mainwindow/splitter_settings_state").toByteArray());
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     this->ui->configurations_group_box_scope->blockSignals(true);
     this->ui->configurations_group_box_scope->setVisible(configurator.configuration_show_scope ||
@@ -154,7 +154,7 @@ TabConfigurations::TabConfigurations(MainWindow &window, std::shared_ptr<Ui::Mai
     this->connect(this->layer_display_mode, SIGNAL(currentIndexChanged(int)), this,
                   SLOT(on_configurations_layers_display_currentIndexChanged(int)));
 
-    QShortcut *shortcut_override =
+    QShortcut* shortcut_override =
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Space), this->ui->configurations_group_box_override);
     this->connect(shortcut_override, SIGNAL(activated()), this, SLOT(on_configurations_override_toggled()));
 
@@ -171,8 +171,8 @@ TabConfigurations::~TabConfigurations() {
 void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
     (void)mode;
 
-    Configurator &configurator = Configurator::Get();
-    const Executable *executable = configurator.GetActiveExecutable();
+    Configurator& configurator = Configurator::Get();
+    const Executable* executable = configurator.GetActiveExecutable();
 
     this->ui->configurations_executable_scope->blockSignals(true);
     this->ui->configurations_executable_scope->setCurrentIndex(configurator.GetExecutableScope());
@@ -188,7 +188,7 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
     int current_row = -1;
 
     for (std::size_t i = 0, n = configurator.configurations.available_configurations.size(); i < n; ++i) {
-        const Configuration &configuration = configurator.configurations.available_configurations[i];
+        const Configuration& configuration = configurator.configurations.available_configurations[i];
 
         std::vector<std::string> missing_layers;
         const bool has_missing_layer = configuration.HasMissingLayer(configurator.layers, missing_layers);
@@ -200,7 +200,7 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
             configuration_tooltip += ")";
         }
 
-        ListItem *item = new ListItem(configuration.key.c_str());
+        ListItem* item = new ListItem(configuration.key.c_str());
         item->setFlags(item->flags() | Qt::ItemIsEditable);
         item->setText(configuration.key.c_str());
 
@@ -230,16 +230,16 @@ void TabConfigurations::UpdateUI_Configurations(UpdateUIMode mode) {
 }
 
 void TabConfigurations::UpdateUI_Applications(UpdateUIMode ui_update_mode) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    const std::vector<Executable> &executables = configurator.executables.GetExecutables();
+    const std::vector<Executable>& executables = configurator.executables.GetExecutables();
 
     this->ui->configurations_executable_list->blockSignals(true);
 
     if (ui_update_mode == UPDATE_REBUILD_UI) {
         this->ui->configurations_executable_list->clear();
         for (std::size_t i = 0, n = executables.size(); i < n; ++i) {
-            const Executable &executable = executables[i];
+            const Executable& executable = executables[i];
 
             this->ui->configurations_executable_list->addItem(executable.path.RelativePath().c_str());
         }
@@ -258,19 +258,19 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
     this->ui->configurations_layers_list->blockSignals(true);
     this->ui->configurations_layers_list->clear();
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     this->ui->configurations_group_box_layers->setEnabled(configurator.HasEnabledUI(ENABLE_UI_LAYERS));
     this->ui->execute_closer_application_label->setVisible(configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY);
     this->ui->execute_closer_driver_label->setVisible(configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY);
     this->ui->configurations_layers_list->setDragEnabled(configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY);
 
-    Configuration *configuration = configurator.GetActiveConfiguration();
+    Configuration* configuration = configurator.GetActiveConfiguration();
     if (configuration != nullptr) {
         bool selected_layer = configuration->selected_layer_name.empty();
         bool first_implicit_layer = true;
 
         for (std::size_t i = 0, n = configuration->parameters.size(); i < n; ++i) {
-            Parameter &parameter = configuration->parameters[i];
+            Parameter& parameter = configuration->parameters[i];
 
             switch (configurator.layers_display_mode) {
                 default:
@@ -288,7 +288,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                         if (first_implicit_layer) {
                             first_implicit_layer = false;
 
-                            QListWidgetItem *item = new ListItem(implicit_layers);
+                            QListWidgetItem* item = new ListItem(implicit_layers);
                             item->setFlags(item->flags() | Qt::ItemIsSelectable);
                             item->setSizeHint(QSize(0, ITEM_HEIGHT));
                             if (configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY) {
@@ -296,7 +296,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                             }
                             this->ui->configurations_layers_list->addItem(item);
 
-                            QLabel *layer_widget = new QLabel("Vulkan Implicit Layers Located by Vulkan Configurator");
+                            QLabel* layer_widget = new QLabel("Vulkan Implicit Layers Located by Vulkan Configurator");
                             this->ui->configurations_layers_list->setItemWidget(item, layer_widget);
                         }
                         continue;
@@ -305,7 +305,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
                 }
             }
 
-            QListWidgetItem *item = new ListItem(parameter.key.c_str());
+            QListWidgetItem* item = new ListItem(parameter.key.c_str());
             item->setFlags(item->flags() | Qt::ItemIsSelectable);
             item->setSizeHint(QSize(0, ITEM_HEIGHT));
             if (configurator.layers_display_mode != LAYERS_DISPLAY_ENABLED_ONLY) {
@@ -313,7 +313,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
             }
             this->ui->configurations_layers_list->addItem(item);
 
-            ConfigurationLayerWidget *layer_widget = new ConfigurationLayerWidget(this, parameter);
+            ConfigurationLayerWidget* layer_widget = new ConfigurationLayerWidget(this, parameter);
 
             this->ui->configurations_layers_list->setItemWidget(item, layer_widget);
             if (configuration->selected_layer_name == parameter.key) {
@@ -336,7 +336,7 @@ void TabConfigurations::UpdateUI_Layers(UpdateUIMode mode) {
 void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
     (void)mode;
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     if (configurator.GetActiveConfiguration() == nullptr) {
         this->_settings_tree_manager.CleanupGUI();
@@ -344,7 +344,7 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
         this->_settings_tree_manager.CreateGUI();
     }
 
-    const Parameter *parameter = configurator.GetActiveParameter();
+    const Parameter* parameter = configurator.GetActiveParameter();
     if (parameter != nullptr) {
         if (configurator.GetActiveConfiguration()->override_settings) {
             this->ui->configurations_group_box_settings->setToolTip("Disabled: Use External Layerd Settings file is enabled");
@@ -356,7 +356,7 @@ void TabConfigurations::UpdateUI_Settings(UpdateUIMode mode) {
 }
 
 void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
-    const Configurator &configurator = Configurator::Get();
+    const Configurator& configurator = Configurator::Get();
 
     this->ui->configurations_group_box_override->blockSignals(true);
     this->ui->configurations_group_box_override->setChecked(configurator.layers_override_enabled);
@@ -372,7 +372,7 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     const bool enabled_executable = ::EnabledExecutables(scope);
 
     if (enabled_executable) {
-        const Executable *executable = configurator.GetActiveExecutable();
+        const Executable* executable = configurator.GetActiveExecutable();
 
         if (executable != nullptr) {
             const std::string path = executable->path.RelativePath();
@@ -407,7 +407,7 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->ui->configurations_group_box_list->blockSignals(true);
     this->ui->configurations_group_box_list->setEnabled(configurator.HasEnabledUI(ENABLE_UI_CONFIG));
     this->ui->configurations_group_box_list->setCheckable(enabled_executable);
-    const Executable *executable = configurator.executables.GetActiveExecutable();
+    const Executable* executable = configurator.executables.GetActiveExecutable();
     if (executable != nullptr) {
         this->ui->configurations_group_box_list->setChecked(executable->enabled);
     }
@@ -418,7 +418,7 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
 
 void TabConfigurations::CleanUI() { this->_settings_tree_manager.CleanupGUI(); }
 
-bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
+bool TabConfigurations::EventFilter(QObject* target, QEvent* event) {
     if (target == nullptr || event == nullptr) {
         return true;
     }
@@ -429,15 +429,15 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
         return true;
     }
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     if (target == this->ui->configurations_layers_list && event_type == QEvent::ChildRemoved) {
         // Layers were reordered, we need to update the configuration
 
         std::vector<std::string> layer_names;
         for (int i = 0, n = this->ui->configurations_layers_list->count(); i < n; ++i) {
-            QListWidgetItem *item = this->ui->configurations_layers_list->item(i);
-            layer_names.push_back(static_cast<ListItem *>(item)->key.c_str());
+            QListWidgetItem* item = this->ui->configurations_layers_list->item(i);
+            layer_names.push_back(static_cast<ListItem*>(item)->key.c_str());
 
             /*
             QWidget *widget = ui->configurations_layers_list->itemWidget(ui->configurations_layers_list->item(i));
@@ -450,11 +450,11 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
 */
         }
 
-        Configuration *configuration = configurator.GetActiveConfiguration();
+        Configuration* configuration = configurator.GetActiveConfiguration();
         if (configuration != nullptr) {
-            QListWidgetItem *item = this->ui->configurations_layers_list->currentItem();
+            QListWidgetItem* item = this->ui->configurations_layers_list->currentItem();
             if (item != nullptr) {
-                Parameter *parameter = configuration->Find(static_cast<ListItem *>(item)->key);
+                Parameter* parameter = configuration->Find(static_cast<ListItem*>(item)->key);
                 if (parameter != nullptr) {
                     parameter->was_explicitly_rank = true;
                 }
@@ -472,9 +472,9 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
     if (!configurator.layers_override_enabled || !ui->configurations_list->isEnabled()) {
         return false;
     } else if (target == this->ui->configurations_list) {
-        QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
+        QContextMenuEvent* right_click = dynamic_cast<QContextMenuEvent*>(event);
         if (right_click) {
-            ListItem *item = static_cast<ListItem *>(this->ui->configurations_list->itemAt(right_click->pos()));
+            ListItem* item = static_cast<ListItem*>(this->ui->configurations_list->itemAt(right_click->pos()));
 
             std::string name;
 
@@ -486,37 +486,37 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             QFont subtitle_font = menu.font();
             subtitle_font.setBold(true);
 
-            QAction *action_new = new QAction("Create a new Configuration", nullptr);
+            QAction* action_new = new QAction("Create a new Configuration", nullptr);
             action_new->setEnabled(true);
             menu.addAction(action_new);
 
-            QAction *action_import = new QAction("Import a Configuration file...", nullptr);
+            QAction* action_import = new QAction("Import a Configuration file...", nullptr);
             action_import->setEnabled(true);
             menu.addAction(action_import);
 
-            QAction *action_export_config = new QAction("Export the Configuration file...", nullptr);
+            QAction* action_export_config = new QAction("Export the Configuration file...", nullptr);
             action_export_config->setEnabled(item != nullptr);
             menu.addAction(action_export_config);
 
             menu.addSeparator();
 
-            QAction *action_rename = new QAction("Rename the Configuration", nullptr);
+            QAction* action_rename = new QAction("Rename the Configuration", nullptr);
             action_rename->setEnabled(item != nullptr);
             menu.addAction(action_rename);
 
-            QAction *action_duplicate = new QAction("Duplicate the Configuration", nullptr);
+            QAction* action_duplicate = new QAction("Duplicate the Configuration", nullptr);
             action_duplicate->setEnabled(item != nullptr);
             menu.addAction(action_duplicate);
 
-            QAction *action_delete = new QAction("Delete the Configuration", nullptr);
+            QAction* action_delete = new QAction("Delete the Configuration", nullptr);
             action_delete->setEnabled(item != nullptr);
             menu.addAction(action_delete);
 
             menu.addSeparator();
 
-            QAction *action_use_external_settings = new QAction("Use External vk_layer_settings.txt file...", nullptr);
+            QAction* action_use_external_settings = new QAction("Use External vk_layer_settings.txt file...", nullptr);
             action_use_external_settings->setCheckable(true);
-            Configuration *configuration = configurator.GetActiveConfiguration();
+            Configuration* configuration = configurator.GetActiveConfiguration();
             if (configuration != nullptr) {
                 action_use_external_settings->setChecked(configuration->override_settings);
                 if (configuration->override_settings) {
@@ -530,7 +530,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             action_use_external_settings->setEnabled(item != nullptr);
             menu.addAction(action_use_external_settings);
 
-            QAction *action_disable_external_settings = new QAction("Disable External vk_layer_settings.txt file", nullptr);
+            QAction* action_disable_external_settings = new QAction("Disable External vk_layer_settings.txt file", nullptr);
             if (configuration != nullptr) {
                 action_disable_external_settings->setEnabled(configuration->override_settings);
                 if (configuration->override_settings) {
@@ -548,17 +548,17 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 label = format(" '%s'", label.c_str());
             }
 
-            QAction *action_reset_order = new QAction(format("Reset the%s Default Layers order", label.c_str()).c_str(), nullptr);
+            QAction* action_reset_order = new QAction(format("Reset the%s Default Layers order", label.c_str()).c_str(), nullptr);
             action_reset_order->setEnabled(item != nullptr);
             action_reset_order->setToolTip("Reset the configuration, discarding all changes of this configuration.");
             menu.addAction(action_reset_order);
 
-            QAction *action_reset_one = new QAction(format("Reset the%s Default Configuration", label.c_str()).c_str(), nullptr);
+            QAction* action_reset_one = new QAction(format("Reset the%s Default Configuration", label.c_str()).c_str(), nullptr);
             action_reset_one->setEnabled(configurator.configurations.IsDefaultConfiguration(name));
             action_reset_one->setToolTip("Reset the configuration, discarding all changes of this configuration.");
             menu.addAction(action_reset_one);
 
-            QAction *action_reset_all = new QAction("Reset All Default Configurations", nullptr);
+            QAction* action_reset_all = new QAction("Reset All Default Configurations", nullptr);
             action_reset_all->setEnabled(true);
             action_reset_all->setToolTip("Reset all the default configurations, discarding all changes of these configurations.");
             menu.addAction(action_reset_all);
@@ -569,44 +569,44 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 name = format(" '%s'", name.c_str());
             }
 
-            QAction *action_export_html = new QAction(
+            QAction* action_export_html = new QAction(
                 format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_HTML)).c_str(), nullptr);
             action_export_html->setEnabled(item != nullptr);
             menu.addAction(action_export_html);
 
-            QAction *action_export_markdown = new QAction(
+            QAction* action_export_markdown = new QAction(
                 format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_MARKDOWN)).c_str(), nullptr);
             action_export_markdown->setEnabled(item != nullptr);
             menu.addAction(action_export_markdown);
 
-            QAction *action_export_settings = new QAction(
+            QAction* action_export_settings = new QAction(
                 format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_TXT)).c_str(), nullptr);
             action_export_settings->setEnabled(item != nullptr);
             menu.addAction(action_export_settings);
 
-            QAction *action_export_env_variables_bash_script = new QAction(
+            QAction* action_export_env_variables_bash_script = new QAction(
                 format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_BASH)).c_str(), nullptr);
             action_export_env_variables_bash_script->setEnabled(item != nullptr);
             menu.addAction(action_export_env_variables_bash_script);
 
-            QAction *action_export_env_variables_cmd_script = new QAction(
+            QAction* action_export_env_variables_cmd_script = new QAction(
                 format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_CMD)).c_str(), nullptr);
             action_export_env_variables_cmd_script->setEnabled(item != nullptr);
             menu.addAction(action_export_env_variables_cmd_script);
 
-            QAction *action_export_extension_code = new QAction(
+            QAction* action_export_extension_code = new QAction(
                 format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_HPP_VULKAN_H)).c_str(), nullptr);
             action_export_extension_code->setEnabled(item != nullptr);
             menu.addAction(action_export_extension_code);
 
-            QAction *action_export_extension_code_hpp = new QAction(
+            QAction* action_export_extension_code_hpp = new QAction(
                 format("Generate%s configuration %s...", name.c_str(), GetLabel(GENERATE_SETTINGS_HPP_VULKAN_HPP)).c_str(),
                 nullptr);
             action_export_extension_code_hpp->setEnabled(item != nullptr);
             menu.addAction(action_export_extension_code_hpp);
 
             QPoint point(right_click->globalX(), right_click->globalY());
-            QAction *action = menu.exec(point);
+            QAction* action = menu.exec(point);
 
             if (action == action_new) {
                 this->OnContextMenuNewClicked(item);
@@ -647,73 +647,37 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
             }
         }
     } else if (target == this->ui->configurations_layers_list) {
-        QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
+        QContextMenuEvent* right_click = dynamic_cast<QContextMenuEvent*>(event);
         if (right_click) {
-            ListItem *item = static_cast<ListItem *>(this->ui->configurations_layers_list->itemAt(right_click->pos()));
+            ListItem* item = static_cast<ListItem*>(this->ui->configurations_layers_list->itemAt(right_click->pos()));
 
             if (item != nullptr) {
-                const Configuration *configuration = configurator.GetActiveConfiguration();
-                const Parameter *parameter = configuration->Find(item->key);
+                const Configuration* configuration = configurator.GetActiveConfiguration();
+                const Parameter* parameter = item->key == implicit_layers ? nullptr : configuration->Find(item->key);
 
-                const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
+                const Layer* layer =
+                    item->key == implicit_layers ? nullptr : configurator.layers.FindFromManifest(parameter->manifest);
 
                 QMenu menu(this->ui->configurations_layers_list);
 
-                QAction *action_description = new QAction("Open the Layer Description...", nullptr);
+                QAction* action_description = new QAction("Open the Layer Description...", nullptr);
                 action_description->setEnabled(layer != nullptr);
                 menu.addAction(action_description);
 
-                QAction *export_html_action = new QAction("Open the Layer HTML Documentation...", nullptr);
+                QAction* export_html_action = new QAction("Open the Layer HTML Documentation...", nullptr);
                 export_html_action->setEnabled(layer != nullptr);
                 menu.addAction(export_html_action);
 
-                QAction *export_markdown_action = new QAction("Open the Layer Markdown Documentation...", nullptr);
+                QAction* export_markdown_action = new QAction("Open the Layer Markdown Documentation...", nullptr);
                 export_markdown_action->setEnabled(layer != nullptr);
                 menu.addAction(export_markdown_action);
 
-                QAction *visit_layer_website_action = new QAction("Visit the Layer Website...", nullptr);
+                QAction* visit_layer_website_action = new QAction("Visit the Layer Website...", nullptr);
                 visit_layer_website_action->setEnabled(layer != nullptr ? !layer->url.Empty() : false);
                 menu.addAction(visit_layer_website_action);
-                /*
-                                menu.addSeparator();
 
-                                std::string name;
-                                if (layer != nullptr) {
-                                    name = format(" '%s'", layer->key.c_str());
-                                }
-
-                                QAction *action_export_html = new QAction(
-                                    format("Generate%s layer settings %s ...", name.c_str(),
-                   GetLabel(GENERATE_SETTINGS_HTML)).c_str(), nullptr); action_export_html->setEnabled(layer != nullptr);
-                                menu.addAction(action_export_html);
-
-                                QAction *action_export_markdown = new QAction(
-                                    format("Generate%s layer settings %s...", name.c_str(),
-                   GetLabel(GENERATE_SETTINGS_MARKDOWN)).c_str(), nullptr); action_export_markdown->setEnabled(layer != nullptr);
-                                menu.addAction(action_export_markdown);
-
-                                QAction *action_export_settings = new QAction(
-                                    format("Generate%s layer settings %s...", name.c_str(),
-                   GetLabel(GENERATE_SETTINGS_TXT)).c_str(), nullptr); action_export_settings->setEnabled(layer != nullptr);
-                                menu.addAction(action_export_settings);
-
-                                QAction *action_export_env_variables_bash_script = new QAction(
-                                    format("Generate%s layer settings %s...", name.c_str(),
-                   GetLabel(GENERATE_SETTINGS_BASH)).c_str(), nullptr); action_export_env_variables_bash_script->setEnabled(layer !=
-                   nullptr); menu.addAction(action_export_env_variables_bash_script);
-
-                                QAction *action_export_env_variables_cmd_script = new QAction(
-                                    format("Generate%s layer settings %s...", name.c_str(),
-                   GetLabel(GENERATE_SETTINGS_CMD)).c_str(), nullptr); action_export_env_variables_cmd_script->setEnabled(layer !=
-                   nullptr); menu.addAction(action_export_env_variables_cmd_script);
-
-                                QAction *action_export_extension_code = new QAction(
-                                    format("Generate%s layer settings %s...", name.c_str(),
-                   GetLabel(GENERATE_SETTINGS_HPP)).c_str(), nullptr); action_export_extension_code->setEnabled(layer != nullptr);
-                                menu.addAction(action_export_extension_code);
-                */
                 QPoint point(right_click->globalX(), right_click->globalY());
-                QAction *action = menu.exec(point);
+                QAction* action = menu.exec(point);
 
                 if (action == action_description) {
                     assert(layer != nullptr);
@@ -748,47 +712,33 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     ::GenerateSettingsMarkdown(configurator, layer, path);
                     QDesktopServices::openUrl(QUrl(("file:///" + path).c_str()));
                 }
-                /*
-                else if (action == action_export_html) {
-                    this->GenerateClicked(GENERATE_SETTINGS_HTML);
-                } else if (action == action_export_markdown) {
-                    this->GenerateClicked(GENERATE_SETTINGS_MARKDOWN);
-                } else if (action == action_export_settings) {
-                    this->GenerateClicked(GENERATE_SETTINGS_TXT);
-                } else if (action == action_export_env_variables_bash_script) {
-                    this->GenerateClicked(GENERATE_SETTINGS_BASH);
-                } else if (action == action_export_env_variables_cmd_script) {
-                    this->GenerateClicked(GENERATE_SETTINGS_CMD);
-                } else if (action == action_export_extension_code) {
-                    this->GenerateClicked(GENERATE_SETTINGS_HPP);
-                }*/
             }
         }
     } else if (target == this->ui->configurations_settings) {
-        QContextMenuEvent *right_click = dynamic_cast<QContextMenuEvent *>(event);
+        QContextMenuEvent* right_click = dynamic_cast<QContextMenuEvent*>(event);
         if (right_click) {
-            TreeItem *item = static_cast<TreeItem *>(this->ui->configurations_settings->itemAt(right_click->pos()));
+            TreeItem* item = static_cast<TreeItem*>(this->ui->configurations_settings->itemAt(right_click->pos()));
 
             if (item != nullptr) {
-                const Configuration *configuration = configurator.GetActiveConfiguration();
-                const Parameter *parameter = configuration->GetActiveParameter();
+                const Configuration* configuration = configurator.GetActiveConfiguration();
+                const Parameter* parameter = configuration->GetActiveParameter();
 
-                const Layer *layer = configurator.layers.FindFromManifest(parameter->manifest);
+                const Layer* layer = configurator.layers.FindFromManifest(parameter->manifest);
 
-                const SettingMeta *setting = ::FindSetting(layer->settings, item->key.c_str());
+                const SettingMeta* setting = ::FindSetting(layer->settings, item->key.c_str());
                 assert(setting != nullptr);
 
                 QMenu menu(this->ui->configurations_settings);
 
-                QAction *action_description = new QAction("Open the brief setting description...", nullptr);
+                QAction* action_description = new QAction("Open the brief setting description...", nullptr);
                 action_description->setEnabled(layer != nullptr);
                 menu.addAction(action_description);
 
-                QAction *export_html_action = new QAction("Open the detailed setting HTML documentation...", nullptr);
+                QAction* export_html_action = new QAction("Open the detailed setting HTML documentation...", nullptr);
                 export_html_action->setEnabled(layer != nullptr);
                 menu.addAction(export_html_action);
 
-                QAction *export_url_action = new QAction("Open the dedicated feature documentation...", nullptr);
+                QAction* export_url_action = new QAction("Open the dedicated feature documentation...", nullptr);
                 export_url_action->setEnabled(layer != nullptr);
                 if (layer != nullptr) {
                     export_url_action->setEnabled(!setting->url.Empty());
@@ -796,7 +746,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                 menu.addAction(export_url_action);
 
                 QPoint point(right_click->globalX(), right_click->globalY());
-                QAction *action = menu.exec(point);
+                QAction* action = menu.exec(point);
 
                 if (action == action_description) {
                     std::string title = format("%s (%s)", setting->label.c_str(), setting->key.c_str());
@@ -830,7 +780,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                         text += format("Default Value: %s\n", setting->Export(EXPORT_MODE_DOC).c_str());
                         if (setting->type == SETTING_ENUM || setting->type == SETTING_FLAGS) {
                             text += "Possible Values:\n";
-                            const SettingMetaEnumeration *setting_enum = static_cast<const SettingMetaEnumeration *>(setting);
+                            const SettingMetaEnumeration* setting_enum = static_cast<const SettingMetaEnumeration*>(setting);
                             for (std::size_t i = 0, n = setting_enum->enum_values.size(); i < n; ++i) {
                                 if (configurator.GetUseLayerDebugMode()) {
                                     if (setting_enum->enum_values[i].view == SETTING_VIEW_HIDDEN) {
@@ -864,7 +814,7 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
                     std::string url = ConvertStandardSeparators(format("file:///%s#%s-detailed", path.c_str(), item->key.c_str()));
                     QDesktopServices::openUrl(QUrl(url.c_str()));
                 } else if (action == export_url_action) {
-                    const SettingMeta *setting = ::FindSetting(layer->settings, item->key.c_str());
+                    const SettingMeta* setting = ::FindSetting(layer->settings, item->key.c_str());
 
                     const std::string url = ConvertStandardSeparators(setting->url.AbsolutePath());
                     QDesktopServices::openUrl(QUrl(url.c_str()));
@@ -877,14 +827,14 @@ bool TabConfigurations::EventFilter(QObject *target, QEvent *event) {
     return false;
 }
 
-void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
-    ListItem *item = dynamic_cast<ListItem *>(list_item);
+void TabConfigurations::OnRenameConfiguration(QListWidgetItem* list_item) {
+    ListItem* item = dynamic_cast<ListItem*>(list_item);
     if (item == nullptr) {
         return;
     }
 
     // This is the new name we want to use for the configuration
-    const std::string &new_name = item->text().toStdString();
+    const std::string& new_name = item->text().toStdString();
     bool valid_new_name = true;
 
     if (new_name.empty()) {
@@ -919,7 +869,7 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
         alert.exec();
     }
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     if (configurator.configurations.FindConfiguration(new_name) != nullptr) {
         valid_new_name = false;
@@ -952,12 +902,12 @@ void TabConfigurations::OnRenameConfiguration(QListWidgetItem *list_item) {
     configurator.Override(OVERRIDE_AREA_LOADER_SETTINGS_BIT);
 }
 
-void TabConfigurations::OnContextMenuNewClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuNewClicked(ListItem* item) {
     (void)item;  // We don't need this
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    Configuration &configuration = configurator.configurations.CreateConfiguration(configurator.layers, "New Configuration");
+    Configuration& configuration = configurator.configurations.CreateConfiguration(configurator.layers, "New Configuration");
     configurator.SetActiveConfigurationName(configuration.key);
     configurator.Override(OVERRIDE_AREA_ALL);
 
@@ -966,12 +916,12 @@ void TabConfigurations::OnContextMenuNewClicked(ListItem *item) {
     this->UpdateUI_Settings(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuImportClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuImportClicked(ListItem* item) {
     (void)item;  // We don't need this
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    const Path &path_import = configurator.configurations.last_path_import_config;
+    const Path& path_import = configurator.configurations.last_path_import_config;
     const std::string selected_path = QFileDialog::getOpenFileName(&this->window, "Import Layers Configuration File",
                                                                    path_import.AbsolutePath().c_str(), "JSON configuration(*.json)")
                                           .toStdString();
@@ -999,18 +949,18 @@ void TabConfigurations::OnContextMenuImportClicked(ListItem *item) {
     }
 }
 
-void TabConfigurations::OnContextMenuRenameClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuRenameClicked(ListItem* item) {
     assert(item);
 
     ui->configurations_list->editItem(item);
 }
 
-void TabConfigurations::OnContextMenuDuplicateClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuDuplicateClicked(ListItem* item) {
     assert(item);
     assert(!item->key.empty());
 
-    Configurator &configurator = Configurator::Get();
-    const Configuration &duplicated_configuration =
+    Configurator& configurator = Configurator::Get();
+    const Configuration& duplicated_configuration =
         configurator.configurations.DuplicateConfiguration(configurator.layers, item->key);
 
     item->key = duplicated_configuration.key;
@@ -1023,7 +973,7 @@ void TabConfigurations::OnContextMenuDuplicateClicked(ListItem *item) {
     this->UpdateUI_Settings(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuDeleteClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuDeleteClicked(ListItem* item) {
     assert(item);
     assert(!item->key.empty());
 
@@ -1039,19 +989,19 @@ void TabConfigurations::OnContextMenuDeleteClicked(ListItem *item) {
         return;
     }
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.configurations.RemoveConfiguration(item->key);
     configurator.SetActiveConfigurationName("");
 
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuResetLayersOrderClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuResetLayersOrderClicked(ListItem* item) {
     assert(item);
     assert(!item->key.empty());
 
-    Configurator &configurator = Configurator::Get();
-    Configuration *configuration = configurator.configurations.FindConfiguration(item->key);
+    Configurator& configurator = Configurator::Get();
+    Configuration* configuration = configurator.configurations.FindConfiguration(item->key);
     assert(configuration != nullptr);
 
     if (!(configurator.Get(HIDE_MESSAGE_LAYERS_ORDER_RESET))) {
@@ -1079,12 +1029,12 @@ void TabConfigurations::OnContextMenuResetLayersOrderClicked(ListItem *item) {
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuResetOneClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuResetOneClicked(ListItem* item) {
     assert(item);
     assert(!item->key.empty());
 
-    Configurator &configurator = Configurator::Get();
-    Configuration *configuration = configurator.configurations.FindConfiguration(item->key);
+    Configurator& configurator = Configurator::Get();
+    Configuration* configuration = configurator.configurations.FindConfiguration(item->key);
     assert(configuration != nullptr);
 
     QMessageBox alert;
@@ -1114,10 +1064,10 @@ void TabConfigurations::OnContextMenuResetOneClicked(ListItem *item) {
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuResetAllClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuResetAllClicked(ListItem* item) {
     (void)item;
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     QMessageBox alert;
     alert.setWindowTitle("Resetting all default layers configurations...");
@@ -1137,13 +1087,13 @@ void TabConfigurations::OnContextMenuResetAllClicked(ListItem *item) {
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
-void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
+void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem* item) {
     assert(item);
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     const Path path_export = configurator.configurations.last_path_export_config.RelativePath() + "/" + item->key + ".json";
-    const std::string &selected_path =
+    const std::string& selected_path =
         QFileDialog::getSaveFileName(&this->window, "Export Layers Configuration File", path_export.AbsolutePath().c_str(),
                                      "JSON configuration(*.json)")
             .toStdString();
@@ -1166,9 +1116,9 @@ void TabConfigurations::OnContextMenuExportConfigsClicked(ListItem *item) {
 }
 
 void TabConfigurations::GenerateClicked(GenerateSettingsMode mode) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    const Configuration *configuration = configurator.GetActiveConfiguration();
+    const Configuration* configuration = configurator.GetActiveConfiguration();
     if (configuration == nullptr) {
         return;
     }
@@ -1177,7 +1127,7 @@ void TabConfigurations::GenerateClicked(GenerateSettingsMode mode) {
         configurator.configurations.last_path_export_settings.AbsolutePath() + "/" + configuration->key + ::GetDefaultFileExt(mode);
     const std::string caption = format("Generate '%s' configuration %s", configuration->key.c_str(), ::GetLabel(mode));
     const std::string filter = format("%s (*%s)", ::GetLabel(mode), ::GetDefaultFileExt(mode));
-    const std::string &selected_path =
+    const std::string& selected_path =
         QFileDialog::getSaveFileName(&this->window, caption.c_str(), path_export.AbsolutePath().c_str(), filter.c_str())
             .toStdString();
 
@@ -1208,7 +1158,7 @@ void TabConfigurations::on_configurations_override_toggled() {
 }
 
 void TabConfigurations::on_configurations_override_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.layers_override_enabled = checked;
     configurator.Override(OVERRIDE_AREA_ALL);
 
@@ -1216,7 +1166,7 @@ void TabConfigurations::on_configurations_override_toggled(bool checked) {
 }
 
 void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(int index) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     const ExecutableScope scope = static_cast<ExecutableScope>(index);
     switch (scope) {
@@ -1258,7 +1208,7 @@ void TabConfigurations::on_configurations_executable_scope_currentIndexChanged(i
 }
 
 void TabConfigurations::on_configurations_executable_list_currentIndexChanged(int index) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.executables.SetActiveExecutable(index);
 
     this->UpdateUI(UPDATE_REFRESH_UI);
@@ -1266,9 +1216,9 @@ void TabConfigurations::on_configurations_executable_list_currentIndexChanged(in
 }
 
 void TabConfigurations::on_configurations_executable_append_pressed() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    const Path &last_path = configurator.executables.last_path_executable;
+    const Path& last_path = configurator.executables.last_path_executable;
     const Path selected_path =
         QFileDialog::getOpenFileName(&this->window, "Executable Path", last_path.AbsolutePath().c_str(), ::GetExecutableFilter())
             .toStdString();
@@ -1283,8 +1233,8 @@ void TabConfigurations::on_configurations_executable_append_pressed() {
 }
 
 void TabConfigurations::on_configurations_executable_remove_pressed() {
-    Configurator &configurator = Configurator::Get();
-    const Executable *executable = configurator.executables.GetActiveExecutable();
+    Configurator& configurator = Configurator::Get();
+    const Executable* executable = configurator.executables.GetActiveExecutable();
     assert(executable != nullptr);
 
     if (!(configurator.Get(HIDE_MESSAGE_WARN_REMOVE_EXECUTABLE))) {
@@ -1317,8 +1267,8 @@ void TabConfigurations::on_configurations_executable_remove_pressed() {
 }
 
 void TabConfigurations::on_configurations_list_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
-    Executable *executable = configurator.GetActiveExecutable();
+    Configurator& configurator = Configurator::Get();
+    Executable* executable = configurator.GetActiveExecutable();
     if (executable != nullptr) {
         executable->enabled = checked;
 
@@ -1331,9 +1281,9 @@ void TabConfigurations::on_configurations_list_toggled(bool checked) {
 }
 
 void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    Parameter *parameter = configurator.GetActiveParameter();
+    Parameter* parameter = configurator.GetActiveParameter();
     if (parameter != nullptr) {
         parameter->override_settings = checked;
 
@@ -1344,18 +1294,18 @@ void TabConfigurations::on_configurations_layers_settings_toggled(bool checked) 
     this->UpdateUI_Settings(UPDATE_REFRESH_UI);
 }
 
-void TabConfigurations::on_configurations_list_itemDoubleClicked(QListWidgetItem *item) { ui->configurations_list->editItem(item); }
+void TabConfigurations::on_configurations_list_itemDoubleClicked(QListWidgetItem* item) { ui->configurations_list->editItem(item); }
 
 /// An item has been changed. Check for edit of the items name (configuration name)
-void TabConfigurations::on_configurations_list_itemChanged(QListWidgetItem *item) { this->OnRenameConfiguration(item); }
+void TabConfigurations::on_configurations_list_itemChanged(QListWidgetItem* item) { this->OnRenameConfiguration(item); }
 
 void TabConfigurations::UpdatePerExecutableConfigurations() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     if (configurator.GetExecutableScope() != EXECUTABLE_PER) {
         return;
     }
 
-    Configuration *configuration = configurator.GetActiveConfiguration();
+    Configuration* configuration = configurator.GetActiveConfiguration();
     if (configuration == nullptr) {
         return;
     }
@@ -1394,15 +1344,15 @@ void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow)
         return;  // No row selected
     }
 
-    QListWidgetItem *list_item = ui->configurations_list->item(currentRow);
-    ListItem *item = dynamic_cast<ListItem *>(list_item);
+    QListWidgetItem* list_item = ui->configurations_list->item(currentRow);
+    ListItem* item = dynamic_cast<ListItem*>(list_item);
 
     if (item == nullptr) {
         return;
     }
 
-    Configurator &configurator = Configurator::Get();
-    const Configuration *selected_configuration = configurator.configurations.FindConfiguration(item->key);
+    Configurator& configurator = Configurator::Get();
+    const Configuration* selected_configuration = configurator.configurations.FindConfiguration(item->key);
 
     if (configurator.GetActiveConfiguration() != selected_configuration) {
         configurator.SetActiveConfigurationName(item->key);
@@ -1410,7 +1360,7 @@ void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow)
         if (!configurator.Get(HIDE_MESSAGE_WARN_MISSING_LAYERS_IGNORE)) {
             std::vector<std::string> missing_layers;
 
-            const Configuration *configuration = configurator.GetActiveConfiguration();
+            const Configuration* configuration = configurator.GetActiveConfiguration();
             if (configuration->HasMissingLayer(configurator.layers, missing_layers)) {
                 std::string text = format("The selected '%s' configuration is missing the layers:\n", configuration->key.c_str());
                 for (std::size_t i = 0, n = missing_layers.size(); i < n; ++i) {
@@ -1441,7 +1391,7 @@ void TabConfigurations::on_configurations_list_currentRowChanged(int currentRow)
 }
 
 void TabConfigurations::on_configuration_settings_file_search_pressed() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     if (!configurator.Get(HIDE_MESSAGE_NOTIFICATION_EXTERNAL_LAYERS_SETTINGS)) {
         QMessageBox message;
@@ -1465,7 +1415,7 @@ void TabConfigurations::on_configuration_settings_file_search_pressed() {
         }
     }
 
-    Configuration *configuration = configurator.GetActiveConfiguration();
+    Configuration* configuration = configurator.GetActiveConfiguration();
     assert(configuration != nullptr);
 
     const std::string input_path = configuration->override_settings_path.Empty()
@@ -1488,8 +1438,8 @@ void TabConfigurations::on_configuration_settings_file_search_pressed() {
 }
 
 void TabConfigurations::on_configuration_settings_file_disable_pressed() {
-    Configurator &configurator = Configurator::Get();
-    Configuration *configuration = configurator.GetActiveConfiguration();
+    Configurator& configurator = Configurator::Get();
+    Configuration* configuration = configurator.GetActiveConfiguration();
     assert(configuration != nullptr);
 
     configuration->override_settings = false;
@@ -1506,16 +1456,16 @@ void TabConfigurations::on_configurations_layers_list_currentRowChanged(int curr
         return;  // No row selected
     }
 
-    ListItem *item = static_cast<ListItem *>(this->ui->configurations_layers_list->item(currentRow));
+    ListItem* item = static_cast<ListItem*>(this->ui->configurations_layers_list->item(currentRow));
     if (item == nullptr) {
         return;
     }
 
-    const std::string &layer_key = item->key;
+    const std::string& layer_key = item->key;
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-    Configuration *configuration = configurator.GetActiveConfiguration();
+    Configuration* configuration = configurator.GetActiveConfiguration();
     assert(configuration != nullptr);
 
     if (configuration->selected_layer_name != layer_key) {
@@ -1526,7 +1476,7 @@ void TabConfigurations::on_configurations_layers_list_currentRowChanged(int curr
 }
 
 void TabConfigurations::on_configurations_layers_display_currentIndexChanged(int index) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.layers_display_mode = static_cast<LayersDisplayMode>(index);
 
     this->UpdateUI(UPDATE_REBUILD_UI);
