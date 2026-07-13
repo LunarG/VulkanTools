@@ -45,21 +45,21 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
    public:
-    MainWindow(QApplication &app, QWidget *parent = nullptr);
+    MainWindow(QApplication& app, QWidget* parent = nullptr);
     ~MainWindow();
 
     void UpdateUI(UpdateUIMode mode);
 
    private:
-    void closeEvent(QCloseEvent *event) override;
-    void showEvent(QShowEvent *event) override;
-    bool eventFilter(QObject *target, QEvent *event) override;
-    void changeEvent(QEvent *event) override;
+    void closeEvent(QCloseEvent* event) override;
+    // void showEvent(QShowEvent *event) override;
+    bool eventFilter(QObject* target, QEvent* event) override;
+    void changeEvent(QEvent* event) override;
 
-    QSystemTrayIcon *_tray_icon = nullptr;
+    QSystemTrayIcon* _tray_icon = nullptr;
 
    public Q_SLOTS:
-    void commitDataRequest(QSessionManager &manager);
+    void commitDataRequest(QSessionManager& manager);
 
     void on_tab_widget_currentChanged(int index);
 
@@ -74,11 +74,11 @@ class MainWindow : public QMainWindow {
     void UpdateUI_Status();
 
    private:
-    MainWindow(const MainWindow &) = delete;
-    MainWindow &operator=(const MainWindow &) = delete;
+    MainWindow(const MainWindow&) = delete;
+    MainWindow& operator=(const MainWindow&) = delete;
 
    public:
-    QApplication &app;
+    QApplication& app;
 
    private:
     std::shared_ptr<Ui::MainWindow> ui;
