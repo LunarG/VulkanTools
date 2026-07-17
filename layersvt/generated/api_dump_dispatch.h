@@ -12489,6 +12489,139 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndPerTileExecutionQCOM(VkCommandBuffer commandB
         flush(ApiDumpInstance::current().settings());
     }
 }
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkSetLatencySleepModeLegacyNV(VkDevice device, VkBool32 lowLatencyMode, VkBool32 lowLatencyBoost, uint32_t minimumIntervalUs) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkSetLatencySleepModeLegacyNV", "device, lowLatencyMode, lowLatencyBoost, minimumIntervalUs", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkSetLatencySleepModeLegacyNV<Format>(ApiDumpInstance::current(), device, lowLatencyMode, lowLatencyBoost, minimumIntervalUs);
+        }
+    }
+    device_dispatch_table(device)->SetLatencySleepModeLegacyNV(device, lowLatencyMode, lowLatencyBoost, minimumIntervalUs);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkSetLatencySleepModeLegacyNV<Format>(ApiDumpInstance::current(), device, lowLatencyMode, lowLatencyBoost, minimumIntervalUs);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkLatencySleepLegacyNV(VkDevice device, VkSemaphore signalSemaphore, uint64_t value) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkLatencySleepLegacyNV", "device, signalSemaphore, value", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkLatencySleepLegacyNV<Format>(ApiDumpInstance::current(), device, signalSemaphore, value);
+        }
+    }
+    device_dispatch_table(device)->LatencySleepLegacyNV(device, signalSemaphore, value);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkLatencySleepLegacyNV<Format>(ApiDumpInstance::current(), device, signalSemaphore, value);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkSetLatencyMarkerLegacyNV(VkDevice device, uint64_t frameID, uint32_t marker) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkSetLatencyMarkerLegacyNV", "device, frameID, marker", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkSetLatencyMarkerLegacyNV<Format>(ApiDumpInstance::current(), device, frameID, marker);
+        }
+    }
+    device_dispatch_table(device)->SetLatencyMarkerLegacyNV(device, frameID, marker);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkSetLatencyMarkerLegacyNV<Format>(ApiDumpInstance::current(), device, frameID, marker);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkGetLatencyTimingsLegacyNV(VkDevice device, void* pTimings) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetLatencyTimingsLegacyNV", "device, pTimings", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetLatencyTimingsLegacyNV<Format>(ApiDumpInstance::current(), device, pTimings);
+        }
+    }
+    device_dispatch_table(device)->GetLatencyTimingsLegacyNV(device, pTimings);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetLatencyTimingsLegacyNV<Format>(ApiDumpInstance::current(), device, pTimings);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkQueueNotifyOutOfBandLegacyNV(VkQueue queue, uint32_t queueType) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkQueueNotifyOutOfBandLegacyNV", "queue, queueType", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkQueueNotifyOutOfBandLegacyNV<Format>(ApiDumpInstance::current(), queue, queueType);
+        }
+    }
+    device_dispatch_table(queue)->QueueNotifyOutOfBandLegacyNV(queue, queueType);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkQueueNotifyOutOfBandLegacyNV<Format>(ApiDumpInstance::current(), queue, queueType);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkGetSleepStatusLegacyNV(VkDevice device, VkBool32* pLowLatencyMode) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetSleepStatusLegacyNV", "device, pLowLatencyMode", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetSleepStatusLegacyNV<Format>(ApiDumpInstance::current(), device, pLowLatencyMode);
+        }
+    }
+    device_dispatch_table(device)->GetSleepStatusLegacyNV(device, pLowLatencyMode);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetSleepStatusLegacyNV<Format>(ApiDumpInstance::current(), device, pLowLatencyMode);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkShutdownLatencyDeviceLegacyNV(VkDevice device) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkShutdownLatencyDeviceLegacyNV", "device", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkShutdownLatencyDeviceLegacyNV<Format>(ApiDumpInstance::current(), device);
+        }
+    }
+    device_dispatch_table(device)->ShutdownLatencyDeviceLegacyNV(device);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkShutdownLatencyDeviceLegacyNV<Format>(ApiDumpInstance::current(), device);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
 #if defined(VK_USE_PLATFORM_METAL_EXT)
 template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkExportMetalObjectsEXT(VkDevice device, VkExportMetalObjectsInfoEXT* pMetalObjectsInfo) {
@@ -17685,6 +17818,20 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginPerTileExecutionQCOM<Format>);
     if (strcmp(pName, "vkCmdEndPerTileExecutionQCOM") == 0 && (!device || device_dispatch_table(device)->CmdEndPerTileExecutionQCOM))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndPerTileExecutionQCOM<Format>);
+    if (strcmp(pName, "vkSetLatencySleepModeLegacyNV") == 0 && (!device || device_dispatch_table(device)->SetLatencySleepModeLegacyNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkSetLatencySleepModeLegacyNV<Format>);
+    if (strcmp(pName, "vkLatencySleepLegacyNV") == 0 && (!device || device_dispatch_table(device)->LatencySleepLegacyNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkLatencySleepLegacyNV<Format>);
+    if (strcmp(pName, "vkSetLatencyMarkerLegacyNV") == 0 && (!device || device_dispatch_table(device)->SetLatencyMarkerLegacyNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkSetLatencyMarkerLegacyNV<Format>);
+    if (strcmp(pName, "vkGetLatencyTimingsLegacyNV") == 0 && (!device || device_dispatch_table(device)->GetLatencyTimingsLegacyNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetLatencyTimingsLegacyNV<Format>);
+    if (strcmp(pName, "vkQueueNotifyOutOfBandLegacyNV") == 0 && (!device || device_dispatch_table(device)->QueueNotifyOutOfBandLegacyNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkQueueNotifyOutOfBandLegacyNV<Format>);
+    if (strcmp(pName, "vkGetSleepStatusLegacyNV") == 0 && (!device || device_dispatch_table(device)->GetSleepStatusLegacyNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetSleepStatusLegacyNV<Format>);
+    if (strcmp(pName, "vkShutdownLatencyDeviceLegacyNV") == 0 && (!device || device_dispatch_table(device)->ShutdownLatencyDeviceLegacyNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkShutdownLatencyDeviceLegacyNV<Format>);
 #if defined(VK_USE_PLATFORM_METAL_EXT)
     if (strcmp(pName, "vkExportMetalObjectsEXT") == 0 && (!device || device_dispatch_table(device)->ExportMetalObjectsEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkExportMetalObjectsEXT<Format>);
