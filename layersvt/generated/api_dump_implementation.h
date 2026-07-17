@@ -365,6 +365,12 @@ void dump_StdVideoH264ProfileIdc(const StdVideoH264ProfileIdc object, const ApiD
         case STD_VIDEO_H264_PROFILE_IDC_HIGH:
             dump_enum<Format>(settings, "STD_VIDEO_H264_PROFILE_IDC_HIGH", static_cast<uint32_t>(object));
             break;
+        case STD_VIDEO_H264_PROFILE_IDC_HIGH_10:
+            dump_enum<Format>(settings, "STD_VIDEO_H264_PROFILE_IDC_HIGH_10", static_cast<uint32_t>(object));
+            break;
+        case STD_VIDEO_H264_PROFILE_IDC_HIGH_422:
+            dump_enum<Format>(settings, "STD_VIDEO_H264_PROFILE_IDC_HIGH_422", static_cast<uint32_t>(object));
+            break;
         case STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE:
             dump_enum<Format>(settings, "STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE", static_cast<uint32_t>(object));
             break;
@@ -65873,6 +65879,103 @@ void dump_params_vkCmdEndPerTileExecutionQCOM(ApiDumpInstance& dump_inst, VkComm
         dump_VkCommandBuffer<Format>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", (Format == ApiDumpFormat::Json ? 4 : 1));
         dump_separate_members<Format>(settings);
         dump_pointer<Format>(pPerTileEndInfo, settings, "const VkPerTileEndInfoQCOM*", "pPerTileEndInfo", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkPerTileEndInfoQCOM<Format>);
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkSetLatencySleepModeLegacyNV(ApiDumpInstance& dump_inst, VkDevice device, VkBool32 lowLatencyMode, VkBool32 lowLatencyBoost, uint32_t minimumIntervalUs) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, VkBool32>(lowLatencyMode, settings, "VkBool32", "lowLatencyMode", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, VkBool32>(lowLatencyBoost, settings, "VkBool32", "lowLatencyBoost", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, uint32_t>(minimumIntervalUs, settings, "uint32_t", "minimumIntervalUs", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkLatencySleepLegacyNV(ApiDumpInstance& dump_inst, VkDevice device, VkSemaphore signalSemaphore, uint64_t value) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_VkSemaphore<Format>(signalSemaphore, settings, "VkSemaphore", "signalSemaphore", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, uint64_t>(value, settings, "uint64_t", "value", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkSetLatencyMarkerLegacyNV(ApiDumpInstance& dump_inst, VkDevice device, uint64_t frameID, uint32_t marker) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, uint64_t>(frameID, settings, "uint64_t", "frameID", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, uint32_t>(marker, settings, "uint32_t", "marker", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetLatencyTimingsLegacyNV(ApiDumpInstance& dump_inst, VkDevice device, void* pTimings) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, void*>(pTimings, settings, "void*", "pTimings", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkQueueNotifyOutOfBandLegacyNV(ApiDumpInstance& dump_inst, VkQueue queue, uint32_t queueType) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkQueue<Format>(queue, settings, "VkQueue", "queue", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, uint32_t>(queueType, settings, "uint32_t", "queueType", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetSleepStatusLegacyNV(ApiDumpInstance& dump_inst, VkDevice device, VkBool32* pLowLatencyMode) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pLowLatencyMode, settings, "VkBool32*", "pLowLatencyMode", (Format == ApiDumpFormat::Json ? 4 : 1), dump_type<Format, VkBool32>);
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkShutdownLatencyDeviceLegacyNV(ApiDumpInstance& dump_inst, VkDevice device) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
         dump_post_params_formatting<Format>(settings);
         flush(settings);
     }
