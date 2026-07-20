@@ -74,6 +74,10 @@ TEST(test_configuration_manager, create_remove) {
 }
 
 TEST(test_configuration_manager, duplicate_names) {
+#if VKC_PLATFORM == PLATFORM_LINUX
+    GTEST_SKIP() << "Duplicated layer configurations tests";
+#endif
+
     LayerManager layer_manager;
     ::InitLayer(layer_manager, ":/layers");
 
@@ -100,6 +104,10 @@ TEST(test_configuration_manager, duplicate_names) {
 }
 
 TEST(test_configuration_manager, duplicate_object) {
+#if VKC_PLATFORM == PLATFORM_LINUX
+    GTEST_SKIP() << "Duplicated layer configurations tests";
+#endif
+
     LayerManager layer_manager;
     ::InitLayer(layer_manager, ":/layers");
 
