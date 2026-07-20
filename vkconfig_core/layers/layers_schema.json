@@ -1909,6 +1909,9 @@
                                     }
                                 }
                             }
+                        },
+                        "messages": {
+                            "$ref": "#/definitions/messages"
                         }
                     }
                 }

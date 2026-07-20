@@ -671,6 +671,99 @@ void Layer::AddSettingsMessages(const QJsonValue& json_settings_value) {
     }
 }
 
+void Layer::AddMessages(const QJsonValue& json_messages_value) {
+    this->messages.clear();
+
+    assert(json_messages_value.isArray());
+    const QJsonArray& json_messages_array = json_messages_value.toArray();
+    for (int i = 0, n = json_messages_array.size(); i < n; ++i) {
+        Message message;
+        const QJsonObject& json_message_object = json_messages_array[i].toObject();
+
+        message.key = json_message_object.value("key").toString().toStdString();
+        message.version = json_message_object.value("version").toInt();
+        message.title = json_message_object.value("title").toString().toStdString();
+        message.description = json_message_object.value("description").toString().toStdString();
+        message.informative = json_message_object.value("informative").toString().toStdString();
+        message.severity = ::GetSeverityType(json_message_object.value("severity").toString().toStdString().c_str());
+
+        if (json_message_object.value("platforms") != QJsonValue::Undefined) {
+            int platform_flags = GetPlatformFlags(ReadStringArray(json_message_object, "platforms"));
+            if (!(platform_flags & (1 << VKC_PLATFORM))) {
+                continue;  // Skipping messages not applied on the current platform
+            }
+        }
+
+        const QJsonValue& json_conditions_value = json_message_object.value("conditions");
+        assert(json_conditions_value != QJsonValue::Undefined);
+        const QJsonArray& json_settings_array = json_conditions_value.toArray();
+
+        message.conditions.clear();
+        for (int j = 0, o = json_settings_array.size(); j < o; ++j) {
+            const QJsonObject& json_conditions_object = json_settings_array[j].toObject();
+            Condition condition;
+
+            SettingDataSet setting;
+            this->AddSettingData(setting, json_conditions_object.value("setting"));
+            condition.setting = setting[0];
+            condition.op = GetConditionOperatorType(json_conditions_object.value("operator").toString().toStdString().c_str());
+
+            message.conditions.push_back(condition);
+        }
+
+        const QJsonValue& json_actions_value = json_message_object.value("actions");
+        if (json_actions_value != QJsonValue::Undefined) {
+            const QJsonObject& json_actions_object = json_actions_value.toObject();
+
+            if (json_actions_object.value("default") != QJsonValue::Undefined) {
+                message.default_action = GetActionType(json_actions_object.value("default").toString().toStdString().c_str());
+            }
+
+            if (json_actions_object.value("BUTTON0") != QJsonValue::Undefined) {
+                const QJsonObject& json_button0_object = json_actions_object.value("BUTTON0").toObject();
+                const QJsonValue& json_type_value = json_button0_object.value("type");
+
+                message.actions[ACTION0].type = ::GetButtonType(json_type_value.toString().toStdString().c_str());
+
+                const QJsonArray& json_changes_array = json_button0_object.value("changes").toArray();
+                for (int j = 0, o = json_changes_array.size(); j < o; ++j) {
+                    const QJsonObject& json_changes_object = json_changes_array[j].toObject();
+                    Action action;
+
+                    SettingDataSet setting;
+                    this->AddSettingData(setting, json_changes_object.value("setting"));
+                    action.setting = setting[0];
+                    action.op = GetActionOperatorType(json_changes_object.value("operator").toString().toStdString().c_str());
+
+                    message.actions[ACTION0].actions.push_back(action);
+                }
+            }
+
+            if (json_actions_object.value("BUTTON1") != QJsonValue::Undefined) {
+                const QJsonObject& json_button1_object = json_actions_object.value("BUTTON1").toObject();
+                const QJsonValue& json_type_value = json_button1_object.value("type");
+
+                message.actions[ACTION1].type = ::GetButtonType(json_type_value.toString().toStdString().c_str());
+
+                const QJsonArray& json_changes_array = json_button1_object.value("changes").toArray();
+                for (int j = 0, o = json_changes_array.size(); j < o; ++j) {
+                    const QJsonObject& json_changes_object = json_changes_array[j].toObject();
+                    Action action;
+
+                    SettingDataSet setting;
+                    this->AddSettingData(setting, json_changes_object.value("setting"));
+                    action.setting = setting[0];
+                    action.op = GetActionOperatorType(json_changes_object.value("operator").toString().toStdString().c_str());
+
+                    message.actions[ACTION1].actions.push_back(action);
+                }
+            }
+        }
+
+        this->messages.push_back(message);
+    }
+}
+
 void Layer::AddSettingData(SettingDataSet& settings_data, const QJsonValue& json_setting_value) {
     const QJsonObject& json_setting_object = json_setting_value.toObject();
 
@@ -687,4 +780,50 @@ void Layer::AddSettingData(SettingDataSet& settings_data, const QJsonValue& json
     assert(result);
 
     settings_data.push_back(setting_data);
+}
+
+void CheckMessage(IgnoredMessages& ignored_messages, const std::vector<Message>& messages, SettingDataSet& data_set) {
+    for (std::size_t i = 0, n = messages.size(); i < n; ++i) {
+        const Message& message = messages[i];
+
+        if (!message.Triggered(data_set)) {
+            continue;
+        }
+
+        bool show_message_box = false;
+        auto it = ignored_messages.find(message.key);
+        if (it != ignored_messages.end()) {
+            if (it->second < message.version) {
+                show_message_box = true;
+            }
+        } else {
+            show_message_box = true;
+        }
+
+        QMessageBox::StandardButton button = ::GetStandardButton(message.actions[message.default_action].type);
+        if (show_message_box) {
+            QMessageBox alert;
+            alert.setWindowTitle(message.title.c_str());
+            alert.setText(message.description.c_str());
+            if (!message.informative.empty()) {
+                alert.setInformativeText(message.informative.c_str());
+            }
+            alert.setIcon(::GetIcon(message.severity));
+            alert.setCheckBox(new QCheckBox("Do not show again."));
+
+            alert.setStandardButtons(message.GetStandardButtons());
+            alert.setDefaultButton(button);
+            button = static_cast<QMessageBox::StandardButton>(alert.exec());
+
+            if (alert.checkBox()->isChecked()) {
+                if (it != ignored_messages.end()) {
+                    ignored_messages[message.key] = message.version;
+                } else {
+                    ignored_messages.insert(std::make_pair(message.key, message.version));
+                }
+            }
+        }
+
+        message.Apply(data_set, button);
+    }
 }

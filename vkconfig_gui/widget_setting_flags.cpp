@@ -24,6 +24,7 @@
 
 #include "../vkconfig_core/layer.h"
 #include "../vkconfig_core/util.h"
+#include "../vkconfig_core/configurator.h"
 
 #include <QPushButton>
 
@@ -70,17 +71,15 @@ void WidgetSettingFlag::Refresh(RefreshAreas refresh_areas) {
     this->field->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
     this->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
 
-    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
-        if (::CheckSettingOverridden(this->meta)) {
-            this->DisplayOverride(this->field, this->meta);
-        }
-
-        const std::vector<std::string>& value = this->data().value;
-
-        this->field->blockSignals(true);
-        this->field->setChecked(std::find(value.begin(), value.end(), this->flag) != value.end());
-        this->field->blockSignals(false);
+    if (::CheckSettingOverridden(this->meta)) {
+        this->DisplayOverride(this->field, this->meta);
     }
+
+    const std::vector<std::string>& value = this->data().value;
+
+    this->field->blockSignals(true);
+    this->field->setChecked(std::find(value.begin(), value.end(), this->flag) != value.end());
+    this->field->blockSignals(false);
 }
 
 void WidgetSettingFlag::OnClicked(bool checked) {
@@ -89,6 +88,9 @@ void WidgetSettingFlag::OnClicked(bool checked) {
     } else {
         RemoveString(this->data().value, this->flag);
     }
+
+    Configurator& configurator = Configurator::Get();
+    ::CheckMessage(configurator.ignored_messages, this->meta.messages, this->data_set);
 
     emit refreshEnableOnly();
 }

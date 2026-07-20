@@ -7,6 +7,7 @@
 - Fix launcher arg parsing
 - Fix implicit layers right click crash
 - Fix system tray double click to show Vulkan Configurator main window
+- Fix setting UI refresh after layer setting message pop up
 
 ### Deprecation:
 - The default preset was replaced by the layer setting reset button and it no longer displayed

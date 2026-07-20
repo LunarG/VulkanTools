@@ -101,6 +101,8 @@ class Layer {
     void AddSettingsDependences(const QJsonValue& json_settings_value);
     void AddSettingsMessages(const QJsonValue& json_settings_value);
 
+    void AddMessages(const QJsonValue& json_messages_value);
+
     void FillPresetSettings(SettingDataSet& setting_data, const std::vector<SettingMeta*>& settings) const;
 
    public:
@@ -126,6 +128,7 @@ class Layer {
 
     std::vector<SettingMeta*> settings;
     std::vector<LayerPreset> presets;
+    std::vector<Message> messages;
 
     LayerLoadStatus Load(const QJsonObject& json_layer_object);
 
@@ -140,3 +143,4 @@ class Layer {
 bool operator<(const Layer& layer_a, const Layer& layer_b);
 
 void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& data_set);
+void CheckMessage(IgnoredMessages& ignored_messages, const std::vector<Message>& messages, SettingDataSet& data_set);

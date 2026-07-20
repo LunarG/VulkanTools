@@ -219,6 +219,9 @@ void WidgetSettingEnum::OnIndexChanged(int index) {
         this->field->setToolTip(tooltip.c_str());
     }
 
+    Configurator& configurator = Configurator::Get();
+    ::CheckMessage(configurator.ignored_messages, this->meta.messages, this->data_set);
+
     emit refreshEnableOnly();
 }
 

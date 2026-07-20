@@ -131,6 +131,9 @@ void WidgetSettingFrames::OnValidValue() {
 
     this->timer_valid->stop();
 
+    Configurator& configurator = Configurator::Get();
+    ::CheckMessage(configurator.ignored_messages, this->meta.messages, this->data_set);
+
     emit refreshEnableOnly();
 }
 

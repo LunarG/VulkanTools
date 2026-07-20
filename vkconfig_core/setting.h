@@ -220,8 +220,6 @@ SettingDependenceMode CheckDependence(const SettingMeta& meta, const SettingData
 
 typedef std::map<std::string, int> IgnoredMessages;
 
-void CheckMessage(IgnoredMessages& ignored_messages, const SettingMeta& meta, SettingDataSet& data_set);
-
 template <typename SETTING_DATA>
 inline SETTING_DATA* Instantiate(SettingMeta* meta) {
     SETTING_DATA* data = static_cast<SETTING_DATA*>(meta->Instantiate());

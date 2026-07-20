@@ -96,7 +96,11 @@ void WidgetSettingString::OnTextReturnPressed() {
     this->field->setToolTip(this->field->text());
 
     Configurator& configurator = Configurator::Get();
+    ::CheckMessage(configurator.ignored_messages, this->meta.messages, this->data_set);
+
     configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
+
+    emit refreshEnableOnly();
 }
 
 SettingDataString& WidgetSettingString::data() {

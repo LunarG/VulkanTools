@@ -48,15 +48,13 @@ void WidgetSettingBool::Refresh(RefreshAreas refresh_areas) {
     this->field->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
     this->setEnabled(enabled == SETTING_DEPENDENCE_ENABLE);
 
-    if (refresh_areas == REFRESH_ENABLE_AND_STATE) {
-        if (::CheckSettingOverridden(this->meta)) {
-            this->DisplayOverride(this->field, this->meta);
-        }
-
-        this->field->blockSignals(true);
-        this->field->setChecked(this->data().value);
-        this->field->blockSignals(false);
+    if (::CheckSettingOverridden(this->meta)) {
+        this->DisplayOverride(this->field, this->meta);
     }
+
+    this->field->blockSignals(true);
+    this->field->setChecked(this->data().value);
+    this->field->blockSignals(false);
 }
 
 void WidgetSettingBool::OnClicked() {
@@ -64,7 +62,7 @@ void WidgetSettingBool::OnClicked() {
 
     Configurator& configurator = Configurator::Get();
 
-    ::CheckMessage(configurator.ignored_messages, this->meta, this->data_set);
+    ::CheckMessage(configurator.ignored_messages, this->meta.messages, this->data_set);
 
     emit refreshEnableOnly();
 }

@@ -35,6 +35,7 @@
 #include "widget_setting_list.h"
 
 #include "../vkconfig_core/configurator.h"
+#include "../vkconfig_core/layer.h"
 #include "../vkconfig_core/version.h"
 #include "../vkconfig_core/util.h"
 #include "../vkconfig_core/type_platform.h"
@@ -555,6 +556,11 @@ void SettingsTreeManager::OnRefreshEnableOnly() {
     this->Refresh(REFRESH_ENABLE_ONLY);
 
     Configurator& configurator = Configurator::Get();
+    Parameter* parameter = configurator.GetActiveParameter();
+    const Layer* layer = configurator.layers.FindFromManifest(parameter->manifest);
+
+    ::CheckMessage(configurator.ignored_messages, layer->messages, parameter->settings);
+
     configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);
 }
 
