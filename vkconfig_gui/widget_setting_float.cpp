@@ -188,6 +188,9 @@ void WidgetSettingFloat::OnTextEdited(const QString& new_value) {
         this->timer_error->start(2000);
     }
 
+    Configurator& configurator = Configurator::Get();
+    ::CheckMessage(configurator.ignored_messages, this->meta.messages, this->data_set);
+
     emit refreshEnableOnly();
 }
 
