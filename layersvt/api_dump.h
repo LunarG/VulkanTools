@@ -94,8 +94,8 @@
 
 extern "C" {
 // Forward declarations for dispatch
-PFN_vkVoidFunction layer_vkGetInstanceProcAddr(VkInstance instance, const char* pName);
-PFN_vkVoidFunction layer_vkGetDeviceProcAddr(VkDevice device, const char* pName);
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL layer_vkGetInstanceProcAddr(VkInstance instance, const char* pName);
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL layer_vkGetDeviceProcAddr(VkDevice device, const char* pName);
 }
 
 #define MAX_STRING_LENGTH 1024
