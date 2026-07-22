@@ -15,7 +15,7 @@
 - Configuring Vulkan Layers: <a href="https://github.com/KhronosGroup/Vulkan-Utility-Libraries/blob/main/docs/Configuring-Vulkan-Layers-Whitepaper.pdf">Whitepaper</a>
 - Vulkan Configurator: <a href="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/README.md">Readme</a>, <a href="https://github.com/LunarG/VulkanTools/blob/main/vkconfig_gui/CHANGELOG.md">Changelog</a>
 - Vulkan Loader: <a href="https://vulkan.lunarg.com/doc/view/latest/windows/layer_configuration.html?ref=vkconfig">Layers Configuration</a>, <a href="https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderDebugging.md">Loader Debugging Guide</a>
-- Vulkan Validation Layer: <a href="https://vulkan.lunarg.com/doc/sdk/latest/windows/khronos_validation_layer.html?ref=vkconfig">Readme</a>, <a href="https://vulkan.lunarg.com/doc/sdk/latest/windows/validation_error_database.html?ref=vkconfig">Coverage</a>
+- Vulkan Validation Layer: <a href="https://vulkan.lunarg.com/doc/sdk/latest/windows/khronos_validation_layer.html?ref=vkconfig">Readme</a>, <a href="https://vulkan.lunarg.com/doc/sdk/latest/windows/validation_usage_todo.html?ref=vkconfig">Coverage</a>
 - Vulkan API Capture and Replay - GFXReconstruct: <a href="https://vulkan.lunarg.com/doc/sdk/latest/windows/capture_tools.html?ref=vkconfig">Usage</a>
 - Vulkan Profiles Tools: <a href="https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/OVERVIEW.md">Overview</a>, <a href="https://github.com/KhronosGroup/Vulkan-Profiles/blob/main/CHANGELOG.md">Changelog</a>, <a href="https://www.lunarg.com/wp-content/uploads/2024/04/The-Vulkan-Profiles-Tools-LunarG-Christophe-Riccio-04-11-2024.pdf?ref=vkconfig">Whitepaper</a>
 
