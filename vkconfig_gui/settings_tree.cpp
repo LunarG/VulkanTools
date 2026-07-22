@@ -570,8 +570,8 @@ void SettingsTreeManager::RefreshPresetLabel() {
     const Layer* layer = configurator.layers.FindFromManifest(parameter->manifest);
 
     const int preset_index = layer->FindPresetIndex(parameter->settings);
-    this->ui->configurations_settings_reset->setEnabled(parameter->override_settings && preset_index != Layer::DEFAULT_PRESET);
-    this->ui->configurations_presets->setCurrentIndex(preset_index);
+    this->ui->configurations_settings_reset->setEnabled(parameter->override_settings && preset_index != Layer::NO_PRESET);
+    this->ui->configurations_presets->setCurrentIndex(std::max<int>(preset_index, Layer::DEFAULT_PRESET));
 }
 
 void SettingsTreeManager::Refresh(RefreshAreas refresh_areas) {
