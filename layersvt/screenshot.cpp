@@ -816,15 +816,24 @@ bool prepareScreenshotData(ScreenshotQueueData &data, VkImage image1) {
     uint32_t const numChannels = vkuFormatComponentCount(format);
 
     if ((3 != numChannels) && (4 != numChannels)) {
-        assert(0);
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - swapchain image format has %d channels which isn't supported. Only 3 and 4 channels are supported", numChannels);
+#else
+        fprintf(stderr, "screenshot: Failure - swapchain image format has %d channels which isn't supported. Only 3 and 4 channels are supported\n", numChannels);
+#endif
         return false;
     }
 
     // userColorSpaceFormat set by readScreenShotFormatENV func during init
     VkFormat destformat = determineOutputFormat(format, settings.userColorSpaceFormat, numChannels);
-
-    if ((vkuFormatCompatibilityClass(destformat) != vkuFormatCompatibilityClass(format))) {
-        assert(0);
+    auto destFormat_comp_class = vkuFormatCompatibilityClass(destformat);
+    auto format_comp_class = vkuFormatCompatibilityClass(format);
+    if (destFormat_comp_class != format_comp_class) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_ERROR, "screenshot", "Failure - swapchain image format has compatibility class %d which is unsupported", format_comp_class);
+#else
+        fprintf(stderr, "screenshot: Failure - swapchain image format has compatibility class %d which is unsupported\n", format_comp_class);
+#endif
         return false;
     }
 
