@@ -26,6 +26,13 @@ find_package(VulkanLoader CONFIG)
 find_package(VulkanUtilityLibraries REQUIRED CONFIG)
 find_package(valijson REQUIRED CONFIG)
 
+# Workaround AppleClang using the wrong headers when there are headers in /usr/local/include
+if (CMAKE_CXX_COMPILER_ID STREQUAL AppleClang AND TARGET Vulkan::Headers AND TARGET Vulkan::UtilityHeaders AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.25)
+    set_target_properties(Vulkan::Headers PROPERTIES SYSTEM OFF)
+    set_target_properties(Vulkan::UtilityHeaders PROPERTIES SYSTEM OFF)
+    set_target_properties(Vulkan::LayerSettings PROPERTIES SYSTEM OFF)
+endif()
+
 find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
 if(Qt6_FOUND)
   get_target_property(QT_TARGET_TYPE Qt6::Core TYPE)
@@ -133,7 +140,7 @@ if(BUILD_LAYERMGR)
         if(Qt6_VERSION VERSION_LESS 6.9)
             message("WARNING: Qt 6.9 or newer is required to build Vulkan Configurator but the found version was Qt " ${Qt6_VERSION})
         endif()
-        
+
         message(STATUS "INFO: Building Vulkan Configurator")
 
         if (WIN32)
