@@ -594,6 +594,18 @@ void SettingsTreeManager::RefreshItem(RefreshAreas refresh_areas, QTreeWidgetIte
         }
     }
 
+    TreeItem* tree_item = dynamic_cast<TreeItem*>(parent);
+    if (tree_item != nullptr) {
+        Configurator& configurator = Configurator::Get();
+        Parameter* parameter = configurator.GetActiveParameter();
+        if (parameter != nullptr) {
+            bool is_expanded = tree_item->flag.empty() ? parameter->GetExpanded(tree_item->key)
+                                                       : parameter->GetExpanded(tree_item->key, tree_item->flag);
+
+            parent->setExpanded(is_expanded);
+        }
+    }
+
     for (int i = 0, n = parent->childCount(); i < n; ++i) {
         QTreeWidgetItem* child = parent->child(i);
         if (child == nullptr) {
