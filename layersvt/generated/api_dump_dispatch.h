@@ -2260,6 +2260,26 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlo
     }
     return result;
 }
+template <ApiDumpFormat Format>
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceCooperativeMatrixInfo2EXT* pCooperativeMatrixInfo, uint32_t* pPropertyCount, VkCooperativeMatrixProperties2EXT* pProperties) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceCooperativeMatrixProperties2EXT", "physicalDevice, pCooperativeMatrixInfo, pPropertyCount, pProperties", "VkResult");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT<Format>(ApiDumpInstance::current(), physicalDevice, pCooperativeMatrixInfo, pPropertyCount, pProperties);
+        }
+    }
+    VkResult result = instance_dispatch_table(physicalDevice)->GetPhysicalDeviceCooperativeMatrixProperties2EXT(physicalDevice, pCooperativeMatrixInfo, pPropertyCount, pProperties);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_return_value<Format>(ApiDumpInstance::current().settings(), "VkResult", result, dump_return_value_VkResult<Format>);
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT<Format>(ApiDumpInstance::current(), physicalDevice, pCooperativeMatrixInfo, pPropertyCount, pProperties);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+    return result;
+}
 #if defined(VK_USE_PLATFORM_UBM_SEC)
 template <ApiDumpFormat Format>
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateUbmSurfaceSEC(VkInstance instance, const VkUbmSurfaceCreateInfoSEC* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface) {
@@ -16756,6 +16776,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
         return reinterpret_cast<PFN_vkVoidFunction>(vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM<Format>);
     if (strcmp(pName, "vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM<Format>);
+    if (strcmp(pName, "vkGetPhysicalDeviceCooperativeMatrixProperties2EXT") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceCooperativeMatrixProperties2EXT<Format>);
 #if defined(VK_USE_PLATFORM_UBM_SEC)
     if (strcmp(pName, "vkCreateUbmSurfaceSEC") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkCreateUbmSurfaceSEC<Format>);

@@ -5461,6 +5461,15 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR", static_cast<uint32_t>(object));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT", static_cast<uint32_t>(object));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT", static_cast<uint32_t>(object));
             break;
@@ -5511,6 +5520,12 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT", static_cast<uint32_t>(object));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV", static_cast<uint32_t>(object));
@@ -8146,6 +8161,9 @@ void dump_VkDriverId(const VkDriverId object, const ApiDumpSettings& settings, c
             break;
         case VK_DRIVER_ID_APE_SOFT:
             dump_enum<Format>(settings, "VK_DRIVER_ID_APE_SOFT", static_cast<uint32_t>(object));
+            break;
+        case VK_DRIVER_ID_RESERVED_31:
+            dump_enum<Format>(settings, "VK_DRIVER_ID_RESERVED_31", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -10958,6 +10976,24 @@ void dump_VkNeuralAcceleratorStatisticsModeARM(const VkNeuralAcceleratorStatisti
             break;
         case VK_NEURAL_ACCELERATOR_STATISTICS_MODE_STATISTICS1_ARM:
             dump_enum<Format>(settings, "VK_NEURAL_ACCELERATOR_STATISTICS_MODE_STATISTICS1_ARM", static_cast<uint32_t>(object));
+            break;
+        default:
+            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkImageTilingControlEXT(const VkImageTilingControlEXT object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    switch ((int64_t)object) {
+        case VK_IMAGE_TILING_CONTROL_DEFAULT_EXT:
+            dump_enum<Format>(settings, "VK_IMAGE_TILING_CONTROL_DEFAULT_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_IMAGE_TILING_CONTROL_MIN_SIZE_EXT:
+            dump_enum<Format>(settings, "VK_IMAGE_TILING_CONTROL_MIN_SIZE_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT:
+            dump_enum<Format>(settings, "VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -18048,6 +18084,23 @@ void dump_VkDataGraphOpticalFlowExecuteFlagBitsARM(const VkDataGraphOpticalFlowE
     dump_end<Format>(settings, OutputConstruct::value, indents);
 }
 
+template <ApiDumpFormat Format>
+void dump_VkCooperativeMatrixFlagBitsEXT(const VkCooperativeMatrixFlagBitsEXT object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_value_start<Format>(settings);
+    settings.stream() << object;
+    bool is_first = true;
+    if (object & VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_COOPERATIVE_MATRIX_SATURATING_ACCUMULATION_BIT_EXT";
+        is_first = false;
+    }
+
+    if (!is_first)
+        settings.stream() << ")";
+    dump_value_end<Format>(settings);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
 //=========================== Flag Implementations ==========================//
 
 template <ApiDumpFormat Format>
@@ -19125,6 +19178,10 @@ void dump_VkDataGraphOpticalFlowImageUsageFlagsARM(const VkDataGraphOpticalFlowI
 template <ApiDumpFormat Format>
 void dump_VkDataGraphOpticalFlowExecuteFlagsARM(const VkDataGraphOpticalFlowExecuteFlagsARM object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_VkDataGraphOpticalFlowExecuteFlagBitsARM<Format>(static_cast<VkDataGraphOpticalFlowExecuteFlagBitsARM>(object), settings, type_name, var_name, indents, address);
+}
+template <ApiDumpFormat Format>
+void dump_VkCooperativeMatrixFlagsEXT(const VkCooperativeMatrixFlagsEXT object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_VkCooperativeMatrixFlagBitsEXT<Format>(static_cast<VkCooperativeMatrixFlagBitsEXT>(object), settings, type_name, var_name, indents, address);
 }
 #if defined(VK_USE_PLATFORM_UBM_SEC)
 template <ApiDumpFormat Format>
@@ -45272,6 +45329,71 @@ void dump_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV(const VkPhysicalDev
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
+void dump_VkCooperativeMatrixProperties2EXT(const VkCooperativeMatrixProperties2EXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.MGranularity, settings, "uint32_t", "MGranularity", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.NGranularity, settings, "uint32_t", "NGranularity", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.KGranularity, settings, "uint32_t", "KGranularity", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkComponentTypeKHR<Format>(object.AType, settings, "VkComponentTypeKHR", "AType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkComponentTypeKHR<Format>(object.BType, settings, "VkComponentTypeKHR", "BType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkComponentTypeKHR<Format>(object.CType, settings, "VkComponentTypeKHR", "CType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkComponentTypeKHR<Format>(object.ResultType, settings, "VkComponentTypeKHR", "ResultType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceCooperativeMatrixInfo2EXT(const VkPhysicalDeviceCooperativeMatrixInfo2EXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "const void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkScopeKHR<Format>(object.scope, settings, "VkScopeKHR", "scope", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.invocations, settings, "uint32_t", "invocations", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.subgroupSize, settings, "uint32_t", "subgroupSize", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkCooperativeMatrixFlagsEXT<Format>(object.flags, settings, "VkCooperativeMatrixFlagsEXT", "flags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT(const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.cooperativeMatrixProperties2, settings, "VkBool32", "cooperativeMatrixProperties2", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.cooperativeMatrixReductions, settings, "VkBool32", "cooperativeMatrixReductions", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.cooperativeMatrixConversions, settings, "VkBool32", "cooperativeMatrixConversions", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.cooperativeMatrixPerElementOperations, settings, "VkBool32", "cooperativeMatrixPerElementOperations", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.cooperativeMatrixGetCoordinate, settings, "VkBool32", "cooperativeMatrixGetCoordinate", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT(const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -45416,6 +45538,32 @@ void dump_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT(const VkPhysicalDevic
     dump_type<Format, VkBool32>(object.primitiveRestartIndex, settings, "VkBool32", "primitiveRestartIndex", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceImageTilingControlFeaturesEXT(const VkPhysicalDeviceImageTilingControlFeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.imageTilingControl, settings, "VkBool32", "imageTilingControl", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkImageTilingControlCreateInfoEXT(const VkImageTilingControlCreateInfoEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "const void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkImageTilingControlEXT<Format>(object.tilingControl, settings, "VkImageTilingControlEXT", "tilingControl", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
     }
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
@@ -50905,6 +51053,18 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             dump_string<Format>(settings, "VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV");
             break;
 
+        case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT:
+            dump_string<Format>(settings, "VkCooperativeMatrixProperties2EXT");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT:
+            dump_string<Format>(settings, "VkPhysicalDeviceCooperativeMatrixInfo2EXT");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
+            dump_string<Format>(settings, "VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT");
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
             dump_string<Format>(settings, "VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT");
             break;
@@ -50945,6 +51105,14 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             dump_string<Format>(settings, "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
+            dump_string<Format>(settings, "VkPhysicalDeviceImageTilingControlFeaturesEXT");
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT:
+            dump_string<Format>(settings, "VkImageTilingControlCreateInfoEXT");
             break;
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
@@ -55981,6 +56149,18 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
             dump_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV<Format>(*reinterpret_cast<const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV*" : "VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV*>(object));
             break;
 
+        case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT:
+            dump_VkCooperativeMatrixProperties2EXT<Format>(*reinterpret_cast<const VkCooperativeMatrixProperties2EXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkCooperativeMatrixProperties2EXT*" : "VkCooperativeMatrixProperties2EXT"), "pNext", indents, reinterpret_cast<const VkCooperativeMatrixProperties2EXT*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_INFO_2_EXT:
+            dump_VkPhysicalDeviceCooperativeMatrixInfo2EXT<Format>(*reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixInfo2EXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceCooperativeMatrixInfo2EXT*" : "VkPhysicalDeviceCooperativeMatrixInfo2EXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixInfo2EXT*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_MAINTENANCE_1_FEATURES_EXT:
+            dump_VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*" : "VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixMaintenance1FeaturesEXT*>(object));
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
             dump_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*" : "VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*>(object));
             break;
@@ -56021,6 +56201,14 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             dump_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT*" : "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
+            dump_VkPhysicalDeviceImageTilingControlFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceImageTilingControlFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceImageTilingControlFeaturesEXT*" : "VkPhysicalDeviceImageTilingControlFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceImageTilingControlFeaturesEXT*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_IMAGE_TILING_CONTROL_CREATE_INFO_EXT:
+            dump_VkImageTilingControlCreateInfoEXT<Format>(*reinterpret_cast<const VkImageTilingControlCreateInfoEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkImageTilingControlCreateInfoEXT*" : "VkImageTilingControlCreateInfoEXT"), "pNext", indents, reinterpret_cast<const VkImageTilingControlCreateInfoEXT*>(object));
             break;
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
@@ -66436,7 +66624,7 @@ void dump_params_vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI(ApiDumpInstance
         dump_separate_members<Format>(settings);
         dump_VkRenderPass<Format>(renderpass, settings, "VkRenderPass", "renderpass", (Format == ApiDumpFormat::Json ? 4 : 1));
         dump_separate_members<Format>(settings);
-        dump_pointer_array<Format>(pMaxWorkgroupSize, 1, settings, "VkExtent2D*", "pMaxWorkgroupSize", "VkExtent2D", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkExtent2D<Format>);
+        dump_pointer<Format>(pMaxWorkgroupSize, settings, "VkExtent2D*", "pMaxWorkgroupSize", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkExtent2D<Format>);
         dump_post_params_formatting<Format>(settings);
         flush(settings);
     }
@@ -68836,6 +69024,23 @@ void dump_params_vkCmdSetComputeOccupancyPriorityNV(ApiDumpInstance& dump_inst, 
         dump_VkCommandBuffer<Format>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", (Format == ApiDumpFormat::Json ? 4 : 1));
         dump_separate_members<Format>(settings);
         dump_pointer<Format>(pParameters, settings, "const VkComputeOccupancyPriorityParametersNV*", "pParameters", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkComputeOccupancyPriorityParametersNV<Format>);
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetPhysicalDeviceCooperativeMatrixProperties2EXT(ApiDumpInstance& dump_inst, VkPhysicalDevice physicalDevice, const VkPhysicalDeviceCooperativeMatrixInfo2EXT* pCooperativeMatrixInfo, uint32_t* pPropertyCount, VkCooperativeMatrixProperties2EXT* pProperties) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkPhysicalDevice<Format>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pCooperativeMatrixInfo, settings, "const VkPhysicalDeviceCooperativeMatrixInfo2EXT*", "pCooperativeMatrixInfo", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkPhysicalDeviceCooperativeMatrixInfo2EXT<Format>);
+        dump_separate_members<Format>(settings);
+        dump_pointer<Format>(pPropertyCount, settings, "uint32_t*", "pPropertyCount", (Format == ApiDumpFormat::Json ? 4 : 1), dump_type<Format, uint32_t>);
+        dump_separate_members<Format>(settings);
+        dump_pointer_array<Format>(pProperties, *pPropertyCount, settings, "VkCooperativeMatrixProperties2EXT*", "pProperties", "VkCooperativeMatrixProperties2EXT", (Format == ApiDumpFormat::Json ? 4 : 1), dump_VkCooperativeMatrixProperties2EXT<Format>);
         dump_post_params_formatting<Format>(settings);
         flush(settings);
     }
