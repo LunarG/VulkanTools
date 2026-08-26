@@ -164,10 +164,10 @@ EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionPrope
     }
 }
 
-EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
-                                                                                    const char* pLayerName,
-                                                                                    uint32_t* pPropertyCount,
-                                                                                    VkExtensionProperties* pProperties) {
+EXPORT_FUNCTION VKAPI_ATTR VkResult VKAPI_CALL layer_vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
+                                                                                          const char* pLayerName,
+                                                                                          uint32_t* pPropertyCount,
+                                                                                          VkExtensionProperties* pProperties) {
     static const VkExtensionProperties extensionProperties[] = {{
         "VK_EXT_tooling_info",
         1,
