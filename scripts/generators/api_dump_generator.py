@@ -522,7 +522,7 @@ class ApiDumpGenerator(BaseGenerator):
             self.write(f'if(strcmp(pName, "{command.name}") == 0)')
             if command.name in NON_TEMPLATEDTED_FUNCTIONS:
                 cmd = command.name
-                if cmd == 'vkGetInstanceProcAddr':
+                if cmd in ['vkGetInstanceProcAddr','vkEnumerateDeviceExtensionProperties']:
                     cmd = 'layer_' + cmd
                 self.write(f'return reinterpret_cast<PFN_vkVoidFunction>({cmd});')
             else:
