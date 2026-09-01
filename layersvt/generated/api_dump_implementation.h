@@ -5530,6 +5530,9 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV", static_cast<uint32_t>(object));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV", static_cast<uint32_t>(object));
+            break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
     }
@@ -13561,6 +13564,23 @@ void dump_VkToolPurposeFlagBits(const VkToolPurposeFlagBits object, const ApiDum
 }
 
 template <ApiDumpFormat Format>
+void dump_VkPrivateDataSlotCreateFlagBits(const VkPrivateDataSlotCreateFlagBits object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    dump_value_start<Format>(settings);
+    settings.stream() << object;
+    bool is_first = true;
+    if (object & VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PRIVATE_DATA_SLOT_CREATE_BASE_OBJECT_HANDLE_BIT_NV";
+        is_first = false;
+    }
+
+    if (!is_first)
+        settings.stream() << ")";
+    dump_value_end<Format>(settings);
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+
+template <ApiDumpFormat Format>
 void dump_VkPipelineStageFlagBits2(const VkPipelineStageFlagBits2 object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
     dump_value_start<Format>(settings);
@@ -18433,9 +18453,7 @@ void dump_VkToolPurposeFlags(const VkToolPurposeFlags object, const ApiDumpSetti
 }
 template <ApiDumpFormat Format>
 void dump_VkPrivateDataSlotCreateFlags(const VkPrivateDataSlotCreateFlags object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
-    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
-    dump_value<Format>(settings, object);
-    dump_end<Format>(settings, OutputConstruct::value, indents);
+    dump_VkPrivateDataSlotCreateFlagBits<Format>(static_cast<VkPrivateDataSlotCreateFlagBits>(object), settings, type_name, var_name, indents, address);
 }
 template <ApiDumpFormat Format>
 void dump_VkPipelineStageFlags2(const VkPipelineStageFlags2 object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
@@ -45581,6 +45599,19 @@ void dump_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV(const VkPhysic
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
+void dump_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV(const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.privateDataBaseHandle, settings, "VkBool32", "privateDataBaseHandle", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkAccelerationStructureBuildRangeInfoKHR(const VkAccelerationStructureBuildRangeInfoKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_type<Format, uint32_t>(object.primitiveCount, settings, "uint32_t", "primitiveCount", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -51119,6 +51150,10 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             dump_string<Format>(settings, "VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV");
             break;
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV:
+            dump_string<Format>(settings, "VkPhysicalDevicePrivateDataBaseHandleFeaturesNV");
+            break;
+
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
             dump_string<Format>(settings, "VkAccelerationStructureGeometryTrianglesDataKHR");
             break;
@@ -56213,6 +56248,10 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_DECODE_VECTOR_FEATURES_NV:
             dump_VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV<Format>(*reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*" : "VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_BASE_HANDLE_FEATURES_NV:
+            dump_VkPhysicalDevicePrivateDataBaseHandleFeaturesNV<Format>(*reinterpret_cast<const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*" : "VkPhysicalDevicePrivateDataBaseHandleFeaturesNV"), "pNext", indents, reinterpret_cast<const VkPhysicalDevicePrivateDataBaseHandleFeaturesNV*>(object));
             break;
 
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
