@@ -35,6 +35,17 @@ struct LayerDisplay {
     LayerDescriptor descriptor;
 };
 
+struct LayerParseResult {
+    Path layer_path;
+    LayerType type;
+    LayerLoadStatus status = LAYER_LOAD_INVALID;
+    QJsonObject json_root_object;
+    QString json_text;
+    Version file_format_version;
+    std::string last_modified;
+    bool has_layers_array = false;
+};
+
 bool operator<(const LayerDisplay& a, const LayerDisplay& b);
 
 class LayerManager : public Serialize {
@@ -61,7 +72,6 @@ class LayerManager : public Serialize {
     Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false);
 
     void LoadAllInstalledLayers(ConfiguratorMode configurator_mode);
-    LayerLoadStatus LoadLayers(const Path& layer_path, LayerType type, ConfiguratorMode configurator_mode);
 
     void RemoveLayer(LayerId id);
     void EnableLayer(LayerId id, bool enable);
@@ -86,8 +96,12 @@ class LayerManager : public Serialize {
    private:
     LayerValidated Validate(const Path& layer_path, QString json_text, ConfiguratorMode configurator_mode) const;
 
-    LayerLoadStatus LoadLayer(const QJsonObject& json_layer_object, const Path& layer_path, LayerType type,
+     LayerLoadStatus LoadLayer(const QJsonObject& json_layer_object, const Path& layer_path, LayerType type,
                               Version file_format_version, LayerDescriptor descriptor);
+
+    LayerLoadStatus ApplyParsedLayer(const LayerParseResult& parsed, ConfiguratorMode configurator_mode);
+
+    static LayerParseResult ParseLayerFile(const Path& layer_path, LayerType type);
 
     void ApplyLayerDescriptor();
 
