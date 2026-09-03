@@ -72,6 +72,7 @@ class LayerManager : public Serialize {
     Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false);
 
     void LoadAllInstalledLayers(ConfiguratorMode configurator_mode);
+    LayerLoadStatus LoadLayers(const Path& layer_path, LayerType type, ConfiguratorMode configurator_mode);
 
     void RemoveLayer(LayerId id);
     void EnableLayer(LayerId id, bool enable);

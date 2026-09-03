@@ -530,6 +530,14 @@ void LayerManager::LoadAllInstalledLayers(ConfiguratorMode configurator_mode) {
     }
 }
 
+LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type, ConfiguratorMode configurator_mode) {
+    const LayerParseResult &parsed = LayerManager::ParseLayerFile(layer_path, type);
+    if (parsed.status == LAYER_LOAD_INVALID) {
+        return LAYER_LOAD_INVALID;
+    }
+    return this->ApplyParsedLayer(parsed, configurator_mode);
+}
+
 LayerValidated LayerManager::Validate(const Path &layer_path, QString json_text, ConfiguratorMode configurator_mode) const {
     JsonValidator validator;
     bool result = validator.Check(json_text);
@@ -671,7 +679,7 @@ LayerLoadStatus LayerManager::ApplyParsedLayer(const LayerParseResult &parsed, C
     return status;
 }
 
-static LayerParseResult ParseLayerFile(const Path &layer_path, LayerType type) {
+LayerParseResult LayerManager::ParseLayerFile(const Path &layer_path, LayerType type) {
     LayerParseResult result;
     result.layer_path = layer_path;
     result.type = type;
