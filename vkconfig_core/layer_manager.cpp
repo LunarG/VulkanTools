@@ -28,6 +28,10 @@
 #include <QDesktopServices>
 #include <QFileDialog>
 
+#include <future>
+#include <thread>
+#include <atomic>
+
 static std::vector<Path> GetEnvVariablePaths(const char *variable_name, LayerType type) {
     std::vector<Path> result;
 
@@ -457,45 +461,81 @@ void LayerManager::ApplyLayerDescriptor() {
 void LayerManager::LoadAllInstalledLayers(ConfiguratorMode configurator_mode) {
     std::array<std::vector<Path>, LAYERS_PATHS_COUNT> paths;
 
-    // Search new layers
     paths[LAYERS_PATHS_IMPLICIT_SYSTEM] = GetImplicitLayerPaths();
-
-    // LAYERS_PATHS_IMPLICIT_ENV_SET: VK_IMPLICIT_LAYER_PATH env variables
     paths[LAYERS_PATHS_IMPLICIT_ENV_SET] = GetEnvVariablePaths("VK_IMPLICIT_LAYER_PATH", LAYER_TYPE_IMPLICIT);
-
-    // LAYERS_PATHS_IMPLICIT_ENV_ADD: VK_ADD_IMPLICIT_LAYER_PATH env variables
     paths[LAYERS_PATHS_IMPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_IMPLICIT_LAYER_PATH", LAYER_TYPE_IMPLICIT);
-
-    // LAYERS_PATHS_EXPLICIT_SYSTEM
     paths[LAYERS_PATHS_EXPLICIT_SYSTEM] = GetExplicitLayerPaths();
-
-    // LAYERS_PATHS_EXPLICIT_ENV_SET: VK_LAYER_PATH env variables
     paths[LAYERS_PATHS_EXPLICIT_ENV_SET] = GetEnvVariablePaths("VK_LAYER_PATH", LAYER_TYPE_EXPLICIT);
-
-    // LAYERS_PATHS_EXPLICIT_ENV_ADD: VK_ADD_LAYER_PATH env variables
     paths[LAYERS_PATHS_EXPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_LAYER_PATH", LAYER_TYPE_EXPLICIT);
-
-    // LAYERS_PATHS_SDK
     paths[LAYERS_PATHS_SDK].push_back(Path(Path::SDK_EXPLICIT_LAYERS));
 
-    // LAYERS_PATHS_GUI
     std::vector<Path> added_paths = this->BuildLayerPaths();
     paths[LAYERS_PATHS_GUI].insert(paths[LAYERS_PATHS_GUI].begin(), added_paths.begin(), added_paths.end());
 
+    struct PendingFile {
+        Path path;
+        LayerType type;
+    };
+    std::vector<PendingFile> pending_files;
+
     for (std::size_t group_index = 0, group_count = paths.size(); group_index < group_count; ++group_index) {
         const LayersPaths layers_path = static_cast<LayersPaths>(group_index);
-
         const std::vector<Path> &paths_group = paths[group_index];
+
         for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
             const std::vector<Path> &layers_paths = ::CollectLayersPaths(paths_group[i]);
 
             for (std::size_t p = 0, o = layers_paths.size(); p < o; ++p) {
-                this->LoadLayers(layers_paths[p], ::GetLayerType(layers_path), configurator_mode);
+                pending_files.push_back({layers_paths[p], ::GetLayerType(layers_path)});
             }
         }
     }
 
-    // this->ApplyLayerDescriptor();
+    const std::size_t file_count = pending_files.size();
+    std::vector<LayerParseResult> parse_results(file_count);
+
+    const unsigned int hw_threads = std::max(1u, std::thread::hardware_concurrency());
+    const std::size_t thread_count = std::min<std::size_t>(hw_threads, file_count);
+
+    if (thread_count <= 1 || file_count == 0) {
+        for (std::size_t i = 0; i < file_count; ++i) {
+            parse_results[i] = ParseLayerFile(pending_files[i].path, pending_files[i].type);
+        }
+    } else {
+        std::vector<std::future<void>> futures;
+        std::atomic<std::size_t> next_index{0};
+
+        auto worker = [&]() {
+            for (;;) {
+                const std::size_t index = next_index.fetch_add(1);
+                if (index >= file_count) break;
+                parse_results[index] = ParseLayerFile(pending_files[index].path, pending_files[index].type);
+            }
+        };
+
+        for (std::size_t t = 0; t < thread_count; ++t) {
+            futures.push_back(std::async(std::launch::async, worker));
+        }
+        for (auto &f : futures) {
+            f.wait();
+        }
+    }
+
+    for (std::size_t i = 0; i < file_count; ++i) {
+        const LayerParseResult &parsed = parse_results[i];
+        if (parsed.status == LAYER_LOAD_INVALID) {
+            continue;
+        }
+        this->ApplyParsedLayer(parsed, configurator_mode);
+    }
+}
+
+LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type, ConfiguratorMode configurator_mode) {
+    const LayerParseResult &parsed = LayerManager::ParseLayerFile(layer_path, type);
+    if (parsed.status == LAYER_LOAD_INVALID) {
+        return LAYER_LOAD_INVALID;
+    }
+    return this->ApplyParsedLayer(parsed, configurator_mode);
 }
 
 LayerValidated LayerManager::Validate(const Path &layer_path, QString json_text, ConfiguratorMode configurator_mode) const {
@@ -559,85 +599,6 @@ LayerDescriptor LayerManager::GetDescriptor(const Path &layer_path, const std::s
     return LayerDescriptor();
 }
 
-LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type, ConfiguratorMode configurator_mode) {
-    QFile file(layer_path.AbsolutePath().c_str());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        assert(0);
-        return LAYER_LOAD_INVALID;
-    }
-
-    QString json_text = file.readAll();
-    file.close();
-
-    // Convert the text to a JSON document & validate it.
-    // It does need to be a valid json formatted file.
-    QJsonParseError json_parse_error;
-    const QJsonDocument &json_document = QJsonDocument::fromJson(json_text.toUtf8(), &json_parse_error);
-    if (json_parse_error.error != QJsonParseError::NoError) {
-        return LAYER_LOAD_INVALID;
-    }
-
-    // Make sure it's not empty
-    if (json_document.isNull() || json_document.isEmpty()) {
-        return LAYER_LOAD_INVALID;
-    }
-
-    Version file_format_version;
-    const QJsonObject &json_root_object = json_document.object();
-    if (json_root_object.value("file_format_version") != QJsonValue::Undefined) {
-        file_format_version = Version(json_root_object.value("file_format_version").toString().toStdString().c_str());
-    }
-
-    LayerLoadStatus status = LAYER_LOAD_ADDED;
-    const std::string &last_modified = layer_path.LastModified();
-
-    if (json_root_object.value("layers") != QJsonValue::Undefined) {
-        const QJsonArray &json_layers_array = json_root_object.value("layers").toArray();
-
-        for (int i = 0, n = json_layers_array.size(); i < n; ++i) {
-            const QJsonObject &json_layer_object = json_layers_array[i].toObject();
-
-            std::string key = ReadStringValue(json_layer_object, "name");
-
-            if (key == "VK_LAYER_LUNARG_override" || !(key.rfind("VK_", 0) == 0)) {
-                status = LAYER_LOAD_IGNORED;
-                continue;
-            }
-
-            LayerDescriptor descriptor = this->GetDescriptor(layer_path, key);
-
-            if (this->validate_manifests && (descriptor.last_modified != last_modified) || !descriptor.validated) {
-                descriptor.validated = this->Validate(layer_path, json_text, configurator_mode);
-                descriptor.last_modified = last_modified;
-            }
-
-            status = this->LoadLayer(json_layer_object, layer_path, type, file_format_version, descriptor);
-        }
-    } else if (json_root_object.value("layer") != QJsonValue::Undefined) {
-        const QJsonObject &json_layer_object = json_root_object.value("layer").toObject();
-
-        std::string layer_key = ReadStringValue(json_layer_object, "name");
-
-        if (layer_key == "VK_LAYER_LUNARG_override" || !(layer_key.rfind("VK_", 0) == 0)) {
-            return LAYER_LOAD_IGNORED;
-        }
-
-        LayerDescriptor descriptor = this->GetDescriptor(layer_path, layer_key);
-
-        if (this->validate_manifests &&
-            (descriptor.last_modified != last_modified || descriptor.validated == LAYER_VALIDATE_NONE)) {
-            descriptor.validated = this->Validate(layer_path, json_text, configurator_mode);
-            descriptor.last_modified = last_modified;
-        }
-
-        status = this->LoadLayer(json_layer_object, layer_path, type, file_format_version, descriptor);
-    } else {
-        assert(0);
-    }
-
-    return status;
-}
-
 LayerLoadStatus LayerManager::LoadLayer(const QJsonObject &json_layer_object, const Path &layer_path, LayerType type,
                                         Version file_format_version, LayerDescriptor descriptor) {
     Layer layer;
@@ -668,6 +629,88 @@ LayerLoadStatus LayerManager::LoadLayer(const QJsonObject &json_layer_object, co
     }
 
     return status;
+}
+
+LayerLoadStatus LayerManager::ApplyParsedLayer(const LayerParseResult &parsed, ConfiguratorMode configurator_mode) {
+    LayerLoadStatus status = LAYER_LOAD_ADDED;
+
+    if (parsed.has_layers_array) {
+        const QJsonArray &json_layers_array = parsed.json_root_object.value("layers").toArray();
+
+        for (int i = 0, n = json_layers_array.size(); i < n; ++i) {
+            const QJsonObject &json_layer_object = json_layers_array[i].toObject();
+            std::string key = ReadStringValue(json_layer_object, "name");
+
+            if (key == "VK_LAYER_LUNARG_override" || !(key.rfind("VK_", 0) == 0)) {
+                status = LAYER_LOAD_IGNORED;
+                continue;
+            }
+
+            LayerDescriptor descriptor = this->GetDescriptor(parsed.layer_path, key);
+
+            if (this->validate_manifests && (descriptor.last_modified != parsed.last_modified) || !descriptor.validated) {
+                descriptor.validated = this->Validate(parsed.layer_path, parsed.json_text, configurator_mode);
+                descriptor.last_modified = parsed.last_modified;
+            }
+
+            status = this->LoadLayer(json_layer_object, parsed.layer_path, parsed.type, parsed.file_format_version, descriptor);
+        }
+    } else if (parsed.json_root_object.value("layer") != QJsonValue::Undefined) {
+        const QJsonObject &json_layer_object = parsed.json_root_object.value("layer").toObject();
+        std::string layer_key = ReadStringValue(json_layer_object, "name");
+
+        if (layer_key == "VK_LAYER_LUNARG_override" || !(layer_key.rfind("VK_", 0) == 0)) {
+            return LAYER_LOAD_IGNORED;
+        }
+
+        LayerDescriptor descriptor = this->GetDescriptor(parsed.layer_path, layer_key);
+
+        if (this->validate_manifests &&
+            (descriptor.last_modified != parsed.last_modified || descriptor.validated == LAYER_VALIDATE_NONE)) {
+            descriptor.validated = this->Validate(parsed.layer_path, parsed.json_text, configurator_mode);
+            descriptor.last_modified = parsed.last_modified;
+        }
+
+        status = this->LoadLayer(json_layer_object, parsed.layer_path, parsed.type, parsed.file_format_version, descriptor);
+    } else {
+        assert(0);
+    }
+
+    return status;
+}
+
+LayerParseResult LayerManager::ParseLayerFile(const Path &layer_path, LayerType type) {
+    LayerParseResult result;
+    result.layer_path = layer_path;
+    result.type = type;
+
+    QFile file(layer_path.AbsolutePath().c_str());
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        result.status = LAYER_LOAD_INVALID;
+        return result;
+    }
+
+    QString json_text = file.readAll();
+    file.close();
+
+    QJsonParseError json_parse_error;
+    const QJsonDocument &json_document = QJsonDocument::fromJson(json_text.toUtf8(), &json_parse_error);
+    if (json_parse_error.error != QJsonParseError::NoError || json_document.isNull() || json_document.isEmpty()) {
+        result.status = LAYER_LOAD_INVALID;
+        return result;
+    }
+
+    result.json_text = json_text;
+    result.json_root_object = json_document.object();
+    result.last_modified = layer_path.LastModified();
+
+    if (result.json_root_object.value("file_format_version") != QJsonValue::Undefined) {
+        result.file_format_version = Version(result.json_root_object.value("file_format_version").toString().toStdString().c_str());
+    }
+
+    result.has_layers_array = result.json_root_object.value("layers") != QJsonValue::Undefined;
+    result.status = LAYER_LOAD_ADDED;
+    return result;
 }
 
 void LayerManager::RemoveLayer(LayerId id) {
