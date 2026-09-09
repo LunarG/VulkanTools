@@ -99,7 +99,7 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     // Windows ARM crash, in most versions of Qt
     if (VKC_PLATFORM == PLATFORM_WINDOWS_ARM) {
         this->ui->preferences_group_box_releases->setVisible(false);
-        {
+        }
             else {
 #endif
                 QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
