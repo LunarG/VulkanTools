@@ -1,3 +1,9 @@
+## Vulkan Configurator 3.5.2 - September 2026
+[Vulkan SDK 1.4.362.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.362)
+
+### Fixes:
+- Fix force theme color selection
+
 ## Vulkan Configurator 3.5.1 - July 2026
 [Vulkan SDK 1.4.357.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.357)
 
