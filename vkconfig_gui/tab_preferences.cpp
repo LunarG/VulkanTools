@@ -30,8 +30,8 @@
 #include <QDesktopServices>
 #include <QStyleHints>
 
-TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
-    Configurator &configurator = Configurator::Get();
+TabPreferences::TabPreferences(MainWindow& window, std::shared_ptr<Ui::MainWindow> ui) : Tab(TAB_DIAGNOSTIC, window, ui) {
+    Configurator& configurator = Configurator::Get();
 
 #if QT_VERSION > QT_VERSION_CHECK(6, 5, 0)
     window.app.setStyle("fusion");
@@ -99,27 +99,25 @@ TabPreferences::TabPreferences(MainWindow &window, std::shared_ptr<Ui::MainWindo
     // Windows ARM crash, in most versions of Qt
     if (VKC_PLATFORM == PLATFORM_WINDOWS_ARM) {
         this->ui->preferences_group_box_releases->setVisible(false);
-        }
-            else {
+    } else {
 #endif
-                QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
-                QNetworkRequest request(url);
-                this->network_manager.get(request);
-                this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), this,
-                              SLOT(on_release_downloaded(QNetworkReply *)));
+        QUrl url(GetLatestReleaseSDK(VKC_PLATFORM));
+        QNetworkRequest request(url);
+        this->network_manager.get(request);
+        this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(on_release_downloaded(QNetworkReply*)));
 #if WORKAROUND_WINARM_RELEASE_NOTIFICATION_BUG
     }
 #endif
 
     this->UpdatePreferences(configurator.current_theme_mode);
-} 
+}
 
 TabPreferences::~TabPreferences() {}
 
 void TabPreferences::UpdateUI(UpdateUIMode mode) {
     (void)mode;
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     this->ui->preferences_keep_running->blockSignals(true);
     this->ui->preferences_keep_running->setChecked(configurator.GetUseSystemTray());
@@ -149,23 +147,23 @@ void TabPreferences::UpdateUI(UpdateUIMode mode) {
 void TabPreferences::CleanUI() {}
 
 void TabPreferences::UpdatePreferences(ThemeMode new_theme_mode) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
-            // Configurations
+    // Configurations
     this->ui->configurations_executable_append->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
     this->ui->configurations_executable_remove->setIcon(::Get(new_theme_mode, ::ICON_FILE_REMOVE));
     this->ui->configurations_settings_reset->setIcon(::Get(new_theme_mode, ::ICON_RELOAD));
 
-            // Drivers
+    // Drivers
     this->ui->driver_browse->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
     this->ui->driver_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
 
-            // Layers
+    // Layers
     this->ui->layers_browse_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_SEARCH));
     this->ui->layers_reload_button->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_RELOAD));
     this->ui->layers_search_clear->setIcon(::Get(new_theme_mode, ::ICON_EXIT));
 
-            // Applications
+    // Applications
     this->ui->launch_executable_search->setIcon(::Get(new_theme_mode, ::ICON_FILE_SEARCH));
     this->ui->launch_executable_append->setIcon(::Get(new_theme_mode, ::ICON_FILE_APPEND));
     this->ui->launch_executable_remove->setIcon(::Get(new_theme_mode, ::ICON_FILE_REMOVE));
@@ -182,7 +180,7 @@ void TabPreferences::UpdatePreferences(ThemeMode new_theme_mode) {
     this->ui->launch_search_whole->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_WHOLE));
     this->ui->launch_search_regex->setIcon(::Get(new_theme_mode, ::ICON_SEARCH_REGEX));
 
-            // Diagnostics
+    // Diagnostics
     this->ui->diagnostic_export_folder->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_EXPORT));
     this->ui->diagnostic_export_file->setIcon(::Get(new_theme_mode, ::ICON_FILE_EXPORT));
     this->ui->diagnostic_refresh->setIcon(::Get(new_theme_mode, ::ICON_RELOAD));
@@ -210,7 +208,7 @@ void TabPreferences::UpdatePreferences(ThemeMode new_theme_mode) {
     this->ui->preferences_vk_download_open->setIcon(::Get(new_theme_mode, ::ICON_FOLDER_EXPORT));
 
     {
-        QListWidget *dummy_widget = new QListWidget;
+        QListWidget* dummy_widget = new QListWidget;
 
         QPalette palette = dummy_widget->palette();
 
@@ -253,12 +251,27 @@ void TabPreferences::UpdatePreferences(ThemeMode new_theme_mode) {
         }
 
         configurator.current_theme_mode = new_theme_mode;
+
+        switch (new_theme_mode) {
+            default:
+            case THEME_MODE_AUTO:
+                this->window.app.styleHints()->unsetColorScheme();
+                break;
+            case THEME_MODE_FORCE_LIGHT: {
+                this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Light);
+                break;
+            }
+            case THEME_MODE_FORCE_DARK: {
+                this->window.app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+                break;
+            }
+        }
     }
 
     this->initialized = true;
 }
 
-bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
+bool TabPreferences::EventFilter(QObject* target, QEvent* event) {
     (void)target;
     (void)event;
 
@@ -266,14 +279,14 @@ bool TabPreferences::EventFilter(QObject *target, QEvent *event) {
 }
 
 void TabPreferences::on_show_executables_scope_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.configuration_show_scope = checked;
 
     this->UpdateUI(UPDATE_REFRESH_UI);
 }
 
 void TabPreferences::on_all_enabled_executables_changed(int index) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     configurator.Surrender(OVERRIDE_AREA_ALL);
 
@@ -284,7 +297,7 @@ void TabPreferences::on_all_enabled_executables_changed(int index) {
 }
 
 void TabPreferences::on_app_text_max_blocks_changed(int index) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.app_log_max_blocks = index;
 }
 
@@ -292,7 +305,7 @@ void TabPreferences::on_theme_mode_changed(int index) {
     static bool only_once = true;
 
     if (VKC_PLATFORM == PLATFORM_LINUX) {
-        Configurator &configurator = Configurator::Get();
+        Configurator& configurator = Configurator::Get();
 
         if (only_once && !(configurator.Get(HIDE_MESSAGE_WARN_DARK_THEME_LINUX))) {
             QMessageBox alert;
@@ -319,21 +332,21 @@ void TabPreferences::on_theme_mode_changed(int index) {
 }
 
 void TabPreferences::on_theme_light_alternate_enabled(bool checked) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.theme_light_alternate_enabled = checked;
 
     this->UpdatePreferences(configurator.current_theme_mode);
 }
 
 void TabPreferences::on_theme_dark_alternate_enabled(bool checked) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.theme_dark_alternate_enabled = checked;
 
     this->UpdatePreferences(configurator.current_theme_mode);
 }
 
 void TabPreferences::on_theme_light_alternate_pressed() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     this->ui->preferences_theme_light_alternate_open->setStyleSheet("");
 
@@ -349,7 +362,7 @@ void TabPreferences::on_theme_light_alternate_pressed() {
 }
 
 void TabPreferences::on_theme_dark_alternate_pressed() {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     this->ui->preferences_theme_dark_alternate_open->setStyleSheet("");
 
@@ -364,7 +377,7 @@ void TabPreferences::on_theme_dark_alternate_pressed() {
 }
 
 void TabPreferences::on_keep_running_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.SetUseSystemTray(checked);
 }
 
@@ -435,17 +448,17 @@ void TabPreferences::on_reset_hard_pressed() {
 }
 
 void TabPreferences::on_notify_releases_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.SetUseNotifyReleases(checked);
 }
 
 void TabPreferences::on_layer_validate_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.layers.validate_manifests = checked;
 }
 
 void TabPreferences::on_layer_debug_mode_toggled(bool checked) {
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     configurator.SetUseLayerDebugMode(checked);
 }
 
@@ -458,20 +471,20 @@ void TabPreferences::on_download_pressed() {
     this->ui->preferences_vk_download_text->setVisible(false);
     this->ui->preferences_vk_download_browse->setVisible(false);
 
-    this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_package_downloaded(QNetworkReply *)));
+    this->connect(&this->network_manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(on_package_downloaded(QNetworkReply*)));
 
     QUrl url(GetLatestPackageSDK(VKC_PLATFORM));
     QNetworkRequest request(url);
-    QNetworkReply *reply = this->network_manager.get(request);
+    QNetworkReply* reply = this->network_manager.get(request);
     this->connect(reply, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(on_download_progress(qint64, qint64)));
 
     this->ui->preferences_progress->setFormat((std::string(GetLatestPackageSDK(VKC_PLATFORM)) + " - %p%").c_str());
 }
 
-void TabPreferences::on_release_downloaded(QNetworkReply *pReply) {
-    this->disconnect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), 0, 0);
+void TabPreferences::on_release_downloaded(QNetworkReply* pReply) {
+    this->disconnect(&this->network_manager, SIGNAL(finished(QNetworkReply*)), 0, 0);
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
 
     if (pReply->error() == QNetworkReply::NoError) {
         std::string data = pReply->readAll().toStdString();
@@ -514,8 +527,8 @@ void TabPreferences::on_release_downloaded(QNetworkReply *pReply) {
     }
 }
 
-void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
-    this->disconnect(&this->network_manager, SIGNAL(finished(QNetworkReply *)), 0, 0);
+void TabPreferences::on_package_downloaded(QNetworkReply* pReply) {
+    this->disconnect(&this->network_manager, SIGNAL(finished(QNetworkReply*)), 0, 0);
 
     this->ui->preferences_download->setEnabled(true);
     this->ui->preferences_progress->setVisible(false);
@@ -523,7 +536,7 @@ void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
     this->ui->preferences_vk_download_text->setVisible(true);
     this->ui->preferences_vk_download_browse->setVisible(true);
 
-    Configurator &configurator = Configurator::Get();
+    Configurator& configurator = Configurator::Get();
     // configurator.latest_sdk_version = configurator.online_sdk_version;
 
     if (pReply->error() == QNetworkReply::NoError) {
@@ -542,7 +555,7 @@ void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
         return;
     }
 
-    const Path &path_latest = ::AbsolutePath(Path::DOWNLOAD) + Path::Separator() + GetInstallerFilename(VKC_PLATFORM);
+    const Path& path_latest = ::AbsolutePath(Path::DOWNLOAD) + Path::Separator() + GetInstallerFilename(VKC_PLATFORM);
     QFile file_latest(path_latest.AbsolutePath().c_str());
 
     const bool result_latest = file_latest.open(QFile::WriteOnly);
@@ -551,7 +564,7 @@ void TabPreferences::on_package_downloaded(QNetworkReply *pReply) {
         file_latest.close();
     }
 
-    const Path &path_version = ::AbsolutePath(Path::DOWNLOAD) + Path::Separator() +
+    const Path& path_version = ::AbsolutePath(Path::DOWNLOAD) + Path::Separator() +
                                format(GetVersionedFilename(VKC_PLATFORM), configurator.online_sdk_version.str().c_str());
     QFile file_version(path_version.AbsolutePath().c_str());
 

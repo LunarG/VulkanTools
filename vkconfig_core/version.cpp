@@ -28,16 +28,16 @@
 #include <cassert>
 #include <cstring>
 
-const Version Version::VKCONFIG(3, 5, 1);
+const Version Version::VKCONFIG(3, 5, 2);
 const Version Version::VKHEADER(VK_HEADER_VERSION_COMPLETE);
 const Version Version::NONE(0, 0, 0);
 const Version Version::LATEST(~0, ~0, ~0);
 const Version Version::REQUIRED_LOADER_VERSION(1, 3, 301);
 
-const char *VKCONFIG_NAME = "Vulkan Configurator";
-const char *VKCONFIG_SHORT_NAME = "vkconfig";
+const char* VKCONFIG_NAME = "Vulkan Configurator";
+const char* VKCONFIG_SHORT_NAME = "vkconfig";
 
-static Version GetVersionData(const char *version) {
+static Version GetVersionData(const char* version) {
     uint32_t version_major = 0;
     uint32_t version_minor = 0;
     uint32_t version_patch = 0;
@@ -78,9 +78,9 @@ Version::Version(uint32_t version_major, uint32_t version_minor, uint32_t versio
 Version::Version(uint32_t version_major, uint32_t version_minor, uint32_t version_patch, uint32_t version_revision)
     : _major(version_major), _minor(version_minor), _patch(version_patch), _revision(version_revision), type(WITH_REVISION) {}
 
-Version::Version(const char *version) : Version(GetVersionData(version)) {}
+Version::Version(const char* version) : Version(GetVersionData(version)) {}
 
-Version::Version(const std::string &version) : Version(version.c_str()) {}
+Version::Version(const std::string& version) : Version(version.c_str()) {}
 
 std::string Version::str() const {
     if (*this == LATEST) {
@@ -100,32 +100,32 @@ std::string Version::str() const {
     }
 }
 
-bool Version::operator!=(const Version &other_version) const {
+bool Version::operator!=(const Version& other_version) const {
     return VK_MAKE_API_VERSION(this->_major, this->_minor, this->_patch, this->_revision) !=
            VK_MAKE_API_VERSION(other_version._major, other_version._minor, other_version._patch, other_version._revision);
 }
 
-bool Version::operator==(const Version &other_version) const {
+bool Version::operator==(const Version& other_version) const {
     return VK_MAKE_API_VERSION(this->_major, this->_minor, this->_patch, this->_revision) ==
            VK_MAKE_API_VERSION(other_version._major, other_version._minor, other_version._patch, other_version._revision);
 }
 
-bool Version::operator<(const Version &other_version) const {
+bool Version::operator<(const Version& other_version) const {
     return VK_MAKE_API_VERSION(this->_major, this->_minor, this->_patch, this->_revision) <
            VK_MAKE_API_VERSION(other_version._major, other_version._minor, other_version._patch, other_version._revision);
 }
 
-bool Version::operator>=(const Version &other_version) const {
+bool Version::operator>=(const Version& other_version) const {
     return VK_MAKE_API_VERSION(this->_major, this->_minor, this->_patch, this->_revision) >=
            VK_MAKE_API_VERSION(other_version._major, other_version._minor, other_version._patch, other_version._revision);
 }
 
-bool Version::operator>(const Version &other_version) const {
+bool Version::operator>(const Version& other_version) const {
     return VK_MAKE_API_VERSION(this->_major, this->_minor, this->_patch, this->_revision) >
            VK_MAKE_API_VERSION(other_version._major, other_version._minor, other_version._patch, other_version._revision);
 }
 
-bool Version::operator<=(const Version &other_version) const {
+bool Version::operator<=(const Version& other_version) const {
     return VK_MAKE_API_VERSION(this->_major, this->_minor, this->_patch, this->_revision) <=
            VK_MAKE_API_VERSION(other_version._major, other_version._minor, other_version._patch, other_version._revision);
 }
