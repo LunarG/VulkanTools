@@ -198,21 +198,7 @@ bool ExecutableManager::Load(const QJsonObject& json_root_object, ConfiguratorMo
 
             executable_options.label = json_options_object.value("label").toString().toStdString();
             executable_options.working_folder = json_options_object.value("working_folder").toString().toStdString();
-
-            std::string args;
-            if (json_options_object.value("arguments").isArray()) {
-                std::vector<std::string> tmp;
-
-                const QJsonArray& json_command_lines_array = json_options_object.value("arguments").toArray();
-                for (int k = 0, p = json_command_lines_array.size(); k < p; ++k) {
-                    tmp.push_back(json_command_lines_array[k].toString().toStdString());
-                }
-
-                args = Merge(tmp, " ");
-            } else {
-            }
-
-            executable_options.args = args;
+            executable_options.args = json_options_object.value("arguments").toString().toStdString();
 
             const QJsonArray& json_environment_variables_array = json_options_object.value("environment_variables").toArray();
             for (int k = 0, p = json_environment_variables_array.size(); k < p; ++k) {

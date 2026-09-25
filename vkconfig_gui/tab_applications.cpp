@@ -656,9 +656,7 @@ void TabApplications::RebuildOptions() {
         for (std::size_t i = 0, n = executable->GetOptions().size(); i < n; ++i) {
             this->ui->launch_options_list->addItem(executable->GetOptions()[i].label.c_str());
         }
-    }
 
-    if (executable != nullptr) {
         this->ui->launch_options_list->setCurrentIndex(executable->GetActiveOptionsIndex());
     }
     this->ui->launch_options_list->blockSignals(false);
