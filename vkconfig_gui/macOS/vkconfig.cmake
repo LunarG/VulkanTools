@@ -48,11 +48,32 @@ add_custom_command(TARGET vkconfig-gui POST_BUILD
     COMMENT "Running macdeployqt..."
     )
 
+# Bundle the Vulkan Loader so vkconfig doesn't rely on a system wide installation
+if(TARGET Vulkan::Loader)
+    add_custom_command(TARGET vkconfig-gui POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+        "${CMAKE_CURRENT_BINARY_DIR}/vkconfig-gui.app/Contents/Frameworks"
+        COMMAND ${CMAKE_COMMAND} -E copy
+        "$<TARGET_FILE:Vulkan::Loader>"
+        "${CMAKE_CURRENT_BINARY_DIR}/vkconfig-gui.app/Contents/Frameworks/libvulkan.1.dylib"
+        COMMENT "Copying the Vulkan Loader to vkconfig-gui.app..."
+    )
+else()
+    message(WARNING "Vulkan::Loader not found, vkconfig-gui.app will rely on the system Vulkan Loader")
+endif()
+
 add_custom_command(TARGET vkconfig-gui POST_BUILD
     COMMAND cp
     "${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist"
     "${CMAKE_CURRENT_BINARY_DIR}/vkconfig-gui.app/Contents/"
     COMMENT "Copying Info.plist to vkconfig-gui.app..."
+)
+
+# The bundle was modified after linking so it must be signed again or macOS will kill it at launch
+add_custom_command(TARGET vkconfig-gui POST_BUILD
+    COMMAND codesign --force --deep --sign -
+    "${CMAKE_CURRENT_BINARY_DIR}/vkconfig-gui.app"
+    COMMENT "Ad-hoc signing vkconfig-gui.app..."
 )
 
 set_target_properties(vkconfig-gui PROPERTIES SKIP_BUILD_RPATH FALSE)
