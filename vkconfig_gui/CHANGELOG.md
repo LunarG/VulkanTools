@@ -7,6 +7,7 @@
 
 ### Fixes:
 - Fix macOS Dock icon remaining visible when Vulkan Configurator keeps running in the system tray
+- Fix layer manifests being validated on load when manifest validation is disabled
 
 ## Vulkan Configurator 3.5.2 - September 2026
 [Vulkan SDK 1.4.363.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.363)
