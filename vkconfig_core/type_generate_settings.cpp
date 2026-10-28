@@ -46,7 +46,7 @@ const char* GetDefaultFileExt(GenerateSettingsMode mode) {
         ".txt",   // GENERATE_SETTINGS_TXT
         ".sh",    // GENERATE_SETTINGS_BASH
         ".bat",   // GENERATE_SETTINGS_CMD
-        ".hpp",   // GENERATE_SETTINGS_HPP_VULKAN_H
+        ".h",     // GENERATE_SETTINGS_HPP_VULKAN_H
         ".hpp",   // GENERATE_SETTINGS_HPP_VULKAN_HPP
     };
     static_assert(std::size(TABLE) == GENERATE_SETTINGS_COUNT);
