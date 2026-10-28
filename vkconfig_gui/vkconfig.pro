@@ -129,6 +129,7 @@ SOURCES += \
     style.cpp
 
 HEADERS += \
+    dock.h \
     ../vkconfig_core/is_dll_32.h \
     ../vkconfig_core/application_singleton.h \
     ../vkconfig_core/bitfield.h \
@@ -251,6 +252,9 @@ macx: {
 #shellScript.path = $$OUT_PWD/VkConfig.app/Contents/MacOS
 
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
+
+OBJECTIVE_SOURCES += macOS/dock.mm
+LIBS += -framework AppKit
 
 QMAKE_INFO_PLIST = macOS/Info.plist
 RC_FILE = macOS/Resources/VulkanIcon.icns

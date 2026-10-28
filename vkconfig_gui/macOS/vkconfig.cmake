@@ -17,9 +17,12 @@
 
 
 
+enable_language(OBJCXX)
+
 add_executable(vkconfig-gui
     MACOSX_BUNDLE
     ${FILES_ALL}
+    ${CMAKE_CURRENT_SOURCE_DIR}/macOS/dock.mm
     ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Resources/VulkanIcon.icns
     )
 #set_target_properties(vkconfig PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/macOS/Info.plist)
