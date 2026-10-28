@@ -606,7 +606,8 @@ LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type,
 
             LayerDescriptor descriptor = this->GetDescriptor(layer_path, key);
 
-            if (this->validate_manifests && (descriptor.last_modified != last_modified) || !descriptor.validated) {
+            if (this->validate_manifests &&
+                (descriptor.last_modified != last_modified || descriptor.validated == LAYER_VALIDATE_NONE)) {
                 descriptor.validated = this->Validate(layer_path, json_text, configurator_mode);
                 descriptor.last_modified = last_modified;
             }
