@@ -21,6 +21,7 @@
 
 #include "mainwindow.h"
 #include "style.h"
+#include "dock.h"
 
 #include "../vkconfig_core/configurator.h"
 #include "../vkconfig_core/util.h"
@@ -232,20 +233,25 @@ void MainWindow::OnIconActivated(QSystemTrayIcon::ActivationReason reason) {
             break;
         case QSystemTrayIcon::DoubleClick:
             if (this->isMinimized() || this->isHidden()) {
-                this->hide();
-                this->showNormal();
-                this->setWindowState(Qt::WindowState::WindowActive);
-                this->UpdateUI(UPDATE_REBUILD_UI);
+                this->ShowFromTray();
             } else {
                 this->hide();
+                SetDockIconVisible(false);
             }
             break;
     }
 }
 
-void MainWindow::OnTrayActionShow() {
+void MainWindow::OnTrayActionShow() { this->ShowFromTray(); }
+
+void MainWindow::ShowFromTray() {
+    SetDockIconVisible(true);
+
     this->hide();
     this->showNormal();
+    this->setWindowState(Qt::WindowState::WindowActive);
+    this->raise();
+    this->activateWindow();
     this->UpdateUI(UPDATE_REBUILD_UI);
 }
 
@@ -343,6 +349,11 @@ void MainWindow::closeEvent(QCloseEvent* event) {
 
     configurator.window_geometry = this->saveGeometry();
     configurator.window_state = this->saveState();
+
+    // Only the system tray icon remains when Vulkan Configurator keeps running
+    if (configurator.GetUseSystemTray()) {
+        SetDockIconVisible(false);
+    }
 
     QMainWindow::closeEvent(event);
 }

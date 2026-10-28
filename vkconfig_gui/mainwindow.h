@@ -55,6 +55,7 @@ class MainWindow : public QMainWindow {
     // void showEvent(QShowEvent *event) override;
     bool eventFilter(QObject* target, QEvent* event) override;
     void changeEvent(QEvent* event) override;
+    void ShowFromTray();
 
     QSystemTrayIcon* _tray_icon = nullptr;
 
