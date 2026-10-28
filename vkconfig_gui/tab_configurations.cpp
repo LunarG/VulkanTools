@@ -514,32 +514,20 @@ bool TabConfigurations::EventFilter(QObject* target, QEvent* event) {
 
             menu.addSeparator();
 
-            QAction* action_use_external_settings = new QAction("Use External vk_layer_settings.txt file...", nullptr);
-            action_use_external_settings->setCheckable(true);
-            Configuration* configuration = configurator.GetActiveConfiguration();
-            if (configuration != nullptr) {
-                action_use_external_settings->setChecked(configuration->override_settings);
-                if (configuration->override_settings) {
-                    action_use_external_settings->setToolTip(
-                        "Select another external layer settings file to control layer settings instead of Vulkan Configurator UI.");
-                } else {
-                    action_use_external_settings->setToolTip(
-                        "Disable the layer settings control from Vulkan Configurator UI to use an external file.");
-                }
-            }
-            action_use_external_settings->setEnabled(item != nullptr);
-            menu.addAction(action_use_external_settings);
+            const Configuration* configuration = configurator.GetActiveConfiguration();
+            const bool use_external_settings = configuration != nullptr && configuration->override_settings;
 
-            QAction* action_disable_external_settings = new QAction("Disable External vk_layer_settings.txt file", nullptr);
-            if (configuration != nullptr) {
-                action_disable_external_settings->setEnabled(configuration->override_settings);
-                if (configuration->override_settings) {
-                    action_disable_external_settings->setToolTip("Restore the layer settings control from Vulkan Configurator UI.");
-                }
+            QAction* action_toggle_external_settings = new QAction("Use External vk_layer_settings.txt file...", nullptr);
+            action_toggle_external_settings->setCheckable(true);
+            action_toggle_external_settings->setChecked(use_external_settings);
+            if (use_external_settings) {
+                action_toggle_external_settings->setToolTip("Restore the layer settings control from Vulkan Configurator UI.");
             } else {
-                action_disable_external_settings->setEnabled(false);
+                action_toggle_external_settings->setToolTip(
+                    "Disable the layer settings control from Vulkan Configurator UI to use an external file.");
             }
-            menu.addAction(action_disable_external_settings);
+            action_toggle_external_settings->setEnabled(item != nullptr && configuration != nullptr);
+            menu.addAction(action_toggle_external_settings);
 
             menu.addSeparator();
 
@@ -640,10 +628,12 @@ bool TabConfigurations::EventFilter(QObject* target, QEvent* event) {
                 this->GenerateClicked(GENERATE_SETTINGS_MARKDOWN);
             } else if (action == action_export_html) {
                 this->GenerateClicked(GENERATE_SETTINGS_HTML);
-            } else if (action == action_use_external_settings) {
-                this->on_configuration_settings_file_search_pressed();
-            } else if (action == action_disable_external_settings) {
-                this->on_configuration_settings_file_disable_pressed();
+            } else if (action == action_toggle_external_settings) {
+                if (use_external_settings) {
+                    this->on_configuration_settings_file_disable_pressed();
+                } else {
+                    this->on_configuration_settings_file_search_pressed();
+                }
             }
         }
     } else if (target == this->ui->configurations_layers_list) {
