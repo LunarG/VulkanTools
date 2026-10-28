@@ -504,6 +504,7 @@ void SettingsTreeManager::OnSettingsResetted() {
 
     const LayerPreset& preset = layer->presets[Layer::DEFAULT_PRESET];
     parameter->ApplyPresetSettings(preset);
+    parameter->ResetExpanded(*layer);
     this->RefreshPresetLabel();
 
     configurator.Override(OVERRIDE_AREA_LAYERS_SETTINGS_BIT);

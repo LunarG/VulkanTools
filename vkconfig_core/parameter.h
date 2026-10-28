@@ -50,6 +50,7 @@ struct Parameter {
     bool IsAutoImplicitLayer() const;
 
     bool ApplyPresetSettings(const LayerPreset& preset);
+    void ResetExpanded(const Layer& layer);
     bool GetExpanded(const std::string& setting_key, const std::string& flag = "") const;
     void SetExpanded(const std::string& setting_key, const std::string& flag, bool expanded);
 

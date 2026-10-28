@@ -158,6 +158,7 @@ struct SettingData {
     bool operator!=(const SettingData& other) const { return !this->Equal(other); }
 
     virtual void Reset() = 0;
+    virtual void ResetExpanded(const SettingMeta& meta);
     virtual void Copy(const SettingData* data) = 0;
     virtual bool Load(const QJsonObject& json_setting) = 0;
     virtual bool Save(QJsonObject& json_setting) const = 0;

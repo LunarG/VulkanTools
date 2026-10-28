@@ -435,6 +435,7 @@ void CollectDefaultSettingData(const SettingMetaSet& meta_set, SettingDataSet& d
 
         if (!setting_found) {
             SettingData* setting_data = setting_meta->Instantiate();
+            setting_data->ResetExpanded(*setting_meta);
             data_set.push_back(setting_data);
         }
 

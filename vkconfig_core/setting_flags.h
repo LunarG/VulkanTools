@@ -99,6 +99,7 @@ struct SettingDataFlags : public SettingData {
     bool Save(QJsonObject& json_setting) const override;
     std::string Export(ExportMode export_mode) const override;
     void Reset() override;
+    void ResetExpanded(const SettingMeta& meta) override;
 
     void Append(const SettingDataFlags* data);
     void Remove(const SettingDataFlags* data);

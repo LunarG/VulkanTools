@@ -212,13 +212,22 @@ SettingDataFlags::SettingDataFlags(const SettingMetaFlags* meta) : SettingData(m
     assert(meta != nullptr);
 
     for (std::size_t i = 0, n = meta->enum_values.size(); i < n; ++i) {
-        this->expanded_flags.insert(std::make_pair(meta->enum_values[i].key, true));
+        this->expanded_flags.insert(std::make_pair(meta->enum_values[i].key, meta->enum_values[i].expanded));
     }
 }
 
 void SettingDataFlags::Reset() {
     assert(this->meta != nullptr);
     this->value = this->meta->default_value;
+}
+
+void SettingDataFlags::ResetExpanded(const SettingMeta& meta) {
+    SettingData::ResetExpanded(meta);
+
+    assert(this->meta != nullptr);
+    for (std::size_t i = 0, n = this->meta->enum_values.size(); i < n; ++i) {
+        this->expanded_flags[this->meta->enum_values[i].key] = this->meta->enum_values[i].expanded;
+    }
 }
 
 void SettingDataFlags::Copy(const SettingData* data) {

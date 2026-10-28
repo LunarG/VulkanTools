@@ -153,6 +153,8 @@ bool IsArray(SettingType type) { return type == SETTING_FLAGS || type == SETTING
 
 SettingData::SettingData(const std::string& key, const SettingType& type) : key(key), type(type) { assert(!this->key.empty()); }
 
+void SettingData::ResetExpanded(const SettingMeta& meta) { this->expanded = meta.expanded; }
+
 bool SettingData::Equal(const SettingData& other) const {
     if (this->key != other.key)
         return false;
