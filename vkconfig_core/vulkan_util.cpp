@@ -24,6 +24,7 @@
 #include "../vkconfig_core/type_platform.h"
 #include "../vkconfig_core/util.h"
 
+#include <QCoreApplication>
 #include <QLibrary>
 
 #include <cassert>
@@ -80,9 +81,22 @@ static const char *GetVulkanLibrary() {
     return TABLE[VKC_PLATFORM];
 }
 
+static bool LoadVulkanLibrary(QLibrary &library) {
+    if (VKC_PLATFORM == PLATFORM_MACOS && QCoreApplication::instance() != nullptr) {
+        // Use the Vulkan Loader bundled in vkconfig-gui.app first
+        library.setFileName(QCoreApplication::applicationDirPath() + "/../Frameworks/libvulkan.1.dylib");
+        if (library.load()) {
+            return true;
+        }
+    }
+
+    library.setFileName(GetVulkanLibrary());
+    return library.load();
+}
+
 VulkanFunctions::VulkanFunctions() {
-    QLibrary library(GetVulkanLibrary());
-    if (!library.load()) {
+    QLibrary library;
+    if (!LoadVulkanLibrary(library)) {
         return;
     }
 
