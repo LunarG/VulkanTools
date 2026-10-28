@@ -101,6 +101,17 @@ void Parameter::SetExpanded(const std::string& setting_key, const std::string& f
     }
 }
 
+void Parameter::ResetExpanded(const Layer& layer) {
+    for (std::size_t i = 0, n = this->settings.size(); i < n; ++i) {
+        const SettingMeta* setting_meta = ::FindSetting(layer.settings, this->settings[i]->key.c_str());
+        if (setting_meta == nullptr) {
+            continue;
+        }
+
+        this->settings[i]->ResetExpanded(*setting_meta);
+    }
+}
+
 ParameterRank GetParameterOrdering(const LayerManager& layers, const Parameter& parameter) {
     assert(!parameter.key.empty());
 
