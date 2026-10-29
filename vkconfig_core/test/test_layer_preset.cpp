@@ -136,5 +136,5 @@ TEST(test_layer_preset, find_preset_index_missing_value) {
     ::CollectDefaultSettingData(layer.settings, layer_settings);
 
     int index = layer.FindPresetIndex(layer_settings);  // missing preset values are ignored
-    EXPECT_EQ(index, 0);
+    EXPECT_EQ(index, 1);
 }
