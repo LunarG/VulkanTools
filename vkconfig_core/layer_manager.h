@@ -25,6 +25,7 @@
 #include "serialization.h"
 #include "type_layers_paths.h"
 
+#include <array>
 #include <string>
 #include <vector>
 #include <memory>
@@ -60,6 +61,7 @@ class LayerManager : public Serialize {
     const Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false) const;
     Layer* FindFromManifest(const Path& manifest_path, bool find_disabled_layers = false);
 
+    std::array<std::vector<Path>, LAYERS_PATHS_COUNT> BuildLayersSearchPaths() const;
     void LoadAllInstalledLayers(ConfiguratorMode configurator_mode);
     LayerLoadStatus LoadLayers(const Path& layer_path, LayerType type, ConfiguratorMode configurator_mode);
 

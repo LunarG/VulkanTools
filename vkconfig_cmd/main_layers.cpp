@@ -24,6 +24,7 @@
 #include "../vkconfig_core/configuration.h"
 #include "../vkconfig_core/layer_manager.h"
 
+#include <algorithm>
 #include <cassert>
 
 static int RunLayersOverride(Configurator& configurator, const CommandLine& command_line) {
@@ -86,6 +87,46 @@ static int RunLayersSurrender(Configurator& configurator, const CommandLine& com
     return surrender_result ? 0 : -1;
 }
 
+static int RunLayersPath(Configurator& configurator, const CommandLine& command_line) {
+    const std::array<std::vector<Path>, LAYERS_PATHS_COUNT>& paths = configurator.layers.BuildLayersSearchPaths();
+
+    for (std::size_t group_index = 0, group_count = paths.size(); group_index < group_count; ++group_index) {
+        const LayersPaths layers_paths = static_cast<LayersPaths>(group_index);
+
+        const std::vector<Path>& paths_group = paths[group_index];
+
+        printf("%s (%s layers):\n", ::GetLabel(layers_paths), ::GetToken(::GetLayerType(layers_paths)));
+        if (paths_group.empty()) {
+            printf(" - None\n");
+            continue;
+        }
+
+        // Some locations are layer manifest files, only print their directory once
+        std::vector<std::string> printed_dirs;
+        for (std::size_t i = 0, n = paths_group.size(); i < n; ++i) {
+            const Path& path = paths_group[i];
+            const std::string dir = path.IsFile() ? path.AbsoluteDir() : path.AbsolutePath();
+
+            if (std::find(printed_dirs.begin(), printed_dirs.end(), dir) != printed_dirs.end()) {
+                continue;
+            }
+            printed_dirs.push_back(dir);
+
+            printf(" - %s\n", dir.c_str());
+
+            const std::vector<Layer>& layers = configurator.layers.available_layers;
+            for (std::size_t j = 0, m = layers.size(); j < m; ++j) {
+                if (layers[j].manifest_path.AbsoluteDir() == dir) {
+                    printf("    * %s - %s (%s)\n", layers[j].key.c_str(), layers[j].api_version.str().c_str(),
+                           layers[j].manifest_path.Filename().c_str());
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 static int RunLayersList(Configurator& configurator, const CommandLine& command_line) {
     if (configurator.layers.available_layers.empty()) {
         printf("vkconfig: [INFO] No Vulkan layer found\n");
@@ -117,6 +158,9 @@ int run_layers(const CommandLine& command_line) {
         }
         case COMMAND_LAYERS_SURRENDER: {
             return RunLayersSurrender(configurator_guard.Get(), command_line);
+        }
+        case COMMAND_LAYERS_PATH: {
+            return RunLayersPath(configurator_guard.Get(), command_line);
         }
         case COMMAND_LAYERS_LIST: {
             return RunLayersList(configurator_guard.Get(), command_line);
