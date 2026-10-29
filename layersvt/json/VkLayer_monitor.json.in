@@ -5,11 +5,11 @@
         "type": "GLOBAL",
         "library_path": "@JSON_LIBRARY_PATH@",
         "api_version": "@JSON_VERSION@",
-        "implementation_version": "1",
+        "implementation_version": "2",
         "description": "Execution Monitoring Layer",
-        "introduction": "The monitor utility layer displays the real-time frame rate in frames-per-second in the application's title bar.",
+        "introduction": "The monitor utility layer draws the frame rate, frame time and frame number on top of the images the application presents.",
         "url": "https://vulkan.lunarg.com/doc/sdk/latest/windows/monitor_layer.html",
-        "platforms": [ "WINDOWS", "LINUX" ],
+        "platforms": [ "WINDOWS", "LINUX", "MACOS", "ANDROID" ],
         "instance_extensions": [
             {
                 "name": "VK_EXT_layer_settings",
@@ -24,6 +24,90 @@
                     "vkGetPhysicalDeviceToolPropertiesEXT"
                 ]
             }
-        ]
+        ],
+        "features": {
+            "settings": [
+                {
+                    "key": "position",
+                    "label": "Position",
+                    "description": "Corner of the presented image the overlay is drawn in.",
+                    "type": "ENUM",
+                    "flags": [
+                        {
+                            "key": "TOP_LEFT",
+                            "label": "Top Left",
+                            "description": "Draw the overlay in the top left corner."
+                        },
+                        {
+                            "key": "TOP_RIGHT",
+                            "label": "Top Right",
+                            "description": "Draw the overlay in the top right corner."
+                        },
+                        {
+                            "key": "BOTTOM_LEFT",
+                            "label": "Bottom Left",
+                            "description": "Draw the overlay in the bottom left corner."
+                        },
+                        {
+                            "key": "BOTTOM_RIGHT",
+                            "label": "Bottom Right",
+                            "description": "Draw the overlay in the bottom right corner."
+                        }
+                    ],
+                    "default": "TOP_LEFT"
+                },
+                {
+                    "key": "scale",
+                    "label": "Scale",
+                    "description": "Size of the overlay text, as a percentage of the default size. The default size grows with the resolution of the presented images. Text is drawn in whole pixels, so the size changes in steps.",
+                    "type": "INT",
+                    "default": 100,
+                    "range": {
+                        "min": 50,
+                        "max": 400
+                    },
+                    "unit": "%"
+                },
+                {
+                    "key": "update_interval_ms",
+                    "label": "Update Interval",
+                    "description": "How often the frame rate and frame times are updated. The frame number is updated every frame.",
+                    "type": "INT",
+                    "default": 500,
+                    "range": {
+                        "min": 50
+                    },
+                    "unit": "ms"
+                },
+                {
+                    "key": "show_fps",
+                    "label": "Show Frame Rate",
+                    "description": "Show the frame rate in frames per second.",
+                    "type": "BOOL",
+                    "default": true
+                },
+                {
+                    "key": "show_frame_time",
+                    "label": "Show Frame Time",
+                    "description": "Show the average frame time in milliseconds, with the shortest and longest frame time.",
+                    "type": "BOOL",
+                    "default": true
+                },
+                {
+                    "key": "show_frame_number",
+                    "label": "Show Frame Number",
+                    "description": "Show the number of the frame being presented. Frame 0 is the first presented image.",
+                    "type": "BOOL",
+                    "default": true
+                },
+                {
+                    "key": "log_warnings",
+                    "label": "Log Warnings",
+                    "description": "Print why the overlay isn't shown on some swapchains, once per reason.",
+                    "type": "BOOL",
+                    "default": false
+                }
+            ]
+        }
     }
 }

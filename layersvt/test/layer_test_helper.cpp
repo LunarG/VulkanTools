@@ -42,20 +42,6 @@ void layer_test::UnsetEnvironmentSetting(std::string setting) {
 #endif
 }
 
-std::string layer_test::GetAbsolutePath(std::string filepath) {
-    std::string out;
-#ifdef _WIN32
-    char abs_path[_MAX_PATH];
-    _fullpath(abs_path, filepath.c_str(), _MAX_PATH);
-    out = abs_path;
-#else
-    char* abs_path = realpath(filepath.c_str(), nullptr);
-    out = abs_path;
-    delete[] abs_path;
-#endif
-    return out;
-}
-
 VkApplicationInfo layer_test::GetDefaultApplicationInfo() {
     VkApplicationInfo out{VK_STRUCTURE_TYPE_APPLICATION_INFO};
     out.apiVersion = VK_API_VERSION_1_3;

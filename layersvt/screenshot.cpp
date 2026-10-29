@@ -32,6 +32,7 @@
 #include <set>
 #include <list>
 #include <vector>
+#include <memory>
 #include <mutex>
 #include <fstream>
 #include <thread>
@@ -75,8 +76,9 @@ std::atomic_bool pauseCapture(false);
 enum class ColorSpaceFormat { UNDEFINED, UNORM, SNORM, USCALED, SSCALED, UINT, SINT, SRGB };
 
 // unordered map: associates Vulkan dispatchable objects to a dispatch table
+// The device's DeviceMapStruct owns it; the map only looks it up for the device and its queues.
 typedef struct {
-    VkuDeviceDispatchTable *device_dispatch_table;
+    std::unique_ptr<VkuDeviceDispatchTable> device_dispatch_table;
     PFN_vkSetDeviceLoaderData pfn_dev_init;
 } DispatchMapStruct;
 static unordered_map<VkDevice, DispatchMapStruct *> dispatchMap;
@@ -110,8 +112,9 @@ struct DeviceMapStruct {
     set<VkQueue> queues;
     unordered_map<VkQueue, uint32_t> queueIndexMap;
     VkPhysicalDevice physicalDevice;
+    std::unique_ptr<DispatchMapStruct> dispatch;
 };
-static unordered_map<VkDevice, DeviceMapStruct *> deviceMap;
+static unordered_map<VkDevice, std::unique_ptr<DeviceMapStruct>> deviceMap;
 
 // unordered map: associates a physical device with an instance
 typedef struct {
@@ -382,6 +385,9 @@ static bool memory_type_from_properties(VkPhysicalDeviceMemoryProperties *memory
     return false;
 }
 
+// Queues share their device's dispatch table, which dispatchMap finds by the queue's handle
+static VkDevice QueueKey(VkQueue queue) { return reinterpret_cast<VkDevice>(queue); }
+
 static DispatchMapStruct *get_dispatch_info(VkDevice dev) {
     auto it = dispatchMap.find(dev);
     if (it == dispatchMap.end())
@@ -395,7 +401,7 @@ static DeviceMapStruct *get_device_info(VkDevice dev) {
     if (it == deviceMap.end())
         return NULL;
     else
-        return it->second;
+        return it->second.get();
 }
 
 void screenshotWriterThreadFunc();
@@ -801,9 +807,8 @@ bool prepareScreenshotData(ScreenshotQueueData &data, VkImage image1) {
 #endif
         return false;
     }
-    VkuDeviceDispatchTable *pTableDevice = dispMap->device_dispatch_table;
-    VkuDeviceDispatchTable *pTableQueue =
-        get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
+    VkuDeviceDispatchTable *pTableDevice = dispMap->device_dispatch_table.get();
+    const VkuDeviceDispatchTable *pTableQueue = get_dispatch_info(QueueKey(queue))->device_dispatch_table.get();
     VkuInstanceDispatchTable *pInstanceTable;
     pInstanceTable = instance_dispatch_table(instance);
 
@@ -1015,7 +1020,7 @@ bool prepareScreenshotData(ScreenshotQueueData &data, VkImage image1) {
     assert(!err);
     if (VK_SUCCESS != err) return false;
 
-    VkuDeviceDispatchTable *pTableCommandBuffer = dispMap->device_dispatch_table;
+    const VkuDeviceDispatchTable *pTableCommandBuffer = dispMap->device_dispatch_table.get();
 
     // We have just created a dispatchable object, but the dispatch table has
     // not been placed in the object yet.  When a "normal" application creates
@@ -1218,8 +1223,7 @@ static bool queueScreenshot(ScreenshotQueueData &data, VkImage image1, const VkP
         return false;
     }
 
-    VkuDeviceDispatchTable *pTableQueue =
-        get_dispatch_info(static_cast<VkDevice>(static_cast<void *>(queue)))->device_dispatch_table;
+    const VkuDeviceDispatchTable *pTableQueue = get_dispatch_info(QueueKey(queue))->device_dispatch_table.get();
 
     VkResult err = pTableQueue->QueueSubmit(queue, 1, &submitInfo, data.fence);
     assert(!err);
@@ -1357,7 +1361,7 @@ static void createDeviceRegisterExtensions(const VkDeviceCreateInfo *pCreateInfo
     uint32_t i;
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     DeviceMapStruct *devMap = get_device_info(device);
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table.get();
     PFN_vkGetDeviceProcAddr gpa = pDisp->GetDeviceProcAddr;
     pDisp->CreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)gpa(device, "vkCreateSwapchainKHR");
     pDisp->GetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)gpa(device, "vkGetSwapchainImagesKHR");
@@ -1391,15 +1395,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice gpu, const VkDevice
     }
 
     assert(deviceMap.find(*pDevice) == deviceMap.end());
-    DeviceMapStruct *deviceMapElem = new DeviceMapStruct;
-    deviceMap[*pDevice] = deviceMapElem;
+    std::unique_ptr<DeviceMapStruct> &deviceMapEntry = deviceMap[*pDevice];
+    deviceMapEntry = std::make_unique<DeviceMapStruct>();
+    DeviceMapStruct *deviceMapElem = deviceMapEntry.get();
     assert(dispatchMap.find(*pDevice) == dispatchMap.end());
-    DispatchMapStruct *dispatchMapElem = new DispatchMapStruct;
+    deviceMapElem->dispatch = std::make_unique<DispatchMapStruct>();
+    DispatchMapStruct *dispatchMapElem = deviceMapElem->dispatch.get();
     dispatchMap[*pDevice] = dispatchMapElem;
 
     // Setup device dispatch table
-    dispatchMapElem->device_dispatch_table = new VkuDeviceDispatchTable;
-    vkuInitDeviceDispatchTable(*pDevice, dispatchMapElem->device_dispatch_table, fpGetDeviceProcAddr);
+    dispatchMapElem->device_dispatch_table = std::make_unique<VkuDeviceDispatchTable>();
+    vkuInitDeviceDispatchTable(*pDevice, dispatchMapElem->device_dispatch_table.get(), fpGetDeviceProcAddr);
 
     createDeviceRegisterExtensions(pCreateInfo, *pDevice);
     // Create a mapping from a device to a physicalDevice
@@ -1451,22 +1457,22 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCall
     DeviceMapStruct *devMap = get_device_info(device);
     assert(dispMap);
     assert(devMap);
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    const VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table.get();
     pDisp->DestroyDevice(device, pAllocator);
 
     std::lock_guard<std::mutex> lg(globalLock);
-    delete pDisp;
-    delete dispMap;
-    delete devMap;
-
-    deviceMap.erase(device);
+    // The queues look up the device's dispatch table too, so they go before the device frees it
+    for (VkQueue queue : devMap->queues) {
+        dispatchMap.erase(QueueKey(queue));
+    }
     dispatchMap.erase(device);
+    deviceMap.erase(device);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex, VkQueue *pQueue) {
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     assert(dispMap);
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    const VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table.get();
     pDisp->GetDeviceQueue(device, queueFamilyIndex, queueIndex, pQueue);
 
     // Save the device queue in a map if we are taking screenshots.
@@ -1484,7 +1490,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice device, uint32_t queueFamilyI
     // queues are dispatchable objects.
     // Create dispatchMap entry with this queue as its key.
     // Copy the device dispatch table to the new dispatch table.
-    VkDevice que = static_cast<VkDevice>(static_cast<void *>(*pQueue));
+    VkDevice que = QueueKey(*pQueue);
     dispatchMap[que] = dispMap;
 }
 
@@ -1496,7 +1502,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
                                                   const VkAllocationCallbacks *pAllocator, VkSwapchainKHR *pSwapchain) {
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     assert(dispMap);
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    const VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table.get();
 
     // This layer does an image copy later on, and the copy command expects the
     // transfer src bit to be on.
@@ -1586,7 +1592,7 @@ VKAPI_ATTR void DestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, c
 
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     assert(dispMap);
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    const VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table.get();
     pDisp->DestroySwapchainKHR(device, swapchain, pAllocator);
 }
 
@@ -1594,7 +1600,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice device, VkSwapchai
                                                      VkImage *pSwapchainImages) {
     DispatchMapStruct *dispMap = get_dispatch_info(device);
     assert(dispMap);
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    const VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table.get();
     VkResult result = pDisp->GetSwapchainImagesKHR(device, swapchain, pCount, pSwapchainImages);
     return result;
 }
@@ -1734,9 +1740,9 @@ void onQueuePresentKHR(VkQueue queue, VkPresentInfoKHR &presentInfo) {
         PROFILE_COUNTER("screenshot.QueueSize", screenshotsData.size());
         startScreenshotThread();
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Queued screeshot for frame: %d", frameNumber);
+        __android_log_print(ANDROID_LOG_INFO, "screenshot", "Queued screenshot for frame: %d", frameNumber);
 #else
-        printf("screenshot: Queued screeshot for frame: %d\n", frameNumber);
+        printf("screenshot: Queued screenshot for frame: %d\n", frameNumber);
         fflush(stdout);
 #endif
         screenshotQueuedCV.notify_one();
@@ -1747,7 +1753,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
     VkPresentInfoKHR presentInfo = *pPresentInfo;
     onQueuePresentKHR(queue, presentInfo);
     DispatchMapStruct *dispMap = get_dispatch_info((VkDevice)queue);
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    const VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table.get();
     assert(dispMap);
     VkResult result = pDisp->QueuePresentKHR(queue, &presentInfo);
     return result;
@@ -1835,7 +1841,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice dev, const c
 
     DispatchMapStruct *dispMap = get_dispatch_info(dev);
     assert(dispMap);
-    VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table;
+    const VkuDeviceDispatchTable *pDisp = dispMap->device_dispatch_table.get();
 
     if (pDisp->GetDeviceProcAddr == NULL) return NULL;
     return pDisp->GetDeviceProcAddr(dev, funcName);

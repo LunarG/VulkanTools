@@ -30,24 +30,20 @@ Note that some layers are code-generated and will therefore exist in the directo
 layersvt/screenshot.cpp (name='VK_LAYER_LUNARG_screenshot') - utility layer used to capture and save screenshots of running applications. 
 To specify frames to be captured, the environment variable 'VK_SCREENSHOT_FRAMES' can be set to a comma-separated list of frame numbers (ex: 4,8,15,16,23,42).
 
-### View Frames Per Second
-layersvt/monitor.cpp - utility layer that will display an applications FPS in the title bar of a windowed application.
+### Monitor Frames Per Second
+layersvt/monitor.cpp - utility layer that draws an application's FPS, frame time and frame number on top of the images it presents.
 
 ## Using Layers
 
 1. Build VK loader using normal steps (cmake and make)
-2. Place libVkLayer_<name>.so or VkLayer_<name>.dll in the same directory as your Vulkan test or application, or use the VK\_LAYER\_PATH environment variable to specify where the layer libraries reside.
+2. Place `libVkLayer_<name>.so` or `VkLayer_<name>.dll` in the same directory as your Vulkan test or application, or use the `VK_LAYER_PATH` environment variable to specify where the layer libraries reside.
 3. Create a vk_layer_settings.txt file in the same directory to specify how your layers should behave.
 
     Model it after the following example:  [*vk_layer_settings.txt*](vk_layer_settings.txt)
 
-4. Specify which Layers to activate by using
-vkCreateDevice and/or vkCreateInstance or environment variables.
+4. Specify which Layers to activate by using vkCreateDevice and/or vkCreateInstance or environment variables.
 
-    export VK\_INSTANCE\_LAYERS=VK_LAYER_LUNARG_api_dump
-    cd build/tests; ./vkinfo
-
-## Status
-
-
-### Current known issues
+```sh
+export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_api_dump
+vulkaninfo
+```

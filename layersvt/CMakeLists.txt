@@ -1,6 +1,8 @@
 file(GLOB IMAGES "${PROJECT_SOURCE_DIR}/layersvt/images/*")
 file(COPY ${IMAGES} DESTINATION ${CMAKE_BINARY_DIR}/layersvt/images)
 
+set(CMAKE_FOLDER "${CMAKE_FOLDER}/layers")
+
 if(WIN32)
     add_compile_definitions(VK_USE_PLATFORM_WIN32_KHR)
     # Minimize what Windows.h leaks
@@ -43,18 +45,23 @@ else()
     add_compile_options(-Wpointer-arith)
 endif()
 
+# Vulkan Layers are typically built as MODULEs, except on iOS where they are SHARED libraries
+# From the CMake docs: "A Module Library: a plugin that may not be linked by other targets, but may be dynamically loaded at runtime using dlopen-like functionality."
+# This exactly describes a Vulkan layer. In particular, it is a plugin that is dynamically loaded by the Vulkan loader at runtime and is not linked by other targets.
+# On WIN32 when installing the layers specifying libraries as MODULE avoids installing the import library (.lib) that would be generated for SHARED libraries.
+set(VK_LAYER_TYPE "MODULE")
+if (IOS)
+    # "Apples App store rules require dynamic libraries be packaged as Frameworks for iOS.
+    # This requirement is not applied for macOS, so all iOS libraries should be packaged as Frameworks moving forward to comply with Apples policy."
+    set(VK_LAYER_TYPE "SHARED")
+endif()
+
 if(BUILD_APIDUMP)
     find_package(Python3 REQUIRED)
 
     set(VULKAN_REGISTRY "${VULKAN_HEADERS_INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/vulkan/registry")
 
-    if(IOS)
-        add_library(VkLayer_api_dump SHARED)
-    else()
-        add_library(VkLayer_api_dump MODULE)
-    endif()
-    set_target_properties(VkLayer_api_dump PROPERTIES FOLDER "layers/api_dump")
-
+    add_library(VkLayer_api_dump "${VK_LAYER_TYPE}")
     target_sources(VkLayer_api_dump PRIVATE
         api_dump_handwritten_dispatch.cpp
         generated/api_dump_dispatch.h
@@ -91,20 +98,43 @@ if(BUILD_APIDUMP)
 endif ()
 
 if(BUILD_MONITOR)
-    add_library(VkLayer_monitor MODULE)
-    set_target_properties(VkLayer_monitor PROPERTIES FOLDER "layers/monitor")
-    target_sources(VkLayer_monitor PRIVATE
-        monitor.cpp
+    # Everything but the exported entry points, so the unit tests can link it too
+    add_library(VkLayer_monitor_core STATIC)
+    target_sources(VkLayer_monitor_core PRIVATE
+        monitor_layer.cpp
+        monitor_layer.h
+        monitor_overlay.cpp
+        monitor_overlay.h
+        monitor_overlay_shaders.h
+        monitor_present.cpp
+        monitor_present.h
+        monitor_renderer.cpp
+        monitor_renderer.h
+        monitor_settings.cpp
+        monitor_settings.h
+        shaders/monitor_overlay.vert
+        shaders/monitor_overlay.frag
         vk_layer_table.cpp
         vk_layer_table.h
+    )
+    target_include_directories(VkLayer_monitor_core PUBLIC .)
+    target_link_libraries(VkLayer_monitor_core PUBLIC Vulkan::Headers Vulkan::UtilityHeaders Vulkan::LayerSettings)
+    if (ANDROID)
+        target_link_libraries(VkLayer_monitor_core PUBLIC log)
+    endif()
+    # The monitor layer itself remains small with only the exported entry points, while the core functionality is in the static library.
+    # This separation allows the core functionality to be reused by unit tests and other components without requiring the full layer to be linked.
+    add_library(VkLayer_monitor "${VK_LAYER_TYPE}")
+    target_sources(VkLayer_monitor PRIVATE
+        monitor.cpp
         monitor_layer.md
         json/VkLayer_monitor.json.in
     )
+    target_link_libraries(VkLayer_monitor PRIVATE VkLayer_monitor_core)
 endif ()
 
 if(BUILD_SCREENSHOT)
-    add_library(VkLayer_screenshot MODULE)
-    set_target_properties(VkLayer_screenshot PROPERTIES FOLDER "layers/screenshot")
+    add_library(VkLayer_screenshot "${VK_LAYER_TYPE}")
     target_sources(VkLayer_screenshot PRIVATE
         screenshot.cpp
         screenshot_parsing.cpp
@@ -126,6 +156,8 @@ foreach(layer ${TOOL_LAYERS})
         continue()
     endif()
 
+    message(DEBUG "Configuring Vulkan layer ${layer}")
+
     target_link_Libraries(${layer} PRIVATE Vulkan::Headers Vulkan::UtilityHeaders Vulkan::LayerSettings)
 
     if (ANDROID)
@@ -144,10 +176,10 @@ foreach(layer ${TOOL_LAYERS})
         # IOS and APPLE can both be true (FYI)
         if(IOS)
             set_target_properties(${layer} PROPERTIES
-		FRAMEWORK			TRUE
-                MACOSX_FRAMEWORK_BUNDLE_VERSION "${VulkanHeaders_VERSION}"
+                FRAMEWORK                             TRUE
+                MACOSX_FRAMEWORK_BUNDLE_VERSION       "${VulkanHeaders_VERSION}"
                 MACOSX_FRAMEWORK_SHORT_VERSION_STRING "${VulkanHeaders_VERSION}"
-		MACOSX_FRAMEWORK_IDENTIFIER 	com.khronos.${layer}
+                MACOSX_FRAMEWORK_IDENTIFIER           com.khronos.${layer}
             )
         else()
             set_target_properties(${layer} PROPERTIES SUFFIX ".dylib")

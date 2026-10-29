@@ -47,7 +47,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
 
 include(GNUInstallDirs)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON) # Remove when CMake min is 3.26
 
 option(BUILD_WERROR "Treat compiler warnings as errors")
 if (BUILD_WERROR)
@@ -94,34 +94,16 @@ if (MSVC)
     add_link_options("$<$<CONFIG:Release>:/DEBUG:FULL>")
 endif()
 
-if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux|BSD")
+# TODO: Might be worth just combining all the layer build options into a single option now that they are all cross-platform.
+option(BUILD_APIDUMP "Build api_dump layer" ON)
+option(BUILD_MONITOR "Build monitor layer" ON)
+option(BUILD_SCREENSHOT "Build screenshot layer" ON)
 
-    option(BUILD_APIDUMP "Build api_dump layer" ON)
-    option(BUILD_MONITOR "Build monitor layer" ON)
-    option(BUILD_SCREENSHOT "Build screenshot layer" ON)
+if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux|BSD|Darwin")
     option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
-    set(SDK_VERSION "" CACHE STRING "Vulkan SDK version")
-
-elseif(ANDROID)
-
-    # Currently the Android build only build the API dump and screen shot layer.
-    # - libVkLayer_api_dump.so
-    # - libVkLayer_screenshot.so
-    option(BUILD_APIDUMP "Build api_dump layer" ON)
-    option(BUILD_SCREENSHOT "Build screenshot layer" ON)
-    set(BUILD_MONITOR OFF)
+else()
+    message(DEBUG "VkConfig only supported on desktop platforms")
     set(BUILD_LAYERMGR OFF)
-
-elseif (APPLE)
-
-    option(BUILD_APIDUMP "Build api_dump layer" ON)
-    option(BUILD_SCREENSHOT "Build screenshot layer" ON)
-    set(BUILD_MONITOR OFF)
-
-    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        option(BUILD_LAYERMGR "Build Vulkan Configurator" ON)
-    endif()
-
 endif()
 
 if(BUILD_TESTS)
@@ -129,11 +111,14 @@ if(BUILD_TESTS)
 endif()
 
 if(BUILD_APIDUMP OR BUILD_MONITOR OR BUILD_SCREENSHOT)
-    message(STATUS "INFO: Building Vulkan Layers")
     add_subdirectory(layersvt)
 endif()
 
 if(BUILD_LAYERMGR)
+    # Provided when building SDK to get the Vulkan SDK version for the Vulkan Configurator
+    # Useful metadata to have for the Vulkan Configurator build
+    set(SDK_VERSION "" CACHE STRING "Vulkan SDK version")
+
     if(NOT Qt6_FOUND)
         message("WARNING: Vulkan Configurator will be excluded from the build because Qt6 was not found. Please add Qt6 into the PATH environment variable")
     else()
