@@ -276,6 +276,28 @@ TEST(test_command_line, usage_mode_layers_list) {
     EXPECT_EQ(HELP_DEFAULT, command_line.help);
 }
 
+TEST(test_command_line, usage_mode_layers_list_verbose) {
+    static char* argv[] = {(char*)"vkconfig", (char*)"layers", (char*)"--list-verbose"};
+    int argc = static_cast<int>(std::size(argv));
+
+    CommandLine command_line(argc, argv);
+
+    EXPECT_EQ(COMMAND_LAYERS, command_line.command);
+    EXPECT_EQ(COMMAND_RESET_SOFT, command_line.command_reset_arg);
+    EXPECT_EQ(COMMAND_LAYERS_VERBOSE, command_line.command_layers_arg);
+    EXPECT_EQ(COMMAND_LOADER_NONE, command_line.command_loader_arg);
+    EXPECT_EQ(COMMAND_DOC_NONE, command_line.command_doc_arg);
+    EXPECT_EQ(GENERATE_SETTINGS_TXT, command_line.generate_settings_mode);
+    EXPECT_TRUE(command_line.selected_layers_name.empty());
+    EXPECT_STREQ("default", command_line.selected_configuration_name.c_str());
+    EXPECT_TRUE(command_line.GetInputPath().Empty());
+    EXPECT_STREQ("vk_layer_settings.txt", ::ConvertStandardSeparators(command_line.GetOutputPath().RelativePath()).c_str());
+    EXPECT_FALSE(command_line.dry_run);
+    EXPECT_EQ(ERROR_NONE, command_line.error);
+    EXPECT_TRUE(command_line.error_args.empty());
+    EXPECT_EQ(HELP_DEFAULT, command_line.help);
+}
+
 TEST(test_command_line, usage_mode_layers_surrender) {
     static char* argv[] = {(char*)"vkconfig", (char*)"layers", (char*)"--surrender"};
     int argc = static_cast<int>(std::size(argv));

@@ -86,27 +86,6 @@ static int RunLayersSurrender(Configurator& configurator, const CommandLine& com
     return surrender_result ? 0 : -1;
 }
 
-static int RunLayersPath(Configurator& configurator, const CommandLine& command_line) {
-    printf("vkconfig: [INFO] Vulkan Layers paths:\n");
-
-    const std::set<LayerDisplay>& layer_display_list = configurator.layers.BuildLayerDisplayList();
-
-    for (auto it = layer_display_list.begin(), end = layer_display_list.end(); it != end; ++it) {
-        const Layer* layer = configurator.layers.FindFromManifest(it->id.manifest_path, true);
-        if (layer == nullptr) {
-            continue;
-        }
-
-        const std::string status = layer->status == STATUS_STABLE ? "" : format(" (%s)", ::GetToken(layer->status));
-        const std::string text = format("%s - %s%s, %s layer", layer->key.c_str(), layer->api_version.str().c_str(), status.c_str(),
-                                        ::GetToken(layer->type));
-
-        printf(" - %s\n", text.c_str());
-    }
-
-    return 0;
-}
-
 static int RunLayersList(Configurator& configurator, const CommandLine& command_line) {
     if (configurator.layers.available_layers.empty()) {
         printf("vkconfig: [INFO] No Vulkan layer found\n");
@@ -138,9 +117,6 @@ int run_layers(const CommandLine& command_line) {
         }
         case COMMAND_LAYERS_SURRENDER: {
             return RunLayersSurrender(configurator_guard.Get(), command_line);
-        }
-        case COMMAND_LAYERS_PATH: {
-            return RunLayersPath(configurator_guard.Get(), command_line);
         }
         case COMMAND_LAYERS_LIST: {
             return RunLayersList(configurator_guard.Get(), command_line);
