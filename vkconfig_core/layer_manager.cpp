@@ -453,8 +453,8 @@ void LayerManager::ApplyLayerDescriptor() {
     }
 }
 
-// Find all installed layers on the system.
-void LayerManager::LoadAllInstalledLayers(ConfiguratorMode configurator_mode) {
+// Locations searched for layer manifests, in search order.
+std::array<std::vector<Path>, LAYERS_PATHS_COUNT> LayerManager::BuildLayersSearchPaths() const {
     std::array<std::vector<Path>, LAYERS_PATHS_COUNT> paths;
 
     // Search new layers
@@ -481,6 +481,13 @@ void LayerManager::LoadAllInstalledLayers(ConfiguratorMode configurator_mode) {
     // LAYERS_PATHS_GUI
     std::vector<Path> added_paths = this->BuildLayerPaths();
     paths[LAYERS_PATHS_GUI].insert(paths[LAYERS_PATHS_GUI].begin(), added_paths.begin(), added_paths.end());
+
+    return paths;
+}
+
+// Find all installed layers on the system.
+void LayerManager::LoadAllInstalledLayers(ConfiguratorMode configurator_mode) {
+    const std::array<std::vector<Path>, LAYERS_PATHS_COUNT> &paths = this->BuildLayersSearchPaths();
 
     for (std::size_t group_index = 0, group_count = paths.size(); group_index < group_count; ++group_index) {
         const LayersPaths layers_path = static_cast<LayersPaths>(group_index);
