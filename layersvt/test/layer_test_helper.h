@@ -48,8 +48,6 @@ inline std::string format(const char* message, ...) {
 void SetEnvironmentSetting(std::string setting, const char* val);
 void UnsetEnvironmentSetting(std::string setting);
 
-std::string GetAbsolutePath(std::string filepath);
-
 VkApplicationInfo GetDefaultApplicationInfo();
 
 bool IsExtensionSupported(VkPhysicalDevice physical_device, const char* extension_name);
