@@ -10,6 +10,7 @@
 - Fix macOS Dock icon remaining visible when Vulkan Configurator keeps running in the system tray
 - Fix layer manifests being validated on load when manifest validation is disabled
 - Fix layer settings tree ignoring the manifest `expanded` state by default and on settings reset
+- Fix layer preset displayed as "User-Defined Settings" after settings reset when the default values match a layer preset
 
 ## Vulkan Configurator 3.5.2 - September 2026
 [Vulkan SDK 1.4.363.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.363)
