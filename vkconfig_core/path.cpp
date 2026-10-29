@@ -439,7 +439,12 @@ static const std::string GetExplicitLayersDir() {
     };
     static_assert(std::size(TABLE) == ENVIRONMENT_COUNT);
 
-    return GetSDKDir() + TABLE[VKC_ENV];
+    const std::string sdk_dir = GetSDKDir();
+    if (sdk_dir.empty()) {
+        return "";
+    }
+
+    return sdk_dir + TABLE[VKC_ENV];
 }
 
 static const std::string GetVulkanDir() {

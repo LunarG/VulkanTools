@@ -476,7 +476,10 @@ std::array<std::vector<Path>, LAYERS_PATHS_COUNT> LayerManager::BuildLayersSearc
     paths[LAYERS_PATHS_EXPLICIT_ENV_ADD] = GetEnvVariablePaths("VK_ADD_LAYER_PATH", LAYER_TYPE_EXPLICIT);
 
     // LAYERS_PATHS_SDK
-    paths[LAYERS_PATHS_SDK].push_back(Path(Path::SDK_EXPLICIT_LAYERS));
+    const Path sdk_explicit_layers_path(Path::SDK_EXPLICIT_LAYERS);
+    if (!sdk_explicit_layers_path.Empty()) {
+        paths[LAYERS_PATHS_SDK].push_back(sdk_explicit_layers_path);
+    }
 
     // LAYERS_PATHS_GUI
     std::vector<Path> added_paths = this->BuildLayerPaths();

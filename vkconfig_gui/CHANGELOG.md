@@ -13,6 +13,7 @@
 - Fix layer settings tree ignoring the manifest `expanded` state by default and on settings reset
 - Fix layer preset displayed as "User-Defined Settings" after settings reset when the default values match a layer preset
 - Fix `vkconfig layers --list-verbose` command line argument showing the help
+- Fix searching and trying to create an invalid `${VULKAN_SDK}` layers directory when `VULKAN_SDK` is not set
 
 ## Vulkan Configurator 3.5.2 - September 2026
 [Vulkan SDK 1.4.363.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.363)

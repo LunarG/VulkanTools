@@ -26,6 +26,7 @@
 #include <array>
 
 #include <QDir>
+#include <QTemporaryDir>
 
 #include <gtest/gtest.h>
 
@@ -342,6 +343,28 @@ TEST(test_path, get_path_home_sdk) {
     qputenv("VULKAN_SDK", "~/VulkanSDK");
     const std::string value = AbsolutePath(Path::SDK);
     EXPECT_STREQ(Path("~/VulkanSDK").AbsolutePath().c_str(), value.c_str());
+}
+
+TEST(test_path, get_path_sdk_explicit_layers_unset) {
+    const QByteArray vulkan_sdk = qgetenv("VULKAN_SDK");
+    qunsetenv("VULKAN_SDK");
+
+    EXPECT_TRUE(Path(Path::SDK_EXPLICIT_LAYERS).Empty());
+
+    qputenv("VULKAN_SDK", vulkan_sdk);
+}
+
+TEST(test_path, get_path_sdk_explicit_layers_set) {
+    const QByteArray vulkan_sdk = qgetenv("VULKAN_SDK");
+    QTemporaryDir sdk_dir;
+    ASSERT_TRUE(sdk_dir.isValid());
+    qputenv("VULKAN_SDK", sdk_dir.path().toUtf8());
+
+    const QString value(AbsolutePath(Path::SDK_EXPLICIT_LAYERS, false).c_str());
+    EXPECT_TRUE(value.startsWith(AbsolutePath(Path::SDK, false).c_str()));
+    EXPECT_TRUE(value.endsWith(VKC_ENV == VKC_ENV_WIN32 ? "/Bin" : "/share/vulkan/explicit_layer.d"));
+
+    qputenv("VULKAN_SDK", vulkan_sdk);
 }
 
 TEST(test_path, get_path_url_sdk) {
