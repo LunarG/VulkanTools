@@ -24,9 +24,10 @@
 #include "vulkan/vulkan.h"
 #include <unordered_map>
 #include <cstring>
+#include <memory>
 
-typedef std::unordered_map<void *, VkuDeviceDispatchTable *> device_table_map;
-typedef std::unordered_map<void *, VkuInstanceDispatchTable *> instance_table_map;
+using device_table_map = std::unordered_map<void *, std::unique_ptr<VkuDeviceDispatchTable>>;
+using instance_table_map = std::unordered_map<void *, std::unique_ptr<VkuInstanceDispatchTable>>;
 VkuDeviceDispatchTable *initDeviceTable(VkDevice device, const PFN_vkGetDeviceProcAddr gpa, device_table_map &map);
 VkuDeviceDispatchTable *initDeviceTable(VkDevice device, const PFN_vkGetDeviceProcAddr gpa);
 VkuInstanceDispatchTable *initInstanceTable(VkInstance instance, const PFN_vkGetInstanceProcAddr gpa, instance_table_map &map);
@@ -51,23 +52,6 @@ void destroy_device_dispatch_table(dispatch_key key);
 void destroy_instance_dispatch_table(dispatch_key key);
 void destroy_dispatch_table(device_table_map &map, dispatch_key key);
 void destroy_dispatch_table(instance_table_map &map, dispatch_key key);
-
-// For the given data key, look up the layer_data instance from given layer_data_map
-template <typename DATA_T>
-DATA_T *GetLayerDataPtr(void *data_key, std::unordered_map<void *, DATA_T *> &layer_data_map) {
-    DATA_T *debug_data;
-    /* TODO: We probably should lock here, or have caller lock */
-    auto got = layer_data_map.find(data_key);
-
-    if (got == layer_data_map.end()) {
-        debug_data = new DATA_T;
-        layer_data_map[(void *)data_key] = debug_data;
-    } else {
-        debug_data = got->second;
-    }
-
-    return debug_data;
-}
 
 inline VkResult util_GetExtensionProperties(const uint32_t count, const VkExtensionProperties *layer_extensions, uint32_t *pCount,
                                             VkExtensionProperties *pProperties) {

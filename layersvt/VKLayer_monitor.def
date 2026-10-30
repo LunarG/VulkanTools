@@ -21,4 +21,8 @@ LIBRARY VkLayer_monitor
 EXPORTS
 vkGetInstanceProcAddr
 vkGetDeviceProcAddr
+vkEnumerateInstanceLayerProperties
+vkEnumerateDeviceLayerProperties
+vkEnumerateInstanceExtensionProperties
+vkEnumerateDeviceExtensionProperties
 

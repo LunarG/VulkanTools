@@ -4,3 +4,8 @@ if (WIN32)
 endif()
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${apidump_test_script} ${CMAKE_CURRENT_BINARY_DIR})
+
+# Android builds can't run the tests
+if (BUILD_MONITOR AND NOT ANDROID)
+    add_subdirectory(monitor)
+endif()
