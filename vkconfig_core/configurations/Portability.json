@@ -2,7 +2,7 @@
     "file_format_version": "3.0.0",
     "configuration": {
         "name": "Portability",
-        "version": 2,
+        "version": 3,
         "platforms": [
             "WINDOWS",
             "LINUX",
@@ -37,7 +37,7 @@
                     {
                         "key": "profile_name",
                         "type": "ENUM",
-                        "value": "VP_LUNARG_desktop_baseline_2023"
+                        "value": "VP_LUNARG_desktop_baseline_2026"
                     }
                 ],
                 "control": "on",
