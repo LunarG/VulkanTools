@@ -329,8 +329,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
 VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks *pAllocator) {
     LayerData *my_data = GetLayerData(get_dispatch_key(device));
     const VkuDeviceDispatchTable &dispatch = *my_data->device_dispatch_table;
-    ForgetSwapchain(dispatch, my_data->overlay, swapchain);
+    const std::unique_ptr<SwapchainOverlay> overlay = ForgetSwapchain(dispatch, my_data->overlay, swapchain);
     dispatch.DestroySwapchainKHR(device, swapchain, pAllocator);
+    if (overlay) {
+        DestroySwapchainOverlay(my_data->overlay.device, dispatch, *overlay);
+    }
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(VkDevice device, uint32_t swapchainCount,

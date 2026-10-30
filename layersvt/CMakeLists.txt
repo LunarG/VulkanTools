@@ -122,6 +122,10 @@ if(BUILD_MONITOR)
     if (ANDROID)
         target_link_libraries(VkLayer_monitor_core PUBLIC log)
     endif()
+    # The dispatch table's layout depends on the VK_USE_PLATFORM_* definitions above, so code linking the core, like the
+    # unit tests in tests/monitor, has to be compiled with the same ones
+    get_directory_property(LAYER_COMPILE_DEFINITIONS COMPILE_DEFINITIONS)
+    target_compile_definitions(VkLayer_monitor_core INTERFACE ${LAYER_COMPILE_DEFINITIONS})
     # The monitor layer itself remains small with only the exported entry points, while the core functionality is in the static library.
     # This separation allows the core functionality to be reused by unit tests and other components without requiring the full layer to be linked.
     add_library(VkLayer_monitor "${VK_LAYER_TYPE}")

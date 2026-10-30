@@ -103,7 +103,7 @@ constexpr std::array<std::array<uint8_t, kGlyphHeight>, kGlyphCount> kFont = {{
 
 uint8_t GlyphIndex(char character) {
     const size_t index = kGlyphChars.find(character);
-    return index == std::string_view::npos ? 0 : static_cast<uint8_t>(index);
+    return index == std::string_view::npos ? uint8_t{0} : static_cast<uint8_t>(index);
 }
 
 uint8_t GlyphRow(uint8_t glyph, int row) {

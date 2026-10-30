@@ -184,9 +184,11 @@ struct DeviceOverlay {
     std::unordered_map<VkQueue, std::unique_ptr<QueueOverlay>> queues;
 };
 
-// Waits until no overlay submission draws on the swapchain, then destroys its overlay. Call before the swapchain is
-// destroyed.
-void ForgetSwapchain(const VkuDeviceDispatchTable &dispatch, DeviceOverlay &state, VkSwapchainKHR swapchain);
+// Stops tracking the swapchain and waits until no overlay submission draws on it. Call before the swapchain is destroyed.
+// Returns its overlay, or null if it had none, for DestroySwapchainOverlay after the swapchain is gone: a present may
+// still be waiting on the overlay's semaphores until then.
+[[nodiscard]] std::unique_ptr<SwapchainOverlay> ForgetSwapchain(const VkuDeviceDispatchTable &dispatch, DeviceOverlay &state,
+                                                                VkSwapchainKHR swapchain);
 
 // Sets up the overlay of a newly created swapchain and starts tracking it. Returns why the overlay can't be drawn on it,
 // or null. The device lock is only held to add it, so presents to other swapchains go on while it's set up.
