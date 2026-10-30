@@ -391,7 +391,8 @@ Warn WarnIf(bool enabled, Warn warn) {
     return [](const char * /*message*/) {};
 }
 
-void ForgetSwapchain(const VkuDeviceDispatchTable &dispatch, DeviceOverlay &state, VkSwapchainKHR swapchain) {
+std::unique_ptr<SwapchainOverlay> ForgetSwapchain(const VkuDeviceDispatchTable &dispatch, DeviceOverlay &state,
+                                                  VkSwapchainKHR swapchain) {
     // The waits happen without the device lock, so presents to other swapchains aren't held up. Queue overlays live as
     // long as the device, and the app can't present this swapchain while destroying it.
     std::unique_ptr<SwapchainOverlay> overlay;
@@ -400,7 +401,7 @@ void ForgetSwapchain(const VkuDeviceDispatchTable &dispatch, DeviceOverlay &stat
         const std::scoped_lock lock(state.lock);
         auto it = state.swapchains.find(swapchain);
         if (it == state.swapchains.end()) {
-            return;
+            return nullptr;
         }
         overlay = std::move(it->second);
         state.swapchains.erase(it);
@@ -412,7 +413,7 @@ void ForgetSwapchain(const VkuDeviceDispatchTable &dispatch, DeviceOverlay &stat
         const std::scoped_lock queue_lock(queue->lock);
         WaitForSwapchain(state.device, dispatch, queue->ring, swapchain);
     }
-    DestroySwapchainOverlay(state.device, dispatch, *overlay);
+    return overlay;
 }
 
 const char *AddSwapchainOverlay(const VkuDeviceDispatchTable &dispatch, DeviceOverlay &state, VkSwapchainKHR swapchain,
@@ -568,12 +569,12 @@ VkResult PresentWithOverlay(const VkuDeviceDispatchTable &dispatch, DeviceOverla
     queue_state->waits.assign(present_info.pWaitSemaphores, present_info.pWaitSemaphores + present_info.waitSemaphoreCount);
     const std::vector<VkSemaphore> &signals = queue_state->signals;
     VkResult result = SubmitOverlay(state.device, dispatch, queue, slot, queue_state->waits, signals, queue_state->swapchains);
-    if (result == VK_ERROR_OUT_OF_HOST_MEMORY || result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
-        // The app's semaphores weren't touched, so the frame can still be presented without the overlay
-        return present_without_overlay("out of memory, some frames are presented without the overlay");
-    }
     if (result != VK_SUCCESS) {
-        return result;
+        // A failed submit leaves the app's semaphores alone, so the frame is presented as if the layer weren't there. Even
+        // after a device loss, the driver's present reports the error and fills in pResults for the application.
+        const bool out_of_memory = result == VK_ERROR_OUT_OF_HOST_MEMORY || result == VK_ERROR_OUT_OF_DEVICE_MEMORY;
+        return present_without_overlay(out_of_memory ? "out of memory, some frames are presented without the overlay"
+                                                     : "the overlay submit failed, some frames are presented without the overlay");
     }
 
     // The rewritten info lives in the queue's state, which only the next present to this queue changes

@@ -639,11 +639,16 @@ TEST(MonitorPresent, ForgettingASwapchainWaitsForItsOverlayOnEveryQueue) {
 
     const AppPresentInfo app({MakeHandle<VkSwapchainKHR>(0x50)}, {0});
     ASSERT_EQ(PresentWithOverlay(dispatch, state, app.info), VK_SUCCESS);
-    monitor::ForgetSwapchain(dispatch, state, MakeHandle<VkSwapchainKHR>(0x50));
+    const std::unique_ptr<monitor::SwapchainOverlay> forgotten =
+        monitor::ForgetSwapchain(dispatch, state, MakeHandle<VkSwapchainKHR>(0x50));
 
     EXPECT_EQ(device.fences_waited.size(), 1u);
     EXPECT_EQ(device.hung_waits, 0);
     EXPECT_TRUE(state.swapchains.empty());
+    // The present may still wait on the overlay's semaphores until the swapchain is destroyed, so they outlive the call
+    ASSERT_NE(forgotten, nullptr);
+    EXPECT_GT(device.Live("semaphore"), 0) << HandleValue(present_wait);
+    monitor::DestroySwapchainOverlay(kDevice, dispatch, *forgotten);
     EXPECT_EQ(device.Live("semaphore"), 0) << HandleValue(present_wait);
 
     monitor::DestroyDeviceOverlay(dispatch, state);
@@ -1062,6 +1067,29 @@ TEST(MonitorPresent, PresentRetriesTheQueueAfterRunningOutOfMemory) {
 
     monitor::DestroyDeviceOverlay(dispatch, state);
     ExpectNothingLive(device);
+}
+
+// Whatever the overlay submit fails with, the app's semaphores are untouched, so the driver still gets the app's present.
+// That is also what fills in the app's pResults.
+TEST(MonitorPresent, FailedSubmitStillPresentsTheAppsFrame) {
+    for (const VkResult error : {VK_ERROR_OUT_OF_DEVICE_MEMORY, VK_ERROR_DEVICE_LOST}) {
+        FakeDevice device;
+        const VkuDeviceDispatchTable dispatch = FakeDevice::Dispatch();
+        monitor::DeviceOverlay state;
+        SetUpGraphicsDevice(state);
+        AddSwapchain(dispatch, state, MakeHandle<VkSwapchainKHR>(0x50));
+
+        device.submit_result = error;
+        device.present_result = error;
+        const AppPresentInfo app({MakeHandle<VkSwapchainKHR>(0x50)}, {1});
+        EXPECT_EQ(PresentWithOverlay(dispatch, state, app.info), error);
+
+        ASSERT_EQ(device.presents.size(), 1u) << error;
+        EXPECT_EQ(device.presents[0].waits, std::vector<VkSemaphore>{app.rendered}) << error;
+
+        monitor::DestroyDeviceOverlay(dispatch, state);
+        ExpectNothingLive(device);
+    }
 }
 
 // Other errors mean the present was enqueued, so its waits happened and there is nothing to undo
