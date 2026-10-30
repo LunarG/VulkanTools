@@ -63,7 +63,8 @@ class LayerManager : public Serialize {
 
     std::array<std::vector<Path>, LAYERS_PATHS_COUNT> BuildLayersSearchPaths() const;
     void LoadAllInstalledLayers(ConfiguratorMode configurator_mode);
-    LayerLoadStatus LoadLayers(const Path& layer_path, LayerType type, ConfiguratorMode configurator_mode);
+    LayerLoadStatus LoadLayers(const Path& layer_path, LayerType type, ConfiguratorMode configurator_mode,
+                               LayerValidated* validated = nullptr);
 
     void RemoveLayer(LayerId id);
     void EnableLayer(LayerId id, bool enable);
@@ -76,6 +77,7 @@ class LayerManager : public Serialize {
     std::vector<std::string> GatherLayerNames() const;
 
     std::set<Path> gui_added_layers_paths;
+    std::set<Path> hide_validation_message_paths;
 
     std::vector<Layer> available_layers;
     Path last_layers_dir = Path(Path::HOME);
@@ -86,7 +88,7 @@ class LayerManager : public Serialize {
     }
 
    private:
-    LayerValidated Validate(const Path& layer_path, QString json_text, ConfiguratorMode configurator_mode) const;
+    LayerValidated Validate(const Path& layer_path, QString json_text, ConfiguratorMode configurator_mode);
 
     LayerLoadStatus LoadLayer(const QJsonObject& json_layer_object, const Path& layer_path, LayerType type,
                               Version file_format_version, LayerDescriptor descriptor);
