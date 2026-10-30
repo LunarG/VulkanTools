@@ -27,6 +27,7 @@
 #include <QJsonArray>
 #include <QDesktopServices>
 #include <QFileDialog>
+#include <QCheckBox>
 
 static std::vector<Path> GetEnvVariablePaths(const char *variable_name, LayerType type) {
     std::vector<Path> result;
@@ -508,7 +509,7 @@ void LayerManager::LoadAllInstalledLayers(ConfiguratorMode configurator_mode) {
     // this->ApplyLayerDescriptor();
 }
 
-LayerValidated LayerManager::Validate(const Path &layer_path, QString json_text, ConfiguratorMode configurator_mode) const {
+LayerValidated LayerManager::Validate(const Path &layer_path, QString json_text, ConfiguratorMode configurator_mode) {
     JsonValidator validator;
     bool result = validator.Check(json_text);
 
@@ -517,6 +518,10 @@ LayerValidated LayerManager::Validate(const Path &layer_path, QString json_text,
             default: {
             } break;
             case CONFIGURATOR_MODE_GUI: {
+                if (this->hide_validation_message_paths.find(layer_path) != this->hide_validation_message_paths.end()) {
+                    break;
+                }
+
                 QMessageBox alert;
                 alert.setWindowTitle("Failed to load a layer manifest...");
                 alert.setText(format("%s is not a valid layer file", layer_path.AbsolutePath().c_str()).c_str());
@@ -524,7 +529,11 @@ LayerValidated LayerManager::Validate(const Path &layer_path, QString json_text,
                 alert.setIcon(QMessageBox::Critical);
                 alert.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 alert.setDefaultButton(QMessageBox::Yes);
+                alert.setCheckBox(new QCheckBox("Do not show again for this layer manifest."));
                 int result = alert.exec();
+                if (alert.checkBox()->isChecked()) {
+                    this->hide_validation_message_paths.insert(layer_path);
+                }
                 if (result == QMessageBox::Yes) {
                     const QString &selected_path = QFileDialog::getSaveFileName(
                         nullptr, format("Export %s validation log", layer_path.AbsolutePath().c_str()).c_str(),
@@ -569,7 +578,12 @@ LayerDescriptor LayerManager::GetDescriptor(const Path &layer_path, const std::s
     return LayerDescriptor();
 }
 
-LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type, ConfiguratorMode configurator_mode) {
+LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type, ConfiguratorMode configurator_mode,
+                                         LayerValidated *validated) {
+    if (validated != nullptr) {
+        *validated = LAYER_VALIDATE_NONE;
+    }
+
     QFile file(layer_path.AbsolutePath().c_str());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         assert(0);
@@ -617,9 +631,13 @@ LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type,
             LayerDescriptor descriptor = this->GetDescriptor(layer_path, key);
 
             if (this->validate_manifests &&
-                (descriptor.last_modified != last_modified || descriptor.validated == LAYER_VALIDATE_NONE)) {
+                (descriptor.last_modified != last_modified || descriptor.validated != LAYER_VALIDATE_PASS)) {
                 descriptor.validated = this->Validate(layer_path, json_text, configurator_mode);
                 descriptor.last_modified = last_modified;
+            }
+
+            if (validated != nullptr && *validated != LAYER_VALIDATE_FAIL) {
+                *validated = descriptor.validated;
             }
 
             status = this->LoadLayer(json_layer_object, layer_path, type, file_format_version, descriptor);
@@ -636,9 +654,13 @@ LayerLoadStatus LayerManager::LoadLayers(const Path &layer_path, LayerType type,
         LayerDescriptor descriptor = this->GetDescriptor(layer_path, layer_key);
 
         if (this->validate_manifests &&
-            (descriptor.last_modified != last_modified || descriptor.validated == LAYER_VALIDATE_NONE)) {
+            (descriptor.last_modified != last_modified || descriptor.validated != LAYER_VALIDATE_PASS)) {
             descriptor.validated = this->Validate(layer_path, json_text, configurator_mode);
             descriptor.last_modified = last_modified;
+        }
+
+        if (validated != nullptr) {
+            *validated = descriptor.validated;
         }
 
         status = this->LoadLayer(json_layer_object, layer_path, type, file_format_version, descriptor);
