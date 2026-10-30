@@ -195,6 +195,7 @@ void TabLayers::on_layers_reload_pressed() {
     Configurator &configurator = Configurator::Get();
 
     std::vector<int> layers_count(LAYER_LOAD_COUNT, 0);
+    int layers_validation_failed_count = 0;
 
     const std::vector<Path> &layers_paths = ::CollectLayersPaths(new_path);
 
@@ -209,8 +210,13 @@ void TabLayers::on_layers_reload_pressed() {
         this->ui->layers_progress->setValue(static_cast<int>(i + 1));
         this->ui->layers_progress->update();
 
-        LayerLoadStatus status = configurator.layers.LoadLayers(layers_paths[i], LAYER_TYPE_EXPLICIT, configurator.mode);
+        LayerValidated validated = LAYER_VALIDATE_NONE;
+        LayerLoadStatus status =
+            configurator.layers.LoadLayers(layers_paths[i], LAYER_TYPE_EXPLICIT, configurator.mode, &validated);
         ++layers_count[status];
+        if (validated == LAYER_VALIDATE_FAIL) {
+            ++layers_validation_failed_count;
+        }
 
         std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::milliseconds(10));
     }
@@ -234,6 +240,9 @@ void TabLayers::on_layers_reload_pressed() {
         text += format(" - %d layer manifests added.\n", layers_count[LAYER_LOAD_ADDED]);
         text += format(" - %d layer manifests reloaded.\n", layers_count[LAYER_LOAD_RELOADED]);
         text += format(" - %d layer manifests unmodified.", layers_count[LAYER_LOAD_UNMODIFIED]);
+        if (configurator.layers.validate_manifests) {
+            text += format("\n - %d layer manifests failed the schema validation.", layers_validation_failed_count);
+        }
 
         QMessageBox message;
         message.setIcon(QMessageBox::Information);

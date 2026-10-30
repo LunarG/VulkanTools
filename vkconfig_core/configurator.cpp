@@ -75,6 +75,8 @@ Configurator& Configurator::Get() {
 void Configurator::Release() { ::configurator.reset(); }
 
 Configurator::Configurator() : mode(init_mode) {
+    this->layers.validate_manifests = true;
+
 #ifdef SDK_VERSION
     const Version sdk_version(SDK_VERSION);
     if (sdk_version != Version::NONE) {
@@ -1167,6 +1169,12 @@ bool Configurator::Load() {
                     this->layers.gui_added_layers_paths.insert(json_paths[i].toString().toStdString());
                 }
             }
+            if (json_object.value("hide_validation_messages") != QJsonValue::Undefined) {
+                const QJsonArray& json_paths = json_object.value("hide_validation_messages").toArray();
+                for (std::size_t i = 0, n = json_paths.size(); i < n; ++i) {
+                    this->layers.hide_validation_message_paths.insert(json_paths[i].toString().toStdString());
+                }
+            }
         }
 
         // TAB_DRIVERS
@@ -1411,8 +1419,15 @@ bool Configurator::Save() const {
             json_paths.append(it->AbsolutePath().c_str());
         }
 
+        QJsonArray json_hide_validation_messages;
+        for (auto it = this->layers.hide_validation_message_paths.begin();
+             it != this->layers.hide_validation_message_paths.end(); ++it) {
+            json_hide_validation_messages.append(it->AbsolutePath().c_str());
+        }
+
         QJsonObject json_object;
         json_object.insert("paths", json_paths);
+        json_object.insert("hide_validation_messages", json_hide_validation_messages);
         json_object.insert("layers", json_layers);
         json_object.insert("validate_manifests", this->layers.validate_manifests);
         json_object.insert("last_driver_dir", this->layers.last_layers_dir.AbsolutePath().c_str());

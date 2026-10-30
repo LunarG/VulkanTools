@@ -6,9 +6,8 @@ CONFIG += sdk_no_version_check
 INCLUDEPATH += ../external/Debug/64/Vulkan-Headers/include
 INCLUDEPATH += ../external/Vulkan-Headers/include
 INCLUDEPATH += ../Vulkan-Headers/include
-
-# Ignore JSON validation
-DEFINES += JSON_VALIDATION_OFF
+INCLUDEPATH += ../external/Debug/64/valijson/build/install/include
+INCLUDEPATH += ../external/valijson/build/install/include
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings

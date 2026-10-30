@@ -7,6 +7,8 @@
 - Speed up layer manifest validation (validation layer manifest tested 18x faster)
 - Change `vkconfig layers --path` to list the locations Vulkan Configurator searches for Vulkan layers and the layers found in each
 - Update the *Portability* built-in configuration to use the `VP_LUNARG_desktop_baseline_2026` profile
+- Enable layer manifest validation by default and report invalid layer manifests on each launch until "Do not show again" is checked for that manifest
+- Report the number of layer manifests failing the schema validation when reloading layers
 
 ### Fixes:
 - Fix macOS Dock icon remaining visible when Vulkan Configurator keeps running in the system tray
