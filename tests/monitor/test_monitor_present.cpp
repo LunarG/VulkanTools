@@ -32,6 +32,7 @@
 
 #include "monitor_overlay.h"
 #include "monitor_present.h"
+#include "vk_layer_table.h"
 
 namespace {
 
@@ -154,9 +155,9 @@ STUB_DESTROY(DestroyFence, VkFence, "fence")
 VKAPI_ATTR VkResult VKAPI_CALL StubCreateImageView(VkDevice /*device*/, const VkImageViewCreateInfo* info,
                                                    const VkAllocationCallbacks* /*pAllocator*/, VkImageView* out) {
     VkImageUsageFlags usage = 0;
-    for (const auto* node = static_cast<const VkBaseInStructure*>(info->pNext); node; node = node->pNext) {
-        if (node->sType == VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO) {
-            usage = reinterpret_cast<const VkImageViewUsageCreateInfo*>(node)->usage;
+    for (const void* node = info->pNext; node; node = read_chain_header(node).pNext) {
+        if (read_chain_header(node).sType == VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO) {
+            usage = static_cast<const VkImageViewUsageCreateInfo*>(node)->usage;
         }
     }
     fake->view_usages.push_back(usage);
@@ -852,9 +853,9 @@ struct AppPresent {
 };
 
 const VkPresentRegionsKHR* FindRegions(const void* chain) {
-    for (const auto* node = static_cast<const VkBaseInStructure*>(chain); node; node = node->pNext) {
-        if (node->sType == VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR) {
-            return reinterpret_cast<const VkPresentRegionsKHR*>(node);
+    for (const void* node = chain; node; node = read_chain_header(node).pNext) {
+        if (read_chain_header(node).sType == VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR) {
+            return static_cast<const VkPresentRegionsKHR*>(node);
         }
     }
     return nullptr;
@@ -889,9 +890,8 @@ TEST(MonitorPresent, PresentRegionsCoverTheWholeImageWhenTheOverlayIsDrawn) {
         monitor::RewritePresentInfo(app.info, {MakeHandle<VkSemaphore>(0xB1)}, Drawn({false, true}), rewrite);
 
     // The display struct before the regions is still there, and so is the present ID after them
-    const auto* first = static_cast<const VkBaseInStructure*>(info.pNext);
-    ASSERT_NE(first, nullptr);
-    EXPECT_EQ(first->sType, VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR);
+    ASSERT_NE(info.pNext, nullptr);
+    EXPECT_EQ(read_chain_header(info.pNext).sType, VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR);
     const VkPresentRegionsKHR* regions = FindRegions(info.pNext);
     ASSERT_NE(regions, nullptr);
     EXPECT_NE(regions, &app.present_regions);

@@ -94,7 +94,6 @@ if (MSVC)
     add_link_options("$<$<CONFIG:Release>:/DEBUG:FULL>")
 endif()
 
-# TODO: Might be worth just combining all the layer build options into a single option now that they are all cross-platform.
 option(BUILD_APIDUMP "Build api_dump layer" ON)
 option(BUILD_MONITOR "Build monitor layer" ON)
 option(BUILD_SCREENSHOT "Build screenshot layer" ON)

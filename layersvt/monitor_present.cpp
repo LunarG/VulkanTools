@@ -17,6 +17,7 @@
 #include "monitor_present.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <chrono>
 #include <cstring>
@@ -27,6 +28,7 @@
 
 #include "monitor_overlay.h"
 #include "monitor_renderer.h"
+#include "vk_layer_table.h"
 
 namespace monitor {
 
@@ -313,23 +315,24 @@ void DestroySlotRing(VkDevice device, const VkuDeviceDispatchTable &dispatch, Sl
 // meaning the whole image changed. Returns the original chain if there are no regions or they can't be reached.
 [[nodiscard]] static const void *RewritePresentRegions(const void *chain, const std::vector<SwapchainOverlay *> &overlays,
                                                        PresentRewrite &rewrite) {
-    std::vector<const VkBaseInStructure *> &prefix = rewrite.prefix;
+    // The structs are only read through their own type once their sType is known. Until then their headers are copied out.
+    std::vector<const void *> &prefix = rewrite.prefix;
     prefix.clear();
-    const auto *node = static_cast<const VkBaseInStructure *>(chain);
-    for (; node && node->sType != VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR; node = node->pNext) {
+    const void *node = chain;
+    for (; node && read_chain_header(node).sType != VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR; node = read_chain_header(node).pNext) {
         prefix.push_back(node);
     }
     if (!node) {
         return chain;
     }
-    for (const VkBaseInStructure *before : prefix) {
-        if (PresentStructSize(before->sType) == 0) {
+    for (const void *before : prefix) {
+        if (PresentStructSize(read_chain_header(before).sType) == 0) {
             rewrite.regions_unchanged = true;
             return chain;
         }
     }
 
-    rewrite.present_regions = *reinterpret_cast<const VkPresentRegionsKHR *>(node);
+    rewrite.present_regions = *static_cast<const VkPresentRegionsKHR *>(node);
     if (rewrite.present_regions.pRegions) {
         rewrite.regions.assign(rewrite.present_regions.pRegions,
                                rewrite.present_regions.pRegions + rewrite.present_regions.swapchainCount);
@@ -342,15 +345,16 @@ void DestroySlotRing(VkDevice device, const VkuDeviceDispatchTable &dispatch, Sl
         rewrite.present_regions.pRegions = rewrite.regions.data();
     }
 
-    // Copy the structs ahead of the regions, back to front, each pointing at the next copy
+    // Copy the structs ahead of the regions, back to front, each pointing at the next copy. The copies are made and
+    // relinked with memcpy, which creates the structs in the 8-byte aligned storage without accessing it as another type.
     const void *next = &rewrite.present_regions;
     rewrite.copies.resize(prefix.size());
     for (size_t i = prefix.size(); i-- > 0;) {
-        const size_t size = PresentStructSize(prefix[i]->sType);
+        const size_t size = PresentStructSize(read_chain_header(prefix[i]).sType);
         std::vector<uint64_t> &copy = rewrite.copies[i];
         copy.resize((size + sizeof(uint64_t) - 1) / sizeof(uint64_t));
         memcpy(copy.data(), prefix[i], size);
-        reinterpret_cast<VkBaseInStructure *>(copy.data())->pNext = static_cast<const VkBaseInStructure *>(next);
+        memcpy(reinterpret_cast<std::byte *>(copy.data()) + offsetof(VkBaseOutStructure, pNext), &next, sizeof(next));
         next = copy.data();
     }
     return next;
