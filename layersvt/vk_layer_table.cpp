@@ -26,7 +26,13 @@
 static device_table_map tableMap;
 static instance_table_map tableInstanceMap;
 
-dispatch_key get_dispatch_key(const void *object) { return (dispatch_key) * (VkuDeviceDispatchTable **)object; }
+// The loader stores its dispatch table pointer in the first bytes of every dispatchable object. It's copied out rather than
+// read through a pointer cast, which would break C++'s aliasing rules.
+dispatch_key get_dispatch_key(const void *object) {
+    dispatch_key key = nullptr;
+    std::memcpy(&key, object, sizeof(key));
+    return key;
+}
 
 // Map lookup must be thread safe
 VkuDeviceDispatchTable *device_dispatch_table(void *object) {
@@ -65,20 +71,31 @@ VkuInstanceDispatchTable *get_dispatch_table(instance_table_map &map, void *obje
     return it->second.get();
 }
 
-VkLayerInstanceCreateInfo *get_chain_info(const VkInstanceCreateInfo *pCreateInfo, VkLayerFunction func) {
-    VkLayerInstanceCreateInfo *chain_info = (VkLayerInstanceCreateInfo *)pCreateInfo->pNext;
-    while (chain_info && !(chain_info->sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO && chain_info->function == func)) {
-        chain_info = (VkLayerInstanceCreateInfo *)chain_info->pNext;
+// The loader's struct of type `type` for `func` in a create info's pNext chain. The loader expects layers to change it,
+// so the const of the chain is cast away. A struct is only accessed as a LayerCreateInfo once its sType says it is one.
+template <typename LayerCreateInfo>
+static LayerCreateInfo *find_layer_create_info(const void *chain, VkStructureType type, VkLayerFunction func) {
+    for (const void *node = chain; node; node = read_chain_header(node).pNext) {
+        if (read_chain_header(node).sType == type) {
+            auto *info = static_cast<LayerCreateInfo *>(const_cast<void *>(node));
+            if (info->function == func) {
+                return info;
+            }
+        }
     }
+    return nullptr;
+}
+
+VkLayerInstanceCreateInfo *get_chain_info(const VkInstanceCreateInfo *pCreateInfo, VkLayerFunction func) {
+    VkLayerInstanceCreateInfo *chain_info =
+        find_layer_create_info<VkLayerInstanceCreateInfo>(pCreateInfo->pNext, VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO, func);
     assert(chain_info != NULL);
     return chain_info;
 }
 
 VkLayerDeviceCreateInfo *get_chain_info(const VkDeviceCreateInfo *pCreateInfo, VkLayerFunction func) {
-    VkLayerDeviceCreateInfo *chain_info = (VkLayerDeviceCreateInfo *)pCreateInfo->pNext;
-    while (chain_info && !(chain_info->sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO && chain_info->function == func)) {
-        chain_info = (VkLayerDeviceCreateInfo *)chain_info->pNext;
-    }
+    VkLayerDeviceCreateInfo *chain_info =
+        find_layer_create_info<VkLayerDeviceCreateInfo>(pCreateInfo->pNext, VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO, func);
     assert(chain_info != NULL);
     return chain_info;
 }

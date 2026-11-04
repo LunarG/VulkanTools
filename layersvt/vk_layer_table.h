@@ -48,6 +48,19 @@ VkuInstanceDispatchTable *get_dispatch_table(instance_table_map &map, void *obje
 VkLayerInstanceCreateInfo *get_chain_info(const VkInstanceCreateInfo *pCreateInfo, VkLayerFunction func);
 VkLayerDeviceCreateInfo *get_chain_info(const VkDeviceCreateInfo *pCreateInfo, VkLayerFunction func);
 
+// The sType and pNext every struct in a pNext chain starts with. The structs aren't VkBaseInStructure objects, so reading
+// them through a VkBaseInStructure pointer breaks C++'s aliasing rules. Copying the bytes out doesn't.
+struct chain_header {
+    VkStructureType sType;
+    const void *pNext;
+};
+
+inline chain_header read_chain_header(const void *structure) {
+    VkBaseInStructure base;
+    std::memcpy(&base, structure, sizeof(base));
+    return {base.sType, base.pNext};
+}
+
 void destroy_device_dispatch_table(dispatch_key key);
 void destroy_instance_dispatch_table(dispatch_key key);
 void destroy_dispatch_table(device_table_map &map, dispatch_key key);

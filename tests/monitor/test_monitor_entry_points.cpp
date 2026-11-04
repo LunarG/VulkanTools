@@ -26,6 +26,7 @@
 #include <string_view>
 
 #include "monitor_layer.h"
+#include "vk_layer_table.h"
 
 namespace {
 
@@ -184,6 +185,32 @@ TEST(MonitorEntryPoints, ToolsWithoutANextFunction) {
     EXPECT_EQ(monitor::PrependToolProperties(Tool("monitor"), VK_NULL_HANDLE, nullptr, &count, &tool), VK_SUCCESS);
     EXPECT_EQ(count, 1u);
     EXPECT_EQ(std::string_view(tool.name), "monitor");
+}
+
+// The loader's link info can come after structs of other types, which must only be read as what they are
+TEST(MonitorEntryPoints, ChainInfoIsFoundBehindOtherStructs) {
+    VkLayerInstanceLink link = {};
+    VkLayerInstanceCreateInfo loader_data = {VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO};
+    loader_data.function = VK_LOADER_DATA_CALLBACK;
+    VkLayerInstanceCreateInfo link_info = {VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO, &loader_data};
+    link_info.function = VK_LAYER_LINK_INFO;
+    link_info.u.pLayerInfo = &link;
+    VkLayerSettingsCreateInfoEXT settings = {VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT, &link_info};
+    VkInstanceCreateInfo create_info = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, &settings};
+
+    EXPECT_EQ(get_chain_info(&create_info, VK_LAYER_LINK_INFO), &link_info);
+    EXPECT_EQ(get_chain_info(&create_info, VK_LOADER_DATA_CALLBACK), &loader_data);
+
+    const chain_header header = read_chain_header(&settings);
+    EXPECT_EQ(header.sType, VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT);
+    EXPECT_EQ(header.pNext, &link_info);
+}
+
+// The loader puts its dispatch table pointer at the start of every dispatchable object
+TEST(MonitorEntryPoints, DispatchKeyIsTheLoadersDispatchPointer) {
+    int dispatch_table = 0;
+    void* object = &dispatch_table;
+    EXPECT_EQ(get_dispatch_key(&object), &dispatch_table);
 }
 
 }  // namespace

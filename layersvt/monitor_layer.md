@@ -14,7 +14,7 @@ The `VK_LAYER_LUNARG_monitor` utility layer draws a small overlay in the corner 
 - the average frame time in milliseconds, with the shortest and longest frame time in parentheses
 - the frame number
 
-The overlay is drawn into the presented images, so it works in fullscreen and doesn't depend on the window system. The application's window title is left alone. The layer is available on Windows, Linux, macOS, iOS and Android, and the overlay stays upright on Android devices that pre-rotate the swapchain.
+The overlay is drawn into the presented images, so it works in fullscreen and doesn't depend on the window system. The layer is available on Windows, Linux, macOS, iOS and Android, and the overlay stays upright on Android devices that pre-rotate the swapchain.
 
 The frame rate and frame times are measured between presents of each swapchain, and refresh twice a second by default. The frame number updates every frame: it starts at 0 for the first presented image and counts every `vkQueuePresentKHR` call of the `VkInstance`.
 

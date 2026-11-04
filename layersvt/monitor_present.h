@@ -137,8 +137,8 @@ struct PresentRewrite {
     VkPresentRegionsKHR present_regions = {};
     std::vector<VkPresentRegionKHR> regions;
     std::vector<std::vector<uint64_t>> copies;
-    std::vector<const VkBaseInStructure *> prefix;  // Structs ahead of VkPresentRegionsKHR
-    bool regions_unchanged = false;                 // VkPresentRegionsKHR was behind a struct that can't be copied
+    std::vector<const void *> prefix;  // Structs ahead of VkPresentRegionsKHR
+    bool regions_unchanged = false;    // VkPresentRegionsKHR was behind a struct that can't be copied
 };
 
 // The present waits on `waits` instead of the app's semaphores. Swapchains with an overlay in `overlays[i]` report their whole
