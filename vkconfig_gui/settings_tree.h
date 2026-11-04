@@ -54,22 +54,23 @@ class SettingsTreeManager : public QObject {
     void OnPresetChanged(int combox_preset_index);
     void OnSettingsResetted();
 
-    void on_item_collapsed(QTreeWidgetItem *item);
-    void on_item_expanded(QTreeWidgetItem *item);
+    void on_item_collapsed(QTreeWidgetItem* item);
+    void on_item_expanded(QTreeWidgetItem* item);
 
    Q_SIGNALS:
     void signalLayerVersionChanged();
 
    private:
-    SettingsTreeManager(const SettingsTreeManager &) = delete;
-    SettingsTreeManager &operator=(const SettingsTreeManager &) = delete;
+    SettingsTreeManager(const SettingsTreeManager&) = delete;
+    SettingsTreeManager& operator=(const SettingsTreeManager&) = delete;
 
-    void SetSettingExpanded(const std::string &key, const std::string &flag, bool expanded);
+    void SetSettingExpanded(const std::string& key, const std::string& flag, bool expanded);
 
+    void BuildVersions(const Parameter& parameter);
     void BuildTree();
-    void BuildTreeItem(QTreeWidgetItem *parent, const SettingMeta &meta);
+    void BuildTreeItem(QTreeWidgetItem* parent, const SettingMeta& meta);
 
-    void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem *parent);
+    void RefreshItem(RefreshAreas refresh_areas, QTreeWidgetItem* parent);
 
     std::shared_ptr<Ui::MainWindow> ui;
     // LayerVersionComboBox *layer_version = nullptr;

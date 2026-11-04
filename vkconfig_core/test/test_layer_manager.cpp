@@ -330,3 +330,20 @@ TEST(test_layer_manager, avoid_duplicate) {
 
     EXPECT_EQ(first_load_count, second_load_count);
 }
+
+TEST(test_layer_manager, LayerDisplay_same_version_different_paths) {
+    LayerDisplay layer_a;
+    layer_a.id.key = "VK_LAYER_LUNARG_test";
+    layer_a.id.api_version = Version(1, 4, 363);
+    layer_a.id.manifest_path = Path("/path_a/VkLayer_test.json");
+
+    LayerDisplay layer_b = layer_a;
+    layer_b.id.manifest_path = Path("/path_b/VkLayer_test.json");
+
+    std::set<LayerDisplay> layers;
+    layers.insert(layer_a);
+    layers.insert(layer_b);
+    layers.insert(layer_a);
+
+    EXPECT_TRUE(layers.size() == 2);
+}
