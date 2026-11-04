@@ -9,6 +9,7 @@
 - Update the *Portability* built-in configuration to use the `VP_LUNARG_desktop_baseline_2026` profile
 - Enable layer manifest validation by default and report invalid layer manifests on each launch until "Do not show again" is checked for that manifest
 - Report the number of layer manifests failing the schema validation when reloading layers
+- Display the layer manifest last modified date in the *Vulkan Layers located on the system* list to identify layers with the same API version
 
 ### Fixes:
 - Fix macOS Dock icon remaining visible when Vulkan Configurator keeps running in the system tray
@@ -17,6 +18,9 @@
 - Fix layer preset displayed as "User-Defined Settings" after settings reset when the default values match a layer preset
 - Fix `vkconfig layers --list-verbose` command line argument showing the help
 - Fix searching and trying to create an invalid `${VULKAN_SDK}` layers directory when `VULKAN_SDK` is not set
+- Fix layer name, layer settings checkbox and layer versions not displayed when the selected layer has no settings
+- Fix layer settings not displayed after selecting another layer version that has settings
+- Fix only one layer displayed in the *Vulkan Layers located on the system* list when layers with the same API version are located in different paths
 
 ## Vulkan Configurator 3.5.2 - September 2026
 [Vulkan SDK 1.4.363.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.363)

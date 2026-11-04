@@ -26,12 +26,20 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include <algorithm>
+
 LayerWidget::LayerWidget(const Layer& layer) : layer_id(layer.GetId()) {
     const Configurator& configurator = Configurator::Get();
 
     const std::string status = layer.status == STATUS_STABLE ? "" : format(" (%s)", ::GetToken(layer.status));
-    const std::string text = format("%s - %s%s - %s layer", layer.key.c_str(), layer.api_version.str().c_str(), status.c_str(),
-                                    ::ToLowerCase(::GetToken(layer.type)).c_str());
+
+    // Identify layers with the same key and API version located in different paths
+    std::string last_modified = layer.manifest_path.LastModified();
+    std::replace(last_modified.begin(), last_modified.end(), 'T', ' ');
+    const std::string modified = last_modified.empty() ? "" : format(" (%s)", last_modified.c_str());
+
+    const std::string text = format("%s - %s%s - %s layer%s", layer.key.c_str(), layer.api_version.str().c_str(), status.c_str(),
+                                    ::ToLowerCase(::GetToken(layer.type)).c_str(), modified.c_str());
 
     this->setText(text.c_str());
     this->setToolTip(format("%s", layer.manifest_path.AbsolutePath().c_str()).c_str());

@@ -60,33 +60,42 @@ void SettingsTreeManager::CreateGUI() {
     this->CleanupGUI();
 
     Configurator& configurator = Configurator::Get();
-    if (!configurator.HasActiveParameter() || !configurator.HasActiveSettings()) {
+    if (!configurator.HasActiveParameter() || !configurator.HasEnabledUI(ENABLE_UI_LAYERS)) {
         return;
     }
 
     Parameter* parameter = configurator.GetActiveParameter();
-    if (parameter->builtin == LAYER_BUILTIN_NONE) {
-        if (configurator.layers.FindFromManifest(parameter->manifest) == nullptr) {
-            Configuration* configuration = configurator.GetActiveConfiguration();
-            configuration->SwitchLayerLatest(configurator.layers, parameter->key);
-        }
+    if (parameter->builtin != LAYER_BUILTIN_NONE) {
+        return;
     }
 
-    // this->RefreshVersion();
+    if (configurator.layers.FindFromManifest(parameter->manifest) == nullptr) {
+        if (configurator.layers.Find(parameter->key, Version::LATEST) == nullptr) {
+            return;
+        }
 
+        Configuration* configuration = configurator.GetActiveConfiguration();
+        configuration->SwitchLayerLatest(configurator.layers, parameter->key);
+    }
+
+    // The layer is displayed even when it doesn't have any setting so that the user can still select the layer version
     const Layer* layer = configurator.layers.FindFromManifest(parameter->manifest);
+    if (layer == nullptr) {
+        return;
+    }
+
+    // Make sure the parameter has the setting data of the selected layer version
+    ::CollectDefaultSettingData(layer->settings, parameter->settings);
 
     std::string title = parameter->key;
-    if (layer != nullptr) {
-        if (layer->status != STATUS_STABLE) {
-            title += format(" (%s)", GetToken(layer->status));
-        }
+    if (layer->status != STATUS_STABLE) {
+        title += format(" (%s)", GetToken(layer->status));
     }
     // title.erase(0, strlen("VK_LAYER_"));
 
     this->ui->configurations_group_box_settings->blockSignals(true);
     this->ui->configurations_group_box_settings->setTitle(format("%s:", title.c_str()).c_str());
-    this->ui->configurations_group_box_settings->setEnabled(configurator.HasEnabledUI(ENABLE_UI_SETTINGS));
+    this->ui->configurations_group_box_settings->setEnabled(true);
     this->ui->configurations_group_box_settings->setCheckable(!configurator.GetActiveConfiguration()->override_settings);
     this->ui->configurations_group_box_settings->setChecked(parameter->override_settings);
     this->ui->configurations_group_box_settings->blockSignals(false);
@@ -97,53 +106,7 @@ void SettingsTreeManager::CreateGUI() {
                                                   parameter->override_settings);
     this->ui->configurations_settings_reset->setVisible(!layer->presets.empty());
 
-    const std::vector<Path>& layer_versions = configurator.layers.GatherManifests(parameter->key);
-    this->ui->configurations_versions->setEnabled(true);
-    this->ui->configurations_versions->setVisible(!layer_versions.empty());
-    if (!layer_versions.empty()) {
-        const Layer* layer_select = configurator.layers.FindFromManifest(parameter->manifest);
-        const Layer* layer_latest = configurator.layers.Find(parameter->key, Version::LATEST);
-
-        this->ui->configurations_versions->blockSignals(true);
-        this->ui->configurations_versions->clear();
-
-        this->layer_version_path.clear();
-
-        const std::string& latest_label = "Latest - " + layer_latest->manifest_path.AbsolutePath();
-        this->ui->configurations_versions->addItem(latest_label.c_str());
-        this->ui->configurations_versions->setItemData(0, layer_latest->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
-
-        this->layer_version_path.push_back(layer_latest->manifest_path);
-
-        int version_index = 0;
-        for (std::size_t i = 0, n = layer_versions.size(); i < n; ++i) {
-            if (layer_versions[i] == parameter->manifest) {
-                version_index = this->ui->configurations_versions->count();
-            }
-
-            const Layer* layer_version = configurator.layers.FindFromManifest(layer_versions[i]);
-
-            const int current_index = this->ui->configurations_versions->count();
-
-            const std::string& label = layer_version->api_version.str() + " - " + layer_version->manifest_path.AbsolutePath();
-
-            this->ui->configurations_versions->addItem(label.c_str());
-            this->ui->configurations_versions->setItemData(current_index, layer_version->manifest_path.AbsolutePath().c_str(),
-                                                           Qt::ToolTipRole);
-
-            this->layer_version_path.push_back(layer_version->manifest_path);
-        }
-
-        if (parameter->api_version != Version::LATEST) {
-            this->ui->configurations_versions->setCurrentIndex(version_index);
-        }
-
-        this->ui->configurations_versions->blockSignals(false);
-
-        if (layer_select != nullptr) {
-            this->ui->configurations_versions->setToolTip(layer_select->manifest_path.AbsolutePath().c_str());
-        }
-    }
+    this->BuildVersions(*parameter);
 
     // preset combobox
     {
@@ -453,6 +416,60 @@ void SettingsTreeManager::BuildTreeItem(QTreeWidgetItem* parent, const SettingMe
     }
 }
 
+void SettingsTreeManager::BuildVersions(const Parameter& parameter) {
+    Configurator& configurator = Configurator::Get();
+
+    const std::vector<Path>& layer_versions = configurator.layers.GatherManifests(parameter.key);
+    this->ui->configurations_versions->setEnabled(true);
+    this->ui->configurations_versions->setVisible(!layer_versions.empty());
+    if (layer_versions.empty()) {
+        return;
+    }
+
+    const Layer* layer_select = configurator.layers.FindFromManifest(parameter.manifest);
+    const Layer* layer_latest = configurator.layers.Find(parameter.key, Version::LATEST);
+
+    this->ui->configurations_versions->blockSignals(true);
+    this->ui->configurations_versions->clear();
+
+    this->layer_version_path.clear();
+
+    const std::string& latest_label = "Latest - " + layer_latest->manifest_path.AbsolutePath();
+    this->ui->configurations_versions->addItem(latest_label.c_str());
+    this->ui->configurations_versions->setItemData(0, layer_latest->manifest_path.AbsolutePath().c_str(), Qt::ToolTipRole);
+
+    this->layer_version_path.push_back(layer_latest->manifest_path);
+
+    int version_index = 0;
+    for (std::size_t i = 0, n = layer_versions.size(); i < n; ++i) {
+        if (layer_versions[i] == parameter.manifest) {
+            version_index = this->ui->configurations_versions->count();
+        }
+
+        const Layer* layer_version = configurator.layers.FindFromManifest(layer_versions[i]);
+
+        const int current_index = this->ui->configurations_versions->count();
+
+        const std::string& label = layer_version->api_version.str() + " - " + layer_version->manifest_path.AbsolutePath();
+
+        this->ui->configurations_versions->addItem(label.c_str());
+        this->ui->configurations_versions->setItemData(current_index, layer_version->manifest_path.AbsolutePath().c_str(),
+                                                       Qt::ToolTipRole);
+
+        this->layer_version_path.push_back(layer_version->manifest_path);
+    }
+
+    if (parameter.api_version != Version::LATEST) {
+        this->ui->configurations_versions->setCurrentIndex(version_index);
+    }
+
+    this->ui->configurations_versions->blockSignals(false);
+
+    if (layer_select != nullptr) {
+        this->ui->configurations_versions->setToolTip(layer_select->manifest_path.AbsolutePath().c_str());
+    }
+}
+
 void SettingsTreeManager::BuildTree() {
     Configurator& configurator = Configurator::Get();
     Parameter* parameter = configurator.GetActiveParameter();
@@ -497,7 +514,7 @@ void SettingsTreeManager::OnSettingsResetted() {
     Parameter* parameter = configurator.GetActiveParameter();
     assert(parameter != nullptr);
 
-    const Layer* layer = configurator.layers.Find(parameter->key.c_str(), parameter->api_version);
+    const Layer* layer = configurator.layers.FindFromManifest(parameter->manifest);
     if (layer == nullptr) {
         return;
     }
@@ -523,7 +540,7 @@ void SettingsTreeManager::OnPresetChanged(int combox_preset_index) {
         return;
     }
 
-    const Layer* layer = configurator.layers.Find(parameter->key.c_str(), parameter->api_version);
+    const Layer* layer = configurator.layers.FindFromManifest(parameter->manifest);
     if (layer == nullptr) {
         return;
     }
