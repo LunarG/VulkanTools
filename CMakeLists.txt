@@ -19,6 +19,16 @@ cmake_minimum_required(VERSION 3.22.1)
 # The VERSION field is generated with the "--generated-version" flag in the generate_source.py script
 project(VULKAN_TOOLS VERSION 1.4.363 LANGUAGES CXX)
 
+find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
+if(Qt6_FOUND)
+  get_target_property(QT_TARGET_TYPE Qt6::Core TYPE)
+endif()
+
+if(WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  message(STATUS "INFO: linking against static runtime")
+endif()
+
 add_subdirectory(scripts)
 
 find_package(VulkanHeaders ${PROJECT_VERSION} REQUIRED CONFIG)
@@ -31,11 +41,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL AppleClang AND TARGET Vulkan::Headers AND TAR
     set_target_properties(Vulkan::Headers PROPERTIES SYSTEM OFF)
     set_target_properties(Vulkan::UtilityHeaders PROPERTIES SYSTEM OFF)
     set_target_properties(Vulkan::LayerSettings PROPERTIES SYSTEM OFF)
-endif()
-
-find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
-if(Qt6_FOUND)
-  get_target_property(QT_TARGET_TYPE Qt6::Core TYPE)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -58,8 +63,11 @@ option(BUILD_TESTS "Build tests")
 option(RUN_ON_CI "Build only tests that can run on C.I." ON)
 
 if(BUILD_TESTS)
-    if (WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
-        message("WARNING: Static Qt detected! Please ensure googletest is built with update_deps.sh options: '--gtest-shared-libs=OFF' and '--gtest-force-shared-crt=OFF'")
+    if (WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY) AND (NOT UPDATE_DEPS))
+        message(WARNING "Static Qt detected! Dependencies must use the static runtime too. "
+          "Please re-run update_deps.py with:  '--gtest-shared-libs=OFF', "
+          "'--gtest-force-shared-crt=OFF' and "
+          "'--cmake_var 'CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>''")
     endif()
     enable_testing()
     find_package(GTest REQUIRED CONFIG)
@@ -135,11 +143,5 @@ if(BUILD_LAYERMGR)
         add_subdirectory(vkconfig_core)
         add_subdirectory(vkconfig_cmd)
         add_subdirectory(vkconfig_gui)
-
-        if(WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
-            set_property(TARGET vkconfig-gui vkconfig-cmd vkconfig-core PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-            message(STATUS "INFO: vkconfig will link against static runtime")
-        endif()
-
     endif()
 endif()
