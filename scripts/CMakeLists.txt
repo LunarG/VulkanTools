@@ -63,6 +63,7 @@ if (UPDATE_DEPS)
     if(WIN32 AND BUILD_TESTS AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
         list(APPEND update_dep_command "--gtest-shared-libs=OFF")
         list(APPEND update_dep_command "--gtest-force-shared-crt=OFF")
+        list(APPEND cmake_vars "CMAKE_MSVC_RUNTIME_LIBRARY")
     endif()
 
     list(APPEND cmake_vars "CMAKE_TOOLCHAIN_FILE")

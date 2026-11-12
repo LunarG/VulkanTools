@@ -41,10 +41,6 @@ function(vkConfigTest NAME)
         target_compile_definitions(${TEST_NAME} PRIVATE RUN_ON_CI)
     endif()
 
-    if(WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
-      set_property(TARGET ${TEST_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    endif()
-
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endfunction()
 
