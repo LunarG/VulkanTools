@@ -1,0 +1,24 @@
+{
+    "file_format_version": "3.0.0",
+    "configuration": {
+        "name": "Performance Overview",
+        "version": 1,
+        "platforms": [
+            "WINDOWS",
+            "LINUX",
+            "MACOS"
+        ],
+        "selected_layer_name": "VK_LAYER_LUNARG_monitor",
+        "override_layers": true,
+        "override_loader": false,
+        "layers": [
+            {
+                "name": "VK_LAYER_LUNARG_monitor",
+                "rank": 0,
+                "settings": [],
+                "control": "on",
+                "version": "latest"
+            }
+        ]
+    }
+}
