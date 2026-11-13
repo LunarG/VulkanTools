@@ -68,6 +68,7 @@
         <file alias="Disable All Vulkan Layers.json">../configurations/Disable All Vulkan Layers.json</file>
         <file alias="Discard Ordering and Enabling Layers.json">../configurations/Discard Ordering and Enabling Layers.json</file>
         <file alias="Frame Capture.json">../configurations/Frame Capture.json</file>
+        <file alias="Performance Overview.json">../configurations/Performance Overview.json</file>
         <file alias="Portability.json">../configurations/Portability.json</file>
         <file alias="Validation.json">../configurations/Validation.json</file>
     </qresource>
