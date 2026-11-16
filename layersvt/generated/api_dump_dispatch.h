@@ -2322,6 +2322,24 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceUbmPresentationSupportSEC(VkPh
     return result;
 }
 #endif  // VK_USE_PLATFORM_UBM_SEC
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceInternalHandleNV(VkPhysicalDevice physicalDevice, VkInternalHandleNV* pHandle) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+    dump_function_head(ApiDumpInstance::current(), "vkGetPhysicalDeviceInternalHandleNV", "physicalDevice, pHandle", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetPhysicalDeviceInternalHandleNV<Format>(ApiDumpInstance::current(), physicalDevice, pHandle);
+        }
+    }
+    instance_dispatch_table(physicalDevice)->GetPhysicalDeviceInternalHandleNV(physicalDevice, pHandle);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetPhysicalDeviceInternalHandleNV<Format>(ApiDumpInstance::current(), physicalDevice, pHandle);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
 
 // Autogen device functions
 
@@ -15972,6 +15990,63 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(VkCommandBuffer co
     }
 }
 template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkGetDeviceInternalHandleNV(VkDevice device, VkInternalHandleNV* pHandle) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetDeviceInternalHandleNV", "device, pHandle", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetDeviceInternalHandleNV<Format>(ApiDumpInstance::current(), device, pHandle);
+        }
+    }
+    device_dispatch_table(device)->GetDeviceInternalHandleNV(device, pHandle);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetDeviceInternalHandleNV<Format>(ApiDumpInstance::current(), device, pHandle);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkGetQueueInternalHandleNV(VkQueue queue, VkInternalHandleNV* pHandle) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetQueueInternalHandleNV", "queue, pHandle", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetQueueInternalHandleNV<Format>(ApiDumpInstance::current(), queue, pHandle);
+        }
+    }
+    device_dispatch_table(queue)->GetQueueInternalHandleNV(queue, pHandle);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetQueueInternalHandleNV<Format>(ApiDumpInstance::current(), queue, pHandle);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
+VKAPI_ATTR void VKAPI_CALL vkGetCommandBufferInternalHandleNV(VkCommandBuffer commandBuffer, VkInternalHandleNV* pHandle) {
+    std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
+
+    dump_function_head(ApiDumpInstance::current(), "vkGetCommandBufferInternalHandleNV", "commandBuffer, pHandle", "void");
+    if constexpr (Format == ApiDumpFormat::Text) {
+        if (ApiDumpInstance::current().settings().shouldPreDump() && ApiDumpInstance::current().shouldDumpOutput()) {
+            dump_before_pre_dump_formatting<Format>(ApiDumpInstance::current().settings());
+            dump_params_vkGetCommandBufferInternalHandleNV<Format>(ApiDumpInstance::current(), commandBuffer, pHandle);
+        }
+    }
+    device_dispatch_table(commandBuffer)->GetCommandBufferInternalHandleNV(commandBuffer, pHandle);
+    if (ApiDumpInstance::current().shouldDumpOutput()) {
+        dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
+        dump_params_vkGetCommandBufferInternalHandleNV<Format>(ApiDumpInstance::current(), commandBuffer, pHandle);
+        dump_post_function_formatting<Format>(ApiDumpInstance::current().settings());
+        flush(ApiDumpInstance::current().settings());
+    }
+}
+template <ApiDumpFormat Format>
 VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartIndexEXT(VkCommandBuffer commandBuffer, uint32_t primitiveRestartIndex) {
     std::lock_guard<std::mutex> lg(ApiDumpInstance::current().outputMutex());
 
@@ -16784,6 +16859,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_instance_functions(VkIns
     if (strcmp(pName, "vkGetPhysicalDeviceUbmPresentationSupportSEC") == 0)
         return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceUbmPresentationSupportSEC<Format>);
 #endif  // VK_USE_PLATFORM_UBM_SEC
+    if (strcmp(pName, "vkGetPhysicalDeviceInternalHandleNV") == 0)
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceInternalHandleNV<Format>);
 
     return nullptr;
 }
@@ -18202,6 +18279,12 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL api_dump_known_device_functions(VkDevic
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginCustomResolveEXT<Format>);
     if (strcmp(pName, "vkCmdSetComputeOccupancyPriorityNV") == 0 && (!device || device_dispatch_table(device)->CmdSetComputeOccupancyPriorityNV))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetComputeOccupancyPriorityNV<Format>);
+    if (strcmp(pName, "vkGetDeviceInternalHandleNV") == 0 && (!device || device_dispatch_table(device)->GetDeviceInternalHandleNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceInternalHandleNV<Format>);
+    if (strcmp(pName, "vkGetQueueInternalHandleNV") == 0 && (!device || device_dispatch_table(device)->GetQueueInternalHandleNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetQueueInternalHandleNV<Format>);
+    if (strcmp(pName, "vkGetCommandBufferInternalHandleNV") == 0 && (!device || device_dispatch_table(device)->GetCommandBufferInternalHandleNV))
+        return reinterpret_cast<PFN_vkVoidFunction>(vkGetCommandBufferInternalHandleNV<Format>);
     if (strcmp(pName, "vkCmdSetPrimitiveRestartIndexEXT") == 0 && (!device || device_dispatch_table(device)->CmdSetPrimitiveRestartIndexEXT))
         return reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetPrimitiveRestartIndexEXT<Format>);
     if (strcmp(pName, "vkCreateAccelerationStructureKHR") == 0 && (!device || device_dispatch_table(device)->CreateAccelerationStructureKHR))
