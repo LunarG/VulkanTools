@@ -5497,6 +5497,9 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR", static_cast<uint32_t>(object));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_LAYOUTS_FEATURES_ARM:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_LAYOUTS_FEATURES_ARM", static_cast<uint32_t>(object));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT", static_cast<uint32_t>(object));
             break;
@@ -5521,6 +5524,15 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT", static_cast<uint32_t>(object));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ADDRESS_BINDING_UNRESTRICTED_FEATURES_EXT:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ADDRESS_BINDING_UNRESTRICTED_FEATURES_EXT", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_FEATURES_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_FEATURES_KHR", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_PROPERTIES_KHR:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_PROPERTIES_KHR", static_cast<uint32_t>(object));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT", static_cast<uint32_t>(object));
             break;
@@ -5544,6 +5556,15 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
             break;
         case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_SMPTE_ST_209450_FEATURES_GOOGLE:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_SMPTE_ST_209450_FEATURES_GOOGLE", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_HDR_SMPTE_ST_209450_GOOGLE:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_HDR_SMPTE_ST_209450_GOOGLE", static_cast<uint32_t>(object));
+            break;
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_HDR_SMPTE_ST_209450_GOOGLE:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_HDR_SMPTE_ST_209450_GOOGLE", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -5771,6 +5792,9 @@ void dump_VkVendorId(const VkVendorId object, const ApiDumpSettings& settings, c
             break;
         case VK_VENDOR_ID_APE:
             dump_enum<Format>(settings, "VK_VENDOR_ID_APE", static_cast<uint32_t>(object));
+            break;
+        case VK_VENDOR_ID_APEX:
+            dump_enum<Format>(settings, "VK_VENDOR_ID_APEX", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -8179,6 +8203,18 @@ void dump_VkDriverId(const VkDriverId object, const ApiDumpSettings& settings, c
             break;
         case VK_DRIVER_ID_RESERVED_31:
             dump_enum<Format>(settings, "VK_DRIVER_ID_RESERVED_31", static_cast<uint32_t>(object));
+            break;
+        case VK_DRIVER_ID_APEX:
+            dump_enum<Format>(settings, "VK_DRIVER_ID_APEX", static_cast<uint32_t>(object));
+            break;
+        case VK_DRIVER_ID_NIKKI:
+            dump_enum<Format>(settings, "VK_DRIVER_ID_NIKKI", static_cast<uint32_t>(object));
+            break;
+        case VK_DRIVER_ID_MOMOTEN:
+            dump_enum<Format>(settings, "VK_DRIVER_ID_MOMOTEN", static_cast<uint32_t>(object));
+            break;
+        case VK_DRIVER_ID_AURORA_BOREALIS:
+            dump_enum<Format>(settings, "VK_DRIVER_ID_AURORA_BOREALIS", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -11009,6 +11045,21 @@ void dump_VkImageTilingControlEXT(const VkImageTilingControlEXT object, const Ap
             break;
         case VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT:
             dump_enum<Format>(settings, "VK_IMAGE_TILING_CONTROL_MAX_PERFORMANCE_EXT", static_cast<uint32_t>(object));
+            break;
+        default:
+            dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
+    }
+    dump_end<Format>(settings, OutputConstruct::value, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkHdrSmpteSt209450PowerPreferenceGOOGLE(const VkHdrSmpteSt209450PowerPreferenceGOOGLE object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::value, type_name, var_name, indents, address);
+    switch ((int64_t)object) {
+        case VK_HDR_SMPTE_ST_209450_POWER_PREFERENCE_COLOR_ACCURACY_GOOGLE:
+            dump_enum<Format>(settings, "VK_HDR_SMPTE_ST_209450_POWER_PREFERENCE_COLOR_ACCURACY_GOOGLE", static_cast<uint32_t>(object));
+            break;
+        case VK_HDR_SMPTE_ST_209450_POWER_PREFERENCE_LOW_POWER_GOOGLE:
+            dump_enum<Format>(settings, "VK_HDR_SMPTE_ST_209450_POWER_PREFERENCE_LOW_POWER_GOOGLE", static_cast<uint32_t>(object));
             break;
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
@@ -33304,6 +33355,32 @@ void dump_VkSharedPresentSurfaceCapabilities2KHR(const VkSharedPresentSurfaceCap
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceMaintenance12FeaturesKHR(const VkPhysicalDeviceMaintenance12FeaturesKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.maintenance12, settings, "VkBool32", "maintenance12", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceMaintenance12PropertiesKHR(const VkPhysicalDeviceMaintenance12PropertiesKHR& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, uint32_t>(object.maxInputAttachmentIndex, settings, "uint32_t", "maxInputAttachmentIndex", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkDebugReportCallbackCreateInfoEXT(const VkDebugReportCallbackCreateInfoEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -36822,7 +36899,7 @@ void dump_VkMetalSurfaceCreateInfoEXT(const VkMetalSurfaceCreateInfoEXT& object,
     dump_separate_members<Format>(settings);
     dump_VkMetalSurfaceCreateFlagsEXT<Format>(object.flags, settings, "VkMetalSurfaceCreateFlagsEXT", "flags", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
-    dump_type<Format, const CAMetalLayer*>(object.pLayer, settings, "const CAMetalLayer*", "pLayer", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_type<Format, CAMetalLayer*>(object.pLayer, settings, "CAMetalLayer*", "pLayer", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
     }
@@ -45456,6 +45533,19 @@ void dump_VkUbmSurfaceCreateInfoSEC(const VkUbmSurfaceCreateInfoSEC& object, con
 }
 #endif  // VK_USE_PLATFORM_UBM_SEC
 template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM(const VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.cooperativeMatrixArmLayouts, settings, "VkBool32", "cooperativeMatrixArmLayouts", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT(const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -45572,6 +45662,19 @@ void dump_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT(const VkPhysicalDevic
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
 template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT(const VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.vertexAddressBindingUnrestricted, settings, "VkBool32", "vertexAddressBindingUnrestricted", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
 void dump_VkPhysicalDeviceImageTilingControlFeaturesEXT(const VkPhysicalDeviceImageTilingControlFeaturesEXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
     dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
@@ -45674,6 +45777,49 @@ void dump_VkBufferDeviceAddressAlignmentAllocateInfoVALVE(const VkBufferDeviceAd
     dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     dump_separate_members<Format>(settings);
     dump_type<Format, uint32_t>(object.alignment, settings, "uint32_t", "alignment", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE(const VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.hdrSmpteSt209450, settings, "VkBool32", "hdrSmpteSt209450", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkHdrSmpteSt209450GOOGLE(const VkHdrSmpteSt209450GOOGLE& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "const void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, size_t>(object.metadataSize, settings, "size_t", "metadataSize", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, const void*>(object.pMetadata, settings, "const void*", "pMetadata", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_VkHdrSmpteSt209450PowerPreferenceGOOGLE<Format>(object.powerPreference, settings, "VkHdrSmpteSt209450PowerPreferenceGOOGLE", "powerPreference", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "const void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+template <ApiDumpFormat Format>
+void dump_VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE(const VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.hdrSmpteSt209450Supported, settings, "VkBool32", "hdrSmpteSt209450Supported", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
     if constexpr (Format == ApiDumpFormat::Text) {
         dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
     }
@@ -48486,6 +48632,14 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             dump_string<Format>(settings, "VkSharedPresentSurfaceCapabilities2KHR");
             break;
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_FEATURES_KHR:
+            dump_string<Format>(settings, "VkPhysicalDeviceMaintenance12FeaturesKHR");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_PROPERTIES_KHR:
+            dump_string<Format>(settings, "VkPhysicalDeviceMaintenance12PropertiesKHR");
+            break;
+
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
             dump_string<Format>(settings, "VkDebugReportCallbackCreateInfoEXT");
             break;
@@ -51174,6 +51328,10 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             break;
 #endif  // VK_USE_PLATFORM_UBM_SEC
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_LAYOUTS_FEATURES_ARM:
+            dump_string<Format>(settings, "VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM");
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT:
             dump_string<Format>(settings, "VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT");
             break;
@@ -51206,6 +51364,10 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
             dump_string<Format>(settings, "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT");
             break;
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ADDRESS_BINDING_UNRESTRICTED_FEATURES_EXT:
+            dump_string<Format>(settings, "VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT");
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
             dump_string<Format>(settings, "VkPhysicalDeviceImageTilingControlFeaturesEXT");
             break;
@@ -51236,6 +51398,18 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
 
         case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE:
             dump_string<Format>(settings, "VkBufferDeviceAddressAlignmentAllocateInfoVALVE");
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_SMPTE_ST_209450_FEATURES_GOOGLE:
+            dump_string<Format>(settings, "VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE");
+            break;
+
+        case VK_STRUCTURE_TYPE_HDR_SMPTE_ST_209450_GOOGLE:
+            dump_string<Format>(settings, "VkHdrSmpteSt209450GOOGLE");
+            break;
+
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_HDR_SMPTE_ST_209450_GOOGLE:
+            dump_string<Format>(settings, "VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE");
             break;
 
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
@@ -53600,6 +53774,14 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
 
         case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_2_KHR:
             dump_VkSharedPresentSurfaceCapabilities2KHR<Format>(*reinterpret_cast<const VkSharedPresentSurfaceCapabilities2KHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkSharedPresentSurfaceCapabilities2KHR*" : "VkSharedPresentSurfaceCapabilities2KHR"), "pNext", indents, reinterpret_cast<const VkSharedPresentSurfaceCapabilities2KHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_FEATURES_KHR:
+            dump_VkPhysicalDeviceMaintenance12FeaturesKHR<Format>(*reinterpret_cast<const VkPhysicalDeviceMaintenance12FeaturesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceMaintenance12FeaturesKHR*" : "VkPhysicalDeviceMaintenance12FeaturesKHR"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceMaintenance12FeaturesKHR*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_12_PROPERTIES_KHR:
+            dump_VkPhysicalDeviceMaintenance12PropertiesKHR<Format>(*reinterpret_cast<const VkPhysicalDeviceMaintenance12PropertiesKHR*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceMaintenance12PropertiesKHR*" : "VkPhysicalDeviceMaintenance12PropertiesKHR"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceMaintenance12PropertiesKHR*>(object));
             break;
 
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
@@ -56290,6 +56472,10 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
             break;
 #endif  // VK_USE_PLATFORM_UBM_SEC
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_LAYOUTS_FEATURES_ARM:
+            dump_VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM<Format>(*reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM*" : "VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixLayoutsFeaturesARM*>(object));
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OCP_MICROSCALING_TYPES_FEATURES_EXT:
             dump_VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT*" : "VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT*>(object));
             break;
@@ -56322,6 +56508,10 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
             dump_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT*" : "VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT*>(object));
             break;
 
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ADDRESS_BINDING_UNRESTRICTED_FEATURES_EXT:
+            dump_VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT*" : "VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceVertexAddressBindingUnrestrictedFeaturesEXT*>(object));
+            break;
+
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_TILING_CONTROL_FEATURES_EXT:
             dump_VkPhysicalDeviceImageTilingControlFeaturesEXT<Format>(*reinterpret_cast<const VkPhysicalDeviceImageTilingControlFeaturesEXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceImageTilingControlFeaturesEXT*" : "VkPhysicalDeviceImageTilingControlFeaturesEXT"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceImageTilingControlFeaturesEXT*>(object));
             break;
@@ -56352,6 +56542,18 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
 
         case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_ALIGNMENT_ALLOCATE_INFO_VALVE:
             dump_VkBufferDeviceAddressAlignmentAllocateInfoVALVE<Format>(*reinterpret_cast<const VkBufferDeviceAddressAlignmentAllocateInfoVALVE*>(object), settings, (Format == ApiDumpFormat::Json ? "VkBufferDeviceAddressAlignmentAllocateInfoVALVE*" : "VkBufferDeviceAddressAlignmentAllocateInfoVALVE"), "pNext", indents, reinterpret_cast<const VkBufferDeviceAddressAlignmentAllocateInfoVALVE*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_SMPTE_ST_209450_FEATURES_GOOGLE:
+            dump_VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE<Format>(*reinterpret_cast<const VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE*" : "VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceHdrSmpteSt209450FeaturesGOOGLE*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_HDR_SMPTE_ST_209450_GOOGLE:
+            dump_VkHdrSmpteSt209450GOOGLE<Format>(*reinterpret_cast<const VkHdrSmpteSt209450GOOGLE*>(object), settings, (Format == ApiDumpFormat::Json ? "VkHdrSmpteSt209450GOOGLE*" : "VkHdrSmpteSt209450GOOGLE"), "pNext", indents, reinterpret_cast<const VkHdrSmpteSt209450GOOGLE*>(object));
+            break;
+
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_HDR_SMPTE_ST_209450_GOOGLE:
+            dump_VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE<Format>(*reinterpret_cast<const VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE*>(object), settings, (Format == ApiDumpFormat::Json ? "VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE*" : "VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE"), "pNext", indents, reinterpret_cast<const VkSurfaceCapabilitiesHdrSmpteSt209450GOOGLE*>(object));
             break;
 
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
@@ -69218,6 +69420,58 @@ void dump_params_vkGetPhysicalDeviceUbmPresentationSupportSEC(ApiDumpInstance& d
     }
 }
 #endif  // VK_USE_PLATFORM_UBM_SEC
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetPhysicalDeviceInternalHandleNV(ApiDumpInstance& dump_inst, VkPhysicalDevice physicalDevice, VkInternalHandleNV* pHandle) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkPhysicalDevice<Format>(physicalDevice, settings, "VkPhysicalDevice", "physicalDevice", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, VkInternalHandleNV*>(pHandle, settings, "VkInternalHandleNV*", "pHandle", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetDeviceInternalHandleNV(ApiDumpInstance& dump_inst, VkDevice device, VkInternalHandleNV* pHandle) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkDevice<Format>(device, settings, "VkDevice", "device", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, VkInternalHandleNV*>(pHandle, settings, "VkInternalHandleNV*", "pHandle", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetQueueInternalHandleNV(ApiDumpInstance& dump_inst, VkQueue queue, VkInternalHandleNV* pHandle) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkQueue<Format>(queue, settings, "VkQueue", "queue", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, VkInternalHandleNV*>(pHandle, settings, "VkInternalHandleNV*", "pHandle", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
+
+template <ApiDumpFormat Format>
+void dump_params_vkGetCommandBufferInternalHandleNV(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, VkInternalHandleNV* pHandle) {
+    const ApiDumpSettings& settings(dump_inst.settings());
+    if (settings.showParams()) {
+        dump_pre_params_formatting<Format>(settings);
+        dump_VkCommandBuffer<Format>(commandBuffer, settings, "VkCommandBuffer", "commandBuffer", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_separate_members<Format>(settings);
+        dump_type<Format, VkInternalHandleNV*>(pHandle, settings, "VkInternalHandleNV*", "pHandle", (Format == ApiDumpFormat::Json ? 4 : 1));
+        dump_post_params_formatting<Format>(settings);
+        flush(settings);
+    }
+}
 
 template <ApiDumpFormat Format>
 void dump_params_vkCmdSetPrimitiveRestartIndexEXT(ApiDumpInstance& dump_inst, VkCommandBuffer commandBuffer, uint32_t primitiveRestartIndex) {
