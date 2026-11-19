@@ -19,14 +19,12 @@ cmake_minimum_required(VERSION 3.22.1)
 # The VERSION field is generated with the "--generated-version" flag in the generate_source.py script
 project(VULKAN_TOOLS VERSION 1.4.368 LANGUAGES CXX)
 
-find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
-if(Qt6_FOUND)
-  get_target_property(QT_TARGET_TYPE Qt6::Core TYPE)
-endif()
-
-if(WIN32 AND (QT_TARGET_TYPE STREQUAL STATIC_LIBRARY))
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-  message(STATUS "INFO: linking against static runtime")
+if (WIN32)
+    option(STATIC_LINK_MSVC_RUNTIME_LIBRARY "Forces linking to the static MSVC CRT library")
+    if (STATIC_LINK_MSVC_RUNTIME_LIBRARY)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        message(STATUS "INFO: linking against static MSVC CRT")
+    endif()
 endif()
 
 add_subdirectory(scripts)
@@ -35,6 +33,18 @@ find_package(VulkanHeaders ${PROJECT_VERSION} REQUIRED CONFIG)
 find_package(VulkanLoader CONFIG)
 find_package(VulkanUtilityLibraries REQUIRED CONFIG)
 find_package(valijson REQUIRED CONFIG)
+
+find_package(Qt6 COMPONENTS Core Gui Widgets Network QUIET)
+if(Qt6_FOUND)
+  get_target_property(QT_TARGET_TYPE Qt6::Core TYPE)
+endif()
+
+# If the Qt we are linking against was built as a static library then we need to ensure everything uses the static CRT.
+if (WIN32 AND QT_TARGET_TYPE STREQUAL STATIC_LIBRARY AND NOT STATIC_LINK_MSVC_RUNTIME_LIBRARY)
+    message(FATAL_ERROR "Using a static Qt without setting STATIC_LINK_MSVC_RUNTIME_LIBRARY is not supported.
+        Either set BUILD_LAYERMGR to OFF (removing the link to Qt) or set STATIC_LINK_MSVC_RUNTIME_LIBRARY to ON.
+        This ensures vkconfig, tests, and their dependencies all uniformly link to the static CRT.")
+endif()
 
 # Workaround AppleClang using the wrong headers when there are headers in /usr/local/include
 if (CMAKE_CXX_COMPILER_ID STREQUAL AppleClang AND TARGET Vulkan::Headers AND TARGET Vulkan::UtilityHeaders AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.25)
