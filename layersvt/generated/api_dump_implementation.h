@@ -5452,6 +5452,11 @@ void dump_VkStructureType(const VkStructureType object, const ApiDumpSettings& s
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV", static_cast<uint32_t>(object));
             break;
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_LEVEL_ACCELERATION_STRUCTURE_FEATURES_AMDX:
+            dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_LEVEL_ACCELERATION_STRUCTURE_FEATURES_AMDX", static_cast<uint32_t>(object));
+            break;
+#endif  // VK_ENABLE_BETA_EXTENSIONS
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR:
             dump_enum<Format>(settings, "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_KHR", static_cast<uint32_t>(object));
             break;
@@ -8639,6 +8644,11 @@ void dump_VkAccelerationStructureTypeKHR(const VkAccelerationStructureTypeKHR ob
         case VK_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_KHR:
             dump_enum<Format>(settings, "VK_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_KHR", static_cast<uint32_t>(object));
             break;
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
+        case VK_ACCELERATION_STRUCTURE_TYPE_MID_LEVEL_AMDX:
+            dump_enum<Format>(settings, "VK_ACCELERATION_STRUCTURE_TYPE_MID_LEVEL_AMDX", static_cast<uint32_t>(object));
+            break;
+#endif  // VK_ENABLE_BETA_EXTENSIONS
         default:
             dump_enum_with_value<Format>(settings, "UNKNOWN", static_cast<uint32_t>(object));
     }
@@ -14744,6 +14754,10 @@ void dump_VkPipelineCreateFlagBits2(const VkPipelineCreateFlagBits2 object, cons
     }
     if (object & VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT) {
         settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT";
+        is_first = false;
+    }
+    if (object & VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MULTI_LEVEL_ACCELERATION_STRUCTURES_BIT_AMDX) {
+        settings.stream() << (is_first ? " (" : " | ") << "VK_PIPELINE_CREATE_2_RAY_TRACING_ALLOW_MULTI_LEVEL_ACCELERATION_STRUCTURES_BIT_AMDX";
         is_first = false;
     }
 
@@ -45435,6 +45449,21 @@ void dump_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV(const VkPhysicalDev
     }
     dump_end<Format>(settings, OutputConstruct::api_struct, indents);
 }
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
+template <ApiDumpFormat Format>
+void dump_VkPhysicalDeviceMultiLevelAccelerationStructureFeaturesAMDX(const VkPhysicalDeviceMultiLevelAccelerationStructureFeaturesAMDX& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
+    dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
+    dump_VkStructureType<Format>(object.sType, settings, "VkStructureType", "sType", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_pNext<Format>(object.pNext, settings, "void*", "pNext", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    dump_separate_members<Format>(settings);
+    dump_type<Format, VkBool32>(object.multiLevelAccelerationStructure, settings, "VkBool32", "multiLevelAccelerationStructure", indents + (Format == ApiDumpFormat::Json ? 2 : 1));
+    if constexpr (Format == ApiDumpFormat::Text) {
+        dump_pNext_trampoline<ApiDumpFormat::Text>(object.pNext, settings, "void*", "void", indents < 2 ? indents + 1 : indents);
+    }
+    dump_end<Format>(settings, OutputConstruct::api_struct, indents);
+}
+#endif  // VK_ENABLE_BETA_EXTENSIONS
 template <ApiDumpFormat Format>
 void dump_VkCooperativeMatrixProperties2EXT(const VkCooperativeMatrixProperties2EXT& object, const ApiDumpSettings& settings, const char* type_name, const char* var_name, int indents, const void* address = nullptr) {
     dump_start<Format>(settings, OutputConstruct::api_struct, type_name, var_name, indents, address);
@@ -51305,6 +51334,12 @@ void dump_pNext_struct_name(const void* object, const ApiDumpSettings& settings,
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV:
             dump_string<Format>(settings, "VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV");
             break;
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_LEVEL_ACCELERATION_STRUCTURE_FEATURES_AMDX:
+            dump_string<Format>(settings, "VkPhysicalDeviceMultiLevelAccelerationStructureFeaturesAMDX");
+            break;
+#endif  // VK_ENABLE_BETA_EXTENSIONS
 
         case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT:
             dump_string<Format>(settings, "VkCooperativeMatrixProperties2EXT");
@@ -56449,6 +56484,12 @@ void dump_pNext_trampoline(const void* object, const ApiDumpSettings& settings, 
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV:
             dump_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV<Format>(*reinterpret_cast<const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV*" : "VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV*>(object));
             break;
+#if defined(VK_ENABLE_BETA_EXTENSIONS)
+
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_LEVEL_ACCELERATION_STRUCTURE_FEATURES_AMDX:
+            dump_VkPhysicalDeviceMultiLevelAccelerationStructureFeaturesAMDX<Format>(*reinterpret_cast<const VkPhysicalDeviceMultiLevelAccelerationStructureFeaturesAMDX*>(object), settings, (Format == ApiDumpFormat::Json ? "VkPhysicalDeviceMultiLevelAccelerationStructureFeaturesAMDX*" : "VkPhysicalDeviceMultiLevelAccelerationStructureFeaturesAMDX"), "pNext", indents, reinterpret_cast<const VkPhysicalDeviceMultiLevelAccelerationStructureFeaturesAMDX*>(object));
+            break;
+#endif  // VK_ENABLE_BETA_EXTENSIONS
 
         case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_2_EXT:
             dump_VkCooperativeMatrixProperties2EXT<Format>(*reinterpret_cast<const VkCooperativeMatrixProperties2EXT*>(object), settings, (Format == ApiDumpFormat::Json ? "VkCooperativeMatrixProperties2EXT*" : "VkCooperativeMatrixProperties2EXT"), "pNext", indents, reinterpret_cast<const VkCooperativeMatrixProperties2EXT*>(object));
