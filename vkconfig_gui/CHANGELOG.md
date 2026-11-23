@@ -1,5 +1,5 @@
-## Vulkan Configurator 3.5.3 - November 2026
-[Vulkan SDK 1.4.xxx.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.xxx)
+## Vulkan Configurator 3.5.3 - December 2026
+[Vulkan SDK 1.4.370.0](https://github.com/LunarG/VulkanTools/tree/vulkan-sdk-1.4.370)
 
 ### Improvements:
 - Bundle the Vulkan Loader in the macOS application bundle so Vulkan Configurator no longer requires a system wide Vulkan Loader installation
