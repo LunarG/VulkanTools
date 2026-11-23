@@ -402,7 +402,7 @@ void TabConfigurations::UpdateUI(UpdateUIMode ui_update_mode) {
     this->ui->configurations_executable_scope->setToolTip(::GetTooltip(scope));
     this->ui->configurations_executable_list->setEnabled(enabled_executable);
     this->ui->configurations_executable_append->setEnabled(enabled_executable);
-    this->ui->configurations_executable_remove->setEnabled(enabled_executable);
+    this->ui->configurations_executable_remove->setEnabled(enabled_executable && (configurator.executables.Size() > 1));
 
     this->ui->configurations_group_box_list->blockSignals(true);
     this->ui->configurations_group_box_list->setEnabled(configurator.HasEnabledUI(ENABLE_UI_CONFIG));
