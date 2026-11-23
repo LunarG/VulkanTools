@@ -2354,8 +2354,9 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(VkDevice device, const VkAllocationCa
             dump_params_vkDestroyDevice<Format>(ApiDumpInstance::current(), device, pAllocator);
         }
     }
+    auto dispatch_key = get_dispatch_key(device);
     device_dispatch_table(device)->DestroyDevice(device, pAllocator);
-    destroy_device_dispatch_table(get_dispatch_key(device));
+    destroy_device_dispatch_table(dispatch_key);
     if (ApiDumpInstance::current().shouldDumpOutput()) {
         dump_pre_function_formatting<Format>(ApiDumpInstance::current().settings());
         dump_params_vkDestroyDevice<Format>(ApiDumpInstance::current(), device, pAllocator);
