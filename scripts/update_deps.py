@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 # Copyright 2017 The Glslang Authors. All rights reserved.
-# Copyright (c) 2018-2023 Valve Corporation
-# Copyright (c) 2018-2023 LunarG, Inc.
+# Copyright (c) 2018-2026 Valve Corporation
+# Copyright (c) 2018-2026 LunarG, Inc.
 # Copyright (c) 2023-2023 RasterGrid Kft.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +43,16 @@ Program Options
 ---------------
 
 See the help text (update_deps.py --help) for a complete list of options.
+
+The "--config" option may be repeated (e.g. "--config Debug --config
+Release") to build a dependency for more than one configuration. This is
+required when "--generator" names a multi-config generator (Visual Studio,
+Xcode, Ninja Multi-Config): each dependency is configured once, then built
+and installed once per requested config, all into the same install
+directory, so that a single find_package() call in the consuming project
+resolves correctly no matter which config the IDE is currently building.
+Single-config generators (Ninja, Unix Makefiles, etc.) accept only one
+"--config" value.
 
 Program Operation
 -----------------
@@ -108,6 +118,9 @@ a description of its elements.  All elements are required except those
 marked as optional.  Please see the "known_good.json" file for
 examples of all of these elements.
 
+Required fields
+---------------
+
 - name
 
 The name of the dependent repository.  This field can be referenced
@@ -137,10 +150,28 @@ directory.
 The directory used to store the installed build artifacts, relative
 to the "top" directory.
 
+Required Exclusive Option Group: [commit, release]
+-----------------
+
 - commit
 
 The commit used to checkout the repository.  This can be a SHA-1
-object name or a refname used with the remote name "origin".
+object name or a refname used with the remote name "origin". This
+option is for dependencies that need to be built from source.
+
+- release
+
+Tells update_deps to download binary artifacts instead of checking out
+a git repository. The value of release can be used as a format specifier
+in the url json field. Because different platforms require different binaries,
+the url *can* contain the following format specifiers:
+    release - replaced with the release json field
+    system - replaced with platform.system() (EG. Windows, Linux, Darwin)
+    arch - replaced with the arch command line argument
+
+
+Optional fields
+---------------
 
 - deps (optional)
 
@@ -222,6 +253,20 @@ Legal options include:
 
 Builds on all platforms by default.
 
+- url_format_map (optional)
+
+Used with the --release option. Contains a list of key-string pairs that are used
+to fixup the platform.system() and args.arch names in the url. It is needed
+to account for differences between the arch and system names python uses and the
+naming scheme of the repository. For example if the binary artifact for the current
+system uses "macOS", we need to add "darwin" : "macos" to the url_format_map so that
+the url is formatted with macOS instead of darwin.
+
+- build_architectures (optional)
+
+A list of architectures supported by the dependency. If the value of args.arch isn't
+present in this list, then the dependency is skipped.
+
 Note
 ----
 
@@ -244,6 +289,9 @@ import shlex
 import shutil
 import stat
 import time
+import urllib.request
+import zipfile
+import tarfile
 
 KNOWN_GOOD_FILE_NAME = 'known_good.json'
 
@@ -253,6 +301,16 @@ CONFIG_MAP = {
     'relwithdebinfo': 'RelWithDebInfo',
     'minsizerel': 'MinSizeRel'
 }
+
+# Generators that support more than one configuration in a single build tree
+# (the user/IDE picks the config at build time via --config, not at configure
+# time via CMAKE_BUILD_TYPE).
+MULTI_CONFIG_GENERATORS = {'Xcode', 'Ninja Multi-Config', 'Green Hills MULTI'}
+
+def is_multi_config_generator(generator):
+    if generator is None:
+        return False
+    return generator in MULTI_CONFIG_GENERATORS or generator.startswith('Visual Studio')
 
 # NOTE: CMake also uses the VERBOSE environment variable. This is intentional.
 VERBOSE = os.getenv("VERBOSE")
@@ -281,7 +339,10 @@ def command_output(cmd, directory):
     if VERBOSE:
         print('In {d}: {cmd}'.format(d=directory, cmd=cmd))
 
-    result = subprocess.run(cmd, cwd=directory, capture_output=True, text=True)
+    # errors='replace' affects only how the text output is decoded, and indicates that
+    # 8-bit characters that aren't recognized by the UTF decoder will be replaced with
+    # an "unknown character" glyph instead of crashing.
+    result = subprocess.run(cmd, cwd=directory, capture_output=True, text=True, errors='replace')
 
     if result.returncode != 0:
         print(f'{result.stderr}', file=sys.stderr)
@@ -295,10 +356,14 @@ def run_cmake_command(cmake_cmd):
     # NOTE: Because CMake is an exectuable that runs executables
     # stdout/stderr are mixed together. So this combines the outputs
     # and prints them properly in case there is a non-zero exit code.
-    result = subprocess.run(cmake_cmd, 
+    # errors='replace' affects only how the text output is decoded, and indicates that
+    # 8-bit characters that aren't recognized by the UTF decoder will be replaced with
+    # an "unknown character" glyph instead of crashing.
+    result = subprocess.run(cmake_cmd,
         stdout = subprocess.PIPE,
         stderr = subprocess.STDOUT,
-        text = True
+        text = True,
+        errors='replace'
     )
 
     if VERBOSE:
@@ -326,9 +391,18 @@ class GoodRepo(object):
         self._args = args
         # Required JSON elements
         self.name = json['name']
+
         self.url = json['url']
         self.sub_dir = json['sub_dir']
-        self.commit = json['commit']
+
+        # commit/release Exclusive Option Group
+        self.commit = json.get('commit', None)
+        self.release = json.get('release', None)
+        self.is_release = True if self.release is not None else False
+
+        if self.commit is None and self.release is None:
+            raise RuntimeError(f'Repo {self.name} is missing required exclusive option group! Either "commit" or "release" must be specified.')
+
         # Optional JSON elements
         self.build_dir = None
         self.install_dir = None
@@ -350,6 +424,11 @@ class GoodRepo(object):
         self.build_platforms = json['build_platforms'] if ('build_platforms' in json) else []
         self.optional = set(json.get('optional', []))
         self.api = json['api'] if ('api' in json) else None
+        self.url_format_map = json.get('url_format_map')
+        self.build_architectures = json.get('build_architectures') if ('build_architectures' in json) else []
+
+        self.is_multi_config = is_multi_config_generator(self._args.generator)
+
         # Absolute paths for a repo's directories
         dir_top = os.path.abspath(args.dir)
         self.repo_dir = os.path.join(dir_top, self.sub_dir)
@@ -369,13 +448,21 @@ class GoodRepo(object):
         if self.build_platforms == [] or target_platform in self.build_platforms:
             self.on_build_platform = True
 
+        self.on_build_architecture = False
+        if self.build_architectures == [] or self._args.arch in self.build_architectures:
+            self.on_build_architecture = True
+
     def Clone(self, retries=10, retry_seconds=60):
         if VERBOSE:
             print('Cloning {n} into {d}'.format(n=self.name, d=self.repo_dir))
         for retry in range(retries):
             make_or_exist_dirs(self.repo_dir)
             try:
-                command_output(['git', 'clone', self.url, '.'], self.repo_dir)
+                if self._args.shallow:
+                    command_output(['git', 'init'], self.repo_dir)
+                    command_output(['git', 'remote', 'add', 'origin', self.url], self.repo_dir)
+                else:
+                    command_output(['git', 'clone', self.url, '.'], self.repo_dir)
                 # If we get here, we didn't raise an error
                 return
             except RuntimeError as e:
@@ -393,10 +480,22 @@ class GoodRepo(object):
                 print("Failed to clone {} on all retries.".format(self.url))
                 raise e
 
-    def Fetch(self, retries=10, retry_seconds=60):
+    def IsShallow(self):
+        return command_output(['git', 'rev-parse', '--is-shallow-repository'], self.repo_dir).strip() == 'true'
+
+    def Fetch(self, shallow, retries=10, retry_seconds=60):
+        if shallow:
+            # Works for a SHA-1, tag or branch. A remote-tracking name like 'origin/main' needs its prefix dropped.
+            ref = self._args.ref if len(self._args.ref) else self.commit
+            fetch_cmd = ['git', 'fetch', '--depth', '1', 'origin', ref.removeprefix('origin/')]
+        elif self.IsShallow():
+            # Opted out of shallow, so turn a repo from an earlier shallow run into a full one
+            fetch_cmd = ['git', 'fetch', '--unshallow', 'origin']
+        else:
+            fetch_cmd = ['git', 'fetch', 'origin']
         for retry in range(retries):
             try:
-                command_output(['git', 'fetch', 'origin'], self.repo_dir)
+                command_output(fetch_cmd, self.repo_dir)
                 # if we get here, we didn't raise an error, and we're done
                 return
             except RuntimeError as e:
@@ -415,13 +514,26 @@ class GoodRepo(object):
         if VERBOSE:
             print('Checking out {n} in {d}'.format(n=self.name, d=self.repo_dir))
 
-        if self._args.do_clean_repo:
+        if os.path.exists(os.path.join(self.repo_dir, '.git')):
+            url_changed = command_output(['git', 'config', '--get', 'remote.origin.url'], self.repo_dir).strip() != self.url
+        else:
+            url_changed = False
+
+        if self._args.do_clean_repo or url_changed:
             if os.path.isdir(self.repo_dir):
+                if VERBOSE:
+                    print('Clearing directory {d}'.format(d=self.repo_dir))
                 shutil.rmtree(self.repo_dir, onerror = on_rm_error)
+        cloned = False
         if not os.path.exists(os.path.join(self.repo_dir, '.git')):
             self.Clone()
-        self.Fetch()
-        if len(self._args.ref):
+            cloned = True
+        # A full clone someone already has is left alone, only new clones and existing shallow ones stay shallow
+        shallow = self._args.shallow and (cloned or self.IsShallow())
+        self.Fetch(shallow)
+        if shallow:
+            command_output(['git', 'checkout', 'FETCH_HEAD'], self.repo_dir)
+        elif len(self._args.ref):
             command_output(['git', 'checkout', self._args.ref], self.repo_dir)
         else:
             command_output(['git', 'checkout', self.commit], self.repo_dir)
@@ -429,8 +541,88 @@ class GoodRepo(object):
         if VERBOSE:
             print(command_output(['git', 'status'], self.repo_dir))
 
+
+    def ArtifactUrl(self):
+        """Url of the release artifact for the target system and arch."""
+
+        system = platform.system().lower()
+        arch = self._args.arch
+
+        if system in self.url_format_map:
+            system = self.url_format_map[system]
+        if arch in self.url_format_map:
+            arch = self.url_format_map[arch]
+
+        return self.url.format(release=self.release, system=system, arch=arch)
+
+    def DownloadAndExtractArtifact(self):
+        """Download and extract file located at given url."""
+
+        formatted_url = self.ArtifactUrl()
+
+        download_path = os.path.join(self.build_dir, formatted_url[formatted_url.rfind('/') + 1:])
+        download_file = formatted_url[formatted_url.rfind('/')+1:]
+
+        make_or_exist_dirs(self.build_dir)
+
+        if os.path.isfile(download_path):
+            print(f"Using existing file found in {download_path}")
+        else:
+            # These are known folder to look for the artifact on the internal server
+            # We could make this "more correct" and add to the known_good.json file, but at that
+            # point, let's just move over to using a "real" package manager like vcpkg
+            cache_dir = [
+                "/media/nas/smb_share/ci-build-resources/vvl_update_deps_cache",
+                "Z:\\ci-build-resources\\vvl_update_deps_cache",
+            ]
+            for dir in cache_dir:
+                if not os.path.isdir(dir):
+                    continue
+                cache_file = os.path.join(dir, download_file)
+                print(f"Searching for {self.name} at {cache_file}")
+                if os.path.isfile(cache_file):
+                    print(f"Copying {self.name} from {cache_file} to {download_path}")
+                    shutil.copy(cache_file, download_path)
+                    break
+
+        # final resort is always downloading
+        if not os.path.isfile(download_path):
+            if VERBOSE:
+                print(f"Downloading {self.name} from {formatted_url} to {download_path}")
+            try:
+                urllib.request.urlretrieve(formatted_url, download_path)
+            except Exception as e:
+                print(f"Failed to download {self.name}: {e}")
+                return False
+
+        # Missing or outdated install: start clean, extracting over an old one would leave stale files
+        # and write through its symlinks
+        shutil.rmtree(self.install_dir, ignore_errors=True, onerror=on_rm_error)
+        make_or_exist_dirs(self.install_dir)
+
+        if download_path.endswith('.zip'):
+            with zipfile.ZipFile(download_path, 'r') as zip_ref:
+                # Extract entries one by one instead of extractall(), which loses Unix permissions and symlinks
+                # (e.g. slangc would not be executable and the .dylib/.so symlinks would be plain text files)
+                for info in zip_ref.infolist():
+                    path = zip_ref.extract(info, self.install_dir)
+                    mode = info.external_attr >> 16
+                    if stat.S_ISLNK(mode):
+                        os.remove(path)
+                        os.symlink(zip_ref.read(info).decode(), path)
+                    elif mode:
+                        os.chmod(path, stat.S_IMODE(mode))
+        elif download_path.endswith('.tar') or download_path.endswith('.tar.gz'):
+            with tarfile.open(download_path) as tar_ref:
+                tar_ref.extractall(self.install_dir)
+
+        return True
+
     def CustomPreProcess(self, cmd_str, repo_dict):
-        return cmd_str.format(repo_dict, self._args, CONFIG_MAP[self._args.config])
+        # NOTE: custom_build commands only ever see the first requested config.
+        # None of the entries in known_good.json currently vary by config, so
+        # this hasn't needed to be config-list-aware yet.
+        return cmd_str.format(repo_dict, self._args, CONFIG_MAP[self._args.configs[0]])
 
     def PreBuild(self):
         """Execute any prebuild steps from the repo root"""
@@ -477,7 +669,7 @@ class GoodRepo(object):
         # repo's install dir.
         for d in self.deps:
             dep_commit = [r for r in repos if r.name == d['repo_name']]
-            if len(dep_commit) and dep_commit[0].on_build_platform:
+            if len(dep_commit) and dep_commit[0].on_build_platform and dep_commit[0].on_build_architecture:
                 cmake_cmd.append('-D{var_name}={install_dir}'.format(
                     var_name=d['var_name'],
                     install_dir=dep_commit[0].install_dir))
@@ -494,12 +686,48 @@ class GoodRepo(object):
         for option in self.cmake_options:
             cmake_cmd.append(escape(option.format(**self.__dict__)))
 
-        # Set build config for single-configuration generators (this is a no-op on multi-config generators)
-        cmake_cmd.append(f'-D CMAKE_BUILD_TYPE={CONFIG_MAP[self._args.config]}')
+        if self.is_multi_config:
+            # CMAKE_BUILD_TYPE is meaningless for multi-config generators (Visual
+            # Studio, Xcode, Ninja Multi-Config): the config is picked at build
+            # time via --config, not at configure time. Restrict the generated
+            # project to just the configs we're going to build (CMakeBuild()
+            # builds/installs each of self._args.configs into this same tree),
+            # rather than relying on the generator's own default config list.
+            configs_str = ';'.join(CONFIG_MAP[c] for c in self._args.configs)
+            cmake_cmd.append(f'-D CMAKE_CONFIGURATION_TYPES={configs_str}')
 
-        # Use the CMake -A option to select the platform architecture
-        # without needing a Visual Studio generator.
-        if platform.system() == 'Windows' and self._args.generator != "Ninja":
+            # Debug and Release are installed into the same shared prefix
+            # (see CMakeBuild() below), so without this they'd produce
+            # identically-named binaries and the second config installed
+            # would silently overwrite the first on disk - even though each
+            # config's generated CMake target file correctly records its own
+            # IMPORTED_LOCATION_DEBUG/_RELEASE, both would point at the same
+            # (now-clobbered) file. Giving Debug a distinct filename avoids
+            # the collision; CMake's own per-config exported target files
+            # then resolve correctly with no further work needed.
+            if 'debug' in self._args.configs and 'release' in self._args.configs:
+                cmake_cmd.append('-D CMAKE_DEBUG_POSTFIX=debug')
+        else:
+            cmake_cmd.append(f'-D CMAKE_BUILD_TYPE={CONFIG_MAP[self._args.configs[0]]}')
+
+        # Optionally build dependencies with ASAN enabled
+        if self._args.asan:
+            cmake_cmd.append(f'-D CMAKE_CXX_FLAGS=-fsanitize=address')
+            cmake_cmd.append(f'-D CMAKE_C_FLAGS=-fsanitize=address')
+            if platform.system() != 'Windows':
+                os.environ['LDFLAGS'] = '-fsanitize=address'
+
+        # Optionally build dependencies with UBSAN enabled
+        if self._args.ubsan:
+            cmake_cmd.append('-D CMAKE_CXX_FLAGS=-fsanitize=undefined -fno-sanitize=enum')
+            cmake_cmd.append('-D CMAKE_C_FLAGS=-fsanitize=undefined')
+            cmake_cmd.append('-D ENABLE_RTTI=ON')
+            os.environ['LDFLAGS'] = '-fsanitize=undefined'
+
+        # The -A option is only understood by Visual Studio generators - Ninja
+        # (single- or multi-config) picks up the architecture from the compiler
+        # already selected on PATH/environment instead, and rejects -A outright.
+        if platform.system() == 'Windows' and self._args.generator is not None and self._args.generator.startswith("Visual Studio"):
             cmake_cmd.append('-A')
             if self._args.arch.lower() == '64' or self._args.arch == 'x64' or self._args.arch == 'win64':
                 cmake_cmd.append('x64')
@@ -522,17 +750,23 @@ class GoodRepo(object):
         run_cmake_command(cmake_cmd)
 
     def CMakeBuild(self):
-        """Build CMake command for the build phase and execute it"""
-        cmake_cmd = ['cmake', '--build', self.build_dir, '--target', 'install', '--config', CONFIG_MAP[self._args.config]]
-        if self._args.do_clean:
-            cmake_cmd.append('--clean-first')
+        """Build CMake command for the build phase and execute it, once per
+        requested config. All configs share the same build_dir (no need to
+        reconfigure between configs on multi-config generators) and the same
+        install_dir, so the combined install tree works for any of them."""
+        for config in self._args.configs:
+            cmake_cmd = ['cmake', '--build', self.build_dir, '--target', 'install', '--config', CONFIG_MAP[config]]
+            if self._args.do_clean:
+                cmake_cmd.append('--clean-first')
 
-        # Xcode / Ninja are parallel by default.
-        if self._args.generator != "Ninja" or self._args.generator != "Xcode":
-            cmake_cmd.append('--parallel')
-            cmake_cmd.append(format(multiprocessing.cpu_count()))
+            # Xcode / Ninja are parallel by default; skip --parallel for either one.
+            # (Note the "and": the generator can't equal both, so "or" here would
+            # always be true and defeat the skip.)
+            if self._args.generator != "Ninja" and self._args.generator != "Xcode":
+                cmake_cmd.append('--parallel')
+                cmake_cmd.append(format(multiprocessing.cpu_count()))
 
-        run_cmake_command(cmake_cmd)
+            run_cmake_command(cmake_cmd)
 
     def Build(self, repos, repo_dict):
         """Build the dependent repo and time how long it took"""
@@ -558,7 +792,42 @@ class GoodRepo(object):
 
         total_time = time.time() - start
 
-        print(f"Installed {self.name} ({self.commit}) in {total_time} seconds", flush=True)
+        print(f"Installed {self.name} ({self.commit}) in {total_time:.3f} seconds", flush=True)
+
+    def AcquireReleaseArtifacts(self):
+        """Process acquiring the release artifacts and time how long it took"""
+        if VERBOSE:
+            print('Processing release artifacts {n}'.format(n=self.name))
+            print('Download dir = {b}'.format(b=self.build_dir))
+            print('Install dir = {i}\n'.format(i=self.install_dir))
+
+        if self.install_dir is None or self.release is None:
+            raise RuntimeError(
+                f'To download Repo {self.name} release artifacts both "install_dir" and "release" need to be specified'
+            )
+
+        # Skip if this release is already installed
+        # The artifact name is recorded rather than the release alone, as it also identifies the system and arch
+        artifact = os.path.basename(self.ArtifactUrl())
+        release_file = os.path.join(self.install_dir, '.release')
+        if os.path.isfile(release_file):
+            with open(release_file) as f:
+                if f.read() == artifact:
+                    print(f"{self.name} ({self.release}) already installed", flush=True)
+                    return
+
+        start = time.time()
+
+        success = self.DownloadAndExtractArtifact()
+        if not success:
+            return
+
+        with open(release_file, 'w') as f:
+            f.write(artifact)
+
+        total_time = time.time() - start
+
+        print(f"Installed {self.name} ({self.release}) in {total_time:.3f} seconds", flush=True)
 
     def IsOptional(self, opts):
         return len(self.optional.intersection(opts)) > 0
@@ -603,7 +872,6 @@ def GetInstallNames(args):
         else:
             return None
 
-
 def CreateHelper(args, repos, filename):
     """Create a CMake config helper file.
 
@@ -622,11 +890,22 @@ def CreateHelper(args, repos, filename):
             # the target API then skip it
             if repo.api is not None and repo.api != args.api:
                 continue
-            if install_names and repo.name in install_names and repo.on_build_platform:
-                helper_file.write('set({var} "{dir}" CACHE STRING "" FORCE)\n'
+            if install_names and repo.name in install_names and repo.on_build_platform and repo.on_build_architecture:
+                helper_file.write('set({var} "{dir}" CACHE STRING "")\n'
                                   .format(
                                       var=install_names[repo.name],
                                       dir=escape(repo.install_dir)))
+
+def GetDefaultArch():
+    machine = platform.machine().lower()
+    if  machine == "arm64" or machine == "aarch64":
+        return 'arm64'
+    system = platform.system()
+    # vcvarsall.bat sets the Platform env-var, which CMake uses to determine the default build architecture
+    Platform_env_var = os.getenv('Platform')
+    if system == 'Windows' and Platform_env_var is not None:
+        return Platform_env_var
+    return '64'
 
 
 def main():
@@ -678,6 +957,12 @@ def main():
         help="Delete install directory before building",
         default=False)
     parser.add_argument(
+        '--no-shallow',
+        dest='shallow',
+        action='store_false',
+        help="Clone the full history of each repository instead of only the needed commit (--depth 1)",
+        default=True)
+    parser.add_argument(
         '--skip-existing-install',
         dest='skip_existing_install',
         action='store_true',
@@ -688,15 +973,17 @@ def main():
         dest='arch',
         choices=['32', '64', 'x86', 'x64', 'win32', 'win64', 'arm64'],
         type=str.lower,
-        help="Set build files architecture (Visual Studio Generator Only)",
-        default='64')
+        help="Set target architecture (Visual Studio -A option and downloaded binaries)",
+        default=GetDefaultArch())
     parser.add_argument(
         '--config',
-        dest='config',
+        dest='configs',
         choices=['debug', 'release', 'relwithdebinfo', 'minsizerel'],
         type=str.lower,
-        help="Set build files configuration",
-        default='debug')
+        action='append',
+        help="Set build files configuration. May be repeated (e.g. --config Debug --config Release) "
+             "when --generator is a multi-config generator (Visual Studio, Xcode, Ninja Multi-Config).",
+        default=None)
     parser.add_argument(
         '--api',
         dest='api',
@@ -733,8 +1020,28 @@ def main():
         type=str.upper,
         choices=['ON','OFF','YES','NO','TRUE','FALSE'],
         help="Set googletest's gtest_force_shared_crt option (overrides known-good.json values)")
+    parser.add_argument(
+        '--asan',
+        dest='asan',
+        action='store_true',
+        help="Build dependencies with ASAN enabled",
+        default=False)
+    parser.add_argument(
+        '--ubsan',
+        dest='ubsan',
+        action='store_true',
+        help="Build dependencies with UBSAN enabled",
+        default=False)
 
     args = parser.parse_args()
+
+    if args.configs is None:
+        args.configs = ['debug']
+    elif len(args.configs) > 1 and not is_multi_config_generator(args.generator):
+        raise RuntimeError(
+            f'Cannot build multiple configs ({args.configs}) with the single-config generator "{args.generator}". '
+            'Pass a single --config, or use a multi-config generator (Visual Studio, Xcode, Ninja Multi-Config).')
+
     save_cwd = os.getcwd()
 
     # Create working "top" directory if needed
@@ -751,9 +1058,9 @@ def main():
         if repo.api is not None and repo.api != args.api:
             continue
 
-        # If the repo has a platform whitelist, skip the repo
-        # unless we are building on a whitelisted platform.
-        if not repo.on_build_platform:
+        # If the repo has a platform or architecture whitelist, skip the repo
+        # unless we are building on a whitelisted platform and architecture.
+        if not repo.on_build_platform or not repo.on_build_architecture:
             continue
 
         # Skip building the repo if its install directory already exists
@@ -799,12 +1106,17 @@ def main():
             if not do_build:
                 continue
 
-        # Clone/update the repository
-        repo.Checkout()
+        # Handle binary dependencies differently
+        if repo.is_release:
+            if args.do_build:
+                repo.AcquireReleaseArtifacts()
+        else:
+            # Clone/update the repository
+            repo.Checkout()
 
-        # Build the repository
-        if args.do_build and repo.build_step != 'skip':
-            repo.Build(repos, repo_dict)
+            # Build the repository
+            if args.do_build and repo.build_step != 'skip':
+                repo.Build(repos, repo_dict)
 
     # Need to restore original cwd in order for CreateHelper to find json file
     os.chdir(save_cwd)
